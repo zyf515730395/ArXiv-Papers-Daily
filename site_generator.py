@@ -18,6 +18,7 @@ ENTRY_PATTERN = re.compile(
 SITE_TITLE = "Arxiv Papers Daily"
 RECENT_YEAR_COUNT = 3
 NOTES_DIRECTORY_NAME = "notes"
+SHOW_BOOK_NOTES_NAV = False
 
 
 def slugify(value: str) -> str:
@@ -154,7 +155,9 @@ def filter_recent_archive(
     return recent_categories, recent_themes
 
 
-def render_sidebar(themes: OrderedDict) -> str:
+def render_sidebar(
+    themes: OrderedDict, show_book_notes: bool = SHOW_BOOK_NOTES_NAV
+) -> str:
     output = [
         '<div class="navigation-shell" id="navigation-shell">',
         '  <aside class="primary-sidebar" aria-label="Main sections">',
@@ -164,11 +167,17 @@ def render_sidebar(themes: OrderedDict) -> str:
         '        <span aria-hidden="true">P</span>',
         '        <strong>论文阅读</strong>',
         '      </a>',
-        '      <span class="primary-nav-item is-disabled" aria-disabled="true">',
-        '        <span aria-hidden="true">B</span>',
-        '        <strong>读书笔记</strong>',
-        '        <small>即将上线</small>',
-        '      </span>',
+        *(
+            [
+                '      <span class="primary-nav-item is-disabled" aria-disabled="true">',
+                '        <span aria-hidden="true">B</span>',
+                '        <strong>读书笔记</strong>',
+                '        <small>即将上线</small>',
+                '      </span>',
+            ]
+            if show_book_notes
+            else []
+        ),
         '    </nav>',
         '  </aside>',
         '  <aside class="paper-sidebar" id="paper-sidebar" aria-label="Paper archive">',

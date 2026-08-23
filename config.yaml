@@ -13,6 +13,10 @@ keywords:
     "3D Generation":
         filters: ["Text-to-3D", "Image-to-3D", "Video-to-3D", "3D Generation", "Generative 3D", "Generative 3D Model", "3D Model Generation", "3D Object Generation", "3D Shape Generation", "3D Asset Generation", "3D Scene Generation", "3D World Generation", "3D Human Generation", "3D Content Generation", "3D Content Creation", "3DGS Generation", "3D Editing", "Mesh Generation", "CAD Generation", "4D Generation"]
     "Neural Rendering":
-        filters: ["Neural Rendering", "Gaussian Splatting", "3D GS", "NeRF", "Neural Radiance Fields", "SDF", "Signed Distance Function"]
+        fields: ["ti", "abs"]
+        categories: ["cs.CV", "cs.GR", "cs.RO", "eess.IV"]
+        filters: ["Neural Rendering", "Novel View Synthesis", "Neural Radiance Field", "Neural Radiance Fields", "NeRF", "Gaussian Splatting", "Radiance Field", "Neural Implicit Surface", "Neural Signed Distance Field", "Differentiable Rendering"]
     "Depth Estimation":
-        filters: ["Depth Estimation", "Monocular Depth", "Stereo Matching", "Multi-View Stereo", "Depth Completion"]
+        fields: ["ti", "abs"]
+        categories: ["cs.CV", "cs.GR", "cs.RO", "eess.IV"]
+        filters: ["Depth Estimation", "Monocular Depth", "Metric Depth", "Stereo Depth Estimation", "Stereo Matching", "Multi-View Stereo", "Depth Completion", "Depth Prediction", "Disparity Estimation"]

@@ -60,31 +60,54 @@ def fetch_arxiv_results(client, search, topic):
             )
             time.sleep(wait_seconds)
 
+def format_query_term(term: str) -> str:
+    """Quote multi-word arXiv search terms while preserving single tokens."""
+    escaped = term.replace("\\", "\\\\").replace('"', '\\"')
+    return f'"{escaped}"' if len(term.split()) > 1 else escaped
+
+
+def build_filter_query(
+    filters: list[str],
+    fields: list[str] | None = None,
+    categories: list[str] | None = None,
+) -> str:
+    """Build a backward-compatible arXiv query with optional field/category scope."""
+    if not filters:
+        raise ValueError("Keyword filters must not be empty")
+
+    if fields:
+        scoped_terms = []
+        for filter_term in filters:
+            formatted_term = format_query_term(filter_term)
+            field_query = " OR ".join(
+                f"{field}:{formatted_term}" for field in fields
+            )
+            scoped_terms.append(f"({field_query})")
+        filter_query = f'({" OR ".join(scoped_terms)})'
+    else:
+        filter_query = " OR ".join(format_query_term(term) for term in filters)
+
+    if not categories:
+        return filter_query
+
+    category_query = " OR ".join(f"cat:{category}" for category in categories)
+    return f"{filter_query} AND ({category_query})"
+
+
 def load_config(config_file:str) -> dict:
     '''
     config_file: input config file path
     return: a dict of configuration
     '''
-    # make filters pretty
     def pretty_filters(**config) -> dict:
-        keywords = dict()
-        EXCAPE = '\"'
-        QUOTA = '' # NO-USE
-        OR = ' OR ' # TODO
-        def parse_filters(filters:list):
-            ret = ''
-            for idx in range(0,len(filters)):
-                filter = filters[idx]
-                if len(filter.split()) > 1:
-                    ret += (EXCAPE + filter + EXCAPE)
-                else:
-                    ret += (QUOTA + filter + QUOTA)
-                if idx != len(filters) - 1:
-                    ret += OR
-            return ret
-        for k,v in config['keywords'].items():
-            keywords[k] = parse_filters(v['filters'])
-        return keywords
+        return {
+            topic: build_filter_query(
+                settings['filters'],
+                fields=settings.get('fields'),
+                categories=settings.get('categories'),
+            )
+            for topic, settings in config['keywords'].items()
+        }
     with open(config_file, 'r', encoding='utf-8') as f:
         config = yaml.load(f,Loader=yaml.FullLoader)
         config['kv'] = pretty_filters(**config)
