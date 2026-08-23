@@ -81,14 +81,25 @@ systemctl is-active actions.runner.zyf515730395-ArXiv-Papers-Daily.ZYF-WinSZ.ser
 After the runner and vLLM services are healthy, trigger **Run Arxiv Papers
 Daily** manually once. The scheduled run remains daily at 01:00 UTC.
 
-## Manual queue recovery
+## Python runtime and manual queue recovery
 
-From the repository checkout inside WSL:
+The self-hosted job runs directly in the shared G-drive checkout and keeps its
+Python dependencies outside the repository at
+`/home/zyf/.cache/arxiv-papers-daily/venv`. This avoids modifying the vLLM
+Conda environment and does not create untracked files in the repository.
+
+To prepare the same runtime and manually retry only the persisted summary queue:
 
 ```bash
 cd /mnt/g/share/projects/arxiv-papers-daily
+VENV_PATH=/home/zyf/.cache/arxiv-papers-daily/venv
+if [ ! -x "$VENV_PATH/bin/python" ]; then
+  /home/zyf/softwares/miniforge3/envs/vllm/bin/python -m venv "$VENV_PATH"
+fi
+"$VENV_PATH/bin/python" -m pip install -r requirements.txt
+
 SUMMARY_ENABLED=1 \
 PAPER_NOTES_ROOT=/mnt/g/share/papers \
 VLLM_BASE_URL=http://127.0.0.1:8000/v1 \
-python daily_arxiv.py --summaries-only
+"$VENV_PATH/bin/python" daily_arxiv.py --summaries-only
 ```
