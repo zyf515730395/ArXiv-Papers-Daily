@@ -81,6 +81,17 @@ systemctl is-active actions.runner.zyf515730395-ArXiv-Papers-Daily.ZYF-WinSZ.ser
 After the runner and vLLM services are healthy, trigger **Run Arxiv Papers
 Daily** manually once. The scheduled run remains daily at 01:00 UTC.
 
+## Historical summary backfill
+
+Each scheduled run first handles new papers and existing retries, then selects
+at most 10 historical papers from one archive bucket. Buckets are ordered by
+month from newest to oldest, by the topic order in config.yaml within each
+month, and by paper date and arXiv ID from newest to oldest within each topic.
+
+SUMMARY_BACKFILL_LIMIT changes the per-run batch size. A paper shared by
+multiple topics is inferred once and its Markdown is copied into each topic
+directory. Failed items remain in the normal retry queue.
+
 ## Python runtime and manual queue recovery
 
 The self-hosted job runs directly in the shared G-drive checkout and keeps its
@@ -90,7 +101,8 @@ Conda environment and does not create untracked files in the repository. The
 synchronization step also sets repository-local `core.autocrlf=true` so Windows
 and WSL agree on the shared checkout's CRLF files before the clean-tree check.
 
-To prepare the same runtime and manually retry only the persisted summary queue:
+To prepare the same runtime and manually enqueue and process the next ordered
+historical batch:
 
 ```bash
 cd /mnt/g/share/projects/arxiv-papers-daily
@@ -103,5 +115,8 @@ fi
 SUMMARY_ENABLED=1 \
 PAPER_NOTES_ROOT=/mnt/g/share/papers \
 VLLM_BASE_URL=http://127.0.0.1:8000/v1 \
-"$VENV_PATH/bin/python" daily_arxiv.py --summaries-only
+"$VENV_PATH/bin/python" daily_arxiv.py --summaries-only --backfill-history
 ```
+
+Omit --backfill-history to retry pending items without advancing the historical
+schedule.
