@@ -13,9 +13,156 @@
       <h1>Image Generation · 论文要点</h1>
     </header>
     <div class="summary-topic-list">
-    <p class="muted">暂无已生成的论文要点。</p>
+    <article class="summary-article summary-topic-entry" id="summary-2608.20336" data-arxiv-id="2608.20336" data-status="ready">
+<h1>[2608.20336] WithEveryone: Unified Planning and Identity Grounding for Group Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.20336" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>WithEveryone 提出了一种统一的框架，通过引入布局引导的身份损失和身份 - 布局规划，实现了包含多达十个指定身份的小组图像生成，在身份相似性和减少复制粘贴伪影方面优于现有模型。</p>
+<h2>解决的问题</h2>
+<p>现有方法主要处理少量人物（1-5 人），在生成大规模小组图像时身份相似度下降，且现有身份损失依赖生成图像中的面部嵌入匹配，在训练初期面部预测相似时匹配随意，导致监督失效和身份混淆，同时难以处理复杂的空间关系。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出交织的身份和布局推理，将参考身份作为 ID token 加载并结合结构化布局思维链进行联合预测。</li>
+<li>提出 Layout-Grounded ID Loss，利用布局标注直接监督身份而非依赖嵌入匹配，解决了现有损失无法扩展到多人的问题。</li>
+<li>引入 ID Representation Forcing，在图像合成前训练每个身份的预测表示，确保身份在共享上下文中可寻址。</li>
+<li>构建并评估了支持 5 到 10 人身份生成的系统，在身份不重叠基准上实现了更高的身份相似度和更低的复制粘贴伪影。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.20334" data-arxiv-id="2608.20334" data-status="ready">
+<h1>[2608.20334] Swift-Image: Exploring the Performance Frontier of Compact Unified Image Generation Models</h1>
+<p><a href="https://arxiv.org/abs/2608.20334" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 Swift-Image，一个仅 6B 参数的紧凑统一模型，通过系统化的训练工程在受限计算预算下实现了领先的综合性能，证明了无需依赖数十亿参数即可实现高效的文本生成与编辑能力。</p>
+<h2>解决的问题</h2>
+<p>现有图像生成模型往往伴随着巨大的生成主干、昂贵的训练管道以及用于生成和编辑的分离模型变体，难以在有限计算预算下实现统一能力。紧凑模型对架构选择、任务失衡和不稳定训练尤为敏感，难以在单一权重下同时满足文本生成、单图及多图编辑等多种任务的多样化需求。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建了支持文本生成、单图及多图编辑的 6B 紧凑统一模型，在受限预算下实现领先性能。</li>
+<li>设计了涵盖渐进式训练、并行专家强化学习与多教师蒸馏的系统化训练流程。</li>
+<li>提出 Prompt Enhancer 将高层推理与像素级渲染解耦，提升复杂任务表现。</li>
+<li>通过结构剪枝和少步蒸馏实现模型压缩与加速，显著降低部署成本。</li>
+<li>总结了大规模训练中的架构、数据课程及后训练等可迁移实践。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.20161" data-arxiv-id="2608.20161" data-status="ready">
+<h1>[2608.20161] DARS: Dual-Level Credit Assignment RL with Structured Reasoning for Instruction-Based Image Editing</h1>
+<p><a href="https://arxiv.org/abs/2608.20161" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 DARS 框架，通过双重级信用分配机制与结构化推理，解决了基于指令的图像编辑中规划器与渲染器联合优化时的信用分配模糊问题，实现了跨模块路由优化与模块内局部监督，显著提升了推理密集型编辑任务的性能。</p>
+<h2>解决的问题</h2>
+<p>现有基于规划器 - 渲染器流水线的图像编辑方法存在双重信用分配不足：跨模块层面，单一最终图像奖励无法区分错误源于规划器还是渲染器，导致优化重点模糊；模块内部层面，自由形式的推理痕迹无法定位具体计划部分的错误。此外，现有强化学习策略要么单独优化模块导致瓶颈未解，要么统一更新无法根据样本质量动态分配优化权重。</p>
+<h2>创新点</h2>
+<ul>
+<li>将规划器 - 渲染器联合强化学习形式化为双重级信用分配问题，涵盖跨模块更新分配与模块内推理诊断</li>
+<li>提出基于卷积分解的方差估计方法，利用跨计划与计划内奖励方差进行软模块路由，并通过平均奖励实现自适应课程调度</li>
+<li>引入四字段结构化推理输出，配合前缀门控奖励和令牌级优势重加权，实现从结果级反馈到规划器局部监督的转化</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.19637" data-arxiv-id="2608.19637" data-status="ready">
+<h1>[2608.19637] TextRefine: Improving Textual Fidelity, Spatial Placement, and Glyph Rendering for Text Editing in Product Posters</h1>
+<p><a href="https://arxiv.org/abs/2608.19637" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>TextRefine 提出了一种针对产品海报文本编辑的任务对齐后训练框架，通过结合监督微调与操作特定奖励优化，在文本插入与替换任务中显著提升了文本保真度、空间放置准确性及字形渲染质量，同时发布了包含 10 万张图像的新数据集 OpenTextEdit。</p>
+<h2>解决的问题</h2>
+<p>现有通用图像编辑模型在海报文本编辑场景下可靠性不足，常出现遗漏或错误渲染目标文本、将文本遮挡显眼产品或现有内容，以及产生结构扭曲的字形，且现有基于 OCR 的强化学习奖励缺乏对空间冲突的感知及对细微字形缺陷的细粒度监督。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 TextRefine 框架，采用监督微调配合操作特定的奖励优化机制，针对性解决文本编辑中的互补性失效模式。</li>
+<li>设计文本跨度级奖励用于插入任务，联合评估语义保真度与覆盖度，并通过门控结构约束保护非文本区域。</li>
+<li>利用 CTC 后验概率构建字形级奖励，为替换任务提供针对缺失笔画、结构变形等细微缺陷的梯度监督。</li>
+<li>构建 OpenTextEdit 数据集，包含 10 万张具有多文本布局、详细文本属性及产品掩膜的产品海报图像。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.19000" data-arxiv-id="2608.19000" data-status="ready">
+<h1>[2608.19000] Mise-en-Scène: Implicit Layout Emergence in Diffusion Transformers for Human-AI Design Co-Creation</h1>
+<p><a href="https://arxiv.org/abs/2608.19000" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 Mise-en-Scène 框架，通过扩散 Transformer 隐式生成布局并结合确定性匹配放置，实现了在保持资产精确性的同时自动生成视觉和谐的设计。</p>
+<h2>解决的问题</h2>
+<p>现有方法通常依赖语言模型预测显式边界框坐标后再粘贴资产，这种将空间规划与视觉合成分离的方式容易导致构图僵硬且资产比例失调，难以满足对空间层次和视觉和谐的高要求。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出两阶段框架，利用扩散 Transformer 隐式联合生成布局与渲染画布</li>
+<li>采用确定性匹配放置步骤，确保原始资产的高分辨率精确度并生成可编辑分层设计</li>
+<li>仅需对预训练 Transformer 进行最小化适配，无需引入专门的多元素生成条件机制</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.18968" data-arxiv-id="2608.18968" data-status="ready">
+<h1>[2608.18968] Frozen DINO Localizes Image Edits Without a Localizer</h1>
+<p><a href="https://arxiv.org/abs/2608.18968" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>该研究提出了一种名为 TRAIL 的无训练方法，通过利用冻结 DINO 编码器的 patch token 漂移直接生成编辑定位图，在无需局部化模型的情况下实现了接近监督学习方法的编辑定位性能。</p>
+<h2>解决的问题</h2>
+<p>现有图像编辑检测器通常仅能输出图像级编辑分数而无法提供具体的空间位置信息；部分无训练方法仅产生单一图像得分，缺乏空间结构；而训练依赖的方法需要大量标注数据或依赖生成模型进行推理，难以兼顾效率与泛化能力。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 TRAIL 方法，利用冻结 DINO 编码器的 patch token 漂移直接生成定位图，无需训练局部化头或分割模型</li>
+<li>方法无需针对编辑标签或掩码进行参数拟合，实现了真正的无训练定位</li>
+<li>验证了冻结编码器晚期层包含强定位信号，且对非生成类编辑具有泛化性</li>
+<li>明确了全局扰动和全局上下文对定位性能的关键影响，优于局部扰动或独立编码裁剪</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.18076" data-arxiv-id="2608.18076" data-status="ready">
+<h1>[2608.18076] From Corpora to Co-Evolving Capabilities: Capability-Centric Data Design for Generalist Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.18076" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种能力驱动的数据基础设施，通过耦合特定能力的数据流水线与能力对齐的课程调度策略，解决了通用图像生成中任务隔离问题，实现了多模态扩散模型的协同进化能力与大规模数据的高效利用。</p>
+<h2>解决的问题</h2>
+<p>现有图像生成数据流水线通常孤立地优化特定任务数据集，忽略了生成能力间的依赖顺序，导致任务间监督共享受限且难以协同发展多种异构生成能力。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出能力特定的数据流水线，通过三个可互操作引擎（T2I、编辑、知识）构建互补的视觉监督，利用共享预处理和标注专家实现跨任务概念复用。</li>
+<li>设计能力对齐的课程调度策略，依据能力依赖顺序动态演进任务组合、概念分布及分辨率，并结合能力感知评估实现数据的自适应检索与重采样。</li>
+<li>构建连接任务与粒度的标注框架，利用 VLM 对齐不同任务的词汇与结构，提供多风格监督及经验证的密集 caption 以加速复杂图像的训练收敛。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.18063" data-arxiv-id="2608.18063" data-status="ready">
+<h1>[2608.18063] EDITBRIDGE: Towards Faithful and Efficient Ultra-High-Resolution Image Editing</h1>
+<p><a href="https://arxiv.org/abs/2608.18063" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 EditBridge 框架，通过扩散桥建模和先验引导稀疏注意力机制，实现了高效且忠实于原始内容的高分辨率（最高 4K）图像编辑。</p>
+<h2>解决的问题</h2>
+<p>现有扩散模型受限于二次注意力复杂度难以处理 1K 以上分辨率，而主流的两阶段编辑（低分编辑后独立超分）方法存在信息发散（幻觉细节与源图不符）和纹理退化（过平滑或过锐化）问题，且原生高分辨率训练成本过高。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出扩散桥框架，将高分辨率编辑建模为从低分辨率编辑结果到高分辨率对应物的结构化数据到数据翻译，保留结构信息。</li>
+<li>设计先验引导的块状稀疏注意力机制，利用语义对应关系约束跨图像交互，显著降低计算开销。</li>
+<li>显式利用原始高分辨率源图像作为条件指导，有效解决现有方法缺乏高分辨率源指导导致的信息发散问题。</li>
+<li>实现了超高分辨率（最高 4K）编辑的高效性，在 2K 分辨率下实现 3.6-8.4 倍加速，4K 编辑仅需 61 秒。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.18040" data-arxiv-id="2608.18040" data-status="ready">
+<h1>[2608.18040] Optimize Your Sampling: Tuned Diffusion Sampling with Bayesian Optimization</h1>
+<p><a href="https://arxiv.org/abs/2608.18040" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种名为 OYS 的扩散模型采样优化方法，通过贝叶斯优化直接针对目标质量指标选择采样时间步，无需额外训练即可在低步数预算下实现显著的质量提升与推理成本降低。</p>
+<h2>解决的问题</h2>
+<p>现有扩散模型采样方法多关注求解器效率，却忽视了采样时间步的选择对生成质量的关键影响，导致低步数预算下默认调度性能急剧下降；同时，现有工作如 Align Your Steps 通过最小化 KL 散度上界进行优化，但该目标不一定对应输出分布匹配，且依赖启发式初始化及局部微调，难以在全时间步范围内实现步数的高效全局重新分配。</p>
+<h2>创新点</h2>
+<ul>
+<li>将时间步选择视为黑盒优化问题，利用贝叶斯优化直接优化目标质量指标而非理论代理</li>
+<li>无需额外模型训练，适用于任何扩散模型及蒸馏模型</li>
+<li>支持在全时间步范围内进行步数全局重新分配，而非局部微调</li>
+<li>兼容并改进简单及复杂采样器，如 Euler 和 DPM-Solver++</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.17995" data-arxiv-id="2608.17995" data-status="ready">
+<h1>[2608.17995] AViTS: Adaptive Spatiotemporal Token Selection for Efficient Dynamic-Resolution Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.17995" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 AViTS 框架，通过自适应时空令牌选择机制优化动态分辨率生成，在显著降低计算成本的同时保持了生成质量。</p>
+<h2>解决的问题</h2>
+<p>现有的动态分辨率采样在分辨率转换时通常对所有潜在令牌进行均匀上采样，导致冗余计算和细节不一致；且现有部分上采样策略依赖局部结构或单步统计，难以联合捕捉令牌与文本的语义相关性及跨步表示动态。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出自适应时空令牌选择框架，融合潜在 - 文本注意力建模空间重要性与步方差建模时序重要性。</li>
+<li>实现重要性感知选择性上采样，优先处理关键令牌以平衡效率与质量。</li>
+<li>分析并验证了低分辨率去噪过程中潜在令牌重要性的显著时空异质性。</li>
+<li>该方法与蒸馏、量化及特征缓存等加速技术正交且可组合，具有广泛的适用性。</li>
+</ul>
+    </article>
     </div>
   </main>
-  <script type="application/json" id="summary-catalog">{"papers":{},"topic":"Image Generation","version":1}</script>
+  <script type="application/json" id="summary-catalog">{"papers":{"2608.17995":{"status":"ready","url":"notes/image-generation.html#summary-2608.17995"},"2608.18040":{"status":"ready","url":"notes/image-generation.html#summary-2608.18040"},"2608.18063":{"status":"ready","url":"notes/image-generation.html#summary-2608.18063"},"2608.18076":{"status":"ready","url":"notes/image-generation.html#summary-2608.18076"},"2608.18968":{"status":"ready","url":"notes/image-generation.html#summary-2608.18968"},"2608.19000":{"status":"ready","url":"notes/image-generation.html#summary-2608.19000"},"2608.19637":{"status":"ready","url":"notes/image-generation.html#summary-2608.19637"},"2608.20161":{"status":"ready","url":"notes/image-generation.html#summary-2608.20161"},"2608.20334":{"status":"ready","url":"notes/image-generation.html#summary-2608.20334"},"2608.20336":{"status":"ready","url":"notes/image-generation.html#summary-2608.20336"}},"topic":"Image Generation","version":1}</script>
 </body>
 </html>
