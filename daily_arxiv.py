@@ -3,9 +3,17 @@ import arxiv
 import yaml
 import logging
 import argparse
+import os
+from pathlib import Path
 import requests
 import time
 
+from paper_summarizer import (
+    PaperCandidate,
+    enqueue_candidates,
+    load_state,
+    process_summary_queue,
+)
 from site_generator import generate_site
 
 logging.basicConfig(format='[%(asctime)s %(levelname)s] %(message)s',
@@ -128,7 +136,9 @@ def get_official_code_url(paper_id: str) -> str | None:
     return official.get("url") if official else None
 
 
-def get_daily_papers(topic, query="slam", max_results=2, client=None):
+def get_daily_papers(
+    topic, query="slam", max_results=2, client=None, paper_records=None
+):
     """
     @param topic: str
     @param query: str
@@ -165,6 +175,16 @@ def get_daily_papers(topic, query="slam", max_results=2, client=None):
         else:
             paper_key = paper_id[0:ver_pos]
         paper_url = arxiv_url + 'abs/' + paper_key
+        if paper_records is not None:
+            paper_records.append({
+                "id": paper_key,
+                "title": paper_title,
+                "abstract": result.summary,
+                "paper_url": paper_url.replace("http://", "https://"),
+                "pdf_url": result.pdf_url.replace("http://", "https://"),
+                "topic": topic,
+            })
+
 
         repo_url = get_official_code_url(paper_id)
         if repo_url is not None:
@@ -237,14 +257,76 @@ def update_json_file(filename, data_dict, allowed_topics=None):
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(json_data, f)
 
+def load_archive(filename):
+    with open(filename, "r", encoding="utf-8") as f:
+        content = f.read()
+    return json.loads(content) if content else {}
+
+
+def new_summary_candidates(existing_archive, paper_records):
+    """Merge newly discovered records so each arXiv ID is summarized once."""
+    new_ids = {
+        record["id"]
+        for record in paper_records
+        if record["id"] not in existing_archive.get(record["topic"], {})
+    }
+    merged = {}
+    for record in paper_records:
+        if record["id"] not in new_ids:
+            continue
+        if record["id"] not in merged:
+            merged[record["id"]] = PaperCandidate(
+                paper_id=record["id"],
+                title=record["title"],
+                abstract=record["abstract"],
+                paper_url=record["paper_url"],
+                pdf_url=record["pdf_url"],
+                topics=[record["topic"]],
+            )
+        else:
+            merged[record["id"]].topics.append(record["topic"])
+    return list(merged.values())
+
+
 def demo(**config):
     data_collector = []
 
     keywords = config['kv']
     max_results = config['max_results']
+    json_file = config['json_gitpage_path']
+    html_file = config['html_gitpage_path']
+
+    summaries_only = config.get('summaries_only', False)
+    summary_enabled = summaries_only or os.getenv("SUMMARY_ENABLED", "").lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+    notes_root = None
+    publish_root = Path(html_file).parent / "notes"
+    summary_state = None
+    if summary_enabled:
+        notes_root = Path(os.getenv("PAPER_NOTES_ROOT", "/mnt/g/share/papers"))
+        summary_state = load_state(notes_root)
+
+    if summaries_only:
+        stats = process_summary_queue(
+            notes_root,
+            publish_root,
+            os.getenv("VLLM_BASE_URL", "http://127.0.0.1:8000/v1"),
+            os.getenv("VLLM_MODEL") or None,
+            list(keywords),
+        )
+        logging.info("Summary queue result = %s", stats)
+        generate_site(json_file, html_file)
+        logging.info("Summary-only update finished")
+        return
 
     b_update = config['update_paper_links']
     logging.info(f'Update Paper Link = {b_update}')
+    paper_records = []
+    existing_archive = load_archive(json_file) if summary_enabled else {}
     if config['update_paper_links'] == False:
         logging.info(f"GET daily papers begin")
         arxiv_client = arxiv.Client(
@@ -256,9 +338,13 @@ def demo(**config):
         for topic, keyword in keywords.items():
             logging.info(f"Keyword: {topic}")
             try:
-                data = get_daily_papers(topic, query = keyword,
-                                        max_results = max_results,
-                                        client = arxiv_client)
+                data = get_daily_papers(
+                    topic,
+                    query=keyword,
+                    max_results=max_results,
+                    client=arxiv_client,
+                    paper_records=paper_records,
+                )
             except ArxivRetryExhausted as error:
                 logging.error("Skipping topic after retries: %s", error)
                 failed_topics.append((topic, error))
@@ -277,22 +363,40 @@ def demo(**config):
             )
         logging.info(f"GET daily papers end")
 
-    json_file = config['json_gitpage_path']
-    html_file = config['html_gitpage_path']
     if config['update_paper_links']:
         update_paper_links(json_file)
     else:
+        if summary_enabled:
+            candidates = new_summary_candidates(existing_archive, paper_records)
+            added = enqueue_candidates(notes_root, summary_state, candidates)
+            logging.info("Queued %d newly discovered papers for summary", added)
         update_json_file(json_file, data_collector, allowed_topics=keywords)
+        if summary_enabled:
+            stats = process_summary_queue(
+                notes_root,
+                publish_root,
+                os.getenv("VLLM_BASE_URL", "http://127.0.0.1:8000/v1"),
+                os.getenv("VLLM_MODEL") or None,
+                list(keywords),
+            )
+            logging.info("Summary queue result = %s", stats)
     generate_site(json_file, html_file)
     logging.info("Update GitPage finished")
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config_path',type=str, default='config.yaml',
-                            help='configuration file path')
+    parser.add_argument('--config_path', type=str, default='config.yaml',
+                        help='configuration file path')
     parser.add_argument('--update_paper_links', default=False,
-                        action="store_true",help='whether to update paper links etc.')
+                        action="store_true", help='whether to update paper links etc.')
+    parser.add_argument('--summaries-only', default=False, action="store_true",
+                        help='process the persisted summary queue only')
     args = parser.parse_args()
     config = load_config(args.config_path)
-    config = {**config, 'update_paper_links':args.update_paper_links}
+    config = {
+        **config,
+        'update_paper_links': args.update_paper_links,
+        'summaries_only': args.summaries_only,
+    }
     demo(**config)

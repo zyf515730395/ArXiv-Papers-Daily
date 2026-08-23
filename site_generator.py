@@ -240,34 +240,56 @@ def render_sidebar(
     return "\n".join(output)
 
 
-def discover_note_urls(output_path: str | Path) -> dict[str, str]:
-    output_directory = Path(output_path).parent
-    notes_directory = output_directory / NOTES_DIRECTORY_NAME
+def load_summary_catalog(output_path: str | Path) -> dict[str, dict]:
+    notes_directory = Path(output_path).parent / NOTES_DIRECTORY_NAME
     if not notes_directory.is_dir():
         return {}
 
-    note_urls = {}
-    for note_path in sorted(notes_directory.rglob("*.md")):
-        relative_note = note_path.relative_to(output_directory).with_suffix(".html")
-        note_urls[note_path.stem] = relative_note.as_posix()
-    return note_urls
+    catalog = {}
+    manifest_pattern = re.compile(
+        r'<script type="application/json" id="summary-catalog">(.*?)</script>',
+        re.DOTALL,
+    )
+    for summary_path in sorted(notes_directory.glob("*.html")):
+        document = summary_path.read_text(encoding="utf-8")
+        match = manifest_pattern.search(document)
+        if match is None:
+            continue
+        try:
+            manifest = json.loads(match.group(1))
+        except json.JSONDecodeError as error:
+            raise ValueError(f"Invalid summary manifest: {summary_path}") from error
+        topic = manifest.get("topic")
+        papers = manifest.get("papers")
+        if not isinstance(topic, str) or not isinstance(papers, dict):
+            raise ValueError(f"Invalid summary manifest schema: {summary_path}")
+        catalog[topic] = papers
+    return catalog
 
 
-def render_table(rows: list[dict], note_urls: dict[str, str]) -> str:
+def render_table(
+    rows: list[dict], topic: str, summary_catalog: dict[str, dict]
+) -> str:
     output = [
         '<div class="table-scroll">',
         '  <table class="paper-table">',
         '    <thead><tr><th>Arxiv ID</th><th>Paper</th><th>Authors</th><th>Summary</th></tr></thead>',
         '    <tbody>',
     ]
+    topic_summaries = summary_catalog.get(topic, {})
     for row in rows:
         paper_url = html.escape(row["paper_url"], quote=True)
-        note_url = note_urls.get(row["id"])
+        summary = topic_summaries.get(row["id"], {})
         summary_cell = '<span class="muted">—</span>'
-        if note_url:
+        if summary.get("status") == "pending":
+            summary_cell = '<span class="summary-pending">待生成</span>'
+        elif summary.get("status") == "ready" and summary.get("url"):
+            summary_url = html.escape(summary["url"], quote=True)
+            summary_id = html.escape(f"summary-{row['id']}", quote=True)
             summary_cell = (
-                f'<a class="summary-link" href="{html.escape(note_url, quote=True)}">'
-                'Read note</a>'
+                f'<a class="summary-link" href="{summary_url}" '
+                f'data-summary-url="{summary_url}" data-summary-id="{summary_id}" '
+                'aria-haspopup="dialog">查看要点</a>'
             )
         output.append(
             "      <tr>"
@@ -283,7 +305,7 @@ def render_table(rows: list[dict], note_urls: dict[str, str]) -> str:
     return "\n".join(output)
 
 
-def render_content(categories: list[dict], note_urls: dict[str, str]) -> str:
+def render_content(categories: list[dict], summary_catalog: dict[str, dict]) -> str:
     output = []
     for category in categories:
         eyebrow = category["theme"]
@@ -357,7 +379,7 @@ def render_content(categories: list[dict], note_urls: dict[str, str]) -> str:
                         f'          <summary><span>{week_label(week_start)}</span>'
                         f'<span>{len(rows)} papers</span></summary>'
                     )
-                    output.append(render_table(rows, note_urls))
+                    output.append(render_table(rows, category["topic"], summary_catalog))
                     output.append("        </details>")
                 output.append("      </section>")
             output.extend(["    </div>", "  </section>"])
@@ -370,7 +392,7 @@ def generate_site(json_path: str | Path, output_path: str | Path) -> None:
     all_categories, _ = build_archive(data)
     today = datetime.date.today()
     categories, themes = filter_recent_archive(all_categories, today.year)
-    note_urls = discover_note_urls(output_path)
+    summary_catalog = load_summary_catalog(output_path)
     updated = today.isoformat()
     total_papers = sum(category["count"] for category in categories)
     years = {
@@ -420,9 +442,20 @@ def generate_site(json_path: str | Path, output_path: str | Path) -> None:
       </div>
       <p class="updated">Updated {updated}</p>
     </header>
-{render_content(categories, note_urls)}
+{render_content(categories, summary_catalog)}
     <footer>Generated from arXiv metadata · Source: <a href="https://github.com/zyf515730395/arxiv-papers-daily">{SITE_TITLE}</a></footer>
   </main>
+  <dialog class="summary-dialog" id="summary-dialog" aria-labelledby="summary-dialog-title">
+    <div class="summary-dialog-shell">
+      <header class="summary-dialog-header">
+        <h2 id="summary-dialog-title">论文要点</h2>
+        <button type="button" class="summary-dialog-close" data-summary-close aria-label="关闭">×</button>
+      </header>
+      <div class="summary-dialog-content" data-summary-content>
+        <p class="muted">正在加载…</p>
+      </div>
+    </div>
+  </dialog>
 </body>
 </html>
 """
