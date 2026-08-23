@@ -86,7 +86,9 @@ Daily** manually once. The scheduled run remains daily at 01:00 UTC.
 The self-hosted job runs directly in the shared G-drive checkout and keeps its
 Python dependencies outside the repository at
 `/home/zyf/.cache/arxiv-papers-daily/venv`. This avoids modifying the vLLM
-Conda environment and does not create untracked files in the repository.
+Conda environment and does not create untracked files in the repository. The
+synchronization step also sets repository-local `core.autocrlf=true` so Windows
+and WSL agree on the shared checkout's CRLF files before the clean-tree check.
 
 To prepare the same runtime and manually retry only the persisted summary queue:
 

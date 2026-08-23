@@ -37,6 +37,7 @@ jobs:
     steps:
       - name: Synchronize repository
         run: |
+          git config core.autocrlf true
           if [ "$(git branch --show-current)" != "main" ]; then
             echo "Expected the shared checkout to be on main" >&2
             exit 1
