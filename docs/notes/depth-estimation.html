@@ -13,9 +13,38 @@
       <h1>Depth Estimation · 论文要点</h1>
     </header>
     <div class="summary-topic-list">
-    <p class="muted">暂无已生成的论文要点。</p>
+    <article class="summary-article summary-topic-entry" id="summary-2608.19769" data-arxiv-id="2608.19769" data-status="ready">
+<h1>[2608.19769] AsymFeX: A Symmetry-Driven Framework for Ischemic Stroke Segmentation Across Imaging Modalities and Stroke Stages</h1>
+<p><a href="https://arxiv.org/abs/2608.19769" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种名为 AsymFeX 的对称驱动框架，通过几何倾斜校正与局部跨半球注意力机制，实现了跨影像模态和卒中阶段的急性缺血性卒中病灶高精度自动分割，并在多个数据集上验证了其性能。</p>
+<h2>解决的问题</h2>
+<p>现有对称感知方法存在计算冗余、2D 局限、未校正头倾角导致解剖错位、依赖全脑切片不兼容现代框架以及缺乏跨模态评估与不确定性分析等不足，难以满足临床快速决策需求。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出两阶段 3D 分割流程，集成几何倾斜校正步骤以确保跨半球比较的解剖有效性，并兼容 nnU-Net 框架。</li>
+<li>设计 AsymFeX 模块，结合 3D 局部跨半球注意力、差异估计与双尺度门控，限制比较范围至局部邻域。</li>
+<li>验证了该对称驱动设计在急性至慢性卒中成像连续体（CT 灌注与 MRI）上的跨模态泛化能力。</li>
+<li>提供了涵盖误差不确定性和校准分析的全面不确定性量化评估，以衡量临床部署下的预测可靠性。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.15659" data-arxiv-id="2608.15659" data-status="ready">
+<h1>[2608.15659] WorldRover: A Scalable Synthetic Video Data Engine for World Exploration with Rich Annotations</h1>
+<p><a href="https://arxiv.org/abs/2608.15659" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 WorldRover 引擎及 WorldRover-10M 数据集，通过 Unreal 引擎管线生成包含 RGB、度量深度、相机轨迹及动作信号等多模态标注的长程探索视频，将长视界世界探索转化为可扩展的数据生成问题，为构建连贯的可探索世界表示提供监督。</p>
+<h2>解决的问题</h2>
+<p>现有真实视频数据中相机位姿、深度和时序对应关系通常依赖事后估计，易受漂移和遮挡影响且采集环境受限；而现有合成渲染资源虽能提供精确几何，但往往针对特定任务优化或无法在同一帧内同时提供丰富的几何、对应关系及受控视角外观变化，导致 RGB 数据中视觉变化原因纠缠不清。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建了 WorldRover 引擎，利用 Unreal 引擎离线渲染长程探索路线并保留完整轨迹与场景几何</li>
+<li>提供了丰富的多模态标注，包括 RGB 与度量深度、相机轨迹及轨迹衍生的动作信号</li>
+<li>支持多视角重放，涵盖第一人称、第三人称及 360 全景相机视角</li>
+<li>支持在不同环境状态或中性白色材质下渲染遍历，同时保持路线和场景几何一致</li>
+</ul>
+    </article>
     </div>
   </main>
-  <script type="application/json" id="summary-catalog">{"papers":{},"topic":"Depth Estimation","version":1}</script>
+  <script type="application/json" id="summary-catalog">{"papers":{"2608.15659":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.15659"},"2608.19769":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.19769"}},"topic":"Depth Estimation","version":1}</script>
 </body>
 </html>
