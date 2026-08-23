@@ -8,6 +8,7 @@ from pathlib import Path
 import requests
 import time
 
+from historical_backfill import HistoricalBatch, select_historical_batch
 from paper_summarizer import (
     PaperCandidate,
     enqueue_candidates,
@@ -288,6 +289,119 @@ def new_summary_candidates(existing_archive, paper_records):
     return list(merged.values())
 
 
+def env_flag(name, default=False):
+    raw_value = os.getenv(name)
+    if raw_value is None:
+        return default
+    return raw_value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def positive_env_int(name, default):
+    raw_value = os.getenv(name)
+    if raw_value is None:
+        return default
+    try:
+        value = int(raw_value)
+    except ValueError as error:
+        raise ValueError(f"{name} must be an integer") from error
+    if value < 1:
+        raise ValueError(f"{name} must be positive")
+    return value
+
+
+def historical_summary_candidates(batch: HistoricalBatch, summary_state, client):
+    """Resolve archive-only rows to full arXiv metadata for one ordered batch."""
+    candidates = []
+    missing_ids = []
+    state_papers = summary_state["papers"]
+
+    for paper in batch.papers:
+        entry = state_papers.get(paper.paper_id)
+        if entry is None:
+            missing_ids.append(paper.paper_id)
+            continue
+        candidates.append(PaperCandidate(
+            paper_id=paper.paper_id,
+            title=entry["title"],
+            abstract=entry.get("abstract", ""),
+            paper_url=entry["paper_url"],
+            pdf_url=entry["pdf_url"],
+            topics=[batch.topic],
+            source="historical",
+            archive_month=batch.month,
+        ))
+
+    if not missing_ids:
+        return candidates
+
+    search = arxiv.Search(id_list=missing_ids, max_results=len(missing_ids))
+    try:
+        results = fetch_arxiv_results(
+            client,
+            search,
+            f"historical backfill {batch.month}/{batch.topic}",
+        )
+    except (ArxivRetryExhausted, arxiv.ArxivError, requests.RequestException) as error:
+        logging.error(
+            "Historical metadata unavailable for %s/%s: %s",
+            batch.month,
+            batch.topic,
+            error,
+        )
+        return candidates
+
+    results_by_id = {}
+    for result in results:
+        paper_id = result.get_short_id().split("v", 1)[0]
+        results_by_id[paper_id] = result
+
+    archive_by_id = {paper.paper_id: paper for paper in batch.papers}
+    for paper_id in missing_ids:
+        result = results_by_id.get(paper_id)
+        if result is None:
+            logging.warning("Historical arXiv metadata missing for %s", paper_id)
+            continue
+        archive_paper = archive_by_id[paper_id]
+        pdf_url = result.pdf_url or f"https://arxiv.org/pdf/{paper_id}.pdf"
+        candidates.append(PaperCandidate(
+            paper_id=paper_id,
+            title=result.title or archive_paper.title,
+            abstract=result.summary,
+            paper_url=f"https://arxiv.org/abs/{paper_id}",
+            pdf_url=pdf_url.replace("http://", "https://"),
+            topics=[batch.topic],
+            source="historical",
+            archive_month=batch.month,
+        ))
+    return candidates
+
+
+def queue_historical_backfill(
+    archive, summary_state, notes_root, topics, limit, client
+):
+    batch = select_historical_batch(
+        archive,
+        summary_state,
+        topics,
+        limit,
+    )
+    if batch is None:
+        logging.info("Historical summary backfill is complete")
+        return 0
+
+    candidates = historical_summary_candidates(batch, summary_state, client)
+    enqueue_candidates(notes_root, summary_state, candidates)
+    logging.info(
+        "Historical backfill bucket %s/%s selected=%d resolved=%d remaining=%d",
+        batch.month,
+        batch.topic,
+        len(batch.papers),
+        len(candidates),
+        batch.remaining_in_bucket,
+    )
+    return len(candidates)
+
+
 def demo(**config):
     data_collector = []
 
@@ -297,12 +411,21 @@ def demo(**config):
     html_file = config['html_gitpage_path']
 
     summaries_only = config.get('summaries_only', False)
-    summary_enabled = summaries_only or os.getenv("SUMMARY_ENABLED", "").lower() in {
-        "1",
-        "true",
-        "yes",
-        "on",
-    }
+    backfill_history = config.get('backfill_history', False)
+    automatic_backfill = (
+        not summaries_only and env_flag("SUMMARY_BACKFILL_ENABLED")
+    )
+    backfill_enabled = backfill_history or automatic_backfill
+    summary_enabled = (
+        summaries_only
+        or backfill_enabled
+        or env_flag("SUMMARY_ENABLED")
+    )
+    backfill_limit = (
+        positive_env_int("SUMMARY_BACKFILL_LIMIT", 10)
+        if backfill_enabled
+        else 10
+    )
     notes_root = None
     publish_root = Path(html_file).parent / "notes"
     summary_state = None
@@ -311,6 +434,21 @@ def demo(**config):
         summary_state = load_state(notes_root)
 
     if summaries_only:
+        if backfill_enabled:
+            archive = load_archive(json_file)
+            backfill_client = arxiv.Client(
+                page_size=min(backfill_limit, 100),
+                delay_seconds=arxiv_request_delay_seconds,
+                num_retries=0,
+            )
+            queue_historical_backfill(
+                archive,
+                summary_state,
+                notes_root,
+                list(keywords),
+                backfill_limit,
+                backfill_client,
+            )
         stats = process_summary_queue(
             notes_root,
             publish_root,
@@ -370,6 +508,15 @@ def demo(**config):
             candidates = new_summary_candidates(existing_archive, paper_records)
             added = enqueue_candidates(notes_root, summary_state, candidates)
             logging.info("Queued %d newly discovered papers for summary", added)
+            if backfill_enabled:
+                queue_historical_backfill(
+                    existing_archive,
+                    summary_state,
+                    notes_root,
+                    list(keywords),
+                    backfill_limit,
+                    arxiv_client,
+                )
         update_json_file(json_file, data_collector, allowed_topics=keywords)
         if summary_enabled:
             stats = process_summary_queue(
@@ -392,11 +539,14 @@ if __name__ == "__main__":
                         action="store_true", help='whether to update paper links etc.')
     parser.add_argument('--summaries-only', default=False, action="store_true",
                         help='process the persisted summary queue only')
+    parser.add_argument('--backfill-history', default=False, action="store_true",
+                        help='enqueue the next ordered historical summary batch')
     args = parser.parse_args()
     config = load_config(args.config_path)
     config = {
         **config,
         'update_paper_links': args.update_paper_links,
         'summaries_only': args.summaries_only,
+        'backfill_history': args.backfill_history,
     }
     demo(**config)

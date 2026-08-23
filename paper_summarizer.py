@@ -76,6 +76,8 @@ class PaperCandidate:
     paper_url: str
     pdf_url: str
     topics: list[str]
+    source: str = "new"
+    archive_month: str | None = None
 
     def as_state_entry(self) -> dict[str, Any]:
         return {
@@ -92,6 +94,8 @@ class PaperCandidate:
             "generated_at": None,
             "content_hash": None,
             "published_hashes": {},
+            "source": self.source,
+            "archive_month": self.archive_month,
         }
 
 
@@ -196,7 +200,18 @@ def enqueue_candidates(
                 entry["status"] = "pending"
                 entry["last_error"] = "Ready summary Markdown is missing"
             else:
-                write_topic_markdown(notes_root, entry, source.read_text(encoding="utf-8"))
+                markdown_content = source.read_text(encoding="utf-8")
+                topic_value = ", ".join(entry["topics"]).replace('"', '\\"')
+                markdown_content = re.sub(
+                    r'(?m)^topics: ".*"$',
+                    lambda _: f'topics: "{topic_value}"',
+                    markdown_content,
+                    count=1,
+                )
+                write_topic_markdown(notes_root, entry, markdown_content)
+                entry["content_hash"] = hashlib.sha256(
+                    markdown_content.encode("utf-8")
+                ).hexdigest()
     if candidates:
         save_state(notes_root, state)
     return added
@@ -358,6 +373,8 @@ topics: "{topics.replace('"', '\\"')}"
 model: "{model}"
 generated_at: "{utc_now()}"
 source: "abstract+{strategy}"
+queue_source: "{entry.get('source', 'new')}"
+archive_month: "{entry.get('archive_month') or ''}"
 ---
 
 # [{entry['id']}] {entry['title']}
