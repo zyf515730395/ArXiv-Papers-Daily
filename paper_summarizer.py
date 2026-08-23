@@ -78,6 +78,7 @@ class PaperCandidate:
     topics: list[str]
     source: str = "new"
     archive_month: str | None = None
+    archive_date: str | None = None
 
     def as_state_entry(self) -> dict[str, Any]:
         return {
@@ -96,6 +97,7 @@ class PaperCandidate:
             "published_hashes": {},
             "source": self.source,
             "archive_month": self.archive_month,
+            "archive_date": self.archive_date,
         }
 
 
@@ -375,6 +377,7 @@ generated_at: "{utc_now()}"
 source: "abstract+{strategy}"
 queue_source: "{entry.get('source', 'new')}"
 archive_month: "{entry.get('archive_month') or ''}"
+archive_date: "{entry.get('archive_date') or ''}"
 ---
 
 # [{entry['id']}] {entry['title']}
@@ -578,7 +581,33 @@ def process_summary_queue(
 ) -> dict[str, int]:
     """Process every pending paper sequentially, then publish the current catalog."""
     state = load_state(notes_root)
-    pending = [entry for entry in state["papers"].values() if entry.get("status") != "ready"]
+    pending_entries = [
+        entry
+        for entry in state["papers"].values()
+        if entry.get("status") != "ready"
+    ]
+    new_pending = sorted(
+        (
+            entry
+            for entry in pending_entries
+            if entry.get("source") != "historical"
+        ),
+        key=lambda entry: entry.get("id", ""),
+        reverse=True,
+    )
+    historical_pending = sorted(
+        (
+            entry
+            for entry in pending_entries
+            if entry.get("source") == "historical"
+        ),
+        key=lambda entry: (
+            entry.get("archive_date") or entry.get("archive_month") or "",
+            entry.get("id", ""),
+        ),
+        reverse=True,
+    )
+    pending = new_pending + historical_pending
     completed = 0
     failed = 0
     model: str | None = None

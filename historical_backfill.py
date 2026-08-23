@@ -76,11 +76,14 @@ def select_historical_batch(
     for month in sorted(months, reverse=True):
         for topic in topic_order:
             bucket = papers_by_bucket.get((month, topic), [])
-            missing = [
-                paper
-                for paper in bucket
-                if topic not in state_papers.get(paper.paper_id, {}).get("topics", [])
-            ]
+            missing = []
+            for paper in bucket:
+                entry = state_papers.get(paper.paper_id, {})
+                if (
+                    entry.get("status") != "ready"
+                    or topic not in entry.get("topics", [])
+                ):
+                    missing.append(paper)
             if not missing:
                 continue
             missing.sort(key=lambda paper: (paper.updated, paper.paper_id), reverse=True)

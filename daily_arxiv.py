@@ -329,6 +329,7 @@ def historical_summary_candidates(batch: HistoricalBatch, summary_state, client)
             topics=[batch.topic],
             source="historical",
             archive_month=batch.month,
+            archive_date=paper.updated,
         ))
 
     if not missing_ids:
@@ -372,6 +373,7 @@ def historical_summary_candidates(batch: HistoricalBatch, summary_state, client)
             topics=[batch.topic],
             source="historical",
             archive_month=batch.month,
+            archive_date=archive_paper.updated,
         ))
     return candidates
 
