@@ -28,11 +28,34 @@ request_timeout = 15
 arxiv_request_delay_seconds = 10.0
 arxiv_retry_attempts = 4
 arxiv_retry_backoff_seconds = 30
+arxiv_connect_timeout_seconds = 10
+arxiv_read_timeout_seconds = 60
 retryable_arxiv_statuses = {429, 500, 502, 503, 504}
 
 
 class ArxivRetryExhausted(RuntimeError):
     """Raised after a transient arXiv API failure exhausts its backoff."""
+
+
+class ArxivTimeoutSession(requests.Session):
+    """Apply finite connect/read timeouts to the arxiv package's private session."""
+
+    def request(self, method, url, **kwargs):
+        kwargs.setdefault(
+            "timeout",
+            (arxiv_connect_timeout_seconds, arxiv_read_timeout_seconds),
+        )
+        return super().request(method, url, **kwargs)
+
+
+def make_arxiv_client(page_size):
+    client = arxiv.Client(
+        page_size=page_size,
+        delay_seconds=arxiv_request_delay_seconds,
+        num_retries=0,
+    )
+    client._session = ArxivTimeoutSession()
+    return client
 
 
 def is_retryable_arxiv_error(error: Exception) -> bool:
@@ -155,11 +178,7 @@ def get_daily_papers(
         sort_order = arxiv.SortOrder.Descending,
     )
     if client is None:
-        client = arxiv.Client(
-            page_size=min(max(max_results, 1), 100),
-            delay_seconds=arxiv_request_delay_seconds,
-            num_retries=0,
-        )
+        client = make_arxiv_client(min(max(max_results, 1), 100))
 
     for result in fetch_arxiv_results(client, search_engine, topic):
 
@@ -550,11 +569,7 @@ def demo(**config):
     if summaries_only:
         if backfill_enabled:
             archive = load_archive(json_file)
-            backfill_client = arxiv.Client(
-                page_size=min(backfill_limit, 100),
-                delay_seconds=arxiv_request_delay_seconds,
-                num_retries=0,
-            )
+            backfill_client = make_arxiv_client(min(backfill_limit, 100))
             stats = run_historical_backfill(
                 archive,
                 notes_root,
@@ -586,11 +601,7 @@ def demo(**config):
     existing_archive = load_archive(json_file) if summary_enabled else {}
     if config['update_paper_links'] == False:
         logging.info(f"GET daily papers begin")
-        arxiv_client = arxiv.Client(
-            page_size=min(max(max_results, 1), 100),
-            delay_seconds=arxiv_request_delay_seconds,
-            num_retries=0,
-        )
+        arxiv_client = make_arxiv_client(min(max(max_results, 1), 100))
         failed_topics = []
         for topic, keyword in keywords.items():
             logging.info(f"Keyword: {topic}")
@@ -630,11 +641,7 @@ def demo(**config):
         update_json_file(json_file, data_collector, allowed_topics=keywords)
         if summary_enabled:
             if backfill_enabled:
-                backfill_client = arxiv.Client(
-                    page_size=min(backfill_limit, 100),
-                    delay_seconds=arxiv_request_delay_seconds,
-                    num_retries=0,
-                )
+                backfill_client = make_arxiv_client(min(backfill_limit, 100))
                 stats = run_historical_backfill(
                     load_archive(json_file),
                     notes_root,
