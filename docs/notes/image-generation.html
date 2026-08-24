@@ -17,15 +17,14 @@
 <h1>[2608.21229] Anchoring Instruction Outside Mask: Exact Reference Caching for Efficient In-Context Diffusion Transformers</h1>
 <p><a href="https://arxiv.org/abs/2608.21229" rel="nofollow">arXiv 原文</a></p>
 <h2>一句话结论</h2>
-<p>本文提出锚定指令在掩码之外的超越掩码设计，结合两阶段蒸馏恢复性能，实现了多参考图像编辑中的高效上下文扩散生成，在保持全注意力质量的同时显著加速推理。</p>
+<p>本文提出一种基于掩码外锚点的设计，通过引入静态文本锚点连接指令与参考分支，在保留 diffusion Transformer 精确缓存机制的同时实现指令感知，并结合两阶段蒸馏策略恢复生成质量，显著提升了多参考图像编辑任务中的推理效率。</p>
 <h2>解决的问题</h2>
-<p>现有结构稀疏注意力方法虽能通过隔离参考图像 token 实现 K 和 V 的精确复用以降低计算成本，但阻断了视觉参考对文本指令的关注路径，导致多参考编辑场景下指令遵循能力和参考保真度显著下降，且单纯调整原有 token 序列的掩码无法兼顾缓存复用与信息交互的冲突。</p>
+<p>现有结构化稀疏注意力方法通过隔离参考图像 token 实现 K 和 V 的精确缓存，但这切断了参考分支对动态指令状态的注意力路径，严重损害多参考编辑中的指令遵循与参考保真度；同时，仅调整原有掩码难以在保留缓存优势的同时维持指令信息流，且复杂掩码可能破坏与 FlashAttention 等优化内核的兼容性。</p>
 <h2>创新点</h2>
 <ul>
-<li>提出超越掩码设计，利用静态文本锚点连接指令与参考分支，在无需增加参数的情况下实现参考 K 和 V 的跨去噪步精确复用</li>
-<li>开发结合教师强制速度蒸馏与在策略蒸馏的两阶段恢复程序，首次将在线策略蒸馏应用于扩散模型的架构恢复以消除性能损失</li>
-<li>保持规则的注意力布局以兼容 FlashAttention 等高性能内核，确保实际加速效率</li>
-<li>该方法正交于其他扩散加速技术，原则上可与时间缓存等技术结合使用</li>
+<li>提出一种“掩码外”（beyond-mask）设计，利用静态文本锚点连接指令与参考分支，使参考 K 和 V 具备指令感知能力同时保持跨步精确缓存复用。</li>
+<li>开发结合 teacher-forced velocity distillation 与 on-policy distillation 的两阶段恢复流程，首次将 on-policy distillation 用于 diffusion 模型的架构恢复以弥补质量损失。</li>
+<li>方法正交于其他加速技术且无需额外参数，在多个图像编辑基准测试中达到全注意力基线质量，并在多参考场景下实现显著推理加速，如 5 个参考图像加速 3.92 倍。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.20336" data-arxiv-id="2608.20336" data-status="ready">
@@ -396,6 +395,109 @@
 <li>证明了反馈式优化的有效性取决于优化目标与评估指标的重叠程度，明确了自优化的适用场景</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.15583" data-arxiv-id="2608.15583" data-status="ready">
+<h1>[2608.15583] PoseAdapter: Dual-Stream 2.5D Controllable Image Generation for Complex Multi-Object Scenes</h1>
+<p><a href="https://arxiv.org/abs/2608.15583" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了 PoseAdapter 框架，利用轻量级 2.5D 条件布局和上下文感知双流表示，解决了多物体场景生成中空间控制不精确、属性泄露及计算效率低的问题，实现了高保真可控图像生成。</p>
+<h2>解决的问题</h2>
+<p>现有 Text-to-Image 方法缺乏对复杂场景的空间粒度控制，难以精确指定物体位置和朝向。现有解决方案要么依赖计算昂贵的稠密 3D 地图，要么在通用性和架构兼容性上受限。此外，在多物体生成中，严格的边界隔离策略会导致属性泄露和“剪切粘贴”伪影，难以同时保证实例独立性与全局场景的一致性。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出高效的 2.5D 混合条件布局，用物体描述、2D 框和 3D 角度替代稠密空间地图</li>
+<li>设计上下文感知双流表示，通过并行掩码和未掩码路径平衡实例隔离与全局一致性</li>
+<li>采用模态解耦注入策略，仅针对视觉流进行适配以兼容现代 MM-DiT 架构</li>
+<li>构建 OrientLayout 数据集，提供细粒度的空间、朝向及实例级语义标注</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.15522" data-arxiv-id="2608.15522" data-status="ready">
+<h1>[2608.15522] Efficient Audio-Visual Generation via Synchrony-Aware Cross-Modal Sparse Attention</h1>
+<p><a href="https://arxiv.org/abs/2608.15522" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种同步感知的加速框架，通过分析双向跨模态注意力揭示的结构化交互模式，利用保护性稀疏注意力策略在保持音视频同步性和质量的同时显著降低了统一生成模型的推理成本。</p>
+<h2>解决的问题</h2>
+<p>现有针对视频生成的加速技术直接应用于音视频统一模型时，忽略了音频与视频分支间的交互，可能破坏同步性。现有方法通常根据单模态内的冗余度决定计算稀疏化，而忽略了跨模态依赖，导致同步关键计算被移除或复用，削弱了生成内容与视觉事件的对应关系。</p>
+<h2>创新点</h2>
+<ul>
+<li>分析双向跨模态注意力揭示的结构化交互模式，将其作为识别同步关键内容的内部显著性信号。</li>
+<li>提出免训练的保护性稀疏注意力机制，基于模态特异性显著性图保留同步关键令牌的高保真计算，同时稀疏化低显著性交互。</li>
+<li>引入同步感知的缓存复用机制，综合考虑模态特征变化、显著区域漂移及双向依赖漂移，防止破坏同步的不安全复用。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.15452" data-arxiv-id="2608.15452" data-status="ready">
+<h1>[2608.15452] Spatially-Grounded Flow Matching: Structured Source Distributions for Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.15452" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 StructFlow 框架，通过将像素局部区域内的噪声共享以编码空间局部性，解决了现有流匹配模型源分布与图像空间结构不匹配的问题，显著提升了图像生成的局部可控性和结构保持能力。</p>
+<h2>解决的问题</h2>
+<p>现有流匹配模型普遍采用独立同分布的高斯噪声作为源分布，假设像素间完全独立，这与图像天然存在的强空间局部性（邻近像素高度相关）相矛盾，导致模型无法将空间结构作为归纳偏置直接利用，不仅增加了学习局部结构的负担，还限制了生成模型的训练效率与可控性。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 StructFlow 框架，通过像素共享噪声构建结构化源分布，显式编码图像空间局部性。</li>
+<li>设计余弦诱导空间锚点、渐进一致性退火及混合一致性训练策略，稳定结构化噪声下的优化过程。</li>
+<li>在保持生成质量的同时，显著提升了局部可控编辑、结构保持及语义插值能力，并支持轻量级后训练适配。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.15341" data-arxiv-id="2608.15341" data-status="ready">
+<h1>[2608.15341] TEA: Text Encoder Alignment for Robust Concept Erasure in Text-to-Image Models</h1>
+<p><a href="https://arxiv.org/abs/2608.15341" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>TEA 通过将概念擦除形式化为表示空间中的域对齐问题，提出了一种仅微调文本编码器且冻结生成主干的轻量级框架，在实现零推理开销和强对抗鲁棒性的同时有效保留了良性生成质量。</p>
+<h2>解决的问题</h2>
+<p>现有安全过滤方法易被改写或对抗性提示绕过，无法解决根本原因；免训练方法虽无需训练但引入推理时的持续计算开销；而现有基于训练的方法多针对 U-Net 组件难以避免语义退化，或依赖全模型微调及大规模数据，部分文本编码器方法则存在计算开销大或导致良性生成质量下降的局限性。</p>
+<h2>创新点</h2>
+<ul>
+<li>将概念擦除形式化为表示空间中的域对齐问题，提供可控的擦除目标分解</li>
+<li>提出仅微调文本编码器的轻量级框架，保持生成主干冻结以实现零推理开销</li>
+<li>利用判别器驱动概念表示向锚点表示对齐，同时通过余弦保持损失维持良性语义</li>
+<li>在对抗性攻击下实现鲁棒擦除，同时有效保留良性提示的生成质量</li>
+<li>模型无关性强，可扩展至 Rectified Flow Transformer 等现代架构</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.15238" data-arxiv-id="2608.15238" data-status="ready">
+<h1>[2608.15238] UC-VLM: Consistency-Driven Learning for AI-Generated Image Detection with Vision-Language Large Models</h1>
+<p><a href="https://arxiv.org/abs/2608.15238" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 UC-VLM 框架，通过一致性驱动学习利用统一二元监督信号同时优化视觉判别与文本生成，实现了无需人工提示的 AI 生成图像检测。</p>
+<h2>解决的问题</h2>
+<p>现有基于视觉语言大模型的检测器主要侧重于微调语言侧而忽视低级视觉取证线索，且往往依赖手工提示或人工标注理由，导致可扩展性受限。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出统一的多阶段二元监督框架，将弱二元监督转化为视觉路径和语言输出的共享监督信号。</li>
+<li>设计视觉判别目标以增强对非语义取证线索的敏感性，同时利用标签条件生成目标监督文本输出。</li>
+<li>通过自动识别有效指令变体，减少对人工编写提示的依赖，降低提示敏感性。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.15196" data-arxiv-id="2608.15196" data-status="ready">
+<h1>[2608.15196] Anchor-Regularized Adaptation for Generalizable AI-Generated Image Detection with DINOv3</h1>
+<p><a href="https://arxiv.org/abs/2608.15196" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 Anchor-Regularized Adaptation (ARA)，利用冻结锚分类器正则化低秩自适应微调，在保留 DINOv3 预训练特征几何结构的同时有效捕捉像素伪影，从而在多种基准上实现了最先进的 AI 生成图像检测性能。</p>
+<h2>解决的问题</h2>
+<p>现有研究主要依赖数据集对齐来消除虚假相关性，但冻结 DINOv3 在冻结表示上的强大泛化能力揭示了语义瓶颈，即其最终层难以捕捉细微像素伪影线索；同时，直接采用低秩自适应（LoRA）进行微调虽然能捕获伪影，但会扭曲预训练的特征空间结构，削弱模型在野外数据的泛化能力，导致在平衡伪影捕捉与特征几何保留之间存在结构性困境。</p>
+<h2>创新点</h2>
+<ul>
+<li>揭示了冻结 DINOv3 检测器依赖真实图像中心流形的优势及最终层难以捕捉细微像素伪影的语义瓶颈</li>
+<li>识别并量化了捕捉像素伪影与保留预训练特征几何结构之间的结构性权衡，指出朴素适配会扭曲特征空间并限制泛化</li>
+<li>提出 Anchor-Regularized Adaptation (ARA) 框架，通过冻结线性锚分类器正则化骨干网络适配，在编码细微伪影的同时保持特征几何结构</li>
+<li>该方法实现了在九个多样化且具有挑战性的基准测试上的最先进性能，验证了互补监督的有效性</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.14976" data-arxiv-id="2608.14976" data-status="ready">
+<h1>[2608.14976] Benchmarking Frontier Text-to-Image Models on Image-Description Prompts</h1>
+<p><a href="https://arxiv.org/abs/2608.14976" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文通过评估四个前沿文生图系统在 48 个高难度提示词上的表现，揭示了现有基准在简单提示词上掩盖了模型在组合性需求上的差距，并确定了 Gemini 3 Pro Image 在该测试中表现领先。</p>
+<h2>解决的问题</h2>
+<p>现有的文生图模型评估通常基于平均情况提示词，这掩盖了系统在涉及精确物体数量、多对象属性绑定、可读嵌入式文本及明确空间约束等组合性需求上的显著差距，导致难以区分模型的真实质量差异。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出使用 LLM 复杂性分类器自动从大规模语料库中筛选最高复杂度提示词的方法，替代人工筛选。</li>
+<li>采用独立评判者评分方法论，由撰写评分标准的模型与应用评分的模型不同，消除了单一模型自评分偏差。</li>
+<li>构建了固定 11 代码的互斥且穷尽（MECE）失败分类法，覆盖遗漏要求和主动引入错误。</li>
+<li>对四个前沿系统进行匹配提示词对比，并提供详细的每模型失分代码分析以解释具体失败原因。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.14790" data-arxiv-id="2608.14790" data-status="ready">
 <h1>[2608.14790] Instruction-Based Video Editing by Repurposing an Image Editing Model</h1>
 <p><a href="https://arxiv.org/abs/2608.14790" rel="nofollow">arXiv 原文</a></p>
@@ -408,6 +510,36 @@
 <li>提出零训练观察链证明图像编辑模型可扩展至视频潜空间瓦片处理，隔离了位置处理而非联合编码作为关键因素</li>
 <li>设计仅需两个轻量级投影层的极简连接方案，将视频 VAE 潜帧嵌入为图像编辑器可理解的瓦片</li>
 <li>构建基于公共数据集 Ditto-1M 的开源指令式视频编辑系统，无需视频预训练骨干网络</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.14730" data-arxiv-id="2608.14730" data-status="ready">
+<h1>[2608.14730] IP Protection in the Era of Visual Generative AI: A Survey</h1>
+<p><a href="https://arxiv.org/abs/2608.14730" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文综述了视觉生成 AI 时代的知识产权风险与防御技术，提出了一种基于控制逻辑与资产维度的二维分类框架，以系统性地梳理保护方法并指明未来挑战。</p>
+<h2>解决的问题</h2>
+<p>现有调查通常按生命周期阶段或技术机制组织文献，这种分类方式容易模糊不同防御方法的核心保护意图，导致难以清晰理解防御措施的目标与适用范围。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了一种基于控制逻辑视图与资产维度（数据 IP 与模型 IP）的二维分类体系</li>
+<li>将防御方法细分为信息暴露控制、生成行为约束及归因问责三类，明确了风险变量调控逻辑</li>
+<li>将评估协议与保护目标对齐，提供了更系统的方法论框架</li>
+<li>系统讨论了前瞻性模型级防护、标准化评估及对抗适应性攻击等开放挑战</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.14729" data-arxiv-id="2608.14729" data-status="ready">
+<h1>[2608.14729] Do CNNs Internally Represent Real and Fake Images Differently? A Hidden-Layer Analysis</h1>
+<p><a href="https://arxiv.org/abs/2608.14729" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本研究证实，即使语义内容保持一致，卷积神经网络对真实与伪造图像的内部神经元激活模式仍存在显著差异，表明两者在深层表示行为上不同，这为利用此类差异改进伪造图像检测提供了新方向。</p>
+<h2>解决的问题</h2>
+<p>现有研究多侧重于基于 CNN 分类器的检测准确率及后验可解释性方法，主要聚焦于输入 - 输出行为和像素或区域级的显著性图，缺乏对隐藏层激活模式及神经元级表示的直接考察，且基于视觉语言模型的推理解释未能深入分析语义内容相同时真实与伪造图像在内部隐藏层激活模式上的系统性差异。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于神经符号方法的隐藏层语义分析框架，将神经元与特定概念关联以比较激活行为</li>
+<li>利用生成模型创建语义内容匹配的真实与伪造图像对，以控制变量分析内部表示差异</li>
+<li>通过统计方法对比配对图像在隐藏层神经元激活模式上的显著差异，揭示语义一致下的内部表示分歧</li>
+<li>进行多维度鲁棒性验证，包括不同数据集、架构、生成模型及图像退化分析</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.14546" data-arxiv-id="2608.14546" data-status="ready">
@@ -425,6 +557,522 @@
 <li>通过对比分析证明 CPI-Bench 排名与 Arena 图像编辑排行榜具有最高统计对齐度，有效代理人类偏好评估</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.14543" data-arxiv-id="2608.14543" data-status="ready">
+<h1>[2608.14543] MagnifiQ: Patch-aware Text Guided Progressive Upscaling for High-Resolution Image Restoration</h1>
+<p><a href="https://arxiv.org/abs/2608.14543" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>MagnifiQ 提出了一种基于补丁感知和文本引导的渐进式上采样框架，通过替换自注意力层为卷积操作并结合多阶段迭代恢复，实现了高分辨率图像在保持结构一致性的同时恢复细粒度细节。</p>
+<h2>解决的问题</h2>
+<p>现有基于扩散模型的图像修复方法通常受限于中等倍率上采样，难以满足高分辨率（如 4K）恢复需求，且独立去噪导致计算成本高昂，缺乏文本引导使得生成的图像在高分辨率下缺乏细粒度细节或存在纹理不一致与幻觉问题。</p>
+<h2>创新点</h2>
+<ul>
+<li>渐进式上采样策略：分阶段迭代恢复图像，避免直接幻觉最终结果，提升全局一致性。</li>
+<li>补丁感知文本引导：利用补丁特定文本提示提供局部语义指导，增强细粒度细节并控制内容漂移。</li>
+<li>计算效率优化：用卷积操作替换自注意力层，使计算成本随分辨率线性增长。</li>
+<li>补丁感知交叉注意力机制：建立潜在补丁与补丁特定文本提示之间的交叉注意力，实现轻量级架构修改。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.14226" data-arxiv-id="2608.14226" data-status="ready">
+<h1>[2608.14226] RankT2I: A Submodular Framework for Discovering Interpretable and Diverse Semantics in Text-to-Image Models</h1>
+<p><a href="https://arxiv.org/abs/2608.14226" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种无需训练且模型无关的 RankT2I 框架，利用子模优化自动发现文本到图像模型中可编辑且多样的语义，显著提升了编辑语义的识别效率。</p>
+<h2>解决的问题</h2>
+<p>现有方法大多需要用户手动指定语义进行修改，过程耗时且涉及大量试错；尽管 T2I 模型的可控性有所提升，但自动发现哪些语义可被成功编辑仍是未解决的挑战，用户难以高效确定可编辑语义的范围。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出无需训练且模型无关的 RankT2I 框架，自动化发现扩散模型和 FLUX 模型中的可编辑语义。</li>
+<li>将语义发现问题建模为集合选择问题，利用子模目标函数识别相关、可编辑且多样的语义。</li>
+<li>结合多模态视觉语言模型广泛收集候选语义，无需人工干预即可高效识别跨领域的编辑语义。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.14172" data-arxiv-id="2608.14172" data-status="ready">
+<h1>[2608.14172] Concept Guidance: Precise, Training-Free Latent Control for Text-to-Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.14172" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种无需训练的概念引导方法，通过量化网络层对特定概念的贡献并利用加权预测跳过相关层，实现了对文本生成图像的精确局部控制和概念引导，显著提升了多种主流模型的性能。</p>
+<h2>解决的问题</h2>
+<p>现有文本到图像扩散模型存在两个主要缺陷：一是缺乏内在机制进行连续的概念特定引导（例如无法精确控制图像的美学程度），二是缺乏可靠性，特别是在生成文本或人手等需要高局部一致性的任务中容易出现错误。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出概念互信息概念，发现特定结构生成在网络不同层中局部化分布且存在概念依赖性差异</li>
+<li>设计无需训练、外部模型、梯度或提示工程的概念引导（CoG）方法，实现即插即用</li>
+<li>采用量化层概念影响并结合跳过概念相关层预测的加权组合来引导去噪过程</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.14038" data-arxiv-id="2608.14038" data-status="ready">
+<h1>[2608.14038] Adversarial Learning of Classifier-Free Guidance Schedules</h1>
+<p><a href="https://arxiv.org/abs/2608.14038" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种基于对抗式密度比估计的自适应引导调度学习方法，通过匹配采样轨迹上的边际分布，在文本到图像生成基准上实现了优于恒定引导及先前学习方法的图像质量与提示词对齐效果。</p>
+<h2>解决的问题</h2>
+<p>现有分类器自由引导（CFG）通常采用静态全局尺度，易导致图像伪影和过饱和；手动设计的动态调度难以跨数据集调参且无法根据文本提示复杂度自适应调整；而先前的学习方法虽能学习条件依赖权重，但在文本对齐性能上未能超越恒定引导基线。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于边际一致性条件的引导调度学习方法，鼓励生成样本分布与真实数据分布在每个时间步匹配。</li>
+<li>构建对抗式框架通过密度比估计实现动态时间、条件及噪声样本依赖的引导尺度预测。</li>
+<li>在文本到图像生成基准上，该方法在提示词遵循度与样本质量上均优于恒定引导、手动调度及先前的学习引导基线。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.13865" data-arxiv-id="2608.13865" data-status="ready">
+<h1>[2608.13865] Attention Capture Is Not Detection: A Two-Stage Account of How Humans Miss Localized AI Image Edits</h1>
+<p><a href="https://arxiv.org/abs/2608.13865" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>研究揭示了人类检测 AI 图像编辑并非单一过程，而是由注意力捕获和异常识别两个独立阶段组成，其中编辑区域主要驱动注意力捕获，语义合理性则影响判断准确率，这推翻了现有平台将可检测性视为单一属性的假设。</p>
+<h2>解决的问题</h2>
+<p>现有内容平台将 AI 编辑的可检测性视为单一属性进行统一管理，导致琐碎编辑被误标为虚假信息而侵蚀信任，同时受众因标签无差别而产生警告疲劳；此外，现有研究多关注分类器能否识别图像是否被篡改，却忽视了人类是否真正注意到编辑以及能否正确判断其为伪造这一关键认知差异。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出人类检测 AI 图像编辑包含注意力捕获和异常识别两个可分离的认知阶段理论。</li>
+<li>通过控制变量眼动追踪实验证实编辑区域和语义合理性分别独立影响注意力捕获与判断准确率。</li>
+<li>构建了基于 Transformer 的生成性眼动模型以计算化表征注意力捕获阶段，并在预测 LBFS 发生率上表现优于线性基线。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.13478" data-arxiv-id="2608.13478" data-status="ready">
+<h1>[2608.13478] MapRoute++: Surrogate-Guided Semantic Routing for Visual Concept Unlearning</h1>
+<p><a href="https://arxiv.org/abs/2608.13478" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 MapRoute++，通过引入特定任务训练目标、丰富概念表示及语义路由机制，在 Stable Diffusion v1.4 上实现了稳健概念移除与无关及语义相邻概念保留的平衡，比最先进基线平均提升 12.1%。</p>
+<h2>解决的问题</h2>
+<p>现有视觉概念擦除方法在移除特定概念时，往往难以在保持模型生成质量的同时，充分保证对无关及语义相邻概念的有效保留，稳健性不足。</p>
+<h2>创新点</h2>
+<ul>
+<li>引入特定任务的训练目标以增强概念特定映射器训练</li>
+<li>采用更丰富的文本概念表示方式</li>
+<li>利用语义路由实现概念特定的映射器选择</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.13455" data-arxiv-id="2608.13455" data-status="ready">
+<h1>[2608.13455] Evaluation of Clinically Steerable Retinal Image Generation from Foundation Model Latent Spaces</h1>
+<p><a href="https://arxiv.org/abs/2608.13455" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>研究评估了基础模型潜在空间在可控视网膜图像生成中的有效性，发现其虽在原生模型下游任务中表现优异，但存在合成与真实图像分布差异，需进一步优化对齐。</p>
+<h2>解决的问题</h2>
+<p>现有医学基础模型在可控图像生成方面的能力尚未被充分探索，且传统潜在扩散方法在下游预测任务中表现不佳，同时合成图像与真实图像之间存在未表征的表征差距，导致在真实图像分类器上性能下降。</p>
+<h2>创新点</h2>
+<ul>
+<li>在表示分词器框架内评估了四种视网膜基础模型的可控生成能力</li>
+<li>验证了潜在表征中编码的临床与人口统计学信息在合成图像生成过程中的保留情况</li>
+<li>证明生成的表征在原生基础模型内评估时优于传统潜在扩散模型</li>
+<li>揭示了使用真实图像训练的分类器评估时存在的合成到真实表征差距</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.12876" data-arxiv-id="2608.12876" data-status="ready">
+<h1>[2608.12876] SPARED: Reasoning-Based AI-Generated Image Detection via Adversarially Edited Data</h1>
+<p><a href="https://arxiv.org/abs/2608.12876" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>SPARED 提出了一种基于对抗强化学习的 AI 生成图像检测框架，通过扩散图像编辑器与推理 MLLM 的交替对抗训练，在消除数据捷径与模板化解释缺陷的同时，实现了检测精度与推理质量在外部基准上的单调提升。</p>
+<h2>解决的问题</h2>
+<p>现有检测方法面临三大核心缺陷：首先，真实与伪造图像独立收集导致检测器依赖分辨率或来源等源头捷径而非生成痕迹；其次，监督微调的解释语料固化了模板化推理，缺乏对未见异常的迁移能力；最后，静态伪造语料库使检测器成为静止目标，无法适应不断进化的生成器，且传统信号检测泛化性随指纹变化急剧下降。</p>
+<h2>创新点</h2>
+<ul>
+<li>采用扩散图像编辑器作为对抗攻击者，通过指令忠实度门控奖励确保伪造过程真实有效，避免退化攻击。</li>
+<li>推理 MLLM 仅以判定结果为奖励信号，使解释质量成为准确性的副产品，避免模板化推理。</li>
+<li>构建基于同一源图像的成对伪造数据，从数据构造层面消除源头偏差捷径，无需事后对齐。</li>
+<li>异质模型架构设计，连续像素空间的扩散编辑器与离散 token 空间的 MLLM 解耦，避免共享参数自博弈的梯度冲突。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.12811" data-arxiv-id="2608.12811" data-status="ready">
+<h1>[2608.12811] Structured Local Differential Modeling for AI-Generated Image Detection</h1>
+<p><a href="https://arxiv.org/abs/2608.12811" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出基于局部差分信号的 RippleNet 框架，通过抑制高信噪比语义成分的主导地位并增强低信噪比伪造痕迹的响应，在多个跨生成器基准上实现了稳定且具竞争力的 AI 生成图像检测性能。</p>
+<h2>解决的问题</h2>
+<p>现有检测方法在语义空间易受训练语义纠缠限制，泛化能力不足；在低层统计空间虽与生成机制相关，但图像级聚合过程中高信噪比的语义结构会主导优化，抑制了微弱的低信噪比伪造痕迹建模，导致跨生成器泛化性能受限。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于信息论视角的新检测视角，主张抑制高信噪比语义主导并增强低信噪比伪造痕迹响应</li>
+<li>提出 RippleNet 框架，通过伪造敏感区域选择聚焦易出现伪影的纹理复杂与简单区域</li>
+<li>设计结构化差分伪影建模模块，利用多方向多尺度残差和方向环卷积捕捉局部统计依赖</li>
+<li>在局部差分表示空间内操作注意力机制，建立细粒度统计依赖以捕捉像素级痕迹</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.12806" data-arxiv-id="2608.12806" data-status="ready">
+<h1>[2608.12806] Erase but Preserve: Controllable Removal of Copyrighted Animation Characters via Optimized Semantic Anchors</h1>
+<p><a href="https://arxiv.org/abs/2608.12806" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种基于优化语义锚点的可控方法，通过在扩散模型连续文本表示中替换目标字符嵌入，实现了动画角色的高效移除与图像保真度的平衡。</p>
+<h2>解决的问题</h2>
+<p>现有概念擦除方法在处理动画角色时存在不足：模型修改法难以针对多样化且极具辨识度的角色找到合适的语义锚点，导致擦除不彻底；提示词引导法缺乏细粒度控制，难以在移除侵权角色的同时保留用户的创作意图和背景上下文，且往往造成图像保真度下降。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出在模型连续文本表示上操作的方法，通过优化锚点嵌入作为角色替代来移除目标。</li>
+<li>通过结构约束和细节约束优化锚点，解决了针对独特动画角色难以选择合适锚点的问题。</li>
+<li>设计结构感知自适应替换策略，实现目标角色精确移除与上下文元素保留的协同。</li>
+<li>支持擦除程度可控、多目标移除以及跨模型迁移，且优化后的锚点可即插即用提升现有基线性能。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.12766" data-arxiv-id="2608.12766" data-status="ready">
+<h1>[2608.12766] PatchGen: Learning Soft Intra-Image Predictive Subsets for Visual Generalization</h1>
+<p><a href="https://arxiv.org/abs/2608.12766" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 PatchGen 方法，通过无监督学习样本自适应的软预测子集掩码来优化视觉分类器在数据与目标偏移下的泛化能力，在无需文本监督的情况下显著提升了模型在自然及病理图像基准上的性能及对未知类别的泛化效果。</p>
+<h2>解决的问题</h2>
+<p>现有视觉泛化方法主要聚焦于域不变性以抑制域依赖的虚假相关，但这种方法无法区分预测充分的证据与在源数据中常伴随但在偏移下不可靠的互补背景（如炎症），且视觉语言模型依赖图文对齐限制了其在缺乏文本规格的新类别发现场景中的应用。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出“样本自适应的 oracle 图像内预测子集”假设，将图像证据区分为预测充分子集与非必要互补上下文。</li>
+<li>设计 PatchGen 模块学习样本依赖的软预测子集掩码，作为未观测 oracle 子集掩码的任务驱动代理。</li>
+<li>通过理论分析证明限制预测于该子集可保持贝叶斯风险并降低复杂度上界。</li>
+<li>无需文本监督即可在未知类别发现场景下保持与视觉语言方法竞争的能力。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.12532" data-arxiv-id="2608.12532" data-status="ready">
+<h1>[2608.12532] MASCOT: Model-Aware Submodular Coverage for Composite-Attribute Text-to-Image Retrieval</h1>
+<p><a href="https://arxiv.org/abs/2608.12532" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 MASCOT 框架，通过将多属性多样性建模为基于查询驱动重要性的软分箱资源分配问题，解决了现有基于流形排斥的方法在处理复合属性多样性降低任务时早期召回率显著下降的缺陷。</p>
+<h2>解决的问题</h2>
+<p>现有基于流形排斥的多样性重排序方法（如 MS-DPP）虽然适合广域探索，但在面对离散元数据的多样性降低任务时存在关键局限，连续排斥力无法在不丢弃语义相关图像的前提下有效抑制特定属性轴上的变化，导致复合约束下早期召回率崩溃。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出模型感知的子模覆盖框架，将多样性优化转化为离散信息单元上的动态资源分配问题。</li>
+<li>设计概率软分箱空间投影机制，避免了对离散元数据边界处理的惩罚并减少人工边界影响。</li>
+<li>引入查询驱动的语义重要性权重，确保检索预算仅分配给包含相关内容的分箱。</li>
+<li>实证揭示了现有流形排斥技术在离散属性多样性降低任务中的脆弱性，并验证了 MASCOT 在复合约束下的优势。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.12155" data-arxiv-id="2608.12155" data-status="ready">
+<h1>[2608.12155] Understanding Why Foundation Models Work for Diffusion-Generated Image Detection</h1>
+<p><a href="https://arxiv.org/abs/2608.12155" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本研究通过 DDIM 反转、频率交换及潜空间分析，揭示基础模型检测器主要依赖捕捉真实图像与扩散生成图像间非语义的低至中频分布差异及潜空间变异性缺失来有效区分，阐明了其有效性的内在机制。</p>
+<h2>解决的问题</h2>
+<p>尽管视觉基础模型在检测 AI 生成图像方面表现强劲，但其有效性的内在机制尚不明确，且现有研究多关注明显视觉失败或高频伪影，忽略了生成图像中存在的微妙统计痕迹及检测器决策依据。</p>
+<h2>创新点</h2>
+<ul>
+<li>设计了基于 DDIM 反转的专用分析协议，通过生成语义相同但合成深度不同的图像序列来探究检测器决策依据。</li>
+<li>通过频率交换分析揭示检测器主要利用低至中频范围的判别线索，而非传统认为的高频伪影。</li>
+<li>利用潜空间分析证明扩散生成图像存在方差降低和有效维度减少，未能完全复现真实数据的变异性。</li>
+<li>明确了基础模型检测器通过捕捉非语义的低至中频分布差异来区分真实与扩散生成图像。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.12122" data-arxiv-id="2608.12122" data-status="ready">
+<h1>[2608.12122] HandEdit: A Unified Benchmark for Egocentric Human-to-Robot Dexterous Hand Image Editing</h1>
+<p><a href="https://arxiv.org/abs/2608.12122" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>HandEdit 提出了首个面向第一视角人类到机器人灵巧手部编辑的大规模数据集与基准，通过具身感知图像编辑促进灵巧机器人从人类视频数据中的规模化学习。</p>
+<h2>解决的问题</h2>
+<p>现有灵巧机器人操作数据收集成本高且受限，而丰富的第一视角人类视频因外观、关节及视角差异难以直接迁移。通用图像编辑模型缺乏具身先验，且现有机器人化方法多局限于特定夹爪或平台，缺乏针对多样化灵巧手部 URDF 条件编辑的大规模数据集与统一评估协议。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建首个大规模具身感知图像编辑数据集 HandEdit，整合五大开源数据集，涵盖超过 2 亿编辑实例及 26 种不同 URDF 灵巧手配置。</li>
+<li>建立统一的基准协议，设立手部单独与手臂两个赛道，支持针对多样化 URDF 条件的编辑质量评估。</li>
+<li>提出涵盖通用相似度、VLM 判断及具身感知指标的综合性评估体系，系统评测了 11 种代表性图像编辑基线模型。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.11884" data-arxiv-id="2608.11884" data-status="ready">
+<h1>[2608.11884] CoQui: A Coordinate-Conditioned Quantum Implicit Generative Adversarial Network for End-to-End Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.11884" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 CoQui 模型，通过坐标条件隐式函数学习范式，利用经典网络生成参数并在每个空间坐标评估变分电路，实现了比现有振幅方法更高效的端到端图像生成。</p>
+<h2>解决的问题</h2>
+<p>现有基于振幅的量子生成对抗网络面临两大局限：像素位置依赖地址量子比特导致资源随分辨率线性增长，且多像素联合解码受限于归一化量子态的概率竞争，难以实现精确的像素级控制与亮度调节。</p>
+<h2>创新点</h2>
+<ul>
+<li>将量子图像生成重构为坐标条件隐式函数学习，通过查询所有空间坐标生成完整图像。</li>
+<li>采用经典嵌入网络生成输入依赖的电路参数，并使用专用颜色量子比特直接获取像素强度。</li>
+<li>设计了专用变分量子电路，为坐标条件生成提供结构归纳偏置。</li>
+<li>解耦了图像分辨率与地址量子比特需求，避免了像素间的概率竞争约束。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.11838" data-arxiv-id="2608.11838" data-status="ready">
+<h1>[2608.11838] GeoBridge: Decoupled Semantic Conditioning for Generative Image Geolocalization</h1>
+<p><a href="https://arxiv.org/abs/2608.11838" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>GeoBridge 提出了一种解耦的语义条件机制，将冻结的语义 MLLM 与冻结的黎曼流匹配头连接以生成球面上的连续坐标，在 IM2GPS3K 数据集上实现了比地点名称地理编码和推理增强预测更高的精度。</p>
+<h2>解决的问题</h2>
+<p>现有 MLLM 地理定位方法依赖预测地点名称并通过 API 查找坐标，将细粒度决策简化为离散数据库查询，丢失了图像证据和子区域细节；同时直接预测方法存在多粒度语义坍缩，且离散语义监督与生成头所需的连续流形之间存在角色冲突，限制了连续坐标解码的效果。</p>
+<h2>创新点</h2>
+<ul>
+<li>识别出离散语义监督与连续坐标流形之间的角色冲突，并提出解耦的条件机制。</li>
+<li>引入五个学习到的角色令牌（国家、区域、城市、纬度、经度）并应用轻量级语义监督。</li>
+<li>设计独立的投影层将语义令牌映射为冻结生成头所需的单一条件向量，实现监督与接口解耦。</li>
+<li>构建解码侧算法贡献，与思维链推理方法正交互补，增强对语义预测错误的鲁棒性。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.11732" data-arxiv-id="2608.11732" data-status="ready">
+<h1>[2608.11732] Fingerprinting Text-to-Image Diffusion Models via Collapsed Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.11732" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种基于坍缩生成现象的非侵入式扩散模型指纹框架，利用模型内在的生成行为一致性来验证文本到图像扩散模型的版权归属，无需修改模型参数或嵌入水印，适用于多种访问设置。</p>
+<h2>解决的问题</h2>
+<p>现有非侵入式指纹方法存在局限性，基于内部表示或去噪轨迹的方法需要获取模型检查点或可控生成管道，不适用于仅通过接口访问的主机服务；而基于查询的方法往往依赖异常提示词后缀，容易被识别为非常规交互，难以满足泄露模型和托管服务的验证需求。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于坍缩生成这一模型内在属性的非侵入式所有权验证指纹信号</li>
+<li>支持白盒管道访问和黑盒 API 仅访问两种验证设置，适应不同场景</li>
+<li>在 API 仅访问场景下可通过自然语言提示词激发指纹，无需异常语义偏离</li>
+<li>指纹在微调衍生模型及常见对抗混淆下仍具有可验证性</li>
+<li>仅需适度的验证查询预算即可完成所有权证据测量</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.11452" data-arxiv-id="2608.11452" data-status="ready">
+<h1>[2608.11452] TangPoetryBench: A Multi-Dimensional Benchmark and Rubric-Conditioned Evaluator for Poetry-to-Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.11452" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了首个面向诗歌生成图像的多维度基准 TangPoetryBench 及自动评估器 PoemAutoEvaluator，旨在解决现有通用指标仅关注字面匹配而忽视诗歌隐含情感与文化内涵的评估难题。</p>
+<h2>解决的问题</h2>
+<p>现有通用图像 - 文本指标（如 CLIPScore、BLIPScore）仅能衡量图像与诗歌字面意象的匹配度，无法评估诗歌隐含情感、文化内涵及艺术风格的传达，导致评估结果与人类判断相悖，且缺乏专门针对诗歌生成任务的评估基准。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建了首个面向诗歌生成图像的多维度、人类标注基准 TangPoetryBench，涵盖视觉质量、情感共鸣及文化准确性等十个维度。</li>
+<li>提出了基于评分标准的自动评估器 PoemAutoEvaluator，具备与专有模型相当的评估能力且能泛化至未见过的生成器与诗歌传统。</li>
+<li>提供了针对诗歌插图任务的诊断性分析，揭示了字面描绘与情感唤起之间的差距及不同模型的特定失败特征。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.11343" data-arxiv-id="2608.11343" data-status="ready">
+<h1>[2608.11343] Can Frontier LLMs Match Natively Multimodal Embeddings? A Comparison on Hard-Negative Text-to-Image Retrieval</h1>
+<p><a href="https://arxiv.org/abs/2608.11343" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本研究首次对比了原生多模态嵌入模型与前沿 LLM 在硬负样本图文检索任务上的表现，发现 GPT-4.1 和 Claude Sonnet 4.6 在检索准确率上与 Gemini Embedding 2 相当，但多模态嵌入模型在预计算后更适合低延迟应用。</p>
+<h2>解决的问题</h2>
+<p>传统多模态检索依赖双编码器模型，且现有文献尚未对原生多模态嵌入模型与前沿 LLM 作为零样本直接视觉排序器进行直接比较，特别是在硬负样本检索任务上的准确率和时间效率评估尚不明确。</p>
+<h2>创新点</h2>
+<ul>
+<li>首次在不进行特定任务微调或中间图生文生成的情况下，在 Flickr30k 数据集上对比原生多模态嵌入模型与前沿 LLM 的零样本直接视觉排序性能。</li>
+<li>实证发现 Gemini Embedding 2、GPT-4.1 和 Claude Sonnet 4.6 在检索准确率上统计上无显著差异。</li>
+<li>揭示了预计算嵌入后，多模态嵌入模型在低延迟应用中的优势，处理 1000 个查询耗时不足两秒，而 LLM 超过三小时。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.11205" data-arxiv-id="2608.11205" data-status="ready">
+<h1>[2608.11205] AdvFD: Boosting Visual Generation via Adversarial Fr'echet Distance Loss</h1>
+<p><a href="https://arxiv.org/abs/2608.11205" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 AdvFD 方法，通过引入对抗学习的动态特征表示与真实特征白化技术，有效缓解了现有 Fréchet 损失在生成器后训练中引发的指标优化与视觉质量脱节问题。</p>
+<h2>解决的问题</h2>
+<p>现有基于 Fréchet 距离的损失函数（FD-Loss）依赖预训练的静态编码器作为分布匹配目标，导致生成器过度适应特定特征空间。随着训练进行，目标指标虽持续改善，但视觉质量及其他未用于训练的编码器下的对齐分数可能停滞甚至恶化，这种现象被称为 Fréchet 黑客攻击，表明静态表示无法全面捕捉真实与生成分布间的差异。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出对抗 Fréchet 距离（AdvFD），引入可学习的对抗表示以补充静态编码器，暴露真实与生成分布间的剩余差异。</li>
+<li>引入真实特征白化技术，通过归一化自适应特征空间的尺度与协方差几何，防止特征放大并稳定对抗优化过程。</li>
+<li>有效缓解现有方法中的 Fréchet 黑客攻击问题，在优化目标指标的同时提升视觉质量及其他未训练编码器的对齐性能。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.11013" data-arxiv-id="2608.11013" data-status="ready">
+<h1>[2608.11013] Watching Synthetic Videos: Aligning Cross-modal Representations with Visual Synthesis for Zero-shot Video Captioning</h1>
+<p><a href="https://arxiv.org/abs/2608.11013" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 WSV 框架，通过利用预训练文生视频模型生成合成视频潜变量并引入抛光器与提示器，在仅文本训练范式下有效弥合训练与推理间的跨模态差距以实现零样本视频描述。</p>
+<h2>解决的问题</h2>
+<p>现有零样本视频描述方法多采用仅文本训练范式，依赖简单线性变换试图对齐文本与视觉分布，但由于文本与视觉分布本质差异，简单变换无法有效对齐，导致跨模态表示空间对齐不足，语义信息（尤其是时序信息）丢失，进而影响文本描述质量。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出两阶段训练框架，利用预训练文生视频模型生成合成视频潜变量以增强视觉表征</li>
+<li>设计抛光器（Polisher）以增强潜变量保真度，有效弥合真实与合成视频分布之间的差距</li>
+<li>设计提示器（Prompter）将抛光后的潜变量作为条件引导 GPT-2 生成视频描述</li>
+<li>在仅文本训练范式下实现“观看合成视频”，从根本上解决训练与推理间的跨模态对齐不足问题</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.11002" data-arxiv-id="2608.11002" data-status="ready">
+<h1>[2608.11002] On the Limitations of Cross-Lingual Consistency in Multilingual Text-to-image Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.11002" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 LingT2I 基准，通过大规模跨语言分析揭示了多语言文本生成图像模型在低资源语言中的性能不平等、非拉丁文字渲染困难及语言依赖的生成模式等核心局限性。</p>
+<h2>解决的问题</h2>
+<p>现有研究主要集中于英语环境，依赖英语主导的数据集，导致多语言设置下的能力未被充分探索；同时现有工作多关注图像质量，忽视了语言方面和文本渲染评估，未能系统分析跨语言行为中的语言不平等、文字渲染失败及文化上下文影响。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建 LingT2I 基准，涵盖 10 种广泛使用的语言和 33K 提示词，评估内容生成与文本渲染任务。</li>
+<li>提供首个全面的跨语言分析，揭示了多语言文本生成图像模型中的语言不平等和跨维度语言特定权衡。</li>
+<li>揭示了多种语言依赖的生成模式，表明模型输出受语言特定先验和文化背景的系统性影响。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.10524" data-arxiv-id="2608.10524" data-status="ready">
+<h1>[2608.10524] Rethinking Text-Based Image Retrieval in Specific Domain</h1>
+<p><a href="https://arxiv.org/abs/2608.10524" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文针对特定领域文本图像检索中单一匹配假设失效及语义压缩导致假阴性严重的问题，构建了多匹配基准 SecMM-TBIR 并提出语义感知微调框架 SAFT，通过结合软标签监督与模态内结构蒸馏，在 SecMM-TBIR 上取得平均 mAP@20 提升 7.8 点，显著提升了模型在特定场景下的检索性能。</p>
+<h2>解决的问题</h2>
+<p>现有基准多基于单一匹配范式，无法反映特定领域（如监控）中单查询对应多图像的实际需求，导致评估指标存在偏差。同时，在特定领域语义分布高度压缩的背景下，原生对比学习面临严重假阴性问题，硬负例挖掘效果受限，而现有软标签监督方法因依赖单模态分布难以忠实反映跨模态对齐，导致检索性能下降。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建了安全多匹配图像检索基准 SecMM-TBIR，包含 50k 监控图像与 200 个综合查询，纠正了单一匹配假设的偏差。</li>
+<li>设计了 DSMM-TBIR 数据引擎，利用大语言模型与视觉语言模型能力辅助多匹配基准的构建。</li>
+<li>提出语义感知微调框架 SAFT，通过语义感知软标签监督 SASS 缓解跨模态对齐中的潜在正例惩罚问题。</li>
+<li>引入模态内结构蒸馏 ISD，在视觉模态内保持图像间的相对相关性以应对语义压缩。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.10166" data-arxiv-id="2608.10166" data-status="ready">
+<h1>[2608.10166] MarkNull: Model-Agnostic Watermark Removal in AI-Generated Images via On-Manifold Latent Manipulation</h1>
+<p><a href="https://arxiv.org/abs/2608.10166" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 MarkNull，一种基于流形潜在空间操纵的模型无关水印去除框架，通过噪声 - 潜在对齐分数在解耦水印与潜在表示的同时保持高视觉质量，显著降低了水印验证准确率。</p>
+<h2>解决的问题</h2>
+<p>现有水印去除方法面临保真度与去除效果的权衡困境，往往在有效去除水印时引入严重伪影；同时缺乏模型无关性，多数攻击针对特定像素域过拟合，难以泛化至初始噪声等先进方案；此外依赖迭代优化导致计算开销大且视觉退化，难以实时部署。</p>
+<h2>创新点</h2>
+<ul>
+<li>引入噪声 - 潜在对齐分数（NLAS），通过潜在空间解耦实现水印去除并保留图像语义。</li>
+<li>设计无需访问目标系统的黑盒模型无关攻击框架，支持跨不同水印范式的泛化。</li>
+<li>开发摊销变体 MarkNull-A，将优化目标蒸馏为前向网络，实现单步高效去除。</li>
+<li>提出针对该攻击的检测机制，强调开发抗潜在空间操纵的水印设计的必要性。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.09666" data-arxiv-id="2608.09666" data-status="ready">
+<h1>[2608.09666] Open Evaluation Agent: Efficient and Promptable Evaluation of Visual Generative Models</h1>
+<p><a href="https://arxiv.org/abs/2608.09666" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 Evaluation Agent 框架，通过模仿人类评估策略实现视觉生成模型的高效、可提示及可解释评估，并进一步开发 Open-EA 以使用户无需依赖专有骨干模型。</p>
+<h2>解决的问题</h2>
+<p>现有评估方法通常依赖生成大量样本，导致计算成本高昂且耗时，同时采用刚性流程和预定义维度，难以适应开放输入，且仅提供单一数值分数缺乏对用户有意义的详细解释。</p>
+<h2>创新点</h2>
+<ul>
+<li>模仿人类策略的高效动态评估机制，通过中间结果调整路径以减少冗余测试</li>
+<li>支持开放提示词的可定制化评估能力，适应多样化用户需求</li>
+<li>提供超越单一数值分数的详细可解释分析结果，便于专家与非专家理解</li>
+<li>构建本地规划骨干模型，降低对专有 API 骨干模型的依赖</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.09529" data-arxiv-id="2608.09529" data-status="ready">
+<h1>[2608.09529] Towards Expressive and Faithful Audio-to-Image Generation: A Unified Multimodal Dataset and Synthesis Framework</h1>
+<p><a href="https://arxiv.org/abs/2608.09529" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 A2I-Set 数据集和 AudioCanvas 模型，通过高质量合成数据解决了现有音频到图像生成方法在数据质量和模态对齐上的不足，显著提升了生成表现力与跨模态对齐能力。</p>
+<h2>解决的问题</h2>
+<p>现有音频到图像生成方法受限于传统数据集缺乏高保真图像和精确的跨模态对齐，难以通过微调强文本到图像模型实现高质量生成，且现有替代方案存在标注缺失导致对齐粗糙或视频截帧导致图像质量低且音画难对齐的问题。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建包含 32.3 万对音频、图像及详细文本的 A2I-Set 数据集，涵盖多种音频类型及细粒度模态标注</li>
+<li>提出完整的数据合成流程，利用 FLUX.1 模型生成高保真图像以确保音画对齐与视觉质量</li>
+<li>提出 AudioCanvas 模型并通过在 A2I-Set 上微调实现优于现有方法的生成效果</li>
+<li>构建经过人类监督的新混合源测试集以提升评估的准确性</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.09322" data-arxiv-id="2608.09322" data-status="ready">
+<h1>[2608.09322] Diffusion Image Editing via Asynchronous Token Decoding</h1>
+<p><a href="https://arxiv.org/abs/2608.09322" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 ATDEdit 框架，通过将扩散编辑重构为异步令牌解码并利用令牌级条件惊讶度动态识别可编辑区域，在无需外部空间掩码或模型微调的情况下实现了局部编辑与背景保留的平衡，在 PIE-Bench 上获得了最强的背景保留指标。</p>
+<h2>解决的问题</h2>
+<p>现有文本引导的扩散编辑方法通常将解码轨迹视为整体同步变换，对所有潜在令牌进行统一更新，导致去噪动态传播变化并破坏未编辑区域，引发全局漂移；而依赖预计算静态掩码的方法则难以捕捉场景细微且演变的语义。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 ATDEdit 框架，利用令牌级条件惊讶度动态发现可编辑区域，实现令牌索引的条件切换与差异化更新策略。</li>
+<li>引入异步更新机制，结合注意力记忆边界条件和共噪声耦合，对保持令牌进行硬投影重置以维持背景状态。</li>
+<li>无需外部空间掩码或模型微调，通过模型内部令牌的反事实响应动态调整编辑过程。</li>
+<li>在 PIE-Bench 基准上实现了最强的背景保留指标（27.44 dB PSNR 和 0.055 LPIPS），同时保持了具有竞争力的语义对齐能力。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.09244" data-arxiv-id="2608.09244" data-status="ready">
+<h1>[2608.09244] In-Loop Model Adaptation with Coupled Latent-Noise Guidance for High-Fidelity Subject-Driven Text-to-Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.09244" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种名为 IMA 的方法，通过循环模型适应与耦合潜噪声引导，在图像生成过程中实时调整扩散模型权重，有效解决了主体驱动文本到图像生成中保持身份一致性与文本对齐的挑战。</p>
+<h2>解决的问题</h2>
+<p>现有主体驱动生成方法难以在保持主体身份一致的同时实现与文本提示的准确对齐。现有方法通常依赖大规模特定领域数据集训练或在生成前对模型进行数百次迭代微调，这不仅耗时且难以扩展，且预训练扩散模型存在显著的域差距，无法高效适应不同视觉上下文下的主体身份保持。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出在循环模型适应（IMA）框架下，于实际生成过程中实时调整核心扩散模型，无需生成前针对参考图像预训练。</li>
+<li>建立 DDIM 反演链和文本 - 图像生成链，通过耦合潜噪声损失引导模型适应。</li>
+<li>引入掩码潜一致性损失和噪声正则化损失，以表征扩散模型与两条链在每一步的潜噪声差异。</li>
+<li>在推理阶段在线微调图像交叉注意力模块的 Key 和 Value 权重，以平衡主体身份保持与文本对齐。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.09226" data-arxiv-id="2608.09226" data-status="ready">
+<h1>[2608.09226] RL-Native Distillation: Exploiting Scored Trajectories for Few-Step Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.09226" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种名为 REST 的单阶段 RL-蒸馏协同训练框架，通过利用扩散 RL 生成的奖励评分轨迹进行原生蒸馏，结合优势调制蒸馏技术，实现了无需额外数据且成本更低的少步图像生成与偏好对齐。</p>
+<h2>解决的问题</h2>
+<p>现有方法通常将强化学习奖励对齐与少步蒸馏分阶段顺序执行，导致训练成本增加且蒸馏可能稀释奖励增益，同时多阶段系统存在超参数平衡困难及冻结教师分布与优化策略间的内在冲突。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出单阶段 RL-蒸馏协同训练框架，无需额外蒸馏数据集、对抗训练或独立预蒸馏阶段。</li>
+<li>引入优势调制蒸馏（AMD），将轨迹奖励优势转化为加权系数，强化优选轨迹监督并排斥低奖励行为。</li>
+<li>利用扩散 RL 的有限步轨迹中间状态作为天然蒸馏监督，实现 CFG 自由的少步推理。</li>
+<li>采用解耦学生分支进行分段模仿学习，在不影响教师优化目标的前提下提升学生模型性能。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.09223" data-arxiv-id="2608.09223" data-status="ready">
+<h1>[2608.09223] PatchHead: Learning Spatial Patch Evidence for Generalizable AI-Generated Image Detection</h1>
+<p><a href="https://arxiv.org/abs/2608.09223" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>PatchHead 通过保留视觉基础模型补丁令牌的空间组织并建模邻近区域证据，解决了现有方法因全局聚合导致的空间证据丢失与表征纠缠问题，显著提升了 AI 生成图像检测的跨生成器与跨数据集泛化能力。</p>
+<h2>解决的问题</h2>
+<p>现有检测器通常仅利用视觉基础模型全局聚合的 CLS token 进行分类，忽略了补丁令牌的空间组织。这种压缩方式将真实性证据与内容和数据集特定的变化纠缠在一起，削弱了分布在不同区域的微弱生成痕迹，导致检测器在面对未见过的生成模型或数据集时泛化能力显著下降。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 PatchHead 轻量级空间聚合头，保留 DINO 补丁令牌原始二维空间布局并建模邻近区域交互，替代传统的单 CLS token 分类接口。</li>
+<li>冻结预训练 DINO 骨干网权重，仅优化 LoRA 适配器及新增头，以极低计算开销（8.6% 更多可训练参数）实现性能提升。</li>
+<li>实证揭示了全局聚合导致真实性证据与内容/数据集变异纠缠的表征不匹配问题，证明空间建模优于全局压缩。</li>
+<li>在九个跨数据集基准测试中表现优异，显著提升了跨生成器和跨数据集的泛化性能及最差情况准确率。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.09097" data-arxiv-id="2608.09097" data-status="ready">
+<h1>[2608.09097] SI-Edit: Toward Sketch-Instruction Guided Local Image Editing with Pixel-Level Precision</h1>
+<p><a href="https://arxiv.org/abs/2608.09097" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>针对细粒度局部图像编辑中语义指令空间模糊与几何控制意图不明确的问题，本文构建了 SI-Data 数据集并提出了 SI-Edit 框架，通过融合语义指令与几何草图约束，实现了具备像素级精度的可靠局部变形编辑。</p>
+<h2>解决的问题</h2>
+<p>现有图像编辑方法难以同时实现语义表达与几何精度的协同：纯文本指令缺乏精确几何指导导致空间模糊，区域引导方法定位粗糙且无法支持细粒度变形，而草图引导方法虽提供几何约束却存在语义意图模糊或无法保留原结构的问题。此外，缺乏联合提供精细草图、语义指令及目标图像的高质量基准数据集，阻碍了基于几何变形监督的训练。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建了 SI-Data 数据集，首次提供包含原始图像、局部几何草图、语义指令及目标图像的四元组监督数据</li>
+<li>提出 SI-Edit 协同框架，融合语义指令与几何草图约束以解决细粒度局部变形中的空间与语义歧义</li>
+<li>设计 Same Position Encoding 策略，将草图输入与源图像特征对齐以减少空间漂移</li>
+<li>引入可学习的任务触发 token 作为语义锚点，增强模型对几何草图和语义指令的联合遵循能力</li>
+<li>建立了一套用于测量结构保真度和语义遵循度的综合评估指标体系</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.08720" data-arxiv-id="2608.08720" data-status="ready">
+<h1>[2608.08720] High-Quality Exposure Correction with Diffusion-Based Image Generation Priors</h1>
+<p><a href="https://arxiv.org/abs/2608.08720" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种基于扩散先验的曝光校正框架 DPEC，通过结合预训练扩散模型的高效生成先验与回归模型的细节保持能力，实现了仅需单步推理的高质量图像曝光校正，在保真度、感知质量和视觉效果上均优于现有最先进方法。</p>
+<h2>解决的问题</h2>
+<p>现有曝光校正方法多基于回归，过于关注像素级精度而难以有效建模缺乏结构信息的极端曝光区域，导致感知质量不佳；而直接应用扩散模型的方法则面临生成随机性易产生伪影、迭代采样过程计算成本高以及潜空间压缩导致高频细节丢失等挑战，难以在保持高保真度的同时实现高质量修复。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出高效的微调策略，将去噪 UNet 输入从纯噪声改为退化图像与噪声图组合，实现单步推理。</li>
+<li>融合扩散模型与回归模型，利用扩散模型专注于低频内容恢复，回归模型有效保留高频细节。</li>
+<li>设计联合交叉注意力模块，分层整合多尺度扩散先验特征，在最小化随机伪影的同时保持图像结构。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.07999" data-arxiv-id="2608.07999" data-status="ready">
+<h1>[2608.07999] PE-Mamba: Bidirectional Selective Layer Aggregation for AI-Generated Image Detection</h1>
+<p><a href="https://arxiv.org/abs/2608.07999" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 PE-Mamba 框架，基于预训练 PE-Core 视觉 Transformer 与轻量级 LoRA 适配，通过引入双向选择性聚合、Softmax 加权聚合及 Sigmoid 门控混合机制，有效解决了现有方法忽视层级特征有序语义进化的问题，在多个检测基准上实现了优于 18 种检测器的性能并仅训练少量参数。</p>
+<h2>解决的问题</h2>
+<p>现有基于视觉 Transformer 的检测器普遍依赖加权求和策略聚合跨层中间表示，往往忽视了从浅层纹理线索到深层语义表示的层级特征固有的有序语义演进过程，导致特征融合无法充分利用层级特征间的语义依赖关系。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于预训练 PE-Core 视觉 Transformer 与轻量级 LoRA 适配的高效检测框架</li>
+<li>设计双向选择性聚合器（BSA），通过前后向扫描分别累积浅层至深层证据及进行深层至浅层上下文细化</li>
+<li>引入 Softmax 加权聚合器（SWA）计算所有层 Token 的学习全局摘要作为互补聚合路径</li>
+<li>采用 Sigmoid 门控混合（SGA）自适应融合 BSA 和 SWA 输出，动态平衡方向性序列证据与全局层聚合</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.07863" data-arxiv-id="2608.07863" data-status="ready">
+<h1>[2608.07863] LHSDet: High-Resolution AI-Generated Image Detection via Visual Question Answering</h1>
+<p><a href="https://arxiv.org/abs/2608.07863" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 LHSDet，通过视觉问答框架和重设计的视觉编码器实现高分辨率 AI 生成图像检测，在多种生成模型上实现了高精度与鲁棒性。</p>
+<h2>解决的问题</h2>
+<p>现有 AI 生成图像检测方法存在明显不足：基于 CNN 的方法易过拟合特定伪影且泛化性差；基于重建误差的方法计算复杂且跨模型性能受限；基于视觉语言模型的方法通常将图像降采样处理，忽略了高分辨率图像中关键的纹理细节，且默认视觉编码器未针对检测任务优化，难以适应未知生成模型。</p>
+<h2>创新点</h2>
+<ul>
+<li>将检测任务形式化为视觉问答问题，利用视觉语言框架挖掘模态互补信息</li>
+<li>重设计视觉编码器以适配检测任务，更有效地捕捉低级别和高级别伪影</li>
+<li>构建包含低级纹理、高级感知和语义文本的三分支架构，实现多模态特征融合</li>
+<li>支持高分辨率输入，克服了现有 VLM 方法降采样导致细节丢失的问题</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.07713" data-arxiv-id="2608.07713" data-status="ready">
+<h1>[2608.07713] Tokenizer Generator Coupling in Medical Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.07713" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本研究通过受控的 ChestMNIST 实验揭示了医学图像生成中 tokenizer 与 generator 及 sampler 存在强耦合关系，指出固定 tokenizer 预处理方式无效，并提出新评估指标证实量化器需与生成器协同优化以提升生成质量。</p>
+<h2>解决的问题</h2>
+<p>现有医学图像生成系统通常继承自然图像合成的设计，将 tokenizer 视为固定的预处理步骤，忽略了 tokenizer、generator 和 sampler 之间的交互影响。此外，仅依靠重建 PSNR 作为选择标准不可靠，且缺乏针对医学图像特定解剖约束下 tokenizer 与生成器相互作用的研究，导致无法平衡压缩保真度与模型可建模性。</p>
+<h2>创新点</h2>
+<ul>
+<li>设计了包含 tokenizer、generator 和 sampler 的受控因子实验，揭示了医学图像生成中三者的联合依赖关系。</li>
+<li>提出了基于下游生成质量的生成器无关统计量（neighbour-conditional predictive gain），替代了不可靠的重建 PSNR 指标。</li>
+<li>构建了分离的 MEDTOKENIZERS 和 MEDLATENTS 代码库，使 tokenizer 选择显式化而非隐藏于生成器管道中。</li>
+<li>验证了 rate-distortion-modelability 权衡原则在医学图像中的适用性，表明量化器需根据生成器进行协同调优。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.07565" data-arxiv-id="2608.07565" data-status="ready">
 <h1>[2608.07565] What to Edit Next: Visually Aligned Image-Editing Follow-Up Suggestions in Conversational Systems</h1>
 <p><a href="https://arxiv.org/abs/2608.07565" rel="nofollow">arXiv 原文</a></p>
@@ -440,6 +1088,376 @@
 <li>引入图像优先视觉验证器作为奖励维度，显式解决视觉不一致问题</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.07003" data-arxiv-id="2608.07003" data-status="ready">
+<h1>[2608.07003] HRDiT: Training-Free High-Resolution Image Generation with Off-the-Shelf Diffusion Transformer Models</h1>
+<p><a href="https://arxiv.org/abs/2608.07003" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 HRDiT 方法，旨在无需训练的情况下将现成的扩散 Transformer 模型适配用于高分辨率图像生成，有效解决了空间无序和生成时间长的问题。</p>
+<h2>解决的问题</h2>
+<p>现有训练基方法需要大量计算资源和高分辨率数据集，难以实用；而现有的无训练方法主要集中于 U-Net 模型，针对扩散 Transformer 模型的高分辨率适配研究有限，且面临空间无序和生成时间过长两大挑战。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了一种无需训练即可适配现成 DiT 模型进行高分辨率图像生成的新方法</li>
+<li>针对 DiT 模型高分辨率合成中存在的空间无序挑战提出了相应解决方案</li>
+<li>针对 DiT 模型高分辨率合成中存在的长生成时间挑战进行了优化</li>
+<li>证明了该方法在利用现成 DiT 模型进行高分辨率合成方面的有效性</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.06929" data-arxiv-id="2608.06929" data-status="ready">
+<h1>[2608.06929] MaskFlow: Precise, Consistent and Seamless Regional Image Editing</h1>
+<p><a href="https://arxiv.org/abs/2608.06929" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>MaskFlow 提出了一种区域图像编辑训练框架，通过将掩码融入概率路径和流匹配目标并配合 Soft-Poisson 去缝模块，实现了精确定位、背景一致及无缝边界过渡的区域编辑。</p>
+<h2>解决的问题</h2>
+<p>现有基于指令的方法在复杂场景中存在空间歧义且易意外改变背景，而基于掩码的方法虽定位准确，但独立生成易导致语义风格漂移，且前景与背景生成轨迹差异引发颜色纹理不一致及可见边界接缝。</p>
+<h2>创新点</h2>
+<ul>
+<li>将掩码融入概率路径和流匹配目标，明确建模可编辑区域生成与外部源保留</li>
+<li>设计 Soft-Poisson 去缝模块，在训练和采样期间优化向量场以实现前景与背景的平滑集成</li>
+<li>构建数据合成管道创建 MEData 数据集，支持区域图像编辑模型的训练与研究</li>
+<li>设计不包含明确位置描述的编辑指令，鼓励模型从掩码中识别可编辑区域以提升定位精度</li>
+<li>引入掩码引导的概率路径和掩码感知优化目标，约束可编辑区域的生成过程</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.06751" data-arxiv-id="2608.06751" data-status="ready">
+<h1>[2608.06751] Beyond Starry Night: Shortcut-Aware Control-State Planning for Artist-Grounded Text to Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.06751" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 Atelier 框架，通过引入短路感知的控制状态规划机制，有效解决了艺术家导向图像生成中模型依赖刻板捷径而非用户意图的问题，显著提升了风格保真度与场景结构保留能力。</p>
+<h2>解决的问题</h2>
+<p>现有方法在艺术家导向图像生成中，倾向于通过重复母题、通用调色板或过度表现的时期签名等“刻板捷径”来响应艺术家名称，而非保留用户意图的具体场景。现有基线模型在生成特定艺术家作品时，频繁出现未请求的标志性模式（如 Van Gogh 的漩涡天空在约 55% 的生成中出现），导致生成结果缺乏场景保真度且存在严重的捷径替换现象。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 Atelier 框架，通过短路感知的控制状态规划将模糊的艺术意图转化为包含场景锚点、风格假设及捷径规避约束的显式控制状态。</li>
+<li>利用艺术家级知识与局部补丁参考建立控制状态，并通过后端感知计划编译及全局局部反馈迭代优化生成结果。</li>
+<li>构建了 ArtIntentBench 基准，涵盖重绘、风格控制、未见主题及捷径审计等任务，用于评估艺术家导向生成的真实性与偏好。</li>
+<li>在多种生成器上显著提升了艺术家级风格保真度与源结构保留能力，有效减少了未请求的刻板模式替换。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.06075" data-arxiv-id="2608.06075" data-status="ready">
+<h1>[2608.06075] Domain-Grounded Candidate Selection for Agentic Image Editing: A Shadow Removal Case</h1>
+<p><a href="https://arxiv.org/abs/2608.06075" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种结合阴影形成物理先验的代理候选选择流程，通过物理导向的提示约束通用生成式编辑器的行为，有效解决了阴影移除中的幻觉与物理错误问题，验证了经典低层视觉先验在物理欠约束生成中的持续价值。</p>
+<h2>解决的问题</h2>
+<p>现有商业生成式编辑器虽能保留纹理但存在幻觉、误判阴影为物体或材质的失败模式，导致生成结果物理上不正确，且缺乏针对特定场景几何与光照约束的有效机制。</p>
+<h2>创新点</h2>
+<ul>
+<li>设计了包含生成探针、评估筛选、重试及最终选择的代理候选选择流程</li>
+<li>引入基于阴影形成物理的领域 grounding 策略，将阴影视为光照遮挡效应而非材质或几何结构</li>
+<li>通过物理导向的提示词显著提升了生成质量和一致性</li>
+<li>验证了经典低层视觉先验对约束和引导物理欠约束生成的有效性</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.05663" data-arxiv-id="2608.05663" data-status="ready">
+<h1>[2608.05663] Vorch-Streamer: Extending Human Audio-Visual Generation to Real-Time Long-Form Streaming</h1>
+<p><a href="https://arxiv.org/abs/2608.05663" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>Vorch-Streamer 提出了一种后训练框架，通过混合教师强制与扩散强制训练及长视界自强化蒸馏解决暴露偏差，并结合外部语言模型实现语音规划，成功实现了 27.12 帧每秒的实时长形式文本到音视频流式生成。</p>
+<h2>解决的问题</h2>
+<p>现有预训练双向扩散模型主要面向短时离线片段，其双向注意力机制假设完整序列可用，无法兼容流式系统的因果生成需求，导致长形式生成时存在暴露偏差和误差累积。同时，全局文本提示与受限的局部因果上下文之间存在不匹配，缺乏明确的语音规划机制，使得模型难以在长序列中准确对齐应生成的语音内容，导致时序错位。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建 8 万条时长 12-21 秒的合成语料库，用于训练因果自回归流式模型</li>
+<li>采用混合教师强制与扩散强制训练，并结合长视界自强化蒸馏与 DMD 蒸馏，解决因果生成中的暴露偏差问题</li>
+<li>引入外部语言模型预测离散语音规划 Token，通过条件化音频扩散分支实现语音与生成块的内容对齐</li>
+<li>在有限因果上下文下实现 27.12 帧每秒的实时流式生成，保持口型音步同步与身份一致性</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.04935" data-arxiv-id="2608.04935" data-status="ready">
+<h1>[2608.04935] Unleashing the Potential of Vision-Language Models for Generalizable AI-Generated Image Detection</h1>
+<p><a href="https://arxiv.org/abs/2608.04935" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出语义原型校准（SPC），通过利用视觉语言模型文本分支提供的法证语义初始化类别原型，克服了标准线性探针无法充分挖掘视觉语言模型潜力的缺陷，在多项通用 AI 生成图像检测基准上取得了超越 DINOv3 基线的最先进性能。</p>
+<h2>解决的问题</h2>
+<p>现有 AI 生成图像检测方法多依赖纯视觉基础模型（如 DINOv3）的线性探针，虽然表现优异但忽略了视觉语言模型（如 Perception Encoder）的潜力；标准线性探针冻结图像编码器且随机初始化分类头，导致无法利用文本编码器中蕴含的溯源语义信息，使得视觉语言模型在野外场景下的性能反而落后于纯视觉模型（差距达 4.1%）。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出语义原型校准（SPC）方法，利用视觉语言模型的文本分支提取法证语义，为分类头中的类别原型提供任务相关的初始化起点。</li>
+<li>通过校准文本引导的原型，有效利用视觉语言模型冻结特征空间中已存在的清晰法证结构，克服了标准线性探针的不足。</li>
+<li>该方法在推理阶段无需文本输入或文本编码器，仅增加极小的计算成本，保持了检测架构的简洁性。</li>
+<li>在多个跨生成器、野外及后处理基准上，PE-SPC 以显著更少的参数规模实现了超越 DINOv3 基线的最先进检测性能。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.04750" data-arxiv-id="2608.04750" data-status="ready">
+<h1>[2608.04750] Simile Understanding in Text-to-Image Models: An Evaluation Framework</h1>
+<p><a href="https://arxiv.org/abs/2608.04750" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种评估框架，揭示了现有文本到图像模型在处理比喻提示时普遍存在将喻体字面化的偏差，并验证了特定再生策略可部分缓解该问题。</p>
+<h2>解决的问题</h2>
+<p>现有方法缺乏对文本到图像模型比喻理解能力的系统性评估，无法有效区分模型是将喻体作为属性来源还是作为字面对象生成，导致难以量化字面化偏差并改进模型在比喻提示下的视觉 grounding 能力。</p>
+<h2>创新点</h2>
+<ul>
+<li>定义了比喻提示中喻体字面出现为字面化偏差并跨模型分析了该倾向</li>
+<li>提出了包含可控比喻数据集、基于检测的自动评估指标及文本编码器层分析的评估框架</li>
+<li>验证了随机再生和基于编码器层替换的再生方法可部分减少字面化偏差</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.04436" data-arxiv-id="2608.04436" data-status="ready">
+<h1>[2608.04436] ToolArtist: Tool-Using Unified Multimodal Models for Agentic Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.04436" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 ToolArtist，一种通过统一多模态模型后训练获得的完全代理式图像生成模型，它在一个统一策略下动态协调推理、外部工具使用和原生图像生成，从而在开放世界图像生成任务上优于现有固定流程或部分代理控制的方法。</p>
+<h2>解决的问题</h2>
+<p>现有文本到图像模型难以处理需要复杂语义理解、多步推理及外部世界知识的开放世界任务，而引入代理能力的现有方法要么规定固定工作流，要么仅控制部分生成过程，导致推理、工具调用和图像生成无法由单一策略协调。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出完全代理式图像生成模型，在一个统一策略下动态协调推理、外部工具使用和原生图像生成</li>
+<li>构建统一多模态模型后训练框架，通过遮蔽工具将教师代理轨迹转换为兼容格式进行监督微调</li>
+<li>开发代理强化学习基础设施并提出 RAD-GRPO 算法，利用互补的意图和质量奖励联合优化模型</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.04030" data-arxiv-id="2608.04030" data-status="ready">
+<h1>[2608.04030] NuclearDiffusion: Text-to-Image Foundation Models for Learning Nuclear Energy Concepts</h1>
+<p><a href="https://arxiv.org/abs/2608.04030" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文通过微调开源扩散模型在核能数据集上，验证了领域特定微调是提升核能概念生成图像技术准确性的有效途径，在专业工程提示下优于通用商业模型。</p>
+<h2>解决的问题</h2>
+<p>现有通用文本到图像模型缺乏核工程领域的专业知识，生成的图像常出现物理错误或概念不一致，且由于核能概念在公开数据中稀缺，零样本模型难以满足教育及工程设计对技术准确性的严格要求。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建了包含 1,000 张核能图像的专用数据集用于微调开源扩散模型。</li>
+<li>系统评估了不同架构模型（SDXL、SD-v3.5、Flux）在核能领域的微调效果差异。</li>
+<li>将微调后的开源模型与主流商业生成系统进行了专业工程提示下的对比评测。</li>
+<li>验证了领域特定微调作为开发可信生成式 AI 工具的有效路径。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.03357" data-arxiv-id="2608.03357" data-status="ready">
+<h1>[2608.03357] Can Text-to-Image Models Draw from the Right Frame of Reference?</h1>
+<p><a href="https://arxiv.org/abs/2608.03357" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 FoR-T2I 基准评估文生图模型对参考系指令的理解能力，发现现有模型在处理物体自身参考系时存在严重混淆且准确率远低于相机视角指令，并提出了基于视觉反馈的提示词重写策略以缓解该问题。</p>
+<h2>解决的问题</h2>
+<p>现有文生图评估基准虽然关注了空间布局和物体关系，但缺乏对参考系角色的系统分析，通常未对比同一目标布局在不同参考系下的表现，难以区分模型是遵循了指定参考系还是默认使用相机视角，导致参考系混淆问题未被充分识别。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了 FoR-T2I 基准，包含 1200 组匹配的相机视角与参考系提示词对以量化参考系差异</li>
+<li>通过对比 22 个模型发现现有模型在处理参考系指令时准确率显著下降，量化了参考系混淆的严重程度</li>
+<li>提出了一种无需训练的基于视觉反馈的大语言模型门控提示词重写策略，有效提升了参考系指令的生成准确率</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.03284" data-arxiv-id="2608.03284" data-status="ready">
+<h1>[2608.03284] Test-Time Scaling for Safe Text-Guided Image Generation via Intermediate Clean Estimates</h1>
+<p><a href="https://arxiv.org/abs/2608.03284" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种名为 T2S2 的测试时安全扩展框架，通过利用扩散模型生成过程中的中间清洁图像估计进行视觉证据驱动的检测，并结合稀疏边缘目标优化文本条件空间中的结构化低秩残差，在无需更新模型参数的情况下实现了安全性能与生成保真度的有效权衡。</p>
+<h2>解决的问题</h2>
+<p>现有的训练型防御方法计算成本高昂且易导致通用能力灾难性遗忘，而现有的测试时防御方法主要依赖文本提示信号，忽略了生成过程中的视觉信号，导致在对抗性提示下安全抑制效果与生成保真度保持之间的权衡不足。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出视觉证据驱动的安全控制机制，利用扩散模型去噪过程中的中间清洁图像估计来监控并触发安全干预。</li>
+<li>构建权重保持的测试时安全扩展框架，通过稀疏边缘目标在文本条件空间优化结构化低秩残差以抑制违规概念。</li>
+<li>设计了通过测试时计算预算调节安全性能的机制，在保持非违规推断延迟基本不变的同时提供灵活的安全性能配置。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.03059" data-arxiv-id="2608.03059" data-status="ready">
+<h1>[2608.03059] RIDGE: Re-Noising with Internal Dynamic Guidance for Image Editing</h1>
+<p><a href="https://arxiv.org/abs/2608.03059" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种无需反演和训练的图像编辑方法 RIDGE，通过重新噪声化构建与内部动态引导机制，有效解决了传统等位移构造在高噪声阶段更新过于激进的问题，在多个基准测试中实现了源图像保留、目标对齐与感知质量之间的良好平衡。</p>
+<h2>解决的问题</h2>
+<p>现有无反演流式图像编辑方法普遍采用等位移构造来构建目标侧状态，即强制保持噪声源状态与目标侧状态之间的位移等于干净状态间的位移。然而，这种构造不符合加噪规律，因为相同噪声样本下两个干净状态的位移应随噪声级别增加而收缩直至消失。等位移构造导致高噪声级别下目标侧状态与噪声源状态分离度过高，引发过于激进的更新并导致无关内容发生不必要的修改。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出重新噪声化构建，利用与干净源状态相同的噪声级别和样本对编辑状态进行加噪，使位移随噪声增加自然收缩。</li>
+<li>引入内部动态引导机制，利用模型自身生成的干净目标状态预测和软动态掩码，无需外部工具即可聚焦需要修改的区域。</li>
+<li>将编辑状态作为不可用干净目标状态的动态演化近似，修正了等位移构造在高噪声下的偏差。</li>
+<li>实现了无需反演和无需训练的图像编辑框架，在多个基准上实现了源保留与目标对齐的平衡。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.02841" data-arxiv-id="2608.02841" data-status="ready">
+<h1>[2608.02841] Localize, Don't Beautify: Client-Side Control of Image-Editing APIs for Cosmetic Surgery Previews</h1>
+<p><a href="https://arxiv.org/abs/2608.02841" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本研究证明在不访问模型内部参数的情况下，通过客户端端的掩膜合成技术能有效约束商业图像编辑 API 的编辑范围，使其专注于特定区域而不改变其他面部特征，适用于整容手术预览场景。</p>
+<h2>解决的问题</h2>
+<p>现有方法限制编辑范围通常需要访问模型的内部参数（如潜变量、注意力机制或采样循环），但公共图像编辑 API 不暴露这些信息，导致无法实现精确控制。同时，通用编辑模型在执行特定手术请求时，常会连带改变皮肤、光照等非目标区域，影响身份识别并产生无关的视觉效果。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了一种无需访问模型内部参数的客户端控制方案，通过掩膜合成技术实现区域约束。</li>
+<li>构建了包含提示词、客户端掩膜合成及原生掩膜绘制的三级模型无关控制阶梯。</li>
+<li>设计了结合 ArcFace 身份保持率与 CIELAB 像素变化比的诊断协议，量化评估离靶编辑与身份损失。</li>
+<li>完成了涵盖六种商业编辑配置与多种编辑类型的试点基准测试，验证了客户端合成方法的有效性。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.02059" data-arxiv-id="2608.02059" data-status="ready">
+<h1>[2608.02059] MIEScore: Human-Aligned Evaluation for Multi-Source Image Editing</h1>
+<p><a href="https://arxiv.org/abs/2608.02059" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 MIE-Bench 基准和 MIEScore 评估模型，旨在解决现有图像编辑评估方法在多源场景下缺乏人对齐和任务多样性的问题，并取得了最先进的性能。</p>
+<h2>解决的问题</h2>
+<p>现有基准主要聚焦于单图像编辑任务，忽视了多源图像编辑（MIE）的复杂性，且缺乏任务多样性和人类偏好对齐；传统的图像质量评估指标和视觉语言方法无法捕捉多源编辑中的复杂语义转换，而现有的 MLLM 评估模型要么零样本对齐能力弱，要么仅基于单源数据训练无法处理多源输入。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建了首个包含 3000 个编辑实例、16 个任务及 108K 人意见分数的多源图像编辑基准 MIE-Bench</li>
+<li>提出了首个面向多源图像编辑的人对齐评估模型 MIEScore，基于 MLLM 架构并联合评估视觉质量、指令遵循和属性保持</li>
+<li>采用技能优化和多维度监督微调策略增强模型对多源输入的评估能力与人类偏好的一致性</li>
+<li>实验表明该方法在多源图像编辑评估上达到最先进性能并泛化至单源编辑场景</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.01988" data-arxiv-id="2608.01988" data-status="ready">
+<h1>[2608.01988] Grounding and Explaining Visual Evidence for AI-Generated Image Detection in Human-Centric Scenes</h1>
+<p><a href="https://arxiv.org/abs/2608.01988" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文构建了涵盖多样化人类中心场景的 HAVE 数据集，并提出 PAVE 框架，通过联合执行真实性预测、视觉证据定位和区域对齐解释生成，解决了现有方法在人类中心场景下解释与证据区域不一致及场景覆盖不足的问题。</p>
+<h2>解决的问题</h2>
+<p>现有检测方法通常缺乏可解释性，或依赖提示工程导致解释存在幻觉且与图像特定区域缺乏空间对齐，同时现有数据集多聚焦简单自然场景，缺乏对人类中心场景的多样化覆盖及细粒度区域对齐解释标注，难以确保真实性判断基于视觉感知证据。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建了涵盖多样化人类中心场景的 HAVE 数据集，提供细粒度视觉证据标注和区域对齐解释</li>
+<li>提出了 PAVE 框架，联合执行真实性预测、视觉证据定位和区域对齐解释生成</li>
+<li>设计了法官引导的对齐奖励，评估区域解释一致性和证据有效性</li>
+<li>引入感知感知正则化，对比原始和掩码图像的 token 级预测以促进对视觉输入的依赖</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.01780" data-arxiv-id="2608.01780" data-status="ready">
+<h1>[2608.01780] Investigating Social Bias in Narrative Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.01780" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本研究通过扩展 BBG 框架评估六种 T2I 模型在照片、故事板和漫画生成中的社会偏见，发现叙事视觉格式比单张照片更能暴露偏见，揭示了评估 T2I 系统需超越照片生成采用多样化视觉格式的重要性。</p>
+<h2>解决的问题</h2>
+<p>现有工作主要关注单帧照片生成任务，导致关于偏见如何在故事板、漫画等多面板叙事视觉格式中表现尚不明确，且基于照片的结论是否适用于叙事格式存在疑问。</p>
+<h2>创新点</h2>
+<ul>
+<li>将基于文本的 BBG 偏见评估框架适配并应用于图像生成领域</li>
+<li>对比分析照片、故事板和四格漫画三种不同视觉格式中的偏见表达差异</li>
+<li>通过英语和韩语提示词进行跨语言评估，探究刻板印象在不同语言语境下的持续性或差异</li>
+<li>定性分析揭示照片通过细微视觉线索编码偏见，而叙事格式通过事件序列和叙事解决显性化偏见</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.01258" data-arxiv-id="2608.01258" data-status="ready">
+<h1>[2608.01258] A Benchmark Dataset for MLLM-Generated Image Detection: GPT Image2 &amp; Nano Banana2</h1>
+<p><a href="https://arxiv.org/abs/2608.01258" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文构建了针对 GPT Image2 和 Nano Banana2 的 MLLM 生成图像检测基准数据集，并提出结构伪迹先验引导的双流提示框架 SAP-DSP，以解决现有检测器在高质量生成图像上性能衰退的问题。</p>
+<h2>解决的问题</h2>
+<p>现有检测基准多基于传统生成模型构建，难以反映 MLLM 生成图像伪影更弱、纹理特征不可靠的新挑战，且无法覆盖文档、截图及局部编辑等复杂应用场景，导致现有检测器在高质量多模态生成图像上性能显著下降。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建了基于 GPT Image2 和 Nano Banana2 的 MLLM 生成图像检测基准数据集，涵盖真实应用场景。</li>
+<li>设计了直接生成、参考重建及局部编辑三种生成协议，模拟多样化的生成痕迹与样本来源。</li>
+<li>提出了结构伪迹先验引导的双流提示框架（SAP-DSP），采用双流提示学习与结构感知路由融合机制。</li>
+<li>系统分析了现有检测器在高质量生成图像上的性能衰退及在不同样本类型下的失效模式。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.00736" data-arxiv-id="2608.00736" data-status="ready">
+<h1>[2608.00736] MDTD-ArtIR: Benchmarking Image Editing and Restoration Models for Art Image Restoration under Texture-Overlay Degradations</h1>
+<p><a href="https://arxiv.org/abs/2608.00736" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 MDTD-ArtIR 基准与 MDTD-Art 数据集，评估图像编辑及恢复模型在纹理覆盖退化下的艺术图像恢复能力，证实图像编辑模型配合结构化提示工程在任意退化下优于专用恢复架构。</p>
+<h2>解决的问题</h2>
+<p>现有艺术图像恢复方法常产生不自然纹理与内容幻觉，难以保持颜色与纹理一致性，且无法有效利用部分保留的图像信息；同时现有基准假设退化算子已知，无法捕捉裂缝、污渍等复杂艺术损伤特征，而主流恢复模型未针对艺术任务优化，难以处理异质性退化及局部复杂特征。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建 MDTD-Art 数据集，通过组合纹理与图像生成可控 alpha 透明度级别的退化。</li>
+<li>提出 MDTD-ArtIR 基准，评估通用图像编辑与恢复模型在不同遮罩不透明度下的表现。</li>
+<li>揭示图像编辑模型配合结构化提示工程在任意退化场景下优于专用恢复架构。</li>
+<li>验证了可恢复的语义信息和提示可控性是艺术图像恢复的关键因素。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.00716" data-arxiv-id="2608.00716" data-status="ready">
+<h1>[2608.00716] Generated Images Are Easier to Forget: A Machine Unlearning Perspective for Synthetic Image Detection</h1>
+<p><a href="https://arxiv.org/abs/2608.00716" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出基于机器遗忘的生成图像检测新范式，利用预训练模型对生成图像特征遗忘更快的特性，实现了优于传统方法的检测性能。</p>
+<h2>解决的问题</h2>
+<p>现有检测方法主要依赖人工标注数据训练二分类器，面临生成器域偏移和测试环境分布偏离导致的泛化性能下降问题。此外，预训练的大规模视觉模型虽具备强大泛化能力，但因对自然和生成图像均能提取低损失特征，导致其区分能力受限，难以有效检测生成图像。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出将生成图像检测重构为机器遗忘问题，建立了新的检测范式</li>
+<li>揭示预训练模型在遗忘过程中对生成图像特征退化快于自然图像的差异化动力学</li>
+<li>提出无需数据访问的无数据检测方法，通过权重剪枝诱导模型遗忘</li>
+<li>提出数据驱动的优化方法，使模型主动遗忘生成图像相关知识</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.00598" data-arxiv-id="2608.00598" data-status="ready">
+<h1>[2608.00598] EmergencyBias: Bias in Text-to-Image Models under Emergency Scenarios</h1>
+<p><a href="https://arxiv.org/abs/2608.00598" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出紧急场景下的文本到图像生成偏见（EmergencyBias），揭示了模型在人口统计学和行为层面的系统性偏差，并提出了ActionAlign方法以有效减少行为差异同时保持图像质量。</p>
+<h2>解决的问题</h2>
+<p>现有研究主要集中于性别、种族等静态及显性的人口统计学偏见，忽视了不同群体在行动、反应及社会角色分配上的动态行为偏见，且在紧急场景下缺乏对隐含责任分配和风险描绘的偏见评估。</p>
+<h2>创新点</h2>
+<ul>
+<li>定义了涵盖人口统计学和行为偏见的紧急场景文本到图像生成偏见（EmergencyBias）概念</li>
+<li>构建了跨多模型、多场景及人口统计维度的系统性评估框架</li>
+<li>提出了ActionAlign轻量级提示嵌入校准方法以减轻行为差异并保持图像质量</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.00588" data-arxiv-id="2608.00588" data-status="ready">
+<h1>[2608.00588] InstancePin: Instance-Addressable Layout-to-Image Diffusion via Coordinate Pinning</h1>
+<p><a href="https://arxiv.org/abs/2608.00588" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 InstancePin 框架，通过为每个对象实例引入显式坐标锚点，解决了类别级布局控制无法区分同一类别相邻实例的问题，在 Cityscapes 数据集上的实验表明该方法能有效缓解密集布局中的实例纠缠并提升图像保真度与语义一致性。</p>
+<h2>解决的问题</h2>
+<p>现有基于类别级分割图的布局到图像扩散模型虽然能控制全局场景结构，但无法区分同一类别下相邻的多个实例，导致生成结果出现边界模糊、外观平均化及特征混淆，尤其在密集城市场景中问题显著，难以实现实例级分离同时保持类别级语义一致性。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出独立实例感知适配器，在保留预训练主干类别生成先验的同时学习实例特定空间控制</li>
+<li>引入坐标钉扎注意力机制，利用傅里叶特征编码实例中心坐标并监督注意力图，实现细粒度实例关联</li>
+<li>设计实例掩码引导融合模块，根据空间职责路由主干特征和适配器特征，平衡全局语义一致性与局部实例细节</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.00584" data-arxiv-id="2608.00584" data-status="ready">
+<h1>[2608.00584] Element-Aware Group Learning for E-Commerce Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.00584" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 EAGLE-GRPO 框架，利用闭式核岭回归实现无需额外回滚或评论器的元素级奖励分解，有效解决了现有 GRPO 方法在电商图像生成中因粗粒度信用分配导致的优化效率低下问题。</p>
+<h2>解决的问题</h2>
+<p>现有 GRPO 方法在电商图像生成提示词优化中仅在完整提示词级别分配奖励，导致不同设计元素的贡献被混淆，且细粒度信用分配通常依赖步级监督或额外评论器模型。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出元素感知机制，将结构化提示词分解为预定义的设计元素以进行独立信用评估。</li>
+<li>采用闭式核岭回归解决方案，利用组内奖励变异直接分解元素级信用，无需额外的回滚或训练评论器。</li>
+<li>构建优势保留机制，确保元素级优势的平均值精确恢复标准 GRPO 的组归一化优势，保证训练稳定性。</li>
+<li>在 GPT-Image-2 和 FLUX.2 编辑器上实现优于标准 GRPO 的性能，并在盲测中获得 62% 的人类偏好胜率。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.00562" data-arxiv-id="2608.00562" data-status="ready">
+<h1>[2608.00562] Beyond Token-Level Cross-Entropy: Fréchet Distributional Post-Training for Autoregressive Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.00562" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种基于 Fréchet 距离分布的后训练框架，通过双通方案解决自回归图像生成中的目标与上下文不匹配问题，在不增加参数和推理步骤的情况下显著提升了生成图像的质量。</p>
+<h2>解决的问题</h2>
+<p>现有自回归图像生成器通常采用教师强制下的 token 级交叉熵预训练，存在目标不匹配（分类错误无法反映图像级后果）和上下文不匹配（训练使用真实历史而推理依赖模型生成历史）的问题，导致无法有效优化解码图像的分布质量。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于 Fréchet 距离分布的后训练框架，以图像级分布匹配替代 token 级交叉熵</li>
+<li>设计双通方案，通过无梯度 rollout 构建脱离的真实推理上下文，解决教师强制导致的上下文不匹配</li>
+<li>引入概率级直通估计器（STE），在保持硬解码的同时传播图像级梯度</li>
+<li>仅需更新生成器参数，冻结 tokenizer 和特征提取器，无需增加参数或推理步骤</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.00548" data-arxiv-id="2608.00548" data-status="ready">
+<h1>[2608.00548] DrawAI: Agentic Benchmark and Workflow for Making Raster Images Editable</h1>
+<p><a href="https://arxiv.org/abs/2608.00548" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 DrawAI 框架，旨在解决高质量位图图像内容扁平化导致难以编辑的问题，通过构建包含 39 项标准的 DrawAI-Bench 基准和两阶段 DrawAI-Flow 工作流，联合评估重构结果的保真度与可编辑性，并证实了该多智能体方法能显著提升结构化可编辑输出的质量。</p>
+<h2>解决的问题</h2>
+<p>现有的图像生成模型输出的位图图像将内容、对象结构和空间关系坍缩为单一像素画布，导致用户无法直接检查、修改或复用单个组件，局部修正往往需要手动重绘或完全重新生成。此外，现有方法难以在保持视觉相似度的同时提供可用的编辑结构，往往面临保真度与可编辑性之间难以兼顾的权衡困境。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 DrawAI-Bench 基准，涵盖科学图表等多种领域，采用规则指标与视觉语言模型判据相结合的混合评估协议以联合衡量保真度与可编辑性。</li>
+<li>设计 DrawAI-Flow 两阶段多智能体工作流，通过解析智能体生成重构计划，再由重构智能体通过迭代代码渲染与验证实现目标。</li>
+<li>利用可执行图形代码作为中间表示，结合代码生成与迭代修复能力，将重构任务转化为可系统化研究的智能体过程。</li>
+<li>系统性评估了模型能力、执行框架及工作流设计对重构质量与成本的影响，验证了工作流对可编辑结构的提升作用。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.19341" data-arxiv-id="2607.19341" data-status="ready">
+<h1>[2607.19341] ExpertVerse: A General-Purpose Benchmark for Expert-Level Reasoning in Knowledge-Intensive Visual Synthesis</h1>
+<p><a href="https://arxiv.org/abs/2607.19341" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 ExpertVerse 基准，通过构建涵盖 9 项认知能力与 8 个专家学科的 58 个子任务体系，并开发 KnowThinker 模型与 BPPO 算法，旨在解决现有方法在知识密集型视觉合成中的推理能力不足及多目标优化冲突问题，显著提升了跨模态多目标优化效果。</p>
+<h2>解决的问题</h2>
+<p>现有图像生成基准主要关注常识推理、浅层因果和直接知识回忆，难以处理营养分析等知识密集型场景，且缺乏通用的能力中心分类体系；同时现有方法在视觉编辑中多局限于单图操作，缺乏多图合成与文生图的综合评估，且在多奖励优化中易产生跨模态信用错配与多目标梯度冲突。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建 ExpertVerse 基准，首创基于 9 项认知能力和 8 个专家学科的 58 个子任务分类体系，涵盖 1,611 个专家标注实例。</li>
+<li>开发 ExpertVerse-100K 大规模数据集，包含推理轨迹和知识锚定理由标注，支持知识密集型图像生成。</li>
+<li>提出 KnowThinker 模型，采用思考者中心范式，联合生成思维过程与精炼指令，实现专家级知识推理。</li>
+<li>设计 Bootstrapped Pareto Policy Optimization (BPPO) 算法，通过奖励校正与冲突感知融合解决跨模态信用错配和多目标梯度冲突。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2607.18237" data-arxiv-id="2607.18237" data-status="ready">
 <h1>[2607.18237] The Many Senses of Visual Similarity: A Text-Prompted Image Perceptual Metric</h1>
 <p><a href="https://arxiv.org/abs/2607.18237" rel="nofollow">arXiv 原文</a></p>
@@ -452,6 +1470,201 @@
 <li>构建了大规模文本条件图像感知判断数据集，包含百万级人类标注及多视觉方面条件组合</li>
 <li>提出 TPIPS 指标，通过微调视觉语言模型实现对特定视觉方面的上下文依赖相似度评估</li>
 <li>验证了方法在未见训练分布及外部算法生成图像上的泛化可靠性，并支持生成模型评估与组合检索应用</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.16898" data-arxiv-id="2607.16898" data-status="ready">
+<h1>[2607.16898] Cross-Branch Conflict as a Shield: Safeguarding Facial Identities in Unified Multimodal Image Editing</h1>
+<p><a href="https://arxiv.org/abs/2607.16898" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种名为CCS的跨分支冲突防御框架，通过联合扰动统一多模态模型的理解与生成分支并破坏其结构一致性，有效解决了现有单分支保护方法因分支互补导致身份恢复失效的问题。</p>
+<h2>解决的问题</h2>
+<p>现有针对扩散模型或视觉语言模型的保护方法通常仅干扰单一视觉分支，而统一多模态模型内部的理解与生成分支之间存在结构一致性，当单一分支被扰动时，另一分支仍能补偿恢复身份特征，导致现有防御方法在防止身份编辑方面失效。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出跨分支冲突作为盾牌（CCS）框架，联合驱动ViT和VAE表示远离干净样本。</li>
+<li>利用线性中心核对齐（CKA）目标函数破坏两个分支间的结构一致性。</li>
+<li>同时优化分支内表示发散和跨分支冲突，防止模型利用剩余信息融合生成一致身份特征。</li>
+<li>在保持输入图像视觉质量的同时，显著降低了输出图像的身份相似性和指令遵循度。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.15740" data-arxiv-id="2607.15740" data-status="ready">
+<h1>[2607.15740] Debiasing Text-to-Image Evaluation via Implicit Cultural Alignment Reward Modeling</h1>
+<p><a href="https://arxiv.org/abs/2607.15740" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种基于轻量级多模态大语言模型的隐式文化对齐奖励模型，通过绕过自回归文本生成并引入跳连交叉注意力机制，有效解决了现有评估方法在文化真实性判断上的偏见与效率低下问题。</p>
+<h2>解决的问题</h2>
+<p>现有 T2I 评估指标和多模态裁判多依赖视觉 - 语义表示，难以充分捕捉隐式文化规范，导致偏好判断存在偏见且遗漏细微文化线索；同时，基于视觉问答的评估器依赖自回归文本生成，严重限制了其在实时奖励建模中的可扩展性与效率。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建基于轻量级 42 亿参数多模态大语言模型的隐式文化对齐奖励模型</li>
+<li>引入隐式文化探测与跳连交叉注意力机制，增强视觉特征与文化语义的对齐</li>
+<li>通过绕过自回归文本生成实现实时评估，相比标准视觉问答评估器提升十倍速度</li>
+<li>在文化帧基准测试中表现出优于现有视觉语言指标和 MLLM 评估器的性能</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.14945" data-arxiv-id="2607.14945" data-status="ready">
+<h1>[2607.14945] Introspective Attention Modulation for Safe Text-to-Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2607.14945" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种基于推理时内省注意力调节的方法，通过动态分析并重新平衡图像合成过程中的注意力激活，在确保内容安全的同时保持语义对齐和感知质量。</p>
+<h2>解决的问题</h2>
+<p>现有的文本到图像生成模型因训练数据未筛选而存在严重安全隐患，且现有的安全机制（如概念擦除、提示过滤、分类器门控）容易被参数高效微调技术（如 LoRA 和 DreamBooth）绕过，难以在保持生成质量的同时有效防止不安全内容的产生。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于推理时内省的注意力调节方法，通过推理时干预实现内在鲁棒性。</li>
+<li>通过分析并重新平衡图像合成过程中的注意力激活，动态引导生成远离不安全概念。</li>
+<li>在确保内容安全的同时，维持甚至提升语义对齐和感知质量。</li>
+<li>证明注意力空间调节相比现有的概念擦除机制更具安全性前景。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.24817" data-arxiv-id="2606.24817" data-status="ready">
+<h1>[2606.24817] High-Fidelity Synthetic Transmission Electron Microscopy Image Generation Using Diffusion Probabilistic Models for Data-Limited Semiconductor Metrology</h1>
+<p><a href="https://arxiv.org/abs/2606.24817" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种基于去噪扩散概率模型（DDPM）的框架，通过渐进式块训练等策略，在极端数据稀缺条件下实现了高保真透射电子显微镜（TEM）图像合成，有效解决了下游机器学习训练的数据瓶颈问题。</p>
+<h2>解决的问题</h2>
+<p>随着半导体节点缩小，透射电子显微镜（TEM）数据采集受限于破坏性样品制备、耗时及高昂成本，导致数据集稀缺；现有生成模型常忽略 TEM 特有的噪声、结构细节及随机变异性，难以满足半导体计量学的高保真要求，限制了下游机器学习分析工具的开发。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于补丁的渐进式训练策略，支持从极低样本量（如 15 张）开始训练，实现高保真图像生成。</li>
+<li>集成半导体成像感知的增强算法与领域迁移能力，保留不同成像条件下的特征一致性。</li>
+<li>结合分类器引导与 RePaint 风格修复机制，实现满足计量学要求的可控合成与图像扩展。</li>
+<li>复用 DDPM 中间特征表示进行无监督分割，为下游分析提供轻量级区域建议。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.10309" data-arxiv-id="2606.10309" data-status="ready">
+<h1>[2606.10309] Dissect and Prune: Enhancing Robustness in AI-Generated Image Detection</h1>
+<p><a href="https://arxiv.org/abs/2606.10309" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 DEAR 方法，利用修复图像进行特征剪枝以消除预测不对称性，有效解决了现有检测器在未知生成器和后处理场景下鲁棒性不足的问题。</p>
+<h2>解决的问题</h2>
+<p>现有 AI 生成图像检测器虽然报告了高准确率，但存在严重的预测不对称问题，即主要依赖对真实图像的高识别率，而对生成内容的敏感性极低。在压缩或缩放等后处理操作下，这种不对称加剧，导致检测器倾向于预测真实类。根本原因在于模型过度依赖数据集特定的虚假相关性而非鲁棒的取证痕迹，使其在面对未知生成器或扰动时表现脆弱。</p>
+<h2>创新点</h2>
+<ul>
+<li>识别并定义了现有检测器中普遍存在的预测不对称现象，揭示了高准确率掩盖了对生成内容敏感性低的问题</li>
+<li>提出 DEAR 方法，利用修复图像作为探针，量化特征激活与 inpaint 掩码的对齐度以进行特征剪枝</li>
+<li>采用选择性剪枝策略，移除与生成区域或真实背景过度对齐的特征，仅保留捕捉真实生成伪影的鲁棒特征</li>
+<li>通过实验验证该方法能显著提升检测器对未知生成器和常见后处理操作的鲁棒性</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2605.29471" data-arxiv-id="2605.29471" data-status="ready">
+<h1>[2605.29471] V2VCrafter: Consistent Street-View Image Generation Across Vehicles</h1>
+<p><a href="https://arxiv.org/abs/2605.29471" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 V2VCrafter 框架，作为首个面向多车协同感知场景的跨车辆街景图像生成方法，通过渐进式扩散与跨车注意力机制实现了高质量且一致的可控街景生成。</p>
+<h2>解决的问题</h2>
+<p>现有协同感知系统受限于稀缺的标注数据，单一车辆多视图生成框架难以扩展至多智能体场景，主要面临学习目标扩大导致收敛困难与生成质量下降、以及动态跨车视角关系变化导致物理属性一致性难以建模的问题。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了首个面向多车协同感知场景的跨车辆街景图像生成框架</li>
+<li>构建了基于单智能体骨干的渐进式多智能体扩散模型，通过邻居代理潜在状态指导生成</li>
+<li>设计了跨智能体注意力模块，利用协作视图图和联合观测对象表示建模动态跨车视角关系</li>
+<li>实现了高质量、可控且一致的街景生成，有效提升了下游协同 3D 目标检测性能</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2604.07230" data-arxiv-id="2604.07230" data-status="ready">
+<h1>[2604.07230] PhyEdit: Towards Real-World Object Manipulation via Physically-Grounded Image Editing</h1>
+<p><a href="https://arxiv.org/abs/2604.07230" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>PhyEdit 通过引入显式几何模拟作为 3D 感知视觉引导并结合 2D-3D 联合监督，实现了物理准确的图像编辑与物体操作，同时发布了配套的真实世界数据集与评估基准。</p>
+<h2>解决的问题</h2>
+<p>现有视觉生成模型缺乏明确的 3D 几何与物理控制机制，导致物体缩放和定位不准确，难以满足现实世界交互应用的需求；此外，现有数据集和基准多侧重于 2D 指标或合成数据，缺乏真实物理规律及深度标注，限制了模型泛化与评估。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 PhyEdit 框架，利用显式几何模拟作为 3D 感知视觉引导，结合 2D-3D 联合监督策略提升操作一致性。</li>
+<li>构建 RealManip-40K 数据集，包含真实世界图像对及深度标注，专为 3D 感知物体操作设计。</li>
+<li>设计 ManipEval 基准，提供多维度指标以评估 3D 空间控制精度与几何一致性。</li>
+<li>采用 DiT 架构处理几何位移，并能自然考虑变形和遮挡等隐式物理效应。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2604.00933" data-arxiv-id="2604.00933" data-status="ready">
+<h1>[2604.00933] EmoScene: A Dual-space Dataset for Controllable Affective Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2604.00933" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 EmoScene 双空间数据集及 AffectCtrl 控制器，通过联合表征离散情感、连续 VAD 维度和感知属性，解决了现有文生图模型缺乏细粒度情感控制及数据监督不足的问题，实现了冻结扩散模型下的连续情感与外观属性可控生成。</p>
+<h2>解决的问题</h2>
+<p>现有文生图扩散模型主要依赖提示词修饰符控制情感，未能指定光照、色彩等感知载体；且现有情感数据集多局限于离散标签或特定领域，缺乏对连续强度及外观属性的联合监督，导致模型难以学习情感与感知间的关联，缺乏可解释的控制手段。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建了包含 1.2M 图像的 EmoScene 双空间数据集，联合表征离散情感与连续 VAD 维度及可测量外观属性。</li>
+<li>揭示了自然图像中类别情感、连续 VAD 维度与可测量感知属性之间的统计耦合关系。</li>
+<li>提出了轻量级 AffectCtrl 控制器，支持在冻结扩散模型上实现类别情感生成及连续情感与外观属性控制。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2603.27959" data-arxiv-id="2603.27959" data-status="ready">
+<h1>[2603.27959] MathGen: Revealing the Illusion of Mathematical Competence through Text-to-Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2603.27959" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 MathGen 基准以评估文本生成图像模型的数学能力，实验显示即使最先进的闭源模型在数学视觉生成任务上的准确率也仅为 53.7%，开源模型表现更差，表明当前 T2I 模型在需要精确几何和函数渲染的视觉生成方面远不可靠。</p>
+<h2>解决的问题</h2>
+<p>现有评估管道主要强调语义对齐、组合性或视觉逼真度，未能有效测量数学正确性；依赖 VLM 的判断对于细粒度结构验证不可靠，且传统自动指标如 CLIP-score 和 FID 仅衡量语义相似性或分布现实性，无法验证生成图像是否满足底层的数学约束。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建了包含 420 个问题的 MathGen 基准，涵盖计数、几何、函数等七个核心数学领域</li>
+<li>提出 Script-as-a-Judge 评估协议，利用可重用执行脚本和计算机视觉模块实现确定性且可复现的评估</li>
+<li>系统性地揭示了当前 T2I 模型在数学视觉生成任务中存在的严重忠实度瓶颈</li>
+<li>区分了 Clean-Scene 和 Open-Scene 场景，提供了细粒度的结构验证能力</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2603.23924" data-arxiv-id="2603.23924" data-status="ready">
+<h1>[2603.23924] DepthArb: Training-Free Depth-Arbitrated Generation for Occlusion-Robust Image Synthesis</h1>
+<p><a href="https://arxiv.org/abs/2603.23924" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出DepthArb，一种无需训练的框架，通过在统一去噪轨迹中实施冲突自适应的注意力仲裁，有效解决了多对象图像合成中的遮挡竞争与概念混合问题，并保持了良好的文本图像对齐。</p>
+<h2>解决的问题</h2>
+<p>现有文本生成模型在多对象合成中常面临空间不一致，尤其是密集重叠区域。现有的无训练布局引导方法主要强制2D空间约束，未明确解决深度依赖的注意力竞争，导致概念混合；而现有的顺序感知方法需分解生成路径（如顺序去噪），增加了复杂度且无法保持同时生成的连贯性。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出无需训练的DepthArb框架，在统一去噪轨迹中通过注意力仲裁解决遮挡问题，无需模型重训练或对象去噪分解。</li>
+<li>设计注意力仲裁调制（AAM），基于相对深度抑制背景对象在前景支持区域内的注意力以解决竞争。</li>
+<li>引入空间紧凑性控制（SCC），限制注意力分散以维持对象在有效区域内的空间连贯性。</li>
+<li>构建OcclBench基准，包含连续相对深度规格和遮挡特定评估指标以支持细粒度评估。</li>
+<li>开发统一的时空文本注意力接口，同时支持U-Net交叉注意力和MMDiT联合注意力。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2603.08652" data-arxiv-id="2603.08652" data-status="ready">
+<h1>[2603.08652] CoCo: Code as CoT for Text-to-Image Preview and Rare Concept Generation</h1>
+<p><a href="https://arxiv.org/abs/2603.08652" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>CoCo 提出一种代码驱动的推理框架，将文本到图像生成中的推理过程转化为可执行代码以生成结构化草稿，进而通过细化实现精确可控的高保真图像生成。</p>
+<h2>解决的问题</h2>
+<p>现有基于思维链的文本到图像生成方法主要依赖抽象的自然语言规划，缺乏对复杂空间布局、结构化视觉元素及密集文本内容所需的精确性，导致在科学图表等任务中常出现结构错误或文本不可读的问题。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出代码作为思维链（Code-as-CoT）的推理框架，将推理过程表示为可执行代码</li>
+<li>在沙盒环境中执行代码生成确定性的草稿图像，实现显式且可验证的中间规划</li>
+<li>构建 CoCo-10K 数据集，包含结构化草稿与最终图像对，支持草稿构建与视觉修正训练</li>
+<li>通过细粒度图像编辑对草稿进行细化，提升最终图像的高保真度和结构准确性</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2602.23783" data-arxiv-id="2602.23783" data-status="ready">
+<h1>[2602.23783] Diffusion Probe: Generated Image Result Prediction Using CNN Probes</h1>
+<p><a href="https://arxiv.org/abs/2602.23783" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>Diffusion Probe 提出了一种利用扩散模型早期交叉注意力分布预测最终图像质量的新框架，该方法通过轻量级 CNN 探针将早期去噪步骤的统计特征映射为质量评估信号，在无需完成完整图像合成的情况下实现了高效准确的质量预测，有效降低了多轮生成任务中的计算成本并优化了工作流效率。</p>
+<h2>解决的问题</h2>
+<p>现有文本到图像生成方法在迭代优化中往往需要完成完整的去噪过程才能评估质量，导致计算资源消耗巨大且效率低下。此外，现有的早期预测方法要么依赖外部大型视觉语言模型带来高昂开销，要么仅依赖人工可视化分析缺乏自动化定量能力，无法在大规模搜索空间中实现可扩展的高效诊断。</p>
+<h2>创新点</h2>
+<ul>
+<li>首次将探针概念引入扩散模型，揭示早期交叉注意力分布与最终图像质量之间的强相关性</li>
+<li>设计轻量级 CNN 预测器，将早期去噪步骤的注意力统计特征映射为质量信号，无需完整合成</li>
+<li>实现模型无关性，可泛化至多种评估指标及优化任务</li>
+<li>支持自动化定量评估，显著降低生成过程中的计算开销并提升工作流效率</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2602.21956" data-arxiv-id="2602.21956" data-status="ready">
+<h1>[2602.21956] Global-Local Dual Perception for MLLMs in High-Resolution Text-Rich Image Translation</h1>
+<p><a href="https://arxiv.org/abs/2602.21956" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 GLoTran 框架，通过全局 - 局部双视觉感知策略结合大规模数据集，有效解决了高分辨率文本丰富图像翻译中的上下文不一致与细节遗漏问题，显著提升了翻译准确性。</p>
+<h2>解决的问题</h2>
+<p>现有 TIMT 方法在处理高分辨率文本丰富图像时，受限于杂乱布局和非文本干扰，导致注意力分散引发文本遗漏和语义漂移；同时级联方法存在误差传播且端到端模型难以适应多样化场景，难以兼顾全局上下文与细粒度文本细节。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 GLoTran 全局 - 局部双视觉感知框架，联合建模场景级上下文理解与细粒度文本区域感知。</li>
+<li>采用低分辨率全局图像与多尺度区域文本切片结合的方式，在指令引导下维持上下文一致性与文本细节捕捉。</li>
+<li>构建 GLoD 大规模数据集，包含 510K 对高分辨率全局 - 局部图像 - 文本对，覆盖多样化真实场景。</li>
+<li>实验证明该方法在高分辨率文本丰富图像翻译任务上优于现有最先进 MLLM 模型。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2602.20839" data-arxiv-id="2602.20839" data-status="ready">
@@ -469,8 +1682,23 @@
 <li>无需参考样本即可保持实例概念身份，避免概念冲突</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2601.12401" data-arxiv-id="2601.12401" data-status="ready">
+<h1>[2601.12401] Beyond the Dirac Delta: Mitigating Diversity Collapse in Reinforcement Fine-Tuning for Versatile Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2601.12401" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 DRIFT 框架，通过系统性地激励输出多样性来解决强化微调中的多样性坍缩问题，从而在保持任务对齐的同时显著提升生成多样性。</p>
+<h2>解决的问题</h2>
+<p>现有强化学习微调方法存在固有的多样性坍缩问题，导致策略坍缩为狄拉克δ分布并产生单调输出；此外，KL 正则化限制了模型学习新内容的灵活性，而现有的采样策略依赖人工调参且无法解决微调过程中的多样性坍缩。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 DRIFT 框架，将多样性激励显式嵌入强化微调过程。</li>
+<li>采用奖励集中子集采样策略，过滤奖励异常值以防止过早坍缩。</li>
+<li>引入随机变化提示输入，扩展条件空间以增强生成多样性。</li>
+<li>设计基于势函数的奖励塑造机制，将组内多样性作为内在奖励。</li>
+</ul>
+    </article>
     </div>
   </main>
-  <script type="application/json" id="summary-catalog">{"papers":{"2602.20839":{"status":"ready","url":"notes/image-generation.html#summary-2602.20839"},"2607.18237":{"status":"ready","url":"notes/image-generation.html#summary-2607.18237"},"2608.07565":{"status":"ready","url":"notes/image-generation.html#summary-2608.07565"},"2608.14546":{"status":"ready","url":"notes/image-generation.html#summary-2608.14546"},"2608.14790":{"status":"ready","url":"notes/image-generation.html#summary-2608.14790"},"2608.15694":{"status":"ready","url":"notes/image-generation.html#summary-2608.15694"},"2608.15705":{"status":"ready","url":"notes/image-generation.html#summary-2608.15705"},"2608.16100":{"status":"ready","url":"notes/image-generation.html#summary-2608.16100"},"2608.16104":{"status":"ready","url":"notes/image-generation.html#summary-2608.16104"},"2608.16284":{"status":"ready","url":"notes/image-generation.html#summary-2608.16284"},"2608.16646":{"status":"ready","url":"notes/image-generation.html#summary-2608.16646"},"2608.16721":{"status":"ready","url":"notes/image-generation.html#summary-2608.16721"},"2608.16765":{"status":"ready","url":"notes/image-generation.html#summary-2608.16765"},"2608.16812":{"status":"ready","url":"notes/image-generation.html#summary-2608.16812"},"2608.16887":{"status":"ready","url":"notes/image-generation.html#summary-2608.16887"},"2608.17067":{"status":"ready","url":"notes/image-generation.html#summary-2608.17067"},"2608.17203":{"status":"ready","url":"notes/image-generation.html#summary-2608.17203"},"2608.17286":{"status":"ready","url":"notes/image-generation.html#summary-2608.17286"},"2608.17747":{"status":"ready","url":"notes/image-generation.html#summary-2608.17747"},"2608.17883":{"status":"ready","url":"notes/image-generation.html#summary-2608.17883"},"2608.17995":{"status":"ready","url":"notes/image-generation.html#summary-2608.17995"},"2608.18040":{"status":"ready","url":"notes/image-generation.html#summary-2608.18040"},"2608.18063":{"status":"ready","url":"notes/image-generation.html#summary-2608.18063"},"2608.18076":{"status":"ready","url":"notes/image-generation.html#summary-2608.18076"},"2608.18968":{"status":"ready","url":"notes/image-generation.html#summary-2608.18968"},"2608.19000":{"status":"ready","url":"notes/image-generation.html#summary-2608.19000"},"2608.19637":{"status":"ready","url":"notes/image-generation.html#summary-2608.19637"},"2608.20161":{"status":"ready","url":"notes/image-generation.html#summary-2608.20161"},"2608.20334":{"status":"ready","url":"notes/image-generation.html#summary-2608.20334"},"2608.20336":{"status":"ready","url":"notes/image-generation.html#summary-2608.20336"},"2608.21229":{"status":"ready","url":"notes/image-generation.html#summary-2608.21229"}},"topic":"Image Generation","version":1}</script>
+  <script type="application/json" id="summary-catalog">{"papers":{"2601.12401":{"status":"ready","url":"notes/image-generation.html#summary-2601.12401"},"2602.20839":{"status":"ready","url":"notes/image-generation.html#summary-2602.20839"},"2602.21956":{"status":"ready","url":"notes/image-generation.html#summary-2602.21956"},"2602.23783":{"status":"ready","url":"notes/image-generation.html#summary-2602.23783"},"2603.08652":{"status":"ready","url":"notes/image-generation.html#summary-2603.08652"},"2603.23924":{"status":"ready","url":"notes/image-generation.html#summary-2603.23924"},"2603.27959":{"status":"ready","url":"notes/image-generation.html#summary-2603.27959"},"2604.00933":{"status":"ready","url":"notes/image-generation.html#summary-2604.00933"},"2604.07230":{"status":"ready","url":"notes/image-generation.html#summary-2604.07230"},"2605.29471":{"status":"ready","url":"notes/image-generation.html#summary-2605.29471"},"2606.10309":{"status":"ready","url":"notes/image-generation.html#summary-2606.10309"},"2606.24817":{"status":"ready","url":"notes/image-generation.html#summary-2606.24817"},"2607.14945":{"status":"ready","url":"notes/image-generation.html#summary-2607.14945"},"2607.15740":{"status":"ready","url":"notes/image-generation.html#summary-2607.15740"},"2607.16898":{"status":"ready","url":"notes/image-generation.html#summary-2607.16898"},"2607.18237":{"status":"ready","url":"notes/image-generation.html#summary-2607.18237"},"2607.19341":{"status":"ready","url":"notes/image-generation.html#summary-2607.19341"},"2607.29025":{"status":"pending"},"2608.00548":{"status":"ready","url":"notes/image-generation.html#summary-2608.00548"},"2608.00562":{"status":"ready","url":"notes/image-generation.html#summary-2608.00562"},"2608.00584":{"status":"ready","url":"notes/image-generation.html#summary-2608.00584"},"2608.00588":{"status":"ready","url":"notes/image-generation.html#summary-2608.00588"},"2608.00598":{"status":"ready","url":"notes/image-generation.html#summary-2608.00598"},"2608.00716":{"status":"ready","url":"notes/image-generation.html#summary-2608.00716"},"2608.00736":{"status":"ready","url":"notes/image-generation.html#summary-2608.00736"},"2608.01258":{"status":"ready","url":"notes/image-generation.html#summary-2608.01258"},"2608.01780":{"status":"ready","url":"notes/image-generation.html#summary-2608.01780"},"2608.01988":{"status":"ready","url":"notes/image-generation.html#summary-2608.01988"},"2608.02059":{"status":"ready","url":"notes/image-generation.html#summary-2608.02059"},"2608.02841":{"status":"ready","url":"notes/image-generation.html#summary-2608.02841"},"2608.03059":{"status":"ready","url":"notes/image-generation.html#summary-2608.03059"},"2608.03284":{"status":"ready","url":"notes/image-generation.html#summary-2608.03284"},"2608.03357":{"status":"ready","url":"notes/image-generation.html#summary-2608.03357"},"2608.04030":{"status":"ready","url":"notes/image-generation.html#summary-2608.04030"},"2608.04436":{"status":"ready","url":"notes/image-generation.html#summary-2608.04436"},"2608.04750":{"status":"ready","url":"notes/image-generation.html#summary-2608.04750"},"2608.04935":{"status":"ready","url":"notes/image-generation.html#summary-2608.04935"},"2608.05663":{"status":"ready","url":"notes/image-generation.html#summary-2608.05663"},"2608.06075":{"status":"ready","url":"notes/image-generation.html#summary-2608.06075"},"2608.06751":{"status":"ready","url":"notes/image-generation.html#summary-2608.06751"},"2608.06929":{"status":"ready","url":"notes/image-generation.html#summary-2608.06929"},"2608.07003":{"status":"ready","url":"notes/image-generation.html#summary-2608.07003"},"2608.07565":{"status":"ready","url":"notes/image-generation.html#summary-2608.07565"},"2608.07713":{"status":"ready","url":"notes/image-generation.html#summary-2608.07713"},"2608.07863":{"status":"ready","url":"notes/image-generation.html#summary-2608.07863"},"2608.07999":{"status":"ready","url":"notes/image-generation.html#summary-2608.07999"},"2608.08720":{"status":"ready","url":"notes/image-generation.html#summary-2608.08720"},"2608.09097":{"status":"ready","url":"notes/image-generation.html#summary-2608.09097"},"2608.09223":{"status":"ready","url":"notes/image-generation.html#summary-2608.09223"},"2608.09226":{"status":"ready","url":"notes/image-generation.html#summary-2608.09226"},"2608.09244":{"status":"ready","url":"notes/image-generation.html#summary-2608.09244"},"2608.09322":{"status":"ready","url":"notes/image-generation.html#summary-2608.09322"},"2608.09529":{"status":"ready","url":"notes/image-generation.html#summary-2608.09529"},"2608.09666":{"status":"ready","url":"notes/image-generation.html#summary-2608.09666"},"2608.10166":{"status":"ready","url":"notes/image-generation.html#summary-2608.10166"},"2608.10524":{"status":"ready","url":"notes/image-generation.html#summary-2608.10524"},"2608.11002":{"status":"ready","url":"notes/image-generation.html#summary-2608.11002"},"2608.11013":{"status":"ready","url":"notes/image-generation.html#summary-2608.11013"},"2608.11205":{"status":"ready","url":"notes/image-generation.html#summary-2608.11205"},"2608.11343":{"status":"ready","url":"notes/image-generation.html#summary-2608.11343"},"2608.11452":{"status":"ready","url":"notes/image-generation.html#summary-2608.11452"},"2608.11732":{"status":"ready","url":"notes/image-generation.html#summary-2608.11732"},"2608.11838":{"status":"ready","url":"notes/image-generation.html#summary-2608.11838"},"2608.11884":{"status":"ready","url":"notes/image-generation.html#summary-2608.11884"},"2608.12122":{"status":"ready","url":"notes/image-generation.html#summary-2608.12122"},"2608.12155":{"status":"ready","url":"notes/image-generation.html#summary-2608.12155"},"2608.12532":{"status":"ready","url":"notes/image-generation.html#summary-2608.12532"},"2608.12766":{"status":"ready","url":"notes/image-generation.html#summary-2608.12766"},"2608.12806":{"status":"ready","url":"notes/image-generation.html#summary-2608.12806"},"2608.12811":{"status":"ready","url":"notes/image-generation.html#summary-2608.12811"},"2608.12876":{"status":"ready","url":"notes/image-generation.html#summary-2608.12876"},"2608.13455":{"status":"ready","url":"notes/image-generation.html#summary-2608.13455"},"2608.13478":{"status":"ready","url":"notes/image-generation.html#summary-2608.13478"},"2608.13865":{"status":"ready","url":"notes/image-generation.html#summary-2608.13865"},"2608.14038":{"status":"ready","url":"notes/image-generation.html#summary-2608.14038"},"2608.14172":{"status":"ready","url":"notes/image-generation.html#summary-2608.14172"},"2608.14226":{"status":"ready","url":"notes/image-generation.html#summary-2608.14226"},"2608.14543":{"status":"ready","url":"notes/image-generation.html#summary-2608.14543"},"2608.14546":{"status":"ready","url":"notes/image-generation.html#summary-2608.14546"},"2608.14729":{"status":"ready","url":"notes/image-generation.html#summary-2608.14729"},"2608.14730":{"status":"ready","url":"notes/image-generation.html#summary-2608.14730"},"2608.14790":{"status":"ready","url":"notes/image-generation.html#summary-2608.14790"},"2608.14976":{"status":"ready","url":"notes/image-generation.html#summary-2608.14976"},"2608.15196":{"status":"ready","url":"notes/image-generation.html#summary-2608.15196"},"2608.15238":{"status":"ready","url":"notes/image-generation.html#summary-2608.15238"},"2608.15341":{"status":"ready","url":"notes/image-generation.html#summary-2608.15341"},"2608.15452":{"status":"ready","url":"notes/image-generation.html#summary-2608.15452"},"2608.15522":{"status":"ready","url":"notes/image-generation.html#summary-2608.15522"},"2608.15583":{"status":"ready","url":"notes/image-generation.html#summary-2608.15583"},"2608.15694":{"status":"ready","url":"notes/image-generation.html#summary-2608.15694"},"2608.15705":{"status":"ready","url":"notes/image-generation.html#summary-2608.15705"},"2608.16100":{"status":"ready","url":"notes/image-generation.html#summary-2608.16100"},"2608.16104":{"status":"ready","url":"notes/image-generation.html#summary-2608.16104"},"2608.16284":{"status":"ready","url":"notes/image-generation.html#summary-2608.16284"},"2608.16646":{"status":"ready","url":"notes/image-generation.html#summary-2608.16646"},"2608.16721":{"status":"ready","url":"notes/image-generation.html#summary-2608.16721"},"2608.16765":{"status":"ready","url":"notes/image-generation.html#summary-2608.16765"},"2608.16812":{"status":"ready","url":"notes/image-generation.html#summary-2608.16812"},"2608.16887":{"status":"ready","url":"notes/image-generation.html#summary-2608.16887"},"2608.17067":{"status":"ready","url":"notes/image-generation.html#summary-2608.17067"},"2608.17203":{"status":"ready","url":"notes/image-generation.html#summary-2608.17203"},"2608.17286":{"status":"ready","url":"notes/image-generation.html#summary-2608.17286"},"2608.17747":{"status":"ready","url":"notes/image-generation.html#summary-2608.17747"},"2608.17883":{"status":"ready","url":"notes/image-generation.html#summary-2608.17883"},"2608.17995":{"status":"ready","url":"notes/image-generation.html#summary-2608.17995"},"2608.18040":{"status":"ready","url":"notes/image-generation.html#summary-2608.18040"},"2608.18063":{"status":"ready","url":"notes/image-generation.html#summary-2608.18063"},"2608.18076":{"status":"ready","url":"notes/image-generation.html#summary-2608.18076"},"2608.18968":{"status":"ready","url":"notes/image-generation.html#summary-2608.18968"},"2608.19000":{"status":"ready","url":"notes/image-generation.html#summary-2608.19000"},"2608.19637":{"status":"ready","url":"notes/image-generation.html#summary-2608.19637"},"2608.20161":{"status":"ready","url":"notes/image-generation.html#summary-2608.20161"},"2608.20334":{"status":"ready","url":"notes/image-generation.html#summary-2608.20334"},"2608.20336":{"status":"ready","url":"notes/image-generation.html#summary-2608.20336"},"2608.21229":{"status":"ready","url":"notes/image-generation.html#summary-2608.21229"}},"topic":"Image Generation","version":1}</script>
 </body>
 </html>
