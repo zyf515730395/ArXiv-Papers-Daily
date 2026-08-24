@@ -57,17 +57,24 @@ def select_historical_batch(
     summary_state: dict[str, Any],
     topic_order: list[str],
     limit: int,
+    target_year: int | None = None,
+    excluded_ids: set[str] | None = None,
 ) -> HistoricalBatch | None:
     """Return the first incomplete month/topic bucket in newest-first order."""
     if limit < 1:
         raise ValueError("Historical backfill limit must be positive")
 
+    excluded_ids = excluded_ids or set()
     papers_by_bucket: dict[tuple[str, str], list[HistoricalPaper]] = {}
     months = set()
     for topic in topic_order:
         for paper_id, archive_row in archive.get(topic, {}).items():
             paper = parse_archive_paper(topic, paper_id, archive_row)
             if paper is None:
+                continue
+            if target_year is not None and paper.updated[:4] != str(target_year):
+                continue
+            if paper.paper_id in excluded_ids:
                 continue
             months.add(paper.month)
             papers_by_bucket.setdefault((paper.month, topic), []).append(paper)

@@ -12,6 +12,7 @@ from pathlib import Path
 import re
 import shutil
 import tempfile
+import time
 from typing import Any
 
 import bleach
@@ -578,13 +579,35 @@ def process_summary_queue(
     base_url: str,
     model_override: str | None = None,
     topics: list[str] | None = None,
-) -> dict[str, int]:
-    """Process every pending paper sequentially, then publish the current catalog."""
+    deadline: float | None = None,
+    attempted_ids: set[str] | None = None,
+    include_new: bool = True,
+    include_historical: bool = True,
+    historical_year: int | None = None,
+    publish: bool = True,
+) -> dict[str, int | bool]:
+    """Process eligible pending papers once, optionally stopping at a deadline."""
     state = load_state(notes_root)
+    attempted_ids = attempted_ids if attempted_ids is not None else set()
+
+    def eligible(entry: dict[str, Any]) -> bool:
+        if entry.get("status") == "ready" or entry.get("id") in attempted_ids:
+            return False
+        historical = entry.get("source") == "historical"
+        if historical and not include_historical:
+            return False
+        if not historical and not include_new:
+            return False
+        if historical and historical_year is not None:
+            archive_value = entry.get("archive_date") or entry.get("archive_month") or ""
+            if not str(archive_value).startswith(f"{historical_year:04d}-"):
+                return False
+        return True
+
     pending_entries = [
         entry
         for entry in state["papers"].values()
-        if entry.get("status") != "ready"
+        if eligible(entry)
     ]
     new_pending = sorted(
         (
@@ -610,20 +633,38 @@ def process_summary_queue(
     pending = new_pending + historical_pending
     completed = 0
     failed = 0
+    attempted = 0
+    budget_exhausted = deadline is not None and time.monotonic() >= deadline
+    blocked = False
     model: str | None = None
 
-    if pending:
+    if pending and not budget_exhausted:
         try:
             model = vllm_model(base_url, model_override)
         except SummaryGenerationError as error:
             for entry in pending:
-                entry["status"] = "pending"
                 entry["last_error"] = str(error)
             save_state(notes_root, state)
-            publish_summaries(notes_root, state, publish_root, topics)
-            return {"completed": 0, "failed": len(pending), "pending": len(pending)}
+            if publish:
+                publish_summaries(notes_root, state, publish_root, topics)
+            remaining = sum(
+                entry.get("status") != "ready" for entry in state["papers"].values()
+            )
+            return {
+                "completed": 0,
+                "failed": 0,
+                "attempted": 0,
+                "pending": remaining,
+                "budget_exhausted": False,
+                "blocked": True,
+            }
 
     for entry in pending:
+        if deadline is not None and time.monotonic() >= deadline:
+            budget_exhausted = True
+            break
+        attempted_ids.add(entry["id"])
+        attempted += 1
         entry["status"] = "processing"
         entry["attempts"] = int(entry.get("attempts", 0)) + 1
         save_state(notes_root, state)
@@ -647,8 +688,16 @@ def process_summary_queue(
         finally:
             save_state(notes_root, state)
 
-    publish_summaries(notes_root, state, publish_root, topics)
+    if publish:
+        publish_summaries(notes_root, state, publish_root, topics)
     remaining = sum(
         entry.get("status") != "ready" for entry in state["papers"].values()
     )
-    return {"completed": completed, "failed": failed, "pending": remaining}
+    return {
+        "completed": completed,
+        "failed": failed,
+        "attempted": attempted,
+        "pending": remaining,
+        "budget_exhausted": budget_exhausted,
+        "blocked": blocked,
+    }

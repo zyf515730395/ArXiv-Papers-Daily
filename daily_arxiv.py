@@ -14,6 +14,7 @@ from paper_summarizer import (
     enqueue_candidates,
     load_state,
     process_summary_queue,
+    publish_summaries,
 )
 from site_generator import generate_site
 
@@ -379,17 +380,25 @@ def historical_summary_candidates(batch: HistoricalBatch, summary_state, client)
 
 
 def queue_historical_backfill(
-    archive, summary_state, notes_root, topics, limit, client
+    archive,
+    summary_state,
+    notes_root,
+    topics,
+    limit,
+    client,
+    target_year=None,
+    excluded_ids=None,
 ):
     batch = select_historical_batch(
         archive,
         summary_state,
         topics,
         limit,
+        target_year=target_year,
+        excluded_ids=excluded_ids,
     )
     if batch is None:
-        logging.info("Historical summary backfill is complete")
-        return 0
+        return None, 0
 
     candidates = historical_summary_candidates(batch, summary_state, client)
     enqueue_candidates(notes_root, summary_state, candidates)
@@ -401,7 +410,100 @@ def queue_historical_backfill(
         len(candidates),
         batch.remaining_in_bucket,
     )
-    return len(candidates)
+    return batch, len(candidates)
+
+
+def run_historical_backfill(
+    archive,
+    notes_root,
+    publish_root,
+    topics,
+    limit,
+    client,
+    target_year,
+    budget_minutes,
+    base_url,
+    model_override=None,
+):
+    """Process ordered historical batches until the monotonic deadline expires."""
+    deadline = time.monotonic() + budget_minutes * 60
+    attempted_ids = set()
+    totals = {"completed": 0, "failed": 0, "attempted": 0}
+    stop_reason = "complete"
+
+    while True:
+        stats = process_summary_queue(
+            notes_root,
+            publish_root,
+            base_url,
+            model_override,
+            topics,
+            deadline=deadline,
+            attempted_ids=attempted_ids,
+            include_new=True,
+            include_historical=True,
+            historical_year=target_year,
+            publish=False,
+        )
+        for key in totals:
+            totals[key] += int(stats[key])
+
+        if stats["blocked"]:
+            stop_reason = "model-unavailable"
+            break
+        if stats["budget_exhausted"] or time.monotonic() >= deadline:
+            stop_reason = "time-budget"
+            break
+
+        summary_state = load_state(notes_root)
+        batch, resolved = queue_historical_backfill(
+            archive,
+            summary_state,
+            notes_root,
+            topics,
+            limit,
+            client,
+            target_year=target_year,
+            excluded_ids=attempted_ids,
+        )
+        if batch is None:
+            remaining = select_historical_batch(
+                archive,
+                summary_state,
+                topics,
+                1,
+                target_year=target_year,
+            )
+            stop_reason = "complete" if remaining is None else "deferred-failures"
+            break
+        if resolved == 0:
+            stop_reason = "metadata-unavailable"
+            break
+
+    final_state = load_state(notes_root)
+    publish_summaries(notes_root, final_state, publish_root, topics)
+    remaining = select_historical_batch(
+        archive,
+        final_state,
+        topics,
+        1,
+        target_year=target_year,
+    )
+    totals.update({
+        "pending": sum(
+            entry.get("status") != "ready"
+            for entry in final_state["papers"].values()
+        ),
+        "backfill_complete": remaining is None,
+        "stop_reason": stop_reason,
+    })
+    logging.info(
+        "Historical backfill result year=%d budget=%dm result=%s",
+        target_year,
+        budget_minutes,
+        totals,
+    )
+    return totals
 
 
 def demo(**config):
@@ -428,6 +530,16 @@ def demo(**config):
         if backfill_enabled
         else 10
     )
+    backfill_year = (
+        positive_env_int("SUMMARY_BACKFILL_YEAR", 2026)
+        if backfill_enabled
+        else 2026
+    )
+    backfill_budget_minutes = (
+        positive_env_int("SUMMARY_BACKFILL_TIME_BUDGET_MINUTES", 150)
+        if backfill_enabled
+        else 150
+    )
     notes_root = None
     publish_root = Path(html_file).parent / "notes"
     summary_state = None
@@ -443,21 +555,26 @@ def demo(**config):
                 delay_seconds=arxiv_request_delay_seconds,
                 num_retries=0,
             )
-            queue_historical_backfill(
+            stats = run_historical_backfill(
                 archive,
-                summary_state,
                 notes_root,
+                publish_root,
                 list(keywords),
                 backfill_limit,
                 backfill_client,
+                backfill_year,
+                backfill_budget_minutes,
+                os.getenv("VLLM_BASE_URL", "http://127.0.0.1:8000/v1"),
+                os.getenv("VLLM_MODEL") or None,
             )
-        stats = process_summary_queue(
-            notes_root,
-            publish_root,
-            os.getenv("VLLM_BASE_URL", "http://127.0.0.1:8000/v1"),
-            os.getenv("VLLM_MODEL") or None,
-            list(keywords),
-        )
+        else:
+            stats = process_summary_queue(
+                notes_root,
+                publish_root,
+                os.getenv("VLLM_BASE_URL", "http://127.0.0.1:8000/v1"),
+                os.getenv("VLLM_MODEL") or None,
+                list(keywords),
+            )
         logging.info("Summary queue result = %s", stats)
         generate_site(json_file, html_file)
         logging.info("Summary-only update finished")
@@ -510,24 +627,35 @@ def demo(**config):
             candidates = new_summary_candidates(existing_archive, paper_records)
             added = enqueue_candidates(notes_root, summary_state, candidates)
             logging.info("Queued %d newly discovered papers for summary", added)
-            if backfill_enabled:
-                queue_historical_backfill(
-                    existing_archive,
-                    summary_state,
-                    notes_root,
-                    list(keywords),
-                    backfill_limit,
-                    arxiv_client,
-                )
         update_json_file(json_file, data_collector, allowed_topics=keywords)
         if summary_enabled:
-            stats = process_summary_queue(
-                notes_root,
-                publish_root,
-                os.getenv("VLLM_BASE_URL", "http://127.0.0.1:8000/v1"),
-                os.getenv("VLLM_MODEL") or None,
-                list(keywords),
-            )
+            if backfill_enabled:
+                backfill_client = arxiv.Client(
+                    page_size=min(backfill_limit, 100),
+                    delay_seconds=arxiv_request_delay_seconds,
+                    num_retries=0,
+                )
+                stats = run_historical_backfill(
+                    load_archive(json_file),
+                    notes_root,
+                    publish_root,
+                    list(keywords),
+                    backfill_limit,
+                    backfill_client,
+                    backfill_year,
+                    backfill_budget_minutes,
+                    os.getenv("VLLM_BASE_URL", "http://127.0.0.1:8000/v1"),
+                    os.getenv("VLLM_MODEL") or None,
+                )
+            else:
+                stats = process_summary_queue(
+                    notes_root,
+                    publish_root,
+                    os.getenv("VLLM_BASE_URL", "http://127.0.0.1:8000/v1"),
+                    os.getenv("VLLM_MODEL") or None,
+                    list(keywords),
+                    include_historical=False,
+                )
             logging.info("Summary queue result = %s", stats)
     generate_site(json_file, html_file)
     logging.info("Update GitPage finished")
