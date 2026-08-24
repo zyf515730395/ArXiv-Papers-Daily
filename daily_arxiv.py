@@ -510,7 +510,7 @@ def run_historical_backfill(
     )
     totals.update({
         "pending": sum(
-            entry.get("status") != "ready"
+            entry.get("status") != "ready" or entry.get("needs_refresh")
             for entry in final_state["papers"].values()
         ),
         "backfill_complete": remaining is None,
