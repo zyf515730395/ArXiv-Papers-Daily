@@ -20,8 +20,6 @@ env:
   GITHUB_USER_EMAIL: zhangyufan.aiesec@gmail.com
   SUMMARY_ENABLED: "1"
   SUMMARY_BACKFILL_LIMIT: "10"
-  SUMMARY_BACKFILL_YEAR: "2026"
-  SUMMARY_BACKFILL_TIME_BUDGET_MINUTES: "150"
   PAPER_NOTES_ROOT: /mnt/g/share/papers
   VLLM_BASE_URL: http://127.0.0.1:8000/v1
 
@@ -31,7 +29,9 @@ jobs:
     permissions:
       contents: write
     runs-on: [self-hosted, Linux, X64, wsl2, gpu]
-    timeout-minutes: 240
+    # GitHub's platform limit for one self-hosted job is five days. The Python
+    # backfill itself has no deadline and resumes from external state if needed.
+    timeout-minutes: 7200
     defaults:
       run:
         shell: bash
@@ -85,7 +85,7 @@ jobs:
             git push origin main
           fi
 
-      - name: Backfill 2026 paper summaries
+      - name: Backfill all paper summaries
         env:
           SUMMARY_BACKFILL_ENABLED: "1"
         run: |
@@ -98,7 +98,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "No historical summary updates"
           else
-            git commit -m "Github Action Backfill 2026 Paper Summaries"
+            git commit -m "Github Action Backfill All Paper Summaries"
             git push origin main
           fi
 

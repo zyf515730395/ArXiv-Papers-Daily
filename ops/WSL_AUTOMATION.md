@@ -83,17 +83,33 @@ Daily** manually once. The scheduled run remains daily at 01:00 UTC.
 
 ## Historical summary backfill
 
-Each scheduled run first handles and commits new papers, then backfills 2026
-papers for up to 150 minutes. Buckets are ordered by month from newest to
-oldest, by the topic order in config.yaml within each month, and by paper date
-and arXiv ID from newest to oldest within each topic.
+Each scheduled run first handles and commits new papers, then backfills every
+archived year. Buckets are ordered by month from newest to oldest, by the topic
+order in `config.yaml` within each month, and by paper date and arXiv ID from
+newest to oldest within each topic. Existing queue entries use the same order
+after a restart, while newly discovered daily papers remain the first priority.
 
 `SUMMARY_BACKFILL_LIMIT` controls the arXiv metadata batch size rather than the
-number processed per run. `SUMMARY_BACKFILL_YEAR` limits the archive year, and
-`SUMMARY_BACKFILL_TIME_BUDGET_MINUTES` controls when the runner stops starting
-new work. A paper shared by multiple topics is inferred once and its Markdown
-is copied into each topic directory. Failed items are attempted only once in a
-run and remain pending for the next run.
+number processed per run. The normal workflow intentionally leaves
+`SUMMARY_BACKFILL_YEAR` and `SUMMARY_BACKFILL_TIME_BUDGET_MINUTES` unset, so the
+Python process has neither a year filter nor an application-level deadline. A
+paper shared by multiple topics is inferred once and its Markdown is copied
+into each topic directory. Failed items are attempted only once in a run,
+later ordered items continue, and failed items remain pending for the next run.
+
+GitHub Actions still enforces a platform limit of five days for a single
+self-hosted job. The workflow uses that maximum (7200 minutes). Summary state
+and Markdown are saved atomically after every paper, so a later scheduled or
+manual run resumes the same all-years order if GitHub stops a job at that hard
+limit.
+
+The summary instruction is a fixed, versioned expert template. Only the paper's
+configured topic list is inserted into the expert role; the title, abstract,
+and Introduction are appended as untrusted source material. The template
+requires standard English technical terms, abbreviations, method names,
+datasets, metrics, losses, and components such as `token` and `Transformer` to
+remain in English. Changing the template version marks earlier ready summaries
+for ordered background refresh without hiding their currently published text.
 
 ## Python runtime and manual queue recovery
 
@@ -116,9 +132,7 @@ fi
 "$VENV_PATH/bin/python" -m pip install -r requirements.txt
 
 SUMMARY_ENABLED=1 \
-SUMMARY_BACKFILL_YEAR=2026 \
 SUMMARY_BACKFILL_LIMIT=10 \
-SUMMARY_BACKFILL_TIME_BUDGET_MINUTES=150 \
 PAPER_NOTES_ROOT=/mnt/g/share/papers \
 VLLM_BASE_URL=http://127.0.0.1:8000/v1 \
 "$VENV_PATH/bin/python" daily_arxiv.py --summaries-only --backfill-history
