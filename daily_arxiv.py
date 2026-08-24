@@ -329,6 +329,13 @@ def positive_env_int(name, default):
     return value
 
 
+def optional_positive_env_int(name):
+    raw_value = os.getenv(name)
+    if raw_value is None or not raw_value.strip():
+        return None
+    return positive_env_int(name, None)
+
+
 def historical_summary_candidates(batch: HistoricalBatch, summary_state, client):
     """Resolve archive-only rows to full arXiv metadata for one ordered batch."""
     candidates = []
@@ -353,7 +360,7 @@ def historical_summary_candidates(batch: HistoricalBatch, summary_state, client)
         ))
 
     if not missing_ids:
-        return candidates
+        return candidates, set()
 
     search = arxiv.Search(id_list=missing_ids, max_results=len(missing_ids))
     try:
@@ -369,7 +376,7 @@ def historical_summary_candidates(batch: HistoricalBatch, summary_state, client)
             batch.topic,
             error,
         )
-        return candidates
+        return candidates, set(missing_ids)
 
     results_by_id = {}
     for result in results:
@@ -395,7 +402,8 @@ def historical_summary_candidates(batch: HistoricalBatch, summary_state, client)
             archive_month=batch.month,
             archive_date=archive_paper.updated,
         ))
-    return candidates
+    resolved_ids = {candidate.paper_id for candidate in candidates}
+    return candidates, set(missing_ids) - resolved_ids
 
 
 def queue_historical_backfill(
@@ -417,9 +425,11 @@ def queue_historical_backfill(
         excluded_ids=excluded_ids,
     )
     if batch is None:
-        return None, 0
+        return None, 0, set()
 
-    candidates = historical_summary_candidates(batch, summary_state, client)
+    candidates, unresolved_ids = historical_summary_candidates(
+        batch, summary_state, client
+    )
     enqueue_candidates(notes_root, summary_state, candidates)
     logging.info(
         "Historical backfill bucket %s/%s selected=%d resolved=%d remaining=%d",
@@ -429,7 +439,21 @@ def queue_historical_backfill(
         len(candidates),
         batch.remaining_in_bucket,
     )
-    return batch, len(candidates)
+    return batch, len(candidates), unresolved_ids
+
+
+def count_summary_work(state, target_year=None):
+    """Count pending or stale summaries within the requested historical scope."""
+    remaining = 0
+    for entry in state["papers"].values():
+        if entry.get("status") == "ready" and not entry.get("needs_refresh"):
+            continue
+        if entry.get("source") == "historical" and target_year is not None:
+            archive_value = entry.get("archive_date") or entry.get("archive_month") or ""
+            if not str(archive_value).startswith(f"{target_year:04d}-"):
+                continue
+        remaining += 1
+    return remaining
 
 
 def run_historical_backfill(
@@ -439,13 +463,17 @@ def run_historical_backfill(
     topics,
     limit,
     client,
-    target_year,
-    budget_minutes,
-    base_url,
+    target_year=None,
+    budget_minutes=None,
+    base_url="http://127.0.0.1:8000/v1",
     model_override=None,
 ):
-    """Process ordered historical batches until the monotonic deadline expires."""
-    deadline = time.monotonic() + budget_minutes * 60
+    """Process ordered historical batches, optionally stopping at a deadline."""
+    deadline = (
+        time.monotonic() + budget_minutes * 60
+        if budget_minutes is not None
+        else None
+    )
     attempted_ids = set()
     totals = {"completed": 0, "failed": 0, "attempted": 0}
     stop_reason = "complete"
@@ -470,12 +498,14 @@ def run_historical_backfill(
         if stats["blocked"]:
             stop_reason = "model-unavailable"
             break
-        if stats["budget_exhausted"] or time.monotonic() >= deadline:
+        if stats["budget_exhausted"] or (
+            deadline is not None and time.monotonic() >= deadline
+        ):
             stop_reason = "time-budget"
             break
 
         summary_state = load_state(notes_root)
-        batch, resolved = queue_historical_backfill(
+        batch, resolved, unresolved_ids = queue_historical_backfill(
             archive,
             summary_state,
             notes_root,
@@ -493,11 +523,20 @@ def run_historical_backfill(
                 1,
                 target_year=target_year,
             )
-            stop_reason = "complete" if remaining is None else "deferred-failures"
+            pending = count_summary_work(summary_state, target_year)
+            stop_reason = (
+                "complete"
+                if remaining is None and pending == 0
+                else "deferred-failures"
+            )
             break
+        attempted_ids.update(unresolved_ids)
         if resolved == 0:
-            stop_reason = "metadata-unavailable"
-            break
+            logging.warning(
+                "Deferring %d papers with unavailable metadata and continuing",
+                len(unresolved_ids),
+            )
+            continue
 
     final_state = load_state(notes_root)
     publish_summaries(notes_root, final_state, publish_root, topics)
@@ -508,18 +547,16 @@ def run_historical_backfill(
         1,
         target_year=target_year,
     )
+    pending = count_summary_work(final_state, target_year)
     totals.update({
-        "pending": sum(
-            entry.get("status") != "ready" or entry.get("needs_refresh")
-            for entry in final_state["papers"].values()
-        ),
-        "backfill_complete": remaining is None,
+        "pending": pending,
+        "backfill_complete": remaining is None and pending == 0,
         "stop_reason": stop_reason,
     })
     logging.info(
-        "Historical backfill result year=%d budget=%dm result=%s",
-        target_year,
-        budget_minutes,
+        "Historical backfill result year=%s budget=%s result=%s",
+        target_year if target_year is not None else "all",
+        f"{budget_minutes}m" if budget_minutes is not None else "unlimited",
         totals,
     )
     return totals
@@ -550,14 +587,14 @@ def demo(**config):
         else 10
     )
     backfill_year = (
-        positive_env_int("SUMMARY_BACKFILL_YEAR", 2026)
+        optional_positive_env_int("SUMMARY_BACKFILL_YEAR")
         if backfill_enabled
-        else 2026
+        else None
     )
     backfill_budget_minutes = (
-        positive_env_int("SUMMARY_BACKFILL_TIME_BUDGET_MINUTES", 150)
+        optional_positive_env_int("SUMMARY_BACKFILL_TIME_BUDGET_MINUTES")
         if backfill_enabled
-        else 150
+        else None
     )
     notes_root = None
     publish_root = Path(html_file).parent / "notes"

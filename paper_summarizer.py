@@ -640,16 +640,29 @@ def process_summary_queue(
         key=lambda entry: entry.get("id", ""),
         reverse=True,
     )
-    historical_pending = sorted(
-        (
-            entry
-            for entry in pending_entries
-            if entry.get("source") == "historical"
-        ),
-        key=lambda entry: (
-            entry.get("archive_date") or entry.get("archive_month") or "",
-            entry.get("id", ""),
-        ),
+    historical_pending = [
+        entry
+        for entry in pending_entries
+        if entry.get("source") == "historical"
+    ]
+    topic_rank = {topic: index for index, topic in enumerate(topics or [])}
+
+    def historical_topic_rank(entry: dict[str, Any]) -> int:
+        return min(
+            (topic_rank.get(topic, len(topic_rank)) for topic in entry.get("topics", [])),
+            default=len(topic_rank),
+        )
+
+    # Stable sorts apply the requested priority from least to most significant:
+    # arXiv ID desc, date desc, configured topic order, then month desc.
+    historical_pending.sort(key=lambda entry: entry.get("id", ""), reverse=True)
+    historical_pending.sort(
+        key=lambda entry: entry.get("archive_date") or entry.get("archive_month") or "",
+        reverse=True,
+    )
+    historical_pending.sort(key=historical_topic_rank)
+    historical_pending.sort(
+        key=lambda entry: entry.get("archive_month") or "",
         reverse=True,
     )
     pending = new_pending + historical_pending
