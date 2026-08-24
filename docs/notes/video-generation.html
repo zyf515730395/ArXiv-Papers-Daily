@@ -17,210 +17,195 @@
 <h1>[2608.20910] InfinityEdit: Infinite Video Editing with a Lightweight Edit-Ignition Adapter</h1>
 <p><a href="https://arxiv.org/abs/2608.20910" rel="nofollow">arXiv 原文</a></p>
 <h2>一句话结论</h2>
-<p>本文提出 InfinityEdit，一种轻量级编辑适配器，通过“点燃 - 延续”策略结合冻结的流式视频生成器，实现了在开放流式视频场景下的无限次编辑与稳定延续。</p>
+<p>论文提出了 InfinityEdit，通过轻量级编辑适配器赋予流式视频生成器无限编辑能力，在保持冻结生成器长视频先验的同时，有效实现了开放视频流的忠实延续与长期编辑稳定性。</p>
 <h2>解决的问题</h2>
-<p>现有视频编辑方法主要基于固定时间窗口的原地编辑假设，将输出对齐于源片段，无法处理开放流式场景（如直播重风格化或镜头移动），导致编辑无法延伸至未来帧，且难以保证在多轮编辑下的延续性与生成稳定性。</p>
+<p>现有视频编辑方法主要基于固定时间窗口，遵循原地编辑假设，将任务视为有限 clip 的帧级重写，无法适配开放视频流中新内容持续到达的场景。同时，直接复用流式生成器并切换场景提示容易与稳定性机制冲突，导致编辑效果被削弱或生成错误随时间累积，难以在无限编辑序列中保持质量。</p>
 <h2>创新点</h2>
 <ul>
-<li>提出无限视频编辑任务，针对开放流式场景而非固定窗口片段。</li>
-<li>设计轻量级编辑适配器，包含历史 Cross-Attention、时序因果 Self-Attention 及编辑 Cross-Attention 模块。</li>
-<li>采用“点燃 - 延续”推理策略，仅在编辑请求到达时激活适配器，后续帧由冻结生成器延续。</li>
-<li>构建数据收集管道并采用历史腐蚀与两阶段课程学习以提升多轮编辑稳定性。</li>
+<li>构建了针对无限视频编辑任务的专用数据收集管线，合成源、编辑与目标三元组以提供训练监督。</li>
+<li>提出轻量级编辑适配器 InfinityEdit，包含历史 cross-attention、时序因果 self-attention 及编辑 cross-attention 三个模块。</li>
+<li>设计 ignite-then-continue 推理策略，在编辑请求到达时激活适配器，冻结生成器延续编辑内容。</li>
+<li>采用冻结主干模型 Helios 与锚定滑动窗口历史机制，平衡编辑能力与长视频生成的稳定性先验。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.20770" data-arxiv-id="2608.20770" data-status="ready">
 <h1>[2608.20770] MotionPhys: Detecting AI-Generated Videos via Physical Consistency of Optical-Flow Trajectories</h1>
 <p><a href="https://arxiv.org/abs/2608.20770" rel="nofollow">arXiv 原文</a></p>
 <h2>一句话结论</h2>
-<p>MotionPhys 提出了一种基于光流轨迹物理一致性的轻量级 AI 生成视频检测框架，通过提取稀疏运动轨迹的几何与动态特征，有效检测 AI 生成视频中存在的物理运动不一致性。</p>
+<p>MotionPhys 提出了一种基于光流轨迹物理一致性的轻量级检测框架，通过建模局部运动轨迹的几何演化与动态特性，有效识别 AI 生成视频中的物理运动不一致性并实现跨生成器泛化。</p>
 <h2>解决的问题</h2>
-<p>现有检测方法主要依赖 RGB 视频的视觉特征或生成过程中的特定伪影，容易过拟合特定数据分布或生成器，且随着生成模型视觉保真度提升，基于外观异常的检测方法逐渐失效，难以捕捉生成视频在完整动作中缺乏物理运动一致性的内在缺陷。</p>
+<p>现有检测多依赖 RGB 帧级差异或生成器特定痕迹，易过拟合特定分布且难以应对视觉伪影日益稀缺的趋势；核心矛盾在于高视觉保真度并不等同于物理运动一致性，AI 生成视频在完整动作中常存在惯性、力或轨迹几何方面的物理约束缺失，导致基于外观的判别方法失效。</p>
 <h2>创新点</h2>
 <ul>
-<li>从物理运动一致性视角出发，利用局部光流轨迹作为核心观测证据，而非依赖外观伪影。</li>
-<li>提出基于运动轨迹的框架，结合 Shi-Tomasi 特征点与网格点，利用金字塔 Lucas-Kanade 光流追踪构建稀疏运动轨迹。</li>
-<li>引入曲率、角速度和加速度突变（jerk）等运动学量，从几何弯曲、方向演变和高阶平滑性多维度表征轨迹演化。</li>
-<li>采用多时间尺度（8、12、24 帧）的统计聚合策略，平衡局部细节与全局运动趋势，增强对追踪误差的鲁棒性。</li>
-<li>构建轻量级且可解释的检测器，通过物理统计特征空间建模非线性交互，无需复杂的视频骨干网络。</li>
+<li>提出从物理运动一致性视角检测 AI 生成视频，将局部光流轨迹作为物理证据而非依赖外观伪影。</li>
+<li>设计 MotionPhys 框架，结合 Shi-Tomasi 特征点与规则网格采样，利用金字塔 Lucas-Kanade 光流算法追踪稳定局部区域以构建稀疏运动轨迹。</li>
+<li>引入曲率（curvature）、角速度（angular velocity）及加加速度（jerk）量化轨迹的几何弯曲、方向变化与高阶平滑性，并在 8、12、24 帧多时间尺度上进行统计聚合。</li>
+<li>采用轻量级分类器（如 LightGBM）结合显式物理特征，避免依赖复杂视频骨干网络，实现可解释且跨生成器泛化的检测。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.20749" data-arxiv-id="2608.20749" data-status="ready">
 <h1>[2608.20749] Identity-Preserving Text-to-Video Generation via Agentic Enhancement and Semantic Repair</h1>
 <p><a href="https://arxiv.org/abs/2608.20749" rel="nofollow">arXiv 原文</a></p>
 <h2>一句话结论</h2>
-<p>本文提出 AESR 框架，利用代理增强构建提示词知识库及视觉语义修复模块，在不修改闭源模型参数的前提下显著提升了身份保持视频生成的指令遵循度与视觉质量，并在 ACM MM 2026 挑战赛中获 Track 1 第一名。</p>
+<p>本文提出了 AESR 框架，通过全局代理提示增强与样本级视觉语义修复，有效解决了闭源视频生成模型在身份保持和复杂指令遵循上的身份漂移与细节缺失问题，并在 ACM MM 2026 身份保持视频生成挑战赛中 Track 1 获得第一名。</p>
 <h2>解决的问题</h2>
-<p>现有商业视频生成模型虽具备高视觉质量，但在复杂指令下仍面临身份漂移、指令遵循不完整及视觉细节缺失等挑战。由于模型多为闭源黑盒，直接参数优化不可行，且传统多次采样或人工改写提示词的方法成本高、依赖人工经验，难以适应不同模型的提示偏好及测试域特定经验。</p>
+<p>现有商业视频生成模型虽具备高视觉质量，但在身份敏感场景下仍面临身份漂移、复杂指令下物体缺失或动作不完整等问题。由于这些模型多为闭源黑盒，直接参数优化不可行，且简单的多次采样或手动提示词重写成本高、泛化性差，难以有效协调外观、动作与相机运动的一致性。</p>
 <h2>创新点</h2>
 <ul>
-<li>提出 AESR 轻量级增强框架，针对闭源视频生成模型实现接口级改进，无需参数微调。</li>
-<li>设计全局代理提示增强模块，通过代理循环将模型特定提示偏好与测试域经验（如 HOI 数据集）转化为可复用知识库。</li>
-<li>引入样本级视觉语义修复模块，利用 VLM 定位错误并生成编辑后的视觉参考帧，指导视频编辑模型修复局部语义或身份错误。</li>
-<li>采用轻量级 Mixture-of-Experts 策略，比较并集成不同生成或细化路径的候选视频以选择最可靠结果。</li>
+<li>提出了 AESR 框架，包含全局代理提示增强和样本级视觉语义修复两个互补模块，针对闭源模型提供轻量级接口级增强方案。</li>
+<li>设计了全局代理提示增强模块，通过代理循环从官方文档和 Human-object Interaction (HOI) 数据集学习模型特定偏好与领域经验，构建可复用的提示词剧本。</li>
+<li>引入了样本级视觉语义修复模块，利用 VLM 定位错误并利用编辑后的图像作为视觉锚点，指导视频编辑模型修复局部语义或身份错误。</li>
+<li>采用轻量级 Mixture-of-Experts (MoE) 选择策略，整合不同生成与优化路径的候选视频以选择最可靠结果。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.20534" data-arxiv-id="2608.20534" data-status="ready">
 <h1>[2608.20534] Grounded-Exo2Ego: Structured Semantic Grounding for Robust Exocentric-to-Egocentric Video Generation</h1>
 <p><a href="https://arxiv.org/abs/2608.20534" rel="nofollow">arXiv 原文</a></p>
 <h2>一句话结论</h2>
-<p>Grounded-Exo2Ego 提出了一种结合几何锚定与语义定位的双分支视频扩散模型，辅以相机重定位算法与自动化合成数据引擎，有效解决了从外视角到内视角视频生成中几何条件不可靠及训练数据对齐困难的问题，在 EgoExo4D 数据集上显著优于现有最先进方法。</p>
+<p>Grounded-Exo2Ego 提出了一种双分支视频 diffusion model 框架，通过结合几何锚定与 Semantic Grounding 分支，并引入相机重定位算法与合成数据引擎，解决了极视角变化下的几何条件不可靠与训练数据脆弱问题，在 EgoExo4D 数据集上显著优于现有 SOTA 方法。</p>
 <h2>解决的问题</h2>
-<p>现有的外视角到内视角视频生成方法难以达到实用水平，主要源于几何条件不可靠与训练数据脆弱：单目深度估计在极端视角变化下失效导致渲染失真和空洞，且单目重建与真实几何错位导致相机校准偏差，迫使现有方法大量丢弃训练样本并保留严重对齐误差。</p>
+<p>现有的 exo-to-ego 视频生成方法主要依赖单目深度估计的 3D reconstruction 作为几何条件，但在极端视角变化下，monocular depth estimation 不准确会导致拉伸表面和错误位置，且大区域不可观测导致渲染出现扭曲和空洞。此外，单目重建与世界真实几何存在非刚性形变和尺度偏移，导致训练时 groundtruth 相机与重建严重错位，迫使大量样本被过滤，使得训练数据极其脆弱且现有方法仅靠几何条件无法保证质量。</p>
 <h2>创新点</h2>
 <ul>
-<li>提出双分支视频扩散模型架构，耦合几何锚定分支与语义定位分支，分别处理场景结构与物体级生成。</li>
-<li>引入语义定位分支，利用物体级上下文合成挑战性区域，超越仅依赖几何条件的现有方法。</li>
-<li>设计相机重定位算法以解决相机与重建错位问题，显著改善训练数据质量并减少过滤需求。</li>
-<li>开发全自动合成数据引擎，用于生成并渲染程序化环境中的带骨骼 3D 角色。</li>
+<li>构建双分支视频 diffusion model，包含几何锚定分支与 Semantic Grounding 分支，结合 3D reconstruction 渲染与对象级语义上下文。</li>
+<li>引入相机重定位算法，解决 camera-reconstruction misalignment 问题，提升训练对齐质量。</li>
+<li>开发全自动合成数据引擎，用于生成和渲染 rigged 3D characters 及 procedural environments。</li>
+<li>超越 prevailing geometry-based approach，通过 Semantic Grounding 合成挑战性区域，解决遮挡和不可识别问题。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.20515" data-arxiv-id="2608.20515" data-status="ready">
 <h1>[2608.20515] DiffVC-ONE: Diffusion-based Generative Video Compression with One-Step Video Diffusion Transformer</h1>
 <p><a href="https://arxiv.org/abs/2608.20515" rel="nofollow">arXiv 原文</a></p>
 <h2>一句话结论</h2>
-<p>DiffVC-ONE 提出了一种基于一步视频扩散 Transformer 的生成式视频压缩框架，通过统一潜在压缩器、视频 DiT 一步扩散增强器和混合条件生成器，在低推理成本下实现了感知质量与时间一致性的最先进性能。</p>
+<p>论文提出了 DiffVC-ONE 框架，基于 One-Step Video Diffusion Transformer 构建生成式视频压缩系统，通过统一潜在域压缩与单步扩散增强，在保持低推理成本的同时实现了感知质量与时间一致性的 State-of-the-Art 性能。</p>
 <h2>解决的问题</h2>
-<p>传统视频编码标准手工模块难以联合优化率失真目标，导致主观质量受限；现有神经视频压缩方法多采用 MSE 或 MS-SSIM 等失真导向目标，产生纹理过平滑、边缘模糊及高频细节缺失问题；同时现有扩散生成式压缩方法面临架构分离导致的时间不一致性，以及图像扩散模型先验有限与多步推理效率低下的权衡难题。</p>
+<p>现有神经视频压缩方法基于 MSE 或 MS-SSIM 优化导致低码率下纹理模糊且主观质量差，而现有基于扩散模型的生成式压缩方法存在独立编码架构导致时间不一致性，以及依赖图像扩散模型导致时间一致性与解码效率难以平衡的问题，缺乏统一高效的潜在域压缩方案。</p>
 <h2>创新点</h2>
 <ul>
-<li>统一无向潜在压缩器（Unified Unidirectional Latent Compressor）采用共享模型高效压缩潜在切片</li>
-<li>视频 DiT 基一步扩散增强器（Video DiT-based One-Step Diffusion Enhancer）利用重建潜在切片作为锚点进行单步时空感知增强</li>
-<li>混合条件生成器（Hybrid Condition Generator）提取结构、强度和语义条件以控制生成增强程度并补充内容感知细节</li>
-<li>视频基一步范式（Video-based One-Step Paradigm）有效平衡了压缩性能、时间一致性与推理效率</li>
+<li>提出 Unified Unidirectional Latent Compressor，利用共享模型高效且均匀地压缩紧凑的潜在切片</li>
+<li>开发 Video DiT-based One-Step Diffusion Enhancer，以重建的潜在切片为内容锚点，对整个图像组执行单步时空感知增强</li>
+<li>设计 Hybrid Condition Generator，从重建内容与量化信息中提取结构、强度及语义条件，以保留忠实区域并控制生成增强程度</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.20335" data-arxiv-id="2608.20335" data-status="ready">
 <h1>[2608.20335] 4DAnyone: Create Anyone in 4D from a Casual Monocular Video</h1>
 <p><a href="https://arxiv.org/abs/2608.20335" rel="nofollow">arXiv 原文</a></p>
 <h2>一句话结论</h2>
-<p>4DAnyone 框架通过生成多视角一致的视频并转换为 4D 高斯泼溅，实现了从非校准单目视频中重建 4D 人类，有效解决了现有相机控制视频扩散模型在重建规模下无法维持跨视角一致性的问题。</p>
+<p>4DAnyone 框架实现了从非标定单目视频中重建 4D 人类，通过生成重建级的多视角一致视频并转换为 4D Gaussian Splatting (4DGS)，解决了现有扩散模型在大规模重建中的一致性不足问题。</p>
 <h2>解决的问题</h2>
-<p>现有相机控制视频生成方法在扩展到 4DGS 重建所需的大量目标视角时，因单次 DiT 前向传播的注意力上下文受限，无法保持跨视角一致性，导致外观不一致和结构漂移，具体表现为参考上下文随视角数量线性增长削弱引导，且目标视图分组间无法直接交换信息造成全局结构漂移。</p>
+<p>现有基于相机控制视频扩散模型的方法虽能合成合理的新视角视频，但在扩展到 4D Gaussian Splatting (4DGS) 所需的数十个目标视角时无法保持跨视角一致性，导致外观不一致和结构漂移。根本原因在于单轮 DiT 前向传递的注意力上下文容量受限，当目标视角数量超过容量时需分组处理，导致参考上下文长度随视角数线性增长削弱外观引导，且不同目标视角组间无法直接交互信息引发结构漂移。</p>
 <h2>创新点</h2>
 <ul>
-<li>提出参考上下文打包 (RCP)，通过压缩增长的参考视图为固定长度混合分辨率上下文，将参考上下文复杂度从 O(N) 降至 O(1)。</li>
-<li>提出目标上下文路由 (TCR)，在去噪过程中动态调整目标视图分组，利用高噪声步骤共享全局结构、低噪声步骤稳定细节以减少结构漂移。</li>
-<li>采用 3D 骨架条件引导替代难以估计的稠密度量深度，利用 3D 骨架渲染解决无约束视频中的 2D 姿态歧义。</li>
-<li>构建 MVGameHuman 数据集并结合光场及野外视频数据，实现了鲁棒的野外泛化能力。</li>
+<li>提出 4DAnyone 框架，实现从非标定单目视频到重建级多视角一致视频及 4D Gaussian Splatting (4DGS) 的生成。</li>
+<li>提出参考上下文打包（Reference Context Packing, RCP），利用混合分辨率压缩参考上下文，将复杂度从 O(N) 降至 O(1)。</li>
+<li>提出目标上下文路由（Target Context Routing, TCR），在扩散去噪过程中动态调整目标视角分组以共享上下文并稳定细节。</li>
+<li>采用 3D 骨骼条件引导（3D-aware skeleton conditioning），利用 3D 骨架替代难以估计的稠密深度图以解决 2D 姿态歧义。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.20308" data-arxiv-id="2608.20308" data-status="ready">
 <h1>[2608.20308] DreamHand: Repurposing Video Diffusion Models for Occlusion-Robust Egocentric 3D Hand Motion Recovery</h1>
 <p><a href="https://arxiv.org/abs/2608.20308" rel="nofollow">arXiv 原文</a></p>
 <h2>一句话结论</h2>
-<p>DreamHand 提出了一种离线片段级框架，通过重利用视频扩散模型作为确定性几何编码器并结合双向时空解码器，有效解决了自摄视频中严重遮挡和手部出镜间隙下的度量 3D 手部运动恢复问题，实现了无需外部检测器和相机内参的高精度重建。</p>
+<p>DreamHand 通过将预训练视频扩散模型（VDM）重利用为确定性干净潜变量编码器，结合双向时空解码器与基于射线的相机求解器，在无外部检测器和无需测试时相机内参的情况下，实现了具有度量精度的双目手部运动轨迹恢复，并在多个自中心基准上达到新状态。</p>
 <h2>解决的问题</h2>
-<p>现有自摄视频 3D 手部运动恢复方法主要依赖单帧检测器或基于 SLAM 的追踪，在手部短暂离开画面时容易因误差累积或丢失历史上下文而导致追踪失败；此外，近期的视频扩散模型方法依赖耗时的多步采样生成像素帧，存在延迟和生成伪影风险，且直接回归相机帧坐标会混淆手部动作与快速相机自运动，对校准有严格依赖。</p>
+<p>自中心视频因频繁的手物交互遮挡和快速头部运动导致手部完全出画面，使得现有单帧或窗口式回归器在手短暂离开视野时失效，且基于因果追踪的方法缺乏历史上下文难以恢复。此外，现有视频扩散模型依赖间接像素渲染和多步随机采样，存在延迟并可能传播生成伪影，而直接回归相机帧下的 3D 坐标则混淆了手部运动与相机自运动并依赖严格标定。</p>
 <h2>创新点</h2>
 <ul>
-<li>将预训练视频扩散模型重利用为确定性清洁潜变量编码器，通过单次前向传播获取包含遮挡和出镜间隙信息的时空特征，避免了生成式采样的延迟与伪影。</li>
-<li>提出双向时空解码器，利用无约束双向注意力聚合长程时间上下文，并结合全局形状先验可靠地插值严重遮挡和长时间出镜间隙下的手部姿态。</li>
-<li>设计基于射线的相机求解器，直接从扩散潜变量估计 3D 视射线场，解耦手部运动与相机动态，支持测试时无相机内参的推理。</li>
+<li>将预训练视频扩散模型（VDM）重利用为确定性干净潜变量编码器，通过单次无噪声前向传播获取密集时空特征，避免多步采样延迟。</li>
+<li>提出双向时空解码器，结合全局形状先验和双向注意力机制，在严重遮挡和长时间出画面间隔下恢复连续度量轨迹。</li>
+<li>设计基于射线的相机求解器，通过优化可见帧的手部平移与预测 2D 锚点，实现无需测试时相机内参（intrinsics-free）的推理。</li>
+<li>构建离线片段级框架，无需外部手部检测器即可端到端恢复度量级双目手部运动轨迹。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.20107" data-arxiv-id="2608.20107" data-status="ready">
 <h1>[2608.20107] BeyondMasks: Evaluating Causal and Physical Consistency in Video Object Removal</h1>
 <p><a href="https://arxiv.org/abs/2608.20107" rel="nofollow">arXiv 原文</a></p>
 <h2>一句话结论</h2>
-<p>本文提出 BeyondMasks 基准和 CORE 评估协议，将视频物体移除重新定义为因果场景一致性而非局部重建，揭示了现有方法在物理后效去除上的系统性缺陷。</p>
+<p>本文提出 BeyondMasks 基准和 CORE 评估协议，将视频对象移除重新定义为因果场景一致性而非局部重建，揭示了现有模型在处理物理次级效应上的系统性缺陷。</p>
 <h2>解决的问题</h2>
-<p>现有评估协议仅关注掩码区域内的重建保真度，将物体移除视为局部修复问题，忽略了物体与环境的因果交互（如阴影、光照、动态痕迹）。现有数据集缺乏成对的干净背景或局限于简化合成场景，无法系统评估因果一致性，且现有基准在交互多样性和真实世界变异性方面不足。</p>
+<p>现有评估协议仅关注掩码区域的重建保真度，将视频对象移除简化为局部修复问题，忽略了物体移除作为因果干预的本质。现有基准缺乏配对的干净背景参考，或局限于合成场景，无法系统评估动态物体与环境交互产生的物理次级效应（如阴影、反射、光照变化），导致视觉逼真度与因果正确性之间存在显著差距。</p>
 <h2>创新点</h2>
 <ul>
-<li>提出因果导向的视频物体移除定义，将评估重点从局部重建质量转向物体 - 环境一致性及时间物理推理。</li>
-<li>构建 BeyondMasks 基准，包含 180 个时空对齐的合成与真实视频序列，提供成对的干净背景、掩码和指令提示，支持因果交互评估。</li>
-<li>提出 CORE 评估协议，基于视觉语言模型联合测量物体消失和物理后效的一致性，比现有指标更贴近人类判断。</li>
-<li>通过基准测试揭示了主流方法在去除动态和环境驱动的物理后效方面存在系统性失败，填补了视觉合理性与因果正确性之间的差距。</li>
+<li>构建 BeyondMasks 基准，包含 180 个时空对齐的合成与真实视频序列，提供干净的背景参考以支持因果交互评估。</li>
+<li>提出 CORE 评估协议，基于 VLM 联合衡量物体消失与物理后效的一致性，更贴近人类感知判断。</li>
+<li>建立因果导向的视频对象移除公式，将评估焦点从局部重建质量转向物体与环境的一致性及时序物理推理。</li>
+<li>通过基准测试揭示主流模型在移除动态和交互驱动的物理效应方面存在系统性缺陷。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.19900" data-arxiv-id="2608.19900" data-status="ready">
 <h1>[2608.19900] AvatarDynamizer: From Static to Dynamic Human Avatars via Generative Dynamic Textures</h1>
 <p><a href="https://arxiv.org/abs/2608.19900" rel="nofollow">arXiv 原文</a></p>
 <h2>一句话结论</h2>
-<p>本文提出了 AvatarDynamizer，一种通过生成式动态纹理将静态 3D 头像转化为可控、真实且多视角一致的 4D 头像的方法，有效解决了现有通用方法缺乏表面动态或无法跨身份泛化的问题。</p>
+<p>本文提出了 AvatarDynamizer，一种通过生成式动态纹理将现成静态 3D 头像转化为可控、逼真且多视角一致的 4D 头像的生成式方法，利用纹理空间表面动态嵌入兼容预训练视频 diffusion model 并解码为 3D Gaussian Splatting。</p>
 <h2>解决的问题</h2>
-<p>现有通用 3D 头像方法依赖骨架驱动，缺乏衣物褶皱等真实表面动态导致恐怖谷效应；特定人物方法需昂贵多视角采集且无法泛化；而现有可泛化方法要么牺牲 3D 一致性，要么因确定性回归难以建模高频随机动态，导致外观过于平滑或静态。</p>
+<p>现有全身头像建模中，无特定人物（person-agnostic）方法缺乏衣物褶皱等真实表面动态；特定人物（person-specific）方法需昂贵多视角采集且无法跨身份泛化；近期通用动态方法难以嵌入表面动态，导致多视角一致性或动态表达受限，且确定性回归在有限数据下难以建模高频随机表面细节。</p>
 <h2>创新点</h2>
 <ul>
-<li>提出纹理空间表面动态嵌入，将 4D 人表示为紧凑的 2D 动态纹理图。</li>
-<li>设计动态纹理生成器，利用预训练视频扩散先验在体素空间生成条件化动态纹理。</li>
-<li>开发通用高斯解码器，将纹理图解码为 3D 高斯泼溅以实现多视角一致渲染。</li>
-<li>构建了 DynaHuman 大规模多视角数据集，涵盖多样身份、视角和运动多样性。</li>
+<li>提出纹理空间表面动态嵌入，将姿态相关动态显式嵌入彩色动态纹理图而非确定性回归。</li>
+<li>设计动态纹理生成器，利用预训练视频 diffusion model 先验生成细节丰富的动态纹理。</li>
+<li>开发通用高斯解码器（Generalized Gaussian Decoder），将纹理图解码为 3D Gaussian Splatting 以实现多视角一致渲染。</li>
+<li>构建大规模多视角数据集 DynaHuman，覆盖多样身份、视角和运动多样性。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.19583" data-arxiv-id="2608.19583" data-status="ready">
 <h1>[2608.19583] VGI-BENCH: Probing Visual Intelligence in Video Generation Models</h1>
 <p><a href="https://arxiv.org/abs/2608.19583" rel="nofollow">arXiv 原文</a></p>
 <h2>一句话结论</h2>
-<p>本文提出 VGI-BENCH 基准以评估视频生成模型的视觉推理能力，发现现有最强模型在严格评估标准下表现有限且缺乏可靠的自我修正机制。</p>
+<p>VGI-BENCH 是一个专为评估视频生成模型视觉推理能力设计的基准，包含 27 个任务和 810 个实例，通过光写实输入、过程敏感验证和难度校准解决了现有基准的不足，实验显示当前最强模型 Seedance~2.0 在严格标准下准确率仅为 51.0%。</p>
 <h2>解决的问题</h2>
-<p>现有评估基准存在视觉外观分布与模型先验不匹配、过度依赖最终状态而缺乏对视觉演化过程的推演需求、以及任务难度未校准导致失败难以诊断等不足，削弱了评估的有效性。</p>
+<p>现有视频生成基准存在视觉外观分布不匹配（多使用线稿或抽象输入而非光写实风格）、对视觉推演推理需求不足（仅依赖输入图像而非生成轨迹）、以及任务难度和可行性控制不当（包含超出可行范围的长视野或知识密集型任务）等问题，导致评估结果可能受视觉域失配影响而削弱有效性。</p>
 <h2>创新点</h2>
 <ul>
-<li>构建了包含 27 个任务和 810 个实例的 VGI-BENCH 基准，采用双级分类体系进行细粒度评估</li>
-<li>采用照片写实风格输入以减少视觉域不匹配，提高输入条件与模型先验的一致性</li>
-<li>强调有效中间轨迹而非仅最终状态，增加对视觉推演过程的评估需求</li>
-<li>校准任务难度以接近当前能力边界，使评估结果更具诊断性</li>
-<li>分析了模型的输出失败模式及内部去噪视角下的自我修正局限性</li>
+<li>构建包含 27 个任务和 810 个实例的两级分类基准（任务域与技能标签），实现细粒度评估。</li>
+<li>采用光写实风格输入以减少视觉域失配，避免抽象输入导致的模型崩溃或约束忽略。</li>
+<li>筛选依赖有效中间轨迹的任务，而非仅基于最终状态，以评估视觉推演推理能力。</li>
+<li>校准任务难度至当前模型能力边界附近，确保评估具有诊断性。</li>
+<li>从内部去噪视角分析自我纠错能力，揭示后期步骤主要优化早期假设而非修正推理错误。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.18948" data-arxiv-id="2608.18948" data-status="ready">
 <h1>[2608.18948] RoboEdit: Turning Human Manipulation Videos into Scalable Robot Experience</h1>
 <p><a href="https://arxiv.org/abs/2608.18948" rel="nofollow">arXiv 原文</a></p>
 <h2>一句话结论</h2>
-<p>本文提出 RoboEdit 套件，利用视频编辑技术将海量人类操作视频转化为物理一致且对齐 3D 手状态的机器人交互视频，为通用机器人学习提供了可扩展的高保真视觉与运动监督。</p>
+<p>RoboEdit 提出了一套端到端的人机交互视频编辑工具集，通过保留场景上下文并重新定向人体动作到目标机器人，将海量人类操作视频转化为物理合理且包含对齐 3D 手状态的机器人训练数据，从而为通用机器人学习提供可扩展的高保真视觉与运动监督。</p>
 <h2>解决的问题</h2>
-<p>现有机器人交互数据采集成本高昂且严格依赖特定机器人形态，导致跨形态数据难以迁移，现有数据集覆盖范围有限；尽管人类操作视频资源丰富，但因机器人形态不匹配无法直接用于训练，且将人类视频转化为物理合理的目标机器人交互视频的研究尚属空白。</p>
+<p>现有机器人交互视频采集成本高且严格依赖特定机器人形态，导致数据无法跨不同机器人手部直接迁移，且现有数据集覆盖的场景、视角和行为有限；虽然人类操作视频丰富，但由于形态不匹配，无法直接作为机器人训练数据，而直接翻译为物理合理的机器人交互视频的研究尚属空白。</p>
 <h2>创新点</h2>
 <ul>
-<li>提出 RoboEdit 套件，实现从人类操作视频到物理合理机器人交互视频及结构化 3D 手状态的高效转换。</li>
-<li>开发 RoboEdit-Trans 编辑器，利用跨形态适应模块和 3D 机器人状态解码器，在保留场景上下文的同时完成动作重定向。</li>
-<li>设计 RoboEdit-ADC 自动数据策展流水线，结合三维重建与物理优化，生成跨机器人形态的成对监督数据。</li>
-<li>构建 RoboEdit-14M 大规模数据集，涵盖 174K 对齐视频对及 7 种机器人形态，为通用机器人学习提供丰富资源。</li>
+<li>提出 RoboEdit-Trans，采用跨形态适应模块 (cross-embodiment adaptation modules) 联合建模外观、运动学与接触动力学，并集成 3D 机器人状态解码器 (3D Robot-State Decoder) 以恢复结构化运动监督。</li>
+<li>设计 RoboEdit-ADC 自动化流程，结合 3D 重建、深度正则化与物理优化进行动作重定向，有效减少物体穿透等伪影并合成机器人交互视频。</li>
+<li>构建 RoboEdit-14M 大规模数据集，包含 174K 个对齐视频片段（14M 帧）及 7 种机器人形态，提供可扩展的视觉与 3D 运动监督。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.18710" data-arxiv-id="2608.18710" data-status="ready">
 <h1>[2608.18710] CamWorldQA: Perceptual Quality Assessment of Camera-Controlled World Video Generation</h1>
 <p><a href="https://arxiv.org/abs/2608.18710" rel="nofollow">arXiv 原文</a></p>
 <h2>一句话结论</h2>
-<p>本文提出了首个相机控制世界视频生成的感知质量评估基准 CamWorldQA 及相应的 CWQA 无参考评估网络，通过结合空间、时序和光流特征有效提升了生成视频质量评估的准确性。</p>
+<p>本文提出了首个相机控制世界视频生成的感知质量评估基准 CamWorldQA 及配套的无参考评估网络 CWQA，有效解决了现有方法难以衡量视点一致性、运动连贯性及内容保持等特有感知质量特性的问题。</p>
 <h2>解决的问题</h2>
-<p>现有视频质量评估方法主要面向自然视频，侧重于压缩伪影等失真，难以捕捉相机控制生成特有的视点不一致、运动不连贯及内容意外变形等生成特异性质量因素，且缺乏专用主观基准限制系统性评估。</p>
+<p>现有视频质量评估（VQA）方法主要针对自然视频或用户生成视频，侧重于压缩伪影、模糊和噪声等失真，未能捕捉相机控制生成视频特有的感知特征，如视点一致性、运动连贯性和内容保持；同时，由于缺乏专门的客观基准和主观评估数据集，限制了对此类生成视频质量评估方法的系统性评价与比较。</p>
 <h2>创新点</h2>
 <ul>
-<li>构建了首个相机控制视频生成感知质量评估基准 CamWorldQA，包含 720 个视频及人工标注的主观质量分数。</li>
-<li>提出了 CWQA 无参考质量评估网络，融合空间、时序和光流三个互补分支的特征提取能力。</li>
-<li>设计了分支级门控网络自适应加权融合多源特征，有效预测感知质量分数。</li>
+<li>构建了首个相机控制世界视频生成的感知质量评估基准 CamWorldQA，包含 720 个生成视频及主观人类评分。</li>
+<li>提出了 CWQA 无参考质量评估框架，集成空间、运动和时间光流三个互补分支以联合预测质量分数。</li>
+<li>设计了轻量级分支级门控网络，自适应加权融合多分支特征以优化感知质量预测。</li>
+<li>系统性地基准测试了当前相机控制视频生成方法、代表性质量评估方法及大型多模态模型。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.18607" data-arxiv-id="2608.18607" data-status="ready">
 <h1>[2608.18607] VA-Judger: Reward Modeling from Human Preference Feedback for Joint Video-Audio Generation</h1>
 <p><a href="https://arxiv.org/abs/2608.18607" rel="nofollow">arXiv 原文</a></p>
 <h2>一句话结论</h2>
-<p>本文针对联合视频音频生成中现有指标无法捕捉跨模态整体连贯性导致奖励欺骗的问题，提出了 VA-Judger 奖励模型，通过构建人类偏好数据集和链式思维推理机制，实现了更精准的人类偏好对齐及生成质量优化。</p>
+<p>针对联合视频音频生成中现有指标无法捕捉跨模态整体一致性的问题，本文提出 VA-Judger，一种基于人类偏好反馈的链式思维全能奖励模型，通过构建大规模数据集 VAPref-10K 和基准测试，实现了与人类偏好对齐的奖励建模，显著提升了生成质量。</p>
 <h2>解决的问题</h2>
-<p>现有方法依赖独立评估音频质量、视觉保真度和同步性的指标组合构建奖励信号，无法捕捉文本、视频和音频之间的整体语义与时序连贯性，导致模型优化过度拟合于狭窄的指标目标，生成内容虽在指标上得分高却与人类感知偏好不符，出现奖励黑客现象。</p>
+<p>现有方法通过组合独立维度指标（如音频质量、视觉保真度、同步性）构建奖励信号，但这些指标仅评估感知维度，无法捕捉提示词、视频与音频之间的整体语义和时间连贯性，导致优化过程出现奖励黑客现象，生成高分但不连贯的内容。此外，现有跨模态奖励模型无法直接应用于联合视频音频场景，因为人类偏好无法分解为独立的模态判断。</p>
 <h2>创新点</h2>
 <ul>
-<li>构建了包含大规模细粒度配对比较的 VAPref-10K 人类偏好数据集</li>
-<li>提出了 VA-Judger-Bench 基准，用于评估奖励模型与人类偏好的对齐程度</li>
-<li>设计了链式思维全模态奖励模型 VA-Judger，通过分解人类反馈生成更密集的奖励信号</li>
-<li>采用拒绝采样验证并结合人类注释，对难以区分的近质量比较进行可靠偏好解释蒸馏</li>
-</ul>
-    </article>
-    <article class="summary-article summary-topic-entry" id="summary-2608.17973" data-arxiv-id="2608.17973" data-status="ready">
-<h1>[2608.17973] LinCa: Accelerating Diffusion Models via Learnable Decomposed Feature Caching</h1>
-<p><a href="https://arxiv.org/abs/2608.17973" rel="nofollow">arXiv 原文</a></p>
-<h2>一句话结论</h2>
-<p>LinCa 提出了一种基于可学习可逆网络的特征缓存加速框架，通过分解缓存特征并应用差异化预测策略，解决了扩散模型在跨时间步和跨维度上的动力学不匹配问题，在低于 0.2% 额外参数开销下实现了 5-7 倍加速并保持近无损生成质量。</p>
-<h2>解决的问题</h2>
-<p>现有特征缓存方法假设隐藏特征遵循统一的演化模式并采用单一预设策略，忽略了扩散模型在不同时间步、模型及特征维度间存在的显著动力学差异，导致无法适应异质特征动态从而在高加速比下引入累积误差并造成质量下降。</p>
-<h2>创新点</h2>
-<ul>
-<li>利用轻量级可逆网络将缓存特征分解为具有不同连续性特性的子组件</li>
-<li>针对子组件应用与连续性匹配的差异化预测顺序，对不稳定组件直接复用，对稳定组件使用多项式外推</li>
-<li>通过严格可逆性保证分解后的特征能无损重建回原始特征空间</li>
-<li>针对不同模型和时间步段训练独立参数化的预测器以适配异质动力学</li>
+<li>构建了大规模人类偏好数据集 VAPref-10K，包含 9K 提示词和 10.3K 细粒度配对比较。</li>
+<li>提出了 VA-Judger-Bench 基准，用于评估奖励模型在域内和域外任务上与人类偏好的对齐程度。</li>
+<li>设计了 VA-Judger 链式思维全能奖励模型，支持从清晰质量差距中学习结构化输出。</li>
+<li>通过拒绝采样和人类标注验证，蒸馏困难样本的可靠偏好解释。</li>
+<li>采用维度级强化学习，将人类反馈分解为独立质量维度以生成更密集的奖励信号。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.17695" data-arxiv-id="2608.17695" data-status="ready">
@@ -966,6 +951,6 @@
     </article>
     </div>
   </main>
-  <script type="application/json" id="summary-catalog">{"papers":{"2602.13185":{"status":"ready","url":"notes/video-generation.html#summary-2602.13185"},"2603.17555":{"status":"ready","url":"notes/video-generation.html#summary-2603.17555"},"2604.03181":{"status":"ready","url":"notes/video-generation.html#summary-2604.03181"},"2604.23789":{"status":"pending"},"2605.10723":{"status":"ready","url":"notes/video-generation.html#summary-2605.10723"},"2605.18736":{"status":"ready","url":"notes/video-generation.html#summary-2605.18736"},"2606.27345":{"status":"ready","url":"notes/video-generation.html#summary-2606.27345"},"2607.02075":{"status":"ready","url":"notes/video-generation.html#summary-2607.02075"},"2607.26694":{"status":"ready","url":"notes/video-generation.html#summary-2607.26694"},"2608.02474":{"status":"ready","url":"notes/video-generation.html#summary-2608.02474"},"2608.10439":{"status":"ready","url":"notes/video-generation.html#summary-2608.10439"},"2608.10519":{"status":"ready","url":"notes/video-generation.html#summary-2608.10519"},"2608.10744":{"status":"ready","url":"notes/video-generation.html#summary-2608.10744"},"2608.10933":{"status":"ready","url":"notes/video-generation.html#summary-2608.10933"},"2608.11201":{"status":"ready","url":"notes/video-generation.html#summary-2608.11201"},"2608.11618":{"status":"ready","url":"notes/video-generation.html#summary-2608.11618"},"2608.11745":{"status":"ready","url":"notes/video-generation.html#summary-2608.11745"},"2608.12032":{"status":"ready","url":"notes/video-generation.html#summary-2608.12032"},"2608.12203":{"status":"ready","url":"notes/video-generation.html#summary-2608.12203"},"2608.12290":{"status":"ready","url":"notes/video-generation.html#summary-2608.12290"},"2608.13028":{"status":"ready","url":"notes/video-generation.html#summary-2608.13028"},"2608.13037":{"status":"ready","url":"notes/video-generation.html#summary-2608.13037"},"2608.13043":{"status":"ready","url":"notes/video-generation.html#summary-2608.13043"},"2608.13049":{"status":"ready","url":"notes/video-generation.html#summary-2608.13049"},"2608.13092":{"status":"ready","url":"notes/video-generation.html#summary-2608.13092"},"2608.13183":{"status":"ready","url":"notes/video-generation.html#summary-2608.13183"},"2608.13205":{"status":"ready","url":"notes/video-generation.html#summary-2608.13205"},"2608.13368":{"status":"ready","url":"notes/video-generation.html#summary-2608.13368"},"2608.13391":{"status":"ready","url":"notes/video-generation.html#summary-2608.13391"},"2608.13460":{"status":"ready","url":"notes/video-generation.html#summary-2608.13460"},"2608.14043":{"status":"ready","url":"notes/video-generation.html#summary-2608.14043"},"2608.14391":{"status":"ready","url":"notes/video-generation.html#summary-2608.14391"},"2608.14706":{"status":"ready","url":"notes/video-generation.html#summary-2608.14706"},"2608.14740":{"status":"ready","url":"notes/video-generation.html#summary-2608.14740"},"2608.14790":{"status":"ready","url":"notes/video-generation.html#summary-2608.14790"},"2608.15555":{"status":"ready","url":"notes/video-generation.html#summary-2608.15555"},"2608.15818":{"status":"ready","url":"notes/video-generation.html#summary-2608.15818"},"2608.16143":{"status":"ready","url":"notes/video-generation.html#summary-2608.16143"},"2608.16154":{"status":"ready","url":"notes/video-generation.html#summary-2608.16154"},"2608.16220":{"status":"ready","url":"notes/video-generation.html#summary-2608.16220"},"2608.16328":{"status":"ready","url":"notes/video-generation.html#summary-2608.16328"},"2608.16513":{"status":"ready","url":"notes/video-generation.html#summary-2608.16513"},"2608.16585":{"status":"ready","url":"notes/video-generation.html#summary-2608.16585"},"2608.16717":{"status":"ready","url":"notes/video-generation.html#summary-2608.16717"},"2608.16745":{"status":"ready","url":"notes/video-generation.html#summary-2608.16745"},"2608.17402":{"status":"ready","url":"notes/video-generation.html#summary-2608.17402"},"2608.17420":{"status":"ready","url":"notes/video-generation.html#summary-2608.17420"},"2608.17426":{"status":"ready","url":"notes/video-generation.html#summary-2608.17426"},"2608.17559":{"status":"ready","url":"notes/video-generation.html#summary-2608.17559"},"2608.17566":{"status":"ready","url":"notes/video-generation.html#summary-2608.17566"},"2608.17695":{"status":"ready","url":"notes/video-generation.html#summary-2608.17695"},"2608.17973":{"status":"ready","url":"notes/video-generation.html#summary-2608.17973"},"2608.18607":{"status":"ready","url":"notes/video-generation.html#summary-2608.18607"},"2608.18710":{"status":"ready","url":"notes/video-generation.html#summary-2608.18710"},"2608.18948":{"status":"ready","url":"notes/video-generation.html#summary-2608.18948"},"2608.19583":{"status":"ready","url":"notes/video-generation.html#summary-2608.19583"},"2608.19900":{"status":"ready","url":"notes/video-generation.html#summary-2608.19900"},"2608.20107":{"status":"ready","url":"notes/video-generation.html#summary-2608.20107"},"2608.20308":{"status":"ready","url":"notes/video-generation.html#summary-2608.20308"},"2608.20335":{"status":"ready","url":"notes/video-generation.html#summary-2608.20335"},"2608.20515":{"status":"ready","url":"notes/video-generation.html#summary-2608.20515"},"2608.20534":{"status":"ready","url":"notes/video-generation.html#summary-2608.20534"},"2608.20749":{"status":"ready","url":"notes/video-generation.html#summary-2608.20749"},"2608.20770":{"status":"ready","url":"notes/video-generation.html#summary-2608.20770"},"2608.20910":{"status":"ready","url":"notes/video-generation.html#summary-2608.20910"}},"topic":"Video Generation","version":1}</script>
+  <script type="application/json" id="summary-catalog">{"papers":{"2602.13185":{"status":"ready","url":"notes/video-generation.html#summary-2602.13185"},"2603.17555":{"status":"ready","url":"notes/video-generation.html#summary-2603.17555"},"2604.03181":{"status":"ready","url":"notes/video-generation.html#summary-2604.03181"},"2604.23789":{"status":"pending"},"2605.10723":{"status":"ready","url":"notes/video-generation.html#summary-2605.10723"},"2605.18736":{"status":"ready","url":"notes/video-generation.html#summary-2605.18736"},"2606.27345":{"status":"ready","url":"notes/video-generation.html#summary-2606.27345"},"2607.02075":{"status":"ready","url":"notes/video-generation.html#summary-2607.02075"},"2607.26694":{"status":"ready","url":"notes/video-generation.html#summary-2607.26694"},"2608.02474":{"status":"ready","url":"notes/video-generation.html#summary-2608.02474"},"2608.10439":{"status":"ready","url":"notes/video-generation.html#summary-2608.10439"},"2608.10519":{"status":"ready","url":"notes/video-generation.html#summary-2608.10519"},"2608.10744":{"status":"ready","url":"notes/video-generation.html#summary-2608.10744"},"2608.10933":{"status":"ready","url":"notes/video-generation.html#summary-2608.10933"},"2608.11201":{"status":"ready","url":"notes/video-generation.html#summary-2608.11201"},"2608.11618":{"status":"ready","url":"notes/video-generation.html#summary-2608.11618"},"2608.11745":{"status":"ready","url":"notes/video-generation.html#summary-2608.11745"},"2608.12032":{"status":"ready","url":"notes/video-generation.html#summary-2608.12032"},"2608.12203":{"status":"ready","url":"notes/video-generation.html#summary-2608.12203"},"2608.12290":{"status":"ready","url":"notes/video-generation.html#summary-2608.12290"},"2608.13028":{"status":"ready","url":"notes/video-generation.html#summary-2608.13028"},"2608.13037":{"status":"ready","url":"notes/video-generation.html#summary-2608.13037"},"2608.13043":{"status":"ready","url":"notes/video-generation.html#summary-2608.13043"},"2608.13049":{"status":"ready","url":"notes/video-generation.html#summary-2608.13049"},"2608.13092":{"status":"ready","url":"notes/video-generation.html#summary-2608.13092"},"2608.13183":{"status":"ready","url":"notes/video-generation.html#summary-2608.13183"},"2608.13205":{"status":"ready","url":"notes/video-generation.html#summary-2608.13205"},"2608.13368":{"status":"ready","url":"notes/video-generation.html#summary-2608.13368"},"2608.13391":{"status":"ready","url":"notes/video-generation.html#summary-2608.13391"},"2608.13460":{"status":"ready","url":"notes/video-generation.html#summary-2608.13460"},"2608.14043":{"status":"ready","url":"notes/video-generation.html#summary-2608.14043"},"2608.14391":{"status":"ready","url":"notes/video-generation.html#summary-2608.14391"},"2608.14706":{"status":"ready","url":"notes/video-generation.html#summary-2608.14706"},"2608.14740":{"status":"ready","url":"notes/video-generation.html#summary-2608.14740"},"2608.14790":{"status":"ready","url":"notes/video-generation.html#summary-2608.14790"},"2608.15555":{"status":"ready","url":"notes/video-generation.html#summary-2608.15555"},"2608.15818":{"status":"ready","url":"notes/video-generation.html#summary-2608.15818"},"2608.16143":{"status":"ready","url":"notes/video-generation.html#summary-2608.16143"},"2608.16154":{"status":"ready","url":"notes/video-generation.html#summary-2608.16154"},"2608.16220":{"status":"ready","url":"notes/video-generation.html#summary-2608.16220"},"2608.16328":{"status":"ready","url":"notes/video-generation.html#summary-2608.16328"},"2608.16513":{"status":"ready","url":"notes/video-generation.html#summary-2608.16513"},"2608.16585":{"status":"ready","url":"notes/video-generation.html#summary-2608.16585"},"2608.16717":{"status":"ready","url":"notes/video-generation.html#summary-2608.16717"},"2608.16745":{"status":"ready","url":"notes/video-generation.html#summary-2608.16745"},"2608.17402":{"status":"ready","url":"notes/video-generation.html#summary-2608.17402"},"2608.17420":{"status":"ready","url":"notes/video-generation.html#summary-2608.17420"},"2608.17426":{"status":"ready","url":"notes/video-generation.html#summary-2608.17426"},"2608.17559":{"status":"ready","url":"notes/video-generation.html#summary-2608.17559"},"2608.17566":{"status":"ready","url":"notes/video-generation.html#summary-2608.17566"},"2608.17695":{"status":"ready","url":"notes/video-generation.html#summary-2608.17695"},"2608.17973":{"status":"pending"},"2608.18607":{"status":"ready","url":"notes/video-generation.html#summary-2608.18607"},"2608.18710":{"status":"ready","url":"notes/video-generation.html#summary-2608.18710"},"2608.18948":{"status":"ready","url":"notes/video-generation.html#summary-2608.18948"},"2608.19583":{"status":"ready","url":"notes/video-generation.html#summary-2608.19583"},"2608.19900":{"status":"ready","url":"notes/video-generation.html#summary-2608.19900"},"2608.20107":{"status":"ready","url":"notes/video-generation.html#summary-2608.20107"},"2608.20308":{"status":"ready","url":"notes/video-generation.html#summary-2608.20308"},"2608.20335":{"status":"ready","url":"notes/video-generation.html#summary-2608.20335"},"2608.20515":{"status":"ready","url":"notes/video-generation.html#summary-2608.20515"},"2608.20534":{"status":"ready","url":"notes/video-generation.html#summary-2608.20534"},"2608.20749":{"status":"ready","url":"notes/video-generation.html#summary-2608.20749"},"2608.20770":{"status":"ready","url":"notes/video-generation.html#summary-2608.20770"},"2608.20910":{"status":"ready","url":"notes/video-generation.html#summary-2608.20910"}},"topic":"Video Generation","version":1}</script>
 </body>
 </html>

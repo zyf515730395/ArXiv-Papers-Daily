@@ -17,45 +17,44 @@
 <h1>[2608.20788] M2Depth: Unifying Monocular Depth Foundation Priors with Multi-View Stereo</h1>
 <p><a href="https://arxiv.org/abs/2608.20788" rel="nofollow">arXiv 原文</a></p>
 <h2>一句话结论</h2>
-<p>M2Depth 提出了一种统一单目深度基础模型（DFM）与多视角立体（MVS）的新框架，通过双向相互细化策略紧密耦合两者，利用 MVS 深度解决单目尺度模糊，同时用单目深度增强 MVS 的结构完整性与细节，在标准基准上实现了更完整、泛化性更强且边界清晰的深度图。</p>
+<p>本文提出了 M2Depth 框架，通过双向相互精炼策略（bidirectional mutual refinement strategy）将深度基础模型（DFM）与级联多视图立体（MVS）流水线紧密耦合，利用 MVS 深度解决单目预测的尺度歧义性，同时利用单目深度增强 MVS 估计的结构完整性和细节，从而在标准基准上实现了超越现有最先进方法的多视图深度估计性能。</p>
 <h2>解决的问题</h2>
-<p>现有基于深度学习的多视角立体（MVS）方法在遮挡或视角重叠有限区域泛化能力差，而深度基础模型（DFM）存在尺度模糊且缺乏多视角一致性。尽管已有研究尝试将 DFM 集成到 MVS 中，但普遍采用静态单向融合方案，缺乏反馈机制，无法动态补偿各模态的固有缺陷，导致纹理缺失或遮挡区域难以生成高质量深度图。</p>
+<p>现有的多视图立体（MVS）方法在面对未见场景结构、复杂几何或遮挡区域时泛化能力不足，而近期将深度基础模型（DFM）引入 MVS 流水线的方法大多依赖静态的单向融合方案，无法充分挖掘两种模态的互补优势，导致 MVS 中心流水线在纹理缺失区域难以产生干净深度图，且 DFM 中心流水线缺乏显式多视图一致性，无法通过反馈机制动态补偿彼此的固有缺陷。</p>
 <h2>创新点</h2>
 <ul>
-<li>提出双向相互细化策略，实现 DFM 与级联 MVS 流水线的紧密耦合与动态互补</li>
-<li>引入先验引导的成本体细化机制，通过注意力融合和离散深度桶整合多视角与单目信息以保障局部几何一致性</li>
-<li>利用 MVS 深度解决单目预测尺度模糊，同时借助单目深度增强 MVS 估计的结构完整性与细粒度细节</li>
-<li>框架在稀疏视角设置下展现出卓越的泛化能力，与专用稀疏视角方法竞争并保持良好的精度 - 效率权衡</li>
+<li>提出通过双向相互精炼策略（bidirectional mutual refinement strategy）将深度基础模型（DFM）与级联多视图立体（MVS）流水线紧密耦合</li>
+<li>引入 prior-guided cost volume refinement mechanism，通过 attention-based fusion 和 discretized depth bins 有效整合多视图与单目信息</li>
+<li>利用 MVS 深度解决单目预测的尺度歧义性，同时利用单目深度增强 MVS 估计的结构完整性和细节</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.19769" data-arxiv-id="2608.19769" data-status="ready">
 <h1>[2608.19769] AsymFeX: A Symmetry-Driven Framework for Ischemic Stroke Segmentation Across Imaging Modalities and Stroke Stages</h1>
 <p><a href="https://arxiv.org/abs/2608.19769" rel="nofollow">arXiv 原文</a></p>
 <h2>一句话结论</h2>
-<p>AsymFeX 提出了一种两阶段 3D 分割框架，通过几何倾斜校正和局部跨半球注意力机制，在非对比 CT 上实现了缺血性卒中病灶的高效分割，并在多种模态和时间点上验证了泛化能力。</p>
+<p>本文提出 AsymFeX 框架，通过两阶段 nnU-Net 兼容的 3D 分割流程结合几何倾斜校正与局部跨半球 attention 机制，在非对比 NCCT 模态下实现急性缺血性卒中病变的高效精准分割，在 AISD 数据集上显著超越现有最先进方法并验证了跨模态泛化性与可靠性。</p>
 <h2>解决的问题</h2>
-<p>现有基于对称性的自动分割方法存在局限：通常在全脑或半球范围内进行注意力计算导致计算成本高，局限于 2D 无法捕捉体素特征，未校正头部倾斜导致对比区域非真实解剖对应，且依赖全脑切片输入难以兼容 nnU-Net 等基于补丁的框架，此外多数研究仅评估单一模态或时间点且缺乏可靠性度量。</p>
+<p>现有深度学习方法在处理非对比 NCCT 等微弱对比度图像时面临挑战，而现有的对称感知方法存在显著不足：部分方法采用全脑或全半球 attention 导致计算冗余，或局限于 2D 无法捕捉体积特征，更关键的是未校正头倾角直接对比镜像导致解剖对应关系错误，且难以适配 nnU-Net 的 patch 采样机制，同时缺乏跨模态及时间点的泛化评估与预测可靠性度量。</p>
 <h2>创新点</h2>
 <ul>
-<li>两阶段 3D 分割流程集成几何倾斜校正步骤，确保跨半球比较具有解剖学有效性</li>
-<li>提出 Asymmetric Feature Extraction (AsymFeX) 模块，结合局部 3D 跨半球注意力、差异估计和双尺度门控，限制比较范围至体素真实解剖对应点的局部邻域</li>
-<li>框架兼容 nnU-Net 及基于补丁的采样策略，解决了现有对称性方法对全脑切片输入的依赖</li>
-<li>实现了跨成像模态（NCCT/MRI）及卒中时间点的泛化验证，并包含不确定性量化以评估临床可靠性</li>
+<li>提出两阶段 nnU-Net 兼容的 3D 分割 pipeline，通过显式的几何倾斜校正确保跨半球比较的解剖学有效性。</li>
+<li>设计 Asymmetric Feature Extraction (AsymFeX) 模块，结合 3D 局部跨半球 attention、feature disparity estimation 与 dual-scale gating，限制比较范围至局部邻域以降低计算成本。</li>
+<li>在 AISD 数据集上进行全面评估，包含消融实验、体积分析及临床相关性分析，验证方法在不同模态和卒中阶段的有效性。</li>
+<li>提供跨模态泛化证明与不确定性量化分析，评估模型在临床部署下的可靠性。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.15659" data-arxiv-id="2608.15659" data-status="ready">
 <h1>[2608.15659] WorldRover: A Scalable Synthetic Video Data Engine for World Exploration with Rich Annotations</h1>
 <p><a href="https://arxiv.org/abs/2608.15659" rel="nofollow">arXiv 原文</a></p>
 <h2>一句话结论</h2>
-<p>WorldRover 是一个基于 Unreal Engine 的可扩展合成数据引擎，通过离线渲染生成包含 RGB、深度、相机轨迹及动作信号等多模态标注的长程探索视频数据，为构建和维护可交互世界的连贯表示提供监督信号。</p>
+<p>本文提出 WorldRover 引擎与 WorldRover-10M 数据集，基于 Unreal Engine 合成管线生成富含 RGB、metric depth、相机轨迹及动作信号的长视界探索视频，将世界探索转化为可扩展的数据生成问题，为构建连贯世界表示的模型提供高质量监督数据。</p>
 <h2>解决的问题</h2>
-<p>现有方法面临数据稀缺与标注不一致的挑战：真实视频采集虽覆盖广，但相机姿态和几何信息依赖事后估计，存在漂移与失效风险，且受限于特殊仪器；渲染合成资源虽能提供精确的几何与运动量，但现有合成数据集多针对特定任务优化，难以在同一帧中结合 RGB 与深度、轨迹、对应关系及控制信号，导致视觉变化成因（相机运动与物体运动）纠缠不清，难以支持长程世界探索所需的连贯表示学习。</p>
+<p>可探索世界生成与 4D 重建要求模型在视角变化时保持场景一致性，但 RGB 数据导致视觉变化原因纠缠，难以区分相机运动与物体运动。真实视频采集虽覆盖广，但相机位姿和对应关系依赖后处理估计，存在漂移与遮挡失效风险；渲染虽能直接暴露场景状态，但现有合成资源多针对特定任务优化，缺乏在同一帧上结合 metric depth、相机轨迹与长程对应关系的综合数据，无法满足模型对场景一致性的监督需求。</p>
 <h2>创新点</h2>
 <ul>
-<li>提出 WorldRover-Engine，基于 Unreal Engine 构建可扩展的离线渲染管线，能够执行并渲染分钟级探索路线，完整保留场景几何与相机轨迹。</li>
-<li>提供多视角（第一人称、第三人称、360°全景）与多环境状态下的视频重放能力，支持不同外观材质渲染。</li>
-<li>构建 WorldRover-10M 数据集，序列中配对 RGB 与度量深度、相机轨迹及轨迹衍生的动作信号，第三人称子集额外提供光流、带可见性的 2D/3D 点追踪及独立角色轨迹。</li>
-<li>将长视界世界探索转化为可扩展的数据生成问题，为构建、维护和重访可探索世界连贯表示的模型提供监督信号。</li>
+<li>提出 WorldRover-Engine 离线渲染管线，在 Unreal Engine 中执行分钟级路线并完整保留轨迹与场景几何</li>
+<li>构建 WorldRover-10M 数据集，将 RGB 与 metric depth、相机轨迹及轨迹衍生的动作信号进行配对</li>
+<li>支持 first-person、third-person 及 360 panoramic 等多种视角下的渲染与环境状态变化</li>
+<li>提供 dense optical flow、长程 2D/3D point tracks 及独立于相机轨迹的角色轨迹作为额外标注</li>
 </ul>
     </article>
     </div>
