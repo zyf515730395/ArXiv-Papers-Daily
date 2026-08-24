@@ -279,6 +279,123 @@
 <li>构建了 ConceptEdit-12M 大规模数据集和 ConceptEdit-Bench 细粒度评估基准。</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.16765" data-arxiv-id="2608.16765" data-status="ready">
+<h1>[2608.16765] TRACE-Bench: Decomposing and Diagnosing Multi-Reference Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.16765" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 TRACE-Bench 基准，通过能力视角将多参考图像生成分解为四个原子算子，构建了支持细粒度诊断的评估框架，揭示了模型在属性解耦与绑定上的主要瓶颈。</p>
+<h2>解决的问题</h2>
+<p>现有基准多围绕预定义任务类型组织，难以适应多参考图像生成的组合设置，导致评估覆盖不完整、无法定位具体能力失败原因且场景复杂度难以系统控制。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出能力视角的评估范式，将多参考任务分解为锚定、解耦、应用和组合四个原子算子</li>
+<li>构建 TRACE-Bench 基准，包含约 1600 个案例及 631 个公式模板，通过算子槽位数量系统控制结构复杂度</li>
+<li>设计算子对齐评估协议与诊断树分析，实现细粒度能力评分与失败递归定位</li>
+<li>通过实验揭示模型在属性解耦与绑定上的主要瓶颈，指出最佳模型属性保真度评分仅为 0.74</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.16721" data-arxiv-id="2608.16721" data-status="ready">
+<h1>[2608.16721] GenRouter: Unified Workflow Routing for Agentic Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.16721" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>GenRouter 作为首个统一的代理图像生成工作流路由框架，通过标准化基础原语和自适应路由机制，在保持高视觉对齐的同时显著降低了执行成本与延迟。</p>
+<h2>解决的问题</h2>
+<p>现有代理图像生成系统存在工作流孤岛化与固定拓扑的碎片化问题，且采用“一刀切”范式导致计算失配，简单查询被迫经过重型流程，造成资源浪费和高延迟。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 GenCanvas 将多样化的代理管道标准化为通用基础原语和可执行模板库</li>
+<li>设计 GenRouter 通过需求分析、经验匹配和帕累托过滤实现提示词到最优工作流的自适应路由</li>
+<li>构建系统持续自我进化能力，利用积累的经验实现零样本泛化并降低计算开销</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.16646" data-arxiv-id="2608.16646" data-status="ready">
+<h1>[2608.16646] Training-Free Reconstruction-Based AI-Generated Image Detectors Are Inherently Vulnerable to Adversarial Examples</h1>
+<p><a href="https://arxiv.org/abs/2608.16646" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本研究揭示了训练免费的基于重建的 AI 生成图像检测器本质上易受对抗样本攻击，证明通过构造不可感知样本可显著降低检测性能且攻击具有跨检测器迁移性。</p>
+<h2>解决的问题</h2>
+<p>现有的 AI 生成图像检测主要依赖分类器，而新兴的基于重建的检测方法虽具备透明和无需训练的优势，但其对抗鲁棒性尚不明确。现有研究缺乏对这类检测器在对抗样本下的脆弱性评估，导致其可能在面对精心构造的攻击时失效，无法可靠区分真实与生成图像。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了两种针对利用自编码器重建误差的检测器的新颖攻击方法。</li>
+<li>揭示了通过构造不可感知对抗样本可人为增大原始与重建图像距离，导致假图像被误判为真实。</li>
+<li>验证了攻击在多种生成器和检测器上的有效性，且攻击在包含真实世界退化的情况下仍能显著降低检测性能。</li>
+<li>证明了基于重建的检测器存在跨检测器的攻击迁移性，指出了该类别检测器的固有脆弱性。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.16284" data-arxiv-id="2608.16284" data-status="ready">
+<h1>[2608.16284] TransAnyText: Translating Arbitrary Text in E-commerce Images via Structured Visual Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.16284" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>TransAnyText 提出了一种基于结构化视觉代码的框架，将电商图像文本翻译重构为生成可渲染的 HTML 补丁，通过解耦语义生成与像素渲染，实现了准确、可编辑且视觉保真的多语言图像翻译。</p>
+<h2>解决的问题</h2>
+<p>现有级联式流水线因模块孤立导致错误累积和背景伪影，而端到端像素编辑模型虽能联合处理但常产生文字幻觉、风格漂移且难以编辑；此外，闭源模型存在高成本、合规风险及有限的微调灵活性，难以同时满足布局适配、视觉保真与可编辑性的需求。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出结构化视觉代码范式，将翻译任务重构为生成可渲染的 HTML 补丁以实现确定性文本渲染</li>
+<li>设计解耦框架，利用 VLM 处理语义与翻译，扩散模型负责背景修复，渲染器合成最终图像</li>
+<li>构建三阶段后训练框架，通过 SFT、PWSD 和 RLVR 优化视觉令牌学习与任务级性能</li>
+<li>发布多语言数据集与基准 TransAnyDataset 和 TransAnyBench，全面评估翻译质量与视觉保真度</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.16104" data-arxiv-id="2608.16104" data-status="ready">
+<h1>[2608.16104] Nexus: Structured Synergy for Efficient Text-to-Image Generation using Rectified Flow Model</h1>
+<p><a href="https://arxiv.org/abs/2608.16104" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>Nexus 通过整合稀疏架构、线性复杂度与低比特量化技术，结合 MoE 前馈层与门控 DeltaNet 注意力机制，在保持生成质量与主流模型相当的同时显著提升了文本生成模型的推理效率。</p>
+<h2>解决的问题</h2>
+<p>现有扩散及流匹配模型虽在生成质量上取得进展，但仍面临推理计算量过大、长序列下注意力复杂度呈二次方增长以及内存占用高的三大瓶颈，严重制约了高分辨率图像合成及边缘设备上的实时部署。</p>
+<h2>创新点</h2>
+<ul>
+<li>整合稀疏架构、线性复杂度与低比特量化技术以优化效率</li>
+<li>采用 MoE 前馈层动态激活子网络以优化计算资源</li>
+<li>引入门控 DeltaNet 注意力机制以降低长序列计算复杂度</li>
+<li>实施逐专家低比特训练策略以减少内存占用</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.16100" data-arxiv-id="2608.16100" data-status="ready">
+<h1>[2608.16100] TISC: A Text-Driven Image Semantic Communication System for Faithful Reconstruction</h1>
+<p><a href="https://arxiv.org/abs/2608.16100" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种面向高保真重构的文本驱动图像语义通信框架 TISC，通过树状结构属性语义提取和初始噪声优化机制，解决了现有方法在语义提取失真和重建一致性不足方面的关键瓶颈。</p>
+<h2>解决的问题</h2>
+<p>现有生成式图像语义通信方法在图像到文本提取阶段常遗漏细粒度物体属性及空间位置信息导致语义失真，且在文本到图像重建阶段因扩散模型初始噪声随机性导致相同文本描述下重建结果语义一致性不足。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出树状结构属性语义提取（TSASE）模块，将语义提取分解为全局场景、背景和物体层级，覆盖空间位置、形状、颜色等细粒度属性。</li>
+<li>设计初始噪声优化（INO）机制，发射端根据视觉和语义一致性综合评分选择最优初始噪声种子进行传输。</li>
+<li>适配基于大语言模型的扩散方法，使接收端能够直接利用结构化文本描述进行高保真图像重建。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.15705" data-arxiv-id="2608.15705" data-status="ready">
+<h1>[2608.15705] PixelControl: Fine-Grained Condition Fidelity in Text-to-Image Diffusion</h1>
+<p><a href="https://arxiv.org/abs/2608.15705" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出基于 PixelDiT 架构的 PixelControl 框架，通过像素空间扩散与自适应控制注入及多尺度损失函数，有效解决了现有方法在细粒度边界和小区域条件保真上的不足。</p>
+<h2>解决的问题</h2>
+<p>现有可控文本到图像扩散模型虽能遵循全局布局，但常违反细粒度结构如物体边界、细小轮廓及中等/小区域。基于 VAE 的潜在扩散因空间压缩削弱高频条件信号，且控制机制通常以空间均匀方式注入信号，导致模型更可靠地学习主导全局结构，而精确的边界对齐和紧凑条件细节容易漂移、模糊或消失。</p>
+<h2>创新点</h2>
+<ul>
+<li>基于 PixelDiT 风格的像素空间扩散骨干网络，避免 VAE 解码瓶颈以保留局部结构和高频轮廓细节</li>
+<li>提出结构感知控制注入（SACI），利用条件结构图自适应增强空间敏感区域的控制残差</li>
+<li>提出多尺度金字塔循环损失（MPCL），通过多分辨率验证平衡全局布局一致性与局部边界细节准确性</li>
+<li>支持深度、分割、边缘及其组合的模态特定控制分支与轻量级门控融合</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.15694" data-arxiv-id="2608.15694" data-status="ready">
+<h1>[2608.15694] RRFC: Recursive Refinement via Feedback Conditioning for Iterative Image-to-Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.15694" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>RRFC 提出了一种通过反馈调节进行递归优化的框架，使生成模型能利用自身预测作为条件信号迭代改进输出，该方法无需重新设计架构即可适配多种生成器，且在重建保真度和身份保持任务上验证了反馈式优化的有效性。</p>
+<h2>解决的问题</h2>
+<p>现有条件图像生成模型多为单次前向传播系统，生成后缺乏对特定样本进行针对性修正的机制，仅能通过离线反向传播在统计层面优化；同时，传统的自优化方案通常被硬编码于特定模型架构中，缺乏通用性且难以适配多种生成器。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了一种通用的反馈调节框架，可附加于现有生成器而不需重新设计核心架构</li>
+<li>通过反馈自身之前的预测作为辅助输入通道，使模型学会针对特定样本进行自适应修正</li>
+<li>证明了反馈式优化的有效性取决于优化目标与评估指标的重叠程度，明确了自优化的适用场景</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.14790" data-arxiv-id="2608.14790" data-status="ready">
 <h1>[2608.14790] Instruction-Based Video Editing by Repurposing an Image Editing Model</h1>
 <p><a href="https://arxiv.org/abs/2608.14790" rel="nofollow">arXiv 原文</a></p>
@@ -323,8 +440,37 @@
 <li>引入图像优先视觉验证器作为奖励维度，显式解决视觉不一致问题</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.18237" data-arxiv-id="2607.18237" data-status="ready">
+<h1>[2607.18237] The Many Senses of Visual Similarity: A Text-Prompted Image Perceptual Metric</h1>
+<p><a href="https://arxiv.org/abs/2607.18237" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种名为 TPIPS 的文本提示图像感知相似度指标，通过构建大规模人类标注数据集微调视觉语言模型，实现了基于特定语义条件的上下文依赖相似度评估，显著缩小了与人类感知之间的差距。</p>
+<h2>解决的问题</h2>
+<p>现有的图像感知相似度指标通常将复杂的视觉相似度坍缩为单一标量值，缺乏对颜色、纹理等具体视觉方面的条件约束能力；尽管部分方法尝试利用视觉语言模型，但缺乏基于人类感知判断的大规模数据集进行验证，导致在特定语义维度上与人类共识存在显著性能差距。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建了大规模文本条件图像感知判断数据集，包含百万级人类标注及多视觉方面条件组合</li>
+<li>提出 TPIPS 指标，通过微调视觉语言模型实现对特定视觉方面的上下文依赖相似度评估</li>
+<li>验证了方法在未见训练分布及外部算法生成图像上的泛化可靠性，并支持生成模型评估与组合检索应用</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2602.20839" data-arxiv-id="2602.20839" data-status="ready">
+<h1>[2602.20839] Training-Free Multi-Concept Image Editing</h1>
+<p><a href="https://arxiv.org/abs/2602.20839" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种名为 CDS 的无需训练多概念图像编辑框架，该方法通过结合预训练 LoRA 适配器与动态加权机制，实现了无需参考样本的视觉概念组合与控制，在保持实例概念身份的同时显著提升了编辑质量。</p>
+<h2>解决的问题</h2>
+<p>现有基于优化的零样本编辑方法虽然能实现强文本引导，但难以保留实例身份并捕捉语言抽象层以下的复杂细节（如面部结构、表面纹理或对象几何），且在多概念组合时容易面临概念冲突与身份丢失的问题。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出首个统一的无需训练、无目标多概念图像编辑框架</li>
+<li>利用预训练 LoRA 适配器的确定性锚定编辑过程，解决语言瓶颈</li>
+<li>结合高稳定性蒸馏骨干与新颖动态加权机制，实现多概念组合与控制</li>
+<li>无需参考样本即可保持实例概念身份，避免概念冲突</li>
+</ul>
+    </article>
     </div>
   </main>
-  <script type="application/json" id="summary-catalog">{"papers":{"2608.07565":{"status":"ready","url":"notes/image-generation.html#summary-2608.07565"},"2608.14546":{"status":"ready","url":"notes/image-generation.html#summary-2608.14546"},"2608.14790":{"status":"ready","url":"notes/image-generation.html#summary-2608.14790"},"2608.16812":{"status":"ready","url":"notes/image-generation.html#summary-2608.16812"},"2608.16887":{"status":"ready","url":"notes/image-generation.html#summary-2608.16887"},"2608.17067":{"status":"ready","url":"notes/image-generation.html#summary-2608.17067"},"2608.17203":{"status":"ready","url":"notes/image-generation.html#summary-2608.17203"},"2608.17286":{"status":"ready","url":"notes/image-generation.html#summary-2608.17286"},"2608.17747":{"status":"ready","url":"notes/image-generation.html#summary-2608.17747"},"2608.17883":{"status":"ready","url":"notes/image-generation.html#summary-2608.17883"},"2608.17995":{"status":"ready","url":"notes/image-generation.html#summary-2608.17995"},"2608.18040":{"status":"ready","url":"notes/image-generation.html#summary-2608.18040"},"2608.18063":{"status":"ready","url":"notes/image-generation.html#summary-2608.18063"},"2608.18076":{"status":"ready","url":"notes/image-generation.html#summary-2608.18076"},"2608.18968":{"status":"ready","url":"notes/image-generation.html#summary-2608.18968"},"2608.19000":{"status":"ready","url":"notes/image-generation.html#summary-2608.19000"},"2608.19637":{"status":"ready","url":"notes/image-generation.html#summary-2608.19637"},"2608.20161":{"status":"ready","url":"notes/image-generation.html#summary-2608.20161"},"2608.20334":{"status":"ready","url":"notes/image-generation.html#summary-2608.20334"},"2608.20336":{"status":"ready","url":"notes/image-generation.html#summary-2608.20336"},"2608.21229":{"status":"ready","url":"notes/image-generation.html#summary-2608.21229"}},"topic":"Image Generation","version":1}</script>
+  <script type="application/json" id="summary-catalog">{"papers":{"2602.20839":{"status":"ready","url":"notes/image-generation.html#summary-2602.20839"},"2607.18237":{"status":"ready","url":"notes/image-generation.html#summary-2607.18237"},"2608.07565":{"status":"ready","url":"notes/image-generation.html#summary-2608.07565"},"2608.14546":{"status":"ready","url":"notes/image-generation.html#summary-2608.14546"},"2608.14790":{"status":"ready","url":"notes/image-generation.html#summary-2608.14790"},"2608.15694":{"status":"ready","url":"notes/image-generation.html#summary-2608.15694"},"2608.15705":{"status":"ready","url":"notes/image-generation.html#summary-2608.15705"},"2608.16100":{"status":"ready","url":"notes/image-generation.html#summary-2608.16100"},"2608.16104":{"status":"ready","url":"notes/image-generation.html#summary-2608.16104"},"2608.16284":{"status":"ready","url":"notes/image-generation.html#summary-2608.16284"},"2608.16646":{"status":"ready","url":"notes/image-generation.html#summary-2608.16646"},"2608.16721":{"status":"ready","url":"notes/image-generation.html#summary-2608.16721"},"2608.16765":{"status":"ready","url":"notes/image-generation.html#summary-2608.16765"},"2608.16812":{"status":"ready","url":"notes/image-generation.html#summary-2608.16812"},"2608.16887":{"status":"ready","url":"notes/image-generation.html#summary-2608.16887"},"2608.17067":{"status":"ready","url":"notes/image-generation.html#summary-2608.17067"},"2608.17203":{"status":"ready","url":"notes/image-generation.html#summary-2608.17203"},"2608.17286":{"status":"ready","url":"notes/image-generation.html#summary-2608.17286"},"2608.17747":{"status":"ready","url":"notes/image-generation.html#summary-2608.17747"},"2608.17883":{"status":"ready","url":"notes/image-generation.html#summary-2608.17883"},"2608.17995":{"status":"ready","url":"notes/image-generation.html#summary-2608.17995"},"2608.18040":{"status":"ready","url":"notes/image-generation.html#summary-2608.18040"},"2608.18063":{"status":"ready","url":"notes/image-generation.html#summary-2608.18063"},"2608.18076":{"status":"ready","url":"notes/image-generation.html#summary-2608.18076"},"2608.18968":{"status":"ready","url":"notes/image-generation.html#summary-2608.18968"},"2608.19000":{"status":"ready","url":"notes/image-generation.html#summary-2608.19000"},"2608.19637":{"status":"ready","url":"notes/image-generation.html#summary-2608.19637"},"2608.20161":{"status":"ready","url":"notes/image-generation.html#summary-2608.20161"},"2608.20334":{"status":"ready","url":"notes/image-generation.html#summary-2608.20334"},"2608.20336":{"status":"ready","url":"notes/image-generation.html#summary-2608.20336"},"2608.21229":{"status":"ready","url":"notes/image-generation.html#summary-2608.21229"}},"topic":"Image Generation","version":1}</script>
 </body>
 </html>
