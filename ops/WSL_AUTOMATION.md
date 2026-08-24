@@ -83,14 +83,17 @@ Daily** manually once. The scheduled run remains daily at 01:00 UTC.
 
 ## Historical summary backfill
 
-Each scheduled run first handles new papers and existing retries, then selects
-at most 10 historical papers from one archive bucket. Buckets are ordered by
-month from newest to oldest, by the topic order in config.yaml within each
-month, and by paper date and arXiv ID from newest to oldest within each topic.
+Each scheduled run first handles and commits new papers, then backfills 2026
+papers for up to 150 minutes. Buckets are ordered by month from newest to
+oldest, by the topic order in config.yaml within each month, and by paper date
+and arXiv ID from newest to oldest within each topic.
 
-SUMMARY_BACKFILL_LIMIT changes the per-run batch size. A paper shared by
-multiple topics is inferred once and its Markdown is copied into each topic
-directory. Failed items remain in the normal retry queue.
+`SUMMARY_BACKFILL_LIMIT` controls the arXiv metadata batch size rather than the
+number processed per run. `SUMMARY_BACKFILL_YEAR` limits the archive year, and
+`SUMMARY_BACKFILL_TIME_BUDGET_MINUTES` controls when the runner stops starting
+new work. A paper shared by multiple topics is inferred once and its Markdown
+is copied into each topic directory. Failed items are attempted only once in a
+run and remain pending for the next run.
 
 ## Python runtime and manual queue recovery
 
@@ -113,6 +116,9 @@ fi
 "$VENV_PATH/bin/python" -m pip install -r requirements.txt
 
 SUMMARY_ENABLED=1 \
+SUMMARY_BACKFILL_YEAR=2026 \
+SUMMARY_BACKFILL_LIMIT=10 \
+SUMMARY_BACKFILL_TIME_BUDGET_MINUTES=150 \
 PAPER_NOTES_ROOT=/mnt/g/share/papers \
 VLLM_BASE_URL=http://127.0.0.1:8000/v1 \
 "$VENV_PATH/bin/python" daily_arxiv.py --summaries-only --backfill-history
