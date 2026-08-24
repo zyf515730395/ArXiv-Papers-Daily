@@ -13,6 +13,21 @@
       <h1>Depth Estimation · 论文要点</h1>
     </header>
     <div class="summary-topic-list">
+    <article class="summary-article summary-topic-entry" id="summary-2608.20788" data-arxiv-id="2608.20788" data-status="ready">
+<h1>[2608.20788] M2Depth: Unifying Monocular Depth Foundation Priors with Multi-View Stereo</h1>
+<p><a href="https://arxiv.org/abs/2608.20788" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 M2Depth 框架，通过双向相互细化策略紧密耦合深度基础模型与级联多视图立体视觉流水线，克服了现有单向融合方案的局限，显著提升了深度估计的完整性、泛化能力及边界锐度。</p>
+<h2>解决的问题</h2>
+<p>现有基于深度学习的多视图立体视觉方法在遮挡或视图重叠有限区域泛化较差，而引入深度基础模型的方法多采用静态单向融合机制，未能动态补偿模态缺陷，导致 MVS 方法在纹理缺失区域表现不佳且单目深度存在尺度模糊与一致性缺失问题。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出双向相互细化策略，实现深度基础模型与 MVS 流水线的紧密耦合。</li>
+<li>利用 MVS 深度解决单目尺度模糊，同时利用单目深度增强 MVS 的结构完整性与细节。</li>
+<li>引入先验引导的代价体细化机制，通过注意力融合和离散深度 bin 促进局部几何一致性。</li>
+<li>框架在稀疏视图设置下表现出优异的泛化能力，保持精度与效率的优越平衡。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.19769" data-arxiv-id="2608.19769" data-status="ready">
 <h1>[2608.19769] AsymFeX: A Symmetry-Driven Framework for Ischemic Stroke Segmentation Across Imaging Modalities and Stroke Stages</h1>
 <p><a href="https://arxiv.org/abs/2608.19769" rel="nofollow">arXiv 原文</a></p>
@@ -45,6 +60,6 @@
     </article>
     </div>
   </main>
-  <script type="application/json" id="summary-catalog">{"papers":{"2608.15659":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.15659"},"2608.19769":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.19769"}},"topic":"Depth Estimation","version":1}</script>
+  <script type="application/json" id="summary-catalog">{"papers":{"2608.15659":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.15659"},"2608.19769":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.19769"},"2608.20788":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.20788"}},"topic":"Depth Estimation","version":1}</script>
 </body>
 </html>

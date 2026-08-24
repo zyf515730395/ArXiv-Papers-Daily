@@ -13,9 +13,82 @@
       <h1>Video Generation · 论文要点</h1>
     </header>
     <div class="summary-topic-list">
-    <p class="muted">暂无已生成的论文要点。</p>
+    <article class="summary-article summary-topic-entry" id="summary-2608.20910" data-arxiv-id="2608.20910" data-status="ready">
+<h1>[2608.20910] InfinityEdit: Infinite Video Editing with a Lightweight Edit-Ignition Adapter</h1>
+<p><a href="https://arxiv.org/abs/2608.20910" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 InfinityEdit，通过轻量级编辑适配器赋能流式视频生成器，实现了在开放视频流中无限次编辑且保持内容连续与质量稳定的新任务。</p>
+<h2>解决的问题</h2>
+<p>现有方法依赖固定时间窗口的原位编辑，无法处理开放视频流中编辑需向未来帧延伸的场景，且难以在无限编辑序列中避免错误累积导致的生成质量下降，简单提示切换亦易与生成器稳定性机制冲突。</p>
+<h2>创新点</h2>
+<ul>
+<li>定义无限视频编辑任务，要求模型在开放流中生成后续片段并应用编辑指令。</li>
+<li>提出包含历史交叉、时序因果自注意力和编辑交叉注意力的轻量级适配器。</li>
+<li>采用冻结主干模型配合“点火 - 延续”推理策略，仅在编辑块激活适配器以维持长期生成能力。</li>
+<li>构建专门的数据收集管线，并通过历史损坏训练和两阶段课程学习提升模型鲁棒性。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.20770" data-arxiv-id="2608.20770" data-status="ready">
+<h1>[2608.20770] MotionPhys: Detecting AI-Generated Videos via Physical Consistency of Optical-Flow Trajectories</h1>
+<p><a href="https://arxiv.org/abs/2608.20770" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>MotionPhys 提出了一种基于光流轨迹物理一致性的轻量级检测框架，通过建模轨迹的几何演化和多时间尺度统计特征，有效识别 AI 生成视频中视觉逼真但物理运动不协调的内在缺陷，并在多个基准测试上展现了优于现有方法的泛化能力。</p>
+<h2>解决的问题</h2>
+<p>现有检测方法主要依赖 RGB 视频中的外观伪影、帧级差异或特定生成器痕迹，随着生成模型质量提升，这些视觉线索日益稀缺且易导致过拟合，未能从物理运动规律角度揭示 AI 生成视频在完整动作中缺乏惯性、连续力及轨迹几何一致性的内在缺陷。</p>
+<h2>创新点</h2>
+<ul>
+<li>从物理运动一致性视角出发，利用稀疏光流轨迹作为核心观测证据，替代传统的基于外观伪影的检测范式</li>
+<li>提出基于微分运动表征的方法，使用曲率、角速度和加加速度刻画轨迹的几何弯曲、方向演化和高阶时间平滑性</li>
+<li>采用多时间尺度（8、12、24 帧）的轨迹统计聚合策略，结合轻量级分类器实现高效且可解释的检测</li>
+<li>在 GenBuster++ 和 AIGVDBench 等多个数据集上验证了方法的有效性，展现出良好的跨生成器泛化性能</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.20749" data-arxiv-id="2608.20749" data-status="ready">
+<h1>[2608.20749] Identity-Preserving Text-to-Video Generation via Agentic Enhancement and Semantic Repair</h1>
+<p><a href="https://arxiv.org/abs/2608.20749" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种名为 AESR 的轻量级增强框架，通过全局代理提示增强和样本级视觉语义修复，有效解决了闭源视频生成模型在身份保持和复杂指令遵循上的漂移与缺失问题，并在 ACM MM 2026 挑战赛中排名第一。</p>
+<h2>解决的问题</h2>
+<p>现有商业视频生成模型虽视觉质量高，但在复杂提示下仍面临身份漂移、指令遵循不完整及视觉细节缺失等问题。由于这些模型多为闭源黑盒，参数优化不可行，且传统的多次采样或人工改写提示方案成本高昂、依赖经验且难以适配不同模型的特定偏好。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 AESR 轻量级接口级增强框架，专注于闭源视频生成模型的提示构建与后期修复。</li>
+<li>引入全局代理提示增强模块，利用代理循环将模型特定偏好和测试域经验转化为可复用的生成剧本。</li>
+<li>设计样本级视觉语义修复模块，通过 VLM 定位错误并利用编辑后的图像参考引导视频编辑模型修复局部语义。</li>
+<li>采用轻量级混合专家（MoE）选择策略，整合不同生成或精炼路径的候选视频以选择最可靠结果。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.20534" data-arxiv-id="2608.20534" data-status="ready">
+<h1>[2608.20534] Grounded-Exo2Ego: Structured Semantic Grounding for Robust Exocentric-to-Egocentric Video Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.20534" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>该论文提出 Grounded-Exo2Ego 框架，通过双分支视频扩散模型结合几何锚定与语义定位，并引入相机重定位与自动化合成数据引擎，有效解决了外心到心视角视频生成中的几何条件不可靠及数据脆弱性问题，在 EgoExo4D 数据集上显著优于现有方法。</p>
+<h2>解决的问题</h2>
+<p>现有外心到心视角生成方法面临几何条件不可靠与训练数据脆弱两大挑战。一方面，单目深度估计在极端视角变化下失效，导致生成画面出现扭曲和未观测区域空洞；另一方面，单目重建与真实几何存在非刚性形变及尺度偏移，造成真值相机与重建错位，迫使现有方法大量过滤样本，大幅缩减有效训练数据。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出双分支视频扩散模型，结合几何锚定与语义定位分支</li>
+<li>引入相机重定位算法解决相机重建错位问题</li>
+<li>开发全自动合成数据引擎生成带骨骼的 3D 角色</li>
+<li>超越纯几何条件方法，利用物体级上下文合成挑战性区域</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.20515" data-arxiv-id="2608.20515" data-status="ready">
+<h1>[2608.20515] DiffVC-ONE: Diffusion-based Generative Video Compression with One-Step Video Diffusion Transformer</h1>
+<p><a href="https://arxiv.org/abs/2608.20515" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>DiffVC-ONE 提出了一种基于一步视频扩散 Transformer 的生成式视频压缩框架，通过统一压缩器、一步扩散增强器和混合条件生成器，在低推理成本下实现了感知质量和时间一致性的最先进水平。</p>
+<h2>解决的问题</h2>
+<p>现有方法通常采用独立的帧内帧间编码架构导致时间不连续性，或依赖基于 MSE 的失真导向目标导致纹理过平滑，且在时间一致性与解码效率之间存在权衡，多数方法依赖图像扩散模型导致生成先验有限。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出统一单向潜在压缩器，利用共享模型高效均匀压缩紧凑潜在切片</li>
+<li>开发基于视频 DiT 的一步扩散增强器，利用重建潜在切片作为内容锚点进行单步时空感知增强</li>
+<li>设计混合条件生成器，提取结构、强度和语义条件以保留忠实区域并补充内容感知细节</li>
+</ul>
+    </article>
     </div>
   </main>
-  <script type="application/json" id="summary-catalog">{"papers":{},"topic":"Video Generation","version":1}</script>
+  <script type="application/json" id="summary-catalog">{"papers":{"2608.20515":{"status":"ready","url":"notes/video-generation.html#summary-2608.20515"},"2608.20534":{"status":"ready","url":"notes/video-generation.html#summary-2608.20534"},"2608.20749":{"status":"ready","url":"notes/video-generation.html#summary-2608.20749"},"2608.20770":{"status":"ready","url":"notes/video-generation.html#summary-2608.20770"},"2608.20910":{"status":"ready","url":"notes/video-generation.html#summary-2608.20910"}},"topic":"Video Generation","version":1}</script>
 </body>
 </html>

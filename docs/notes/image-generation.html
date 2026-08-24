@@ -13,6 +13,21 @@
       <h1>Image Generation · 论文要点</h1>
     </header>
     <div class="summary-topic-list">
+    <article class="summary-article summary-topic-entry" id="summary-2608.21229" data-arxiv-id="2608.21229" data-status="ready">
+<h1>[2608.21229] Anchoring Instruction Outside Mask: Exact Reference Caching for Efficient In-Context Diffusion Transformers</h1>
+<p><a href="https://arxiv.org/abs/2608.21229" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出锚定指令在掩码之外的超越掩码设计，结合两阶段蒸馏恢复性能，实现了多参考图像编辑中的高效上下文扩散生成，在保持全注意力质量的同时显著加速推理。</p>
+<h2>解决的问题</h2>
+<p>现有结构稀疏注意力方法虽能通过隔离参考图像 token 实现 K 和 V 的精确复用以降低计算成本，但阻断了视觉参考对文本指令的关注路径，导致多参考编辑场景下指令遵循能力和参考保真度显著下降，且单纯调整原有 token 序列的掩码无法兼顾缓存复用与信息交互的冲突。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出超越掩码设计，利用静态文本锚点连接指令与参考分支，在无需增加参数的情况下实现参考 K 和 V 的跨去噪步精确复用</li>
+<li>开发结合教师强制速度蒸馏与在策略蒸馏的两阶段恢复程序，首次将在线策略蒸馏应用于扩散模型的架构恢复以消除性能损失</li>
+<li>保持规则的注意力布局以兼容 FlashAttention 等高性能内核，确保实际加速效率</li>
+<li>该方法正交于其他扩散加速技术，原则上可与时间缓存等技术结合使用</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.20336" data-arxiv-id="2608.20336" data-status="ready">
 <h1>[2608.20336] WithEveryone: Unified Planning and Identity Grounding for Group Image Generation</h1>
 <p><a href="https://arxiv.org/abs/2608.20336" rel="nofollow">arXiv 原文</a></p>
@@ -161,8 +176,155 @@
 <li>该方法与蒸馏、量化及特征缓存等加速技术正交且可组合，具有广泛的适用性。</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.17883" data-arxiv-id="2608.17883" data-status="ready">
+<h1>[2608.17883] Improving Complex Moiré Removal with Generative Supervision</h1>
+<p><a href="https://arxiv.org/abs/2608.17883" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种基于生成式监督的数据引擎，通过筛选多个生成模型的最优输出来构建 WildMoiré 数据集，显著提升了复杂摩尔纹去除任务的性能。</p>
+<h2>解决的问题</h2>
+<p>现有基于学习的方法依赖大规模配对数据进行训练，但难以涵盖无控制真实场景下的大规模、多色复杂摩尔纹模式，且获取清晰对应图像成本高，导致模型泛化能力有限，难以适应不同屏幕和复杂场景。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出利用生成式监督构建训练数据的新范式，通过多模型对比与质量过滤生成高质量 Ground Truth</li>
+<li>构建了包含 6.8K 配对数据的 WildMoiré 数据集，并引入尺度变换策略增强泛化能力</li>
+<li>验证了该方法在多种架构模型上的有效性，显著提升了复杂摩尔纹去除性能</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.17747" data-arxiv-id="2608.17747" data-status="ready">
+<h1>[2608.17747] TINA+: Probing Residual Visual Knowledge in Unlearned Diffusion Models via Diffusion-Consistent Text-Free Inversion</h1>
+<p><a href="https://arxiv.org/abs/2608.17747" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 TINA+ 方法，通过扩散一致的无文本反演攻击探测未学习扩散模型中残留的视觉知识，实验结果表明现有概念擦除方法主要通过切断文本 - 图像链接而非消除底层视觉知识来隐藏概念。</p>
+<h2>解决的问题</h2>
+<p>现有概念擦除和探测方法主要局限于文本中心视角，仅关注文本到图像映射是否被切断，而忽视了底层视觉知识是否依然残留。此外，标准无文本反演会放大近似误差，且不受约束的反演可能发现虚假轨迹，导致对残留视觉知识的误判。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 TINA+ 方法，一种具备基于优化反演的扩散一致无文本反演攻击。</li>
+<li>引入扩散一致轨迹正则化，通过惩罚偏离预期边际能量演化的轨迹来抑制虚假反演路径。</li>
+<li>在零文本条件下利用扩散反演探测生成轨迹是否能重建擦除概念的视觉实例，以评估视觉知识残留。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.17286" data-arxiv-id="2608.17286" data-status="ready">
+<h1>[2608.17286] Abra: Scaling Diffusion Image Training</h1>
+<p><a href="https://arxiv.org/abs/2608.17286" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文通过 Abra 系统研究了文本到图像扩散模型的扩展定律，证实了扩散模型的扩展可预测性，并发现其计算最优性发生在约 200 个图像 token 每参数，且模型对过训练具有鲁棒性。</p>
+<h2>解决的问题</h2>
+<p>视觉生成领域的扩展定律研究尚不充分，现有工作计算量有限（低于 10^19 FLOPs）且依赖外推，同时面临高维度、分辨率依赖及噪声训练曲线等挑战，缺乏精确的经验拟合指导。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出扩散模型计算最优性的 200 个图像 token 每参数（TPP）规则，为训练提供可操作指导。</li>
+<li>证明扩散模型训练对过训练具有鲁棒性，建议实践者优先选择更多数据而非更大模型。</li>
+<li>证实生成质量指标、表示质量和训练曲线形状均遵循可预测的扩展规律。</li>
+<li>首次展示扩散模型表现出缩放坍塌现象。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.17203" data-arxiv-id="2608.17203" data-status="ready">
+<h1>[2608.17203] Expressivity In Multimodal Contrastive Learning</h1>
+<p><a href="https://arxiv.org/abs/2608.17203" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文基于密度估计视角证明双模态 CLIP 架构具有通用逼近能力，但指出多模态成对求和架构无法表示联合分布，并提出 Hadamard-CLIP 以恢复通用逼近性同时保持检索速度。</p>
+<h2>解决的问题</h2>
+<p>现有三模态及以上的多模态对比学习常用成对相似度求和损失，虽能匹配成对条件分布，但理论上无法表示任意联合分布，限制了模型的表达能力，且通用联合网络方案会牺牲检索效率。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于人口水平密度估计视角的理论框架，分析对比学习架构的表示能力极限</li>
+<li>证明双模态两塔 CLIP 架构是通用逼近器，而多模态成对求和架构无法表示完整联合分布</li>
+<li>提出 Hadamard-CLIP 架构，通过添加单个学习权重向量恢复任意模态数下的联合分布通用逼近能力</li>
+<li>在恢复表达力的同时保留了 CLIP 的预计算嵌入特性，确保检索速度不降低</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.17067" data-arxiv-id="2608.17067" data-status="ready">
+<h1>[2608.17067] DiSCO: Defending text-to-image generation through distribution-guided contrastive prompt optimization</h1>
+<p><a href="https://arxiv.org/abs/2608.17067" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种名为 DiSCO 的零样本严格黑盒防御框架，通过基于目标模型自身输出分布的对比提示优化，在不修改模型内部的情况下有效降低了文生图模型生成不安全内容的攻击成功率。</p>
+<h2>解决的问题</h2>
+<p>现有防御方法多基于白盒假设，难以扩展到专有模型；而基于 LLM 提示重写的黑盒方案存在“良性对抗”问题，即语言层面安全的提示词仍可能因模型学习的数据分布而触发有害生成，导致纯文本空间的防御存在缺口。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出零样本、严格黑盒的即插即用模块，无需模型重训练、微调或访问模型内部结构</li>
+<li>利用目标模型自身生成的安全与不安全图像池进行对比评分，实现分布引导的提示优化</li>
+<li>通过束搜索进行后缀扩展，并基于剩余有害内容的严重程度进行迭代自适应反馈</li>
+<li>能够同时提升未防御和已防御模型的安全性，有效解决良性对抗问题</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.16887" data-arxiv-id="2608.16887" data-status="ready">
+<h1>[2608.16887] An Empirical Study of Training Pixel-Space Text-to-Image Diffusion Models</h1>
+<p><a href="https://arxiv.org/abs/2608.16887" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文通过实证研究揭示了像素空间扩散模型大规模预训练收敛较慢的问题，提出了一种潜空间到像素空间的训练策略及优化配方，实现了与潜空间模型相当的生成质量及 3.18 至 4.75 倍的推理加速。</p>
+<h2>解决的问题</h2>
+<p>现有像素空间扩散模型研究多局限于小规模或类条件设置，缺乏能匹敌成熟潜空间模型训练效果的实际配方；直接大规模像素空间预训练收敛显著慢于潜空间，且像素空间在大规模设置下的训练效率与缩放行为尚不明确。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出利用潜空间预训练获取先验、后训练阶段过渡至像素空间的策略</li>
+<li>系统探究了初始化、数据、预测目标、解码器及噪声调度等关键设计选择</li>
+<li>结合渐进式 patch-size 适配与步骤蒸馏技术优化推理效率</li>
+<li>验证了配方在不同模型家族上的泛化性</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.16812" data-arxiv-id="2608.16812" data-status="ready">
+<h1>[2608.16812] Unlocking the Potential of Image Editing via Concept Scaling and Dense Supervision</h1>
+<p><a href="https://arxiv.org/abs/2608.16812" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出通过概念缩放和密集监督解锁图像编辑潜力，构建了包含 1200 万高质量编辑对的 ConceptEdit-12M 数据集及细粒度评估基准，通过合成多个非干扰概念实现密集监督训练，显著提升了模型性能。</p>
+<h2>解决的问题</h2>
+<p>现有图像编辑框架沿袭文生图扩散模型的训练范式，存在两个主要不足：一是过度依赖源图像多样性扩展，忽视了对编辑概念细粒度与丰富性的关注，导致概念分布受限；二是由于编辑操作仅涉及局部区域，稀疏的监督信号造成训练效率低下，限制了模型在复杂编辑场景下的泛化能力。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出编辑概念缩放范式，建立包含 1000+ 细粒度编辑概念的分层分类体系以增强概念多样性。</li>
+<li>提出密集监督训练策略，通过合成多个非干扰编辑概念为单张图像对提供丰富的监督信号以提升效率。</li>
+<li>构建改进的合成框架，利用 LLM 蒸馏知识并引入定制化 VQA 过滤以确保合成数据的保真度与覆盖度。</li>
+<li>构建了 ConceptEdit-12M 大规模数据集和 ConceptEdit-Bench 细粒度评估基准。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.14790" data-arxiv-id="2608.14790" data-status="ready">
+<h1>[2608.14790] Instruction-Based Video Editing by Repurposing an Image Editing Model</h1>
+<p><a href="https://arxiv.org/abs/2608.14790" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种无需视频预训练骨干网络即可实现指令式视频编辑的新方法，通过将视频 VAE 潜空间帧重组为虚拟图像瓦片并复用成熟图像编辑模型，实现了高效且低成本的视频内容修改。</p>
+<h2>解决的问题</h2>
+<p>现有指令式视频编辑方法主要依赖视频预训练生成骨干网络，需高昂成本将其适配为条件模型，且本质上仍是先构建视频生成模型再教学编辑能力；相比之下，指令式图像编辑已高度成熟，但在视频编辑任务中，视频生成模型采用的因果 3D VAE 潜空间表示与图像编辑模型的单帧像素输入存在表征差异，导致视频编辑难以直接复用先进的图像编辑先验。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出零训练观察链证明图像编辑模型可扩展至视频潜空间瓦片处理，隔离了位置处理而非联合编码作为关键因素</li>
+<li>设计仅需两个轻量级投影层的极简连接方案，将视频 VAE 潜帧嵌入为图像编辑器可理解的瓦片</li>
+<li>构建基于公共数据集 Ditto-1M 的开源指令式视频编辑系统，无需视频预训练骨干网络</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.14546" data-arxiv-id="2608.14546" data-status="ready">
+<h1>[2608.14546] CPI-Bench: A Comprehensive, Practical and Intelligent Benchmark for Real-World Image Editing</h1>
+<p><a href="https://arxiv.org/abs/2608.14546" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 CPI-Bench 基准，旨在通过综合、实用和智能三个子集解决现有图像编辑评估在多图编辑、真实场景及复杂推理方面的局限，并验证了其与人类偏好的高度一致性。</p>
+<h2>解决的问题</h2>
+<p>现有图像编辑基准主要局限于简单的单图任务，缺乏对多图编辑、真实用户应用场景及高难度推理指令的评估覆盖，无法可靠区分模型在复杂场景下的性能差异，且评估维度与真实部署需求脱节。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建 CPI-General-Bench，引入 10 个多图编辑任务，填补现有评估中多图交互能力的空白</li>
+<li>引入 CPI-Practical-Bench，涵盖 51 种常见应用场景，实现从学术指标到实际部署价值的评估转变</li>
+<li>构建 CPI-Intelligent-Bench，基于 1181 个推理实例评估高难度推理编辑能力</li>
+<li>通过对比分析证明 CPI-Bench 排名与 Arena 图像编辑排行榜具有最高统计对齐度，有效代理人类偏好评估</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.07565" data-arxiv-id="2608.07565" data-status="ready">
+<h1>[2608.07565] What to Edit Next: Visually Aligned Image-Editing Follow-Up Suggestions in Conversational Systems</h1>
+<p><a href="https://arxiv.org/abs/2608.07565" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种三阶段框架，通过融合人类审查意图、用户点击反馈及图像优先视觉验证，显著降低了图像编辑推荐中的视觉不一致率，提升了对话系统的推荐效果与用户参与度。</p>
+<h2>解决的问题</h2>
+<p>现有推荐系统主要聚焦于文本交互，忽视了图像创作对话中视觉上下文的重要性，且缺乏对建议集在视觉上可执行性的验证，导致生成的建议往往无法在当前图像上执行或存在冗余。</p>
+<h2>创新点</h2>
+<ul>
+<li>基于 10 万真实对话数据审计，明确 80.1% 编辑查询依赖视觉上下文，界定任务范围</li>
+<li>构建人类审查意图表生成 SFT 目标，确立多模态编辑动作空间</li>
+<li>结合用户点击反馈与多目标强化学习，优化策略以对齐用户偏好</li>
+<li>引入图像优先视觉验证器作为奖励维度，显式解决视觉不一致问题</li>
+</ul>
+    </article>
     </div>
   </main>
-  <script type="application/json" id="summary-catalog">{"papers":{"2608.17995":{"status":"ready","url":"notes/image-generation.html#summary-2608.17995"},"2608.18040":{"status":"ready","url":"notes/image-generation.html#summary-2608.18040"},"2608.18063":{"status":"ready","url":"notes/image-generation.html#summary-2608.18063"},"2608.18076":{"status":"ready","url":"notes/image-generation.html#summary-2608.18076"},"2608.18968":{"status":"ready","url":"notes/image-generation.html#summary-2608.18968"},"2608.19000":{"status":"ready","url":"notes/image-generation.html#summary-2608.19000"},"2608.19637":{"status":"ready","url":"notes/image-generation.html#summary-2608.19637"},"2608.20161":{"status":"ready","url":"notes/image-generation.html#summary-2608.20161"},"2608.20334":{"status":"ready","url":"notes/image-generation.html#summary-2608.20334"},"2608.20336":{"status":"ready","url":"notes/image-generation.html#summary-2608.20336"}},"topic":"Image Generation","version":1}</script>
+  <script type="application/json" id="summary-catalog">{"papers":{"2608.07565":{"status":"ready","url":"notes/image-generation.html#summary-2608.07565"},"2608.14546":{"status":"ready","url":"notes/image-generation.html#summary-2608.14546"},"2608.14790":{"status":"ready","url":"notes/image-generation.html#summary-2608.14790"},"2608.16812":{"status":"ready","url":"notes/image-generation.html#summary-2608.16812"},"2608.16887":{"status":"ready","url":"notes/image-generation.html#summary-2608.16887"},"2608.17067":{"status":"ready","url":"notes/image-generation.html#summary-2608.17067"},"2608.17203":{"status":"ready","url":"notes/image-generation.html#summary-2608.17203"},"2608.17286":{"status":"ready","url":"notes/image-generation.html#summary-2608.17286"},"2608.17747":{"status":"ready","url":"notes/image-generation.html#summary-2608.17747"},"2608.17883":{"status":"ready","url":"notes/image-generation.html#summary-2608.17883"},"2608.17995":{"status":"ready","url":"notes/image-generation.html#summary-2608.17995"},"2608.18040":{"status":"ready","url":"notes/image-generation.html#summary-2608.18040"},"2608.18063":{"status":"ready","url":"notes/image-generation.html#summary-2608.18063"},"2608.18076":{"status":"ready","url":"notes/image-generation.html#summary-2608.18076"},"2608.18968":{"status":"ready","url":"notes/image-generation.html#summary-2608.18968"},"2608.19000":{"status":"ready","url":"notes/image-generation.html#summary-2608.19000"},"2608.19637":{"status":"ready","url":"notes/image-generation.html#summary-2608.19637"},"2608.20161":{"status":"ready","url":"notes/image-generation.html#summary-2608.20161"},"2608.20334":{"status":"ready","url":"notes/image-generation.html#summary-2608.20334"},"2608.20336":{"status":"ready","url":"notes/image-generation.html#summary-2608.20336"},"2608.21229":{"status":"ready","url":"notes/image-generation.html#summary-2608.21229"}},"topic":"Image Generation","version":1}</script>
 </body>
 </html>
