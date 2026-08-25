@@ -20,6 +20,7 @@ env:
   GITHUB_USER_EMAIL: zhangyufan.aiesec@gmail.com
   SUMMARY_ENABLED: "1"
   SUMMARY_BACKFILL_LIMIT: "10"
+  SUMMARY_BACKFILL_TIME_BUDGET_MINUTES: "240"
   PAPER_NOTES_ROOT: /mnt/g/share/papers
   VLLM_BASE_URL: http://127.0.0.1:8000/v1
 
@@ -29,9 +30,9 @@ jobs:
     permissions:
       contents: write
     runs-on: [self-hosted, Linux, X64, wsl2, gpu]
-    # GitHub's platform limit for one self-hosted job is five days. The Python
-    # backfill itself has no deadline and resumes from external state if needed.
-    timeout-minutes: 7200
+    # Allow room for daily ingestion, the four-hour backfill, one in-flight
+    # paper to finish, and the final commit/deploy handoff.
+    timeout-minutes: 360
     defaults:
       run:
         shell: bash

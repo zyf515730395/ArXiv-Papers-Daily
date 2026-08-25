@@ -90,18 +90,20 @@ newest to oldest within each topic. Existing queue entries use the same order
 after a restart, while newly discovered daily papers remain the first priority.
 
 `SUMMARY_BACKFILL_LIMIT` controls the arXiv metadata batch size rather than the
-number processed per run. The normal workflow intentionally leaves
-`SUMMARY_BACKFILL_YEAR` and `SUMMARY_BACKFILL_TIME_BUDGET_MINUTES` unset, so the
-Python process has neither a year filter nor an application-level deadline. A
-paper shared by multiple topics is inferred once and its Markdown is copied
+number processed per run. The workflow leaves `SUMMARY_BACKFILL_YEAR` unset so
+every archived year remains eligible, and sets
+`SUMMARY_BACKFILL_TIME_BUDGET_MINUTES=240` so each historical phase starts new
+papers for up to four hours. A paper already in progress at the deadline is
+allowed to finish; the runner then publishes and commits the completed pages.
+A paper shared by multiple topics is inferred once and its Markdown is copied
 into each topic directory. Failed items are attempted only once in a run,
 later ordered items continue, and failed items remain pending for the next run.
 
-GitHub Actions still enforces a platform limit of five days for a single
-self-hosted job. The workflow uses that maximum (7200 minutes). Summary state
-and Markdown are saved atomically after every paper, so a later scheduled or
-manual run resumes the same all-years order if GitHub stops a job at that hard
-limit.
+The complete GitHub Actions job has a 360-minute timeout to leave room for
+daily ingestion, the four-hour historical phase, one in-flight paper to finish,
+and the final commit. Summary state and Markdown are saved atomically after
+every paper, so the next scheduled or manual run resumes the same all-years
+order.
 
 The summary instruction is a fixed, versioned expert template. Only the paper's
 configured topic list is inserted into the expert role; the title, abstract,
@@ -133,6 +135,7 @@ fi
 
 SUMMARY_ENABLED=1 \
 SUMMARY_BACKFILL_LIMIT=10 \
+SUMMARY_BACKFILL_TIME_BUDGET_MINUTES=240 \
 PAPER_NOTES_ROOT=/mnt/g/share/papers \
 VLLM_BASE_URL=http://127.0.0.1:8000/v1 \
 "$VENV_PATH/bin/python" daily_arxiv.py --summaries-only --backfill-history
