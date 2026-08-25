@@ -78,16 +78,37 @@ systemctl is-active vllm-paper.service
 systemctl is-active actions.runner.zyf515730395-ArXiv-Papers-Daily.ZYF-WinSZ.service
 ```
 
-After the runner and vLLM services are healthy, trigger **Run Arxiv Papers
-Daily** manually once. The scheduled run remains daily at 01:00 UTC.
+After the runner and vLLM services are healthy, the two independent workflows
+can be triggered manually for validation:
+
+- **Run Arxiv Papers Daily** fetches at 01:00 UTC (09:00 Asia/Shanghai).
+- **Backfill Arxiv Paper Summaries** starts at 02:00 UTC (10:00
+  Asia/Shanghai) and runs its summary phase for up to four hours.
+
+Both workflows use the same `arxiv-paper-pipeline` concurrency group. If daily
+ingestion is delayed, backfill waits rather than accessing the shared checkout,
+summary state, or vLLM concurrently.
+
+## Daily ingestion and latest-paper priority
+
+Daily ingestion fetches arXiv metadata, appends the archive, and atomically
+queues newly discovered IDs in `/mnt/g/share/papers/.summary-state.json`. It
+sets `SUMMARY_DEFER_PROCESSING=1`, so it does not wait for vLLM or perform any
+paper inference. The latest paper list and current Summary states are published
+immediately after ingestion.
+
+The separate backfill workflow processes queued non-historical papers first,
+ordered by arXiv ID from newest to oldest. Consequently, papers added by the
+09:00 run have priority over the historical archive. Only after that latest
+queue is clear does it advance the historical schedule.
 
 ## Historical summary backfill
 
-Each scheduled run first handles and commits new papers, then backfills every
-archived year. Buckets are ordered by month from newest to oldest, by the topic
-order in `config.yaml` within each month, and by paper date and arXiv ID from
-newest to oldest within each topic. Existing queue entries use the same order
-after a restart, while newly discovered daily papers remain the first priority.
+The independent backfill workflow covers every archived year. Historical
+buckets are ordered by month from newest to oldest, by the topic order in
+`config.yaml` within each month, and by paper date and arXiv ID from newest to
+oldest within each topic. Existing queue entries use the same order after a
+restart.
 
 `SUMMARY_BACKFILL_LIMIT` controls the arXiv metadata batch size rather than the
 number processed per run. The workflow leaves `SUMMARY_BACKFILL_YEAR` unset so
@@ -99,11 +120,10 @@ A paper shared by multiple topics is inferred once and its Markdown is copied
 into each topic directory. Failed items are attempted only once in a run,
 later ordered items continue, and failed items remain pending for the next run.
 
-The complete GitHub Actions job has a 360-minute timeout to leave room for
-daily ingestion, the four-hour historical phase, one in-flight paper to finish,
-and the final commit. Summary state and Markdown are saved atomically after
-every paper, so the next scheduled or manual run resumes the same all-years
-order.
+The backfill GitHub Actions job has a 360-minute timeout to leave room for the
+four-hour summary phase, one in-flight paper to finish, and the final commit.
+Summary state and Markdown are saved atomically after every paper, so the next
+scheduled or manual run resumes the same all-years order.
 
 The summary instruction is a fixed, versioned expert template. Only the paper's
 configured topic list is inserted into the expert role; the title, abstract,
