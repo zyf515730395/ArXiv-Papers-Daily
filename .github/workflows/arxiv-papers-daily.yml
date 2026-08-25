@@ -1,4 +1,5 @@
-# This workflow fetches, summarizes, and publishes arXiv papers every day.
+# This workflow fetches and publishes the latest arXiv papers every day.
+# Summary inference is intentionally handled by summary-backfill.yml.
 
 name: Run Arxiv Papers Daily
 
@@ -12,27 +13,23 @@ permissions:
   contents: read
 
 concurrency:
-  group: arxiv-papers-daily
+  group: arxiv-paper-pipeline
   cancel-in-progress: false
 
 env:
   GITHUB_USER_NAME: zyf515730395
   GITHUB_USER_EMAIL: zhangyufan.aiesec@gmail.com
   SUMMARY_ENABLED: "1"
-  SUMMARY_BACKFILL_LIMIT: "10"
-  SUMMARY_BACKFILL_TIME_BUDGET_MINUTES: "240"
+  SUMMARY_DEFER_PROCESSING: "1"
   PAPER_NOTES_ROOT: /mnt/g/share/papers
-  VLLM_BASE_URL: http://127.0.0.1:8000/v1
 
 jobs:
   build:
     name: update
     permissions:
       contents: write
-    runs-on: [self-hosted, Linux, X64, wsl2, gpu]
-    # Allow room for daily ingestion, the four-hour backfill, one in-flight
-    # paper to finish, and the final commit/deploy handoff.
-    timeout-minutes: 360
+    runs-on: [self-hosted, Linux, X64, wsl2]
+    timeout-minutes: 120
     defaults:
       run:
         shell: bash
@@ -62,12 +59,7 @@ jobs:
           "$VENV_PATH/bin/python" -m pip install --upgrade pip
           "$VENV_PATH/bin/python" -m pip install -r requirements.txt
 
-      - name: Wait for local vLLM
-        continue-on-error: true
-        run: |
-          curl --fail --retry 60 --retry-all-errors --retry-delay 5 --retry-max-time 300 --max-time 10 "$VLLM_BASE_URL/models"
-
-      - name: Run daily arxiv
+      - name: Fetch and queue latest arxiv papers
         env:
           SUMMARY_BACKFILL_ENABLED: "0"
         run: |
@@ -83,23 +75,6 @@ jobs:
             echo "No paper updates"
           else
             git commit -m "Github Action Automatic Update Arxiv Papers"
-            git push origin main
-          fi
-
-      - name: Backfill all paper summaries
-        env:
-          SUMMARY_BACKFILL_ENABLED: "1"
-        run: |
-          /home/zyf/.cache/arxiv-papers-daily/venv/bin/python daily_arxiv.py --summaries-only --backfill-history
-
-      - name: Commit historical summaries
-        run: |
-          git add docs/index.html
-          git add -A docs/notes
-          if git diff --cached --quiet; then
-            echo "No historical summary updates"
-          else
-            git commit -m "Github Action Backfill All Paper Summaries"
             git push origin main
           fi
 

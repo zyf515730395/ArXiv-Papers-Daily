@@ -691,6 +691,21 @@ def demo(**config):
                     os.getenv("VLLM_BASE_URL", "http://127.0.0.1:8000/v1"),
                     os.getenv("VLLM_MODEL") or None,
                 )
+            elif env_flag("SUMMARY_DEFER_PROCESSING"):
+                deferred_state = load_state(notes_root)
+                publish_summaries(
+                    notes_root,
+                    deferred_state,
+                    publish_root,
+                    list(keywords),
+                )
+                stats = {
+                    "completed": 0,
+                    "failed": 0,
+                    "attempted": 0,
+                    "pending": count_summary_work(deferred_state),
+                    "deferred": True,
+                }
             else:
                 stats = process_summary_queue(
                     notes_root,
