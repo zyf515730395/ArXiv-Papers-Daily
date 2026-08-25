@@ -5,8 +5,8 @@ name: Backfill Arxiv Paper Summaries
 on:
   workflow_dispatch:
   schedule:
-    # Run once daily at 02:00 UTC (10:00 Asia/Shanghai), after daily ingestion.
-    - cron: "0 2 * * *"
+    # Run once daily at 13:30 UTC (21:30 Asia/Shanghai).
+    - cron: "30 13 * * *"
 
 permissions:
   contents: read
@@ -21,7 +21,7 @@ env:
   GITHUB_USER_EMAIL: zhangyufan.aiesec@gmail.com
   SUMMARY_ENABLED: "1"
   SUMMARY_BACKFILL_LIMIT: "10"
-  SUMMARY_BACKFILL_TIME_BUDGET_MINUTES: "240"
+  SUMMARY_BACKFILL_TIME_BUDGET_MINUTES: "150"
   PAPER_NOTES_ROOT: /mnt/g/share/papers
   VLLM_BASE_URL: http://127.0.0.1:8000/v1
 
@@ -31,8 +31,8 @@ jobs:
     permissions:
       contents: write
     runs-on: [self-hosted, Linux, X64, wsl2, gpu]
-    # Allow room for the four-hour budget, one in-flight paper, and publishing.
-    timeout-minutes: 360
+    # Allow room for the 150-minute budget, one in-flight paper, and publishing.
+    timeout-minutes: 240
     defaults:
       run:
         shell: bash

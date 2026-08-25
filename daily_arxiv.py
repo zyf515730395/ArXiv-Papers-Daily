@@ -592,9 +592,9 @@ def demo(**config):
         else None
     )
     backfill_budget_minutes = (
-        positive_env_int("SUMMARY_BACKFILL_TIME_BUDGET_MINUTES", 240)
+        positive_env_int("SUMMARY_BACKFILL_TIME_BUDGET_MINUTES", 150)
         if backfill_enabled
-        else 240
+        else 150
     )
     notes_root = None
     publish_root = Path(html_file).parent / "notes"

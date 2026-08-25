@@ -82,8 +82,8 @@ After the runner and vLLM services are healthy, the two independent workflows
 can be triggered manually for validation:
 
 - **Run Arxiv Papers Daily** fetches at 01:00 UTC (09:00 Asia/Shanghai).
-- **Backfill Arxiv Paper Summaries** starts at 02:00 UTC (10:00
-  Asia/Shanghai) and runs its summary phase for up to four hours.
+- **Backfill Arxiv Paper Summaries** starts at 13:30 UTC (21:30
+  Asia/Shanghai) and runs its summary phase for up to 150 minutes.
 
 Both workflows use the same `arxiv-paper-pipeline` concurrency group. If daily
 ingestion is delayed, backfill waits rather than accessing the shared checkout,
@@ -113,15 +113,15 @@ restart.
 `SUMMARY_BACKFILL_LIMIT` controls the arXiv metadata batch size rather than the
 number processed per run. The workflow leaves `SUMMARY_BACKFILL_YEAR` unset so
 every archived year remains eligible, and sets
-`SUMMARY_BACKFILL_TIME_BUDGET_MINUTES=240` so each historical phase starts new
-papers for up to four hours. A paper already in progress at the deadline is
+`SUMMARY_BACKFILL_TIME_BUDGET_MINUTES=150` so each historical phase starts new
+papers for up to 150 minutes. A paper already in progress at the deadline is
 allowed to finish; the runner then publishes and commits the completed pages.
 A paper shared by multiple topics is inferred once and its Markdown is copied
 into each topic directory. Failed items are attempted only once in a run,
 later ordered items continue, and failed items remain pending for the next run.
 
-The backfill GitHub Actions job has a 360-minute timeout to leave room for the
-four-hour summary phase, one in-flight paper to finish, and the final commit.
+The backfill GitHub Actions job has a 240-minute timeout to leave room for the
+150-minute summary phase, one in-flight paper to finish, and the final commit.
 Summary state and Markdown are saved atomically after every paper, so the next
 scheduled or manual run resumes the same all-years order.
 
@@ -155,7 +155,7 @@ fi
 
 SUMMARY_ENABLED=1 \
 SUMMARY_BACKFILL_LIMIT=10 \
-SUMMARY_BACKFILL_TIME_BUDGET_MINUTES=240 \
+SUMMARY_BACKFILL_TIME_BUDGET_MINUTES=150 \
 PAPER_NOTES_ROOT=/mnt/g/share/papers \
 VLLM_BASE_URL=http://127.0.0.1:8000/v1 \
 "$VENV_PATH/bin/python" daily_arxiv.py --summaries-only --backfill-history
