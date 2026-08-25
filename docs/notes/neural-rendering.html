@@ -13,6 +13,35 @@
       <h1>Neural Rendering · 论文要点</h1>
     </header>
     <div class="summary-topic-list">
+    <article class="summary-article summary-topic-entry" id="summary-2608.23549" data-arxiv-id="2608.23549" data-status="ready">
+<h1>[2608.23549] FixAnything: 3D-Consistent Rendering Refinement via Video Generative Priors</h1>
+<p><a href="https://arxiv.org/abs/2608.23549" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 FixAnything 框架，通过复用预训练视频生成模型并进行轻量微调，实现了跨多种 3D 表示的通用渲染修复，同时利用几何感知偏好优化确保输出具备 3D 一致性。</p>
+<h2>解决的问题</h2>
+<p>现有方法针对特定 3D 表示（如 3DGS、NeRF、meshes 或点云）构建专门的生成管线来修复伪影，导致难以扩展且每次新表示出现都需要定制架构和重训练；此外，当输入视图稀疏或目标视图远离训练视图时，不同表示均会产生严重伪影，限制下游内容创作或机器人应用。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 FixAnything 通用框架，利用预训练视频生成模型仅通过轻量 LoRA 微调即可修复多种 3D 表示（如 3DGS、NeRF）的伪影，无需修改基础模型架构。</li>
+<li>引入掩码感知条件机制，通过二进制掩码区分干净帧与退化帧，锚定模型输出至高质量参考视图以保持内容结构。</li>
+<li>采用几何感知偏好优化，利用相机姿态精度作为奖励信号通过 Flow-DPO 将多视图 3D 一致性嵌入模型，支持下游重建应用。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.23410" data-arxiv-id="2608.23410" data-status="ready">
+<h1>[2608.23410] Photorealistic Novel View Synthesis of Human Faces using Next-Scale Transformers</h1>
+<p><a href="https://arxiv.org/abs/2608.23410" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出基于 Next-Scale Transformers 的自回归范式，通过低分辨率通用预训练与高分辨率专用训练相结合，实现了高分辨率人脸多视角同时生成的逼真合成，显著提升了感知保真度与跨视角一致性。</p>
+<h2>解决的问题</h2>
+<p>现有方法在高分辨率及大视角变化下难以兼顾身份保持、几何与外观一致性。近正面管线（如 Splatter Image）在偏离正面对视角时性能下降，而大规模预训练系统（如 FaceLift）虽细节丰富但渲染效果不自然且依赖海量合成数据，存在效率与真实感的矛盾。</p>
+<h2>创新点</h2>
+<ul>
+<li>采用 Next-Scale autoregressive 范式构建人脸中心视角合成架构，支持高分辨率与多视角输出。</li>
+<li>无需 2D 预训练，利用低分辨率通用预训练在后期阶段结合全尺寸图像，减少专用训练数据需求。</li>
+<li>通过单次前向传播实现多视角同时合成，提升跨视角一致性。</li>
+<li>结合 Transformer 模型实现像素对齐的 3D Gaussian 提升，生成准确逼真的 3D 人脸模型。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.21008" data-arxiv-id="2608.21008" data-status="ready">
 <h1>[2608.21008] Triangulation-Free Bundle Adjustment with Graduated Non-Convexity for Camera Pose Refinement from Coarse Priors</h1>
 <p><a href="https://arxiv.org/abs/2608.21008" rel="nofollow">arXiv 原文</a></p>
@@ -69,6 +98,21 @@
 <li>引入相机重定位算法，解决 camera-reconstruction misalignment 问题，提升训练对齐质量。</li>
 <li>开发全自动合成数据引擎，用于生成和渲染 rigged 3D characters 及 procedural environments。</li>
 <li>超越 prevailing geometry-based approach，通过 Semantic Grounding 合成挑战性区域，解决遮挡和不可识别问题。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.20335" data-arxiv-id="2608.20335" data-status="ready">
+<h1>[2608.20335] 4DAnyone: Create Anyone in 4D from a Casual Monocular Video</h1>
+<p><a href="https://arxiv.org/abs/2608.20335" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>4DAnyone 框架实现了从单目视频到 4D 人类的重建，通过生成重建级的多视角一致视频并提升为 4DGS，在 DNA-Rendering 和 DyMVHumans 基准上显著优于现有方法。</p>
+<h2>解决的问题</h2>
+<p>现有相机控制视频生成方法在扩展至 4DGS 所需的数十个目标视图时，无法维持跨视图一致性，导致外观不一致和结构漂移。根本原因在于单 DiT 前向传播的注意力上下文容量受限，造成参考上下文 $O(N)$ 增长及目标视图组间信息隔离。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 Reference Context Packing (RCP)，将参考上下文复杂度从 $O(N)$ 压缩至 $O(1)$，保持跨视图外观引导的可扩展性。</li>
+<li>提出 Target Context Routing (TCR)，在去噪过程中动态路由目标视图分组以共享上下文，减少跨组结构漂移。</li>
+<li>采用 3D-aware skeleton conditioning，利用 3D 骨架渲染解决 2D 姿态歧义，遵循 accuracy-over-density 原则。</li>
+<li>构建 MVGameHuman 数据集，结合 light-stage 和 in-the-wild 视频数据实现鲁棒的野外泛化。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.20000" data-arxiv-id="2608.20000" data-status="ready">
@@ -174,6 +218,20 @@
 <li>设计变更门控稠密化模块，仅在锚定变形后仍存在帧间外观变化的区域创建新高斯，减少冗余外观容量</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.17988" data-arxiv-id="2608.17988" data-status="ready">
+<h1>[2608.17988] GS-Voxel: Fitting-Free Structured Latents for Large-Scale 3DGS Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.17988" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 GS-Voxel，一种无需拟合的有结构隐变量框架，通过将预优化 3DGS 重构成稀疏体素并配合因式分解 VAE 编码，实现了在无需全局重优化情况下将大规模无序 3DGS 转换为结构化隐变量，并支持基于图像条件的大面积场景生成。</p>
+<h2>解决的问题</h2>
+<p>现有的潜在 3D 生成模型依赖紧凑的结构化隐变量，但预优化的 3DGS 重建是无序且空间不规则的集合，其基元数量在不同场景中差异巨大，无法直接匹配稀疏隐变量架构所需的固定空间张量。现有方法如 GaussianCube 需要全局重拟合与 Optimal Transport，或 L3DG、Can3Tok 等针对固定基数或物体尺度，均无法直接将百万级预优化 3DGS 重建转换为空间隐变量而不进行全局重排。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出无需拟合的有结构隐变量框架，将预优化 3DGS 确定性转换为稀疏体素且无需额外 per-scene 优化</li>
+<li>设计 GS 特定因式分解 VAE，分别编码体素几何与高斯属性，隐变量容量随占用体素数量增长而非受限于固定基元预算</li>
+<li>支持基于卫星视图图像的大面积场景生成，通过重叠感知平铺推理 (overlap-aware tiled inference) 扩展合成范围</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.17969" data-arxiv-id="2608.17969" data-status="ready">
 <h1>[2608.17969] MetaSapiens v2: Advancing Real-Time Foveated Neural Rendering via Foveation-Aware Pruning and Stereo Warping</h1>
 <p><a href="https://arxiv.org/abs/2608.17969" rel="nofollow">arXiv 原文</a></p>
@@ -260,6 +318,21 @@
 <li>设计 gradient-based progressive injection strategy，解决刚性注入导致的边界不一致与累积畸变问题，确保全场景覆盖。</li>
 <li>有效防御 Partial Infringement 场景，解决了现有基于图像的水印方法在部分 Gaussian 提取重用下失效的问题。</li>
 <li>支持 hybrid protection（原生与间接结合）及 multimodal 水印输入，增强实际部署的灵活性与身份感知能力。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.17420" data-arxiv-id="2608.17420" data-status="ready">
+<h1>[2608.17420] SPVC: Structured and Panoptic Video Fixing for Cross-Dataset Driving Scene Rendering</h1>
+<p><a href="https://arxiv.org/abs/2608.17420" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 SPVC，一种针对 3D Gaussian Splatting 渲染的修复框架，通过结构化与全景视频修复策略，利用显式空间条件引导扩散模型，实现跨数据集驾驶场景渲染中背景与前景伪影的联合修复，有效解决了轨迹外推和场景编辑导致的模糊结构、时序闪烁及空间不一致问题。</p>
+<h2>解决的问题</h2>
+<p>现有修复方法通常针对特定设置设计，如图像级新视角修复或物体编辑校正，存在图像级扩散先验缺乏显式空间控制导致几何幻觉、仅处理背景或前景单一类型、帧独立处理引发时序闪烁以及依赖特定数据集缺乏泛化能力等不足，难以有效应对自动驾驶仿真中轨迹外推和场景编辑后的严重渲染伪影。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出结构化修复（Structured fixing），利用相机姿态（camera pose）、3D 边界框（3D bounding boxes）和 HD 地图（HD maps）等显式空间条件引导修复过程，减少无控制幻觉</li>
+<li>实现全景修复（Panoptic fixing），同时修正背景渲染伪影（如道路、建筑）和前景车辆编辑引入的不一致外观</li>
+<li>采用视频修复（Video fixing）策略，在驾驶序列上操作而非孤立帧，利用时序线索进行伪影修正以消除时序闪烁</li>
+<li>设计跨数据集修复（Cross-dataset fixing），通过单一共享网络在多数据集上训练和应用，支持零样本泛化并积累可重用的伪影清理配对数据</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.17298" data-arxiv-id="2608.17298" data-status="ready">
@@ -1171,6 +1244,6 @@
     </article>
     </div>
   </main>
-  <script type="application/json" id="summary-catalog">{"papers":{"2601.04348":{"status":"ready","url":"notes/neural-rendering.html#summary-2601.04348"},"2601.12122":{"status":"ready","url":"notes/neural-rendering.html#summary-2601.12122"},"2602.06343":{"status":"ready","url":"notes/neural-rendering.html#summary-2602.06343"},"2603.21933":{"status":"ready","url":"notes/neural-rendering.html#summary-2603.21933"},"2603.25129":{"status":"ready","url":"notes/neural-rendering.html#summary-2603.25129"},"2603.27151":{"status":"ready","url":"notes/neural-rendering.html#summary-2603.27151"},"2604.16910":{"status":"ready","url":"notes/neural-rendering.html#summary-2604.16910"},"2605.13794":{"status":"ready","url":"notes/neural-rendering.html#summary-2605.13794"},"2606.09074":{"status":"ready","url":"notes/neural-rendering.html#summary-2606.09074"},"2606.16278":{"status":"ready","url":"notes/neural-rendering.html#summary-2606.16278"},"2606.30380":{"status":"ready","url":"notes/neural-rendering.html#summary-2606.30380"},"2607.22673":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.22673"},"2607.25569":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.25569"},"2607.27825":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.27825"},"2608.00931":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.00931"},"2608.01178":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01178"},"2608.01186":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01186"},"2608.01492":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01492"},"2608.01588":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01588"},"2608.01659":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01659"},"2608.01761":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01761"},"2608.01958":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01958"},"2608.01969":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01969"},"2608.02099":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.02099"},"2608.02145":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.02145"},"2608.02191":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.02191"},"2608.03279":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.03279"},"2608.04475":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.04475"},"2608.04560":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.04560"},"2608.04581":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.04581"},"2608.05218":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.05218"},"2608.05704":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.05704"},"2608.05896":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.05896"},"2608.07144":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.07144"},"2608.07760":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.07760"},"2608.07937":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.07937"},"2608.08381":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.08381"},"2608.08585":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.08585"},"2608.08659":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.08659"},"2608.08949":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.08949"},"2608.09735":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.09735"},"2608.10057":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.10057"},"2608.10286":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.10286"},"2608.10345":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.10345"},"2608.10756":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.10756"},"2608.10938":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.10938"},"2608.11100":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.11100"},"2608.11150":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.11150"},"2608.12825":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.12825"},"2608.13095":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.13095"},"2608.13502":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.13502"},"2608.14136":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.14136"},"2608.14713":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.14713"},"2608.14902":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.14902"},"2608.15024":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.15024"},"2608.15420":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.15420"},"2608.15651":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.15651"},"2608.15785":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.15785"},"2608.16042":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.16042"},"2608.16103":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.16103"},"2608.16324":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.16324"},"2608.16863":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.16863"},"2608.17298":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17298"},"2608.17447":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17447"},"2608.17535":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17535"},"2608.17682":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17682"},"2608.17825":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17825"},"2608.17832":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17832"},"2608.17969":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17969"},"2608.18285":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.18285"},"2608.18388":{"status":"pending"},"2608.18413":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.18413"},"2608.18593":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.18593"},"2608.19066":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.19066"},"2608.19556":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.19556"},"2608.19837":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.19837"},"2608.20000":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.20000"},"2608.20534":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.20534"},"2608.20602":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.20602"},"2608.20687":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.20687"},"2608.21008":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.21008"}},"topic":"Neural Rendering","version":1}</script>
+  <script type="application/json" id="summary-catalog">{"papers":{"2601.04348":{"status":"ready","url":"notes/neural-rendering.html#summary-2601.04348"},"2601.12122":{"status":"ready","url":"notes/neural-rendering.html#summary-2601.12122"},"2602.06343":{"status":"ready","url":"notes/neural-rendering.html#summary-2602.06343"},"2603.21933":{"status":"ready","url":"notes/neural-rendering.html#summary-2603.21933"},"2603.25129":{"status":"ready","url":"notes/neural-rendering.html#summary-2603.25129"},"2603.27151":{"status":"ready","url":"notes/neural-rendering.html#summary-2603.27151"},"2604.16910":{"status":"ready","url":"notes/neural-rendering.html#summary-2604.16910"},"2605.13794":{"status":"ready","url":"notes/neural-rendering.html#summary-2605.13794"},"2606.09074":{"status":"ready","url":"notes/neural-rendering.html#summary-2606.09074"},"2606.16278":{"status":"ready","url":"notes/neural-rendering.html#summary-2606.16278"},"2606.30380":{"status":"ready","url":"notes/neural-rendering.html#summary-2606.30380"},"2607.22673":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.22673"},"2607.25569":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.25569"},"2607.27825":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.27825"},"2608.00931":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.00931"},"2608.01178":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01178"},"2608.01186":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01186"},"2608.01492":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01492"},"2608.01588":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01588"},"2608.01659":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01659"},"2608.01761":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01761"},"2608.01958":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01958"},"2608.01969":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01969"},"2608.02099":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.02099"},"2608.02145":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.02145"},"2608.02191":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.02191"},"2608.03279":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.03279"},"2608.04475":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.04475"},"2608.04560":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.04560"},"2608.04581":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.04581"},"2608.05218":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.05218"},"2608.05704":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.05704"},"2608.05896":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.05896"},"2608.07144":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.07144"},"2608.07760":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.07760"},"2608.07937":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.07937"},"2608.08381":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.08381"},"2608.08585":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.08585"},"2608.08659":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.08659"},"2608.08949":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.08949"},"2608.09735":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.09735"},"2608.10057":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.10057"},"2608.10286":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.10286"},"2608.10345":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.10345"},"2608.10756":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.10756"},"2608.10938":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.10938"},"2608.11100":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.11100"},"2608.11150":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.11150"},"2608.12825":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.12825"},"2608.13095":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.13095"},"2608.13502":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.13502"},"2608.14136":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.14136"},"2608.14713":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.14713"},"2608.14902":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.14902"},"2608.15024":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.15024"},"2608.15420":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.15420"},"2608.15651":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.15651"},"2608.15785":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.15785"},"2608.16042":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.16042"},"2608.16103":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.16103"},"2608.16324":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.16324"},"2608.16863":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.16863"},"2608.17298":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17298"},"2608.17420":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17420"},"2608.17447":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17447"},"2608.17535":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17535"},"2608.17682":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17682"},"2608.17825":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17825"},"2608.17832":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17832"},"2608.17969":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17969"},"2608.17988":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17988"},"2608.18285":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.18285"},"2608.18388":{"status":"pending"},"2608.18413":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.18413"},"2608.18593":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.18593"},"2608.19066":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.19066"},"2608.19556":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.19556"},"2608.19837":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.19837"},"2608.20000":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.20000"},"2608.20335":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.20335"},"2608.20534":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.20534"},"2608.20602":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.20602"},"2608.20687":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.20687"},"2608.21008":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.21008"},"2608.22344":{"status":"pending"},"2608.22465":{"status":"pending"},"2608.22740":{"status":"pending"},"2608.22757":{"status":"pending"},"2608.22773":{"status":"pending"},"2608.22821":{"status":"pending"},"2608.22888":{"status":"pending"},"2608.22906":{"status":"pending"},"2608.23410":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.23410"},"2608.23549":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.23549"}},"topic":"Neural Rendering","version":1}</script>
 </body>
 </html>

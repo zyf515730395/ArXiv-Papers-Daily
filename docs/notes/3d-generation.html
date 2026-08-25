@@ -13,6 +13,35 @@
       <h1>3D Generation · 论文要点</h1>
     </header>
     <div class="summary-topic-list">
+    <article class="summary-article summary-topic-entry" id="summary-2608.23549" data-arxiv-id="2608.23549" data-status="ready">
+<h1>[2608.23549] FixAnything: 3D-Consistent Rendering Refinement via Video Generative Priors</h1>
+<p><a href="https://arxiv.org/abs/2608.23549" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 FixAnything 框架，通过复用预训练视频生成模型并进行轻量微调，实现了跨多种 3D 表示的通用渲染修复，同时利用几何感知偏好优化确保输出具备 3D 一致性。</p>
+<h2>解决的问题</h2>
+<p>现有方法针对特定 3D 表示（如 3DGS、NeRF、meshes 或点云）构建专门的生成管线来修复伪影，导致难以扩展且每次新表示出现都需要定制架构和重训练；此外，当输入视图稀疏或目标视图远离训练视图时，不同表示均会产生严重伪影，限制下游内容创作或机器人应用。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 FixAnything 通用框架，利用预训练视频生成模型仅通过轻量 LoRA 微调即可修复多种 3D 表示（如 3DGS、NeRF）的伪影，无需修改基础模型架构。</li>
+<li>引入掩码感知条件机制，通过二进制掩码区分干净帧与退化帧，锚定模型输出至高质量参考视图以保持内容结构。</li>
+<li>采用几何感知偏好优化，利用相机姿态精度作为奖励信号通过 Flow-DPO 将多视图 3D 一致性嵌入模型，支持下游重建应用。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.23410" data-arxiv-id="2608.23410" data-status="ready">
+<h1>[2608.23410] Photorealistic Novel View Synthesis of Human Faces using Next-Scale Transformers</h1>
+<p><a href="https://arxiv.org/abs/2608.23410" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出基于 Next-Scale Transformers 的自回归范式，通过低分辨率通用预训练与高分辨率专用训练相结合，实现了高分辨率人脸多视角同时生成的逼真合成，显著提升了感知保真度与跨视角一致性。</p>
+<h2>解决的问题</h2>
+<p>现有方法在高分辨率及大视角变化下难以兼顾身份保持、几何与外观一致性。近正面管线（如 Splatter Image）在偏离正面对视角时性能下降，而大规模预训练系统（如 FaceLift）虽细节丰富但渲染效果不自然且依赖海量合成数据，存在效率与真实感的矛盾。</p>
+<h2>创新点</h2>
+<ul>
+<li>采用 Next-Scale autoregressive 范式构建人脸中心视角合成架构，支持高分辨率与多视角输出。</li>
+<li>无需 2D 预训练，利用低分辨率通用预训练在后期阶段结合全尺寸图像，减少专用训练数据需求。</li>
+<li>通过单次前向传播实现多视角同时合成，提升跨视角一致性。</li>
+<li>结合 Transformer 模型实现像素对齐的 3D Gaussian 提升，生成准确逼真的 3D 人脸模型。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.20891" data-arxiv-id="2608.20891" data-status="ready">
 <h1>[2608.20891] IMU-Free Body-Frame State Estimation with Sparse Scene Flow for Quadcopters</h1>
 <p><a href="https://arxiv.org/abs/2608.20891" rel="nofollow">arXiv 原文</a></p>
@@ -158,6 +187,21 @@
 <li>在未见相机配置（unseen camera configurations）下展现出优于现有方法的泛化性能。</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.20308" data-arxiv-id="2608.20308" data-status="ready">
+<h1>[2608.20308] DreamHand: Repurposing Video Diffusion Models for Occlusion-Robust Egocentric 3D Hand Motion Recovery</h1>
+<p><a href="https://arxiv.org/abs/2608.20308" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 DreamHand，通过将预训练视频扩散模型（VDM）重构为确定性干净潜在编码器，结合双向时空解码器与射线相机求解器，实现了无需外部检测器的度量 3D 双手运动恢复，在多个自视基准测试中显著降低了 MPJPE-p 误差。</p>
+<h2>解决的问题</h2>
+<p>现有自视视频 3D 手部运动恢复方法在严重物体遮挡和手部出镜（OOS）间隙下失效，单帧回归器无法应对短暂离屏，而视频扩散模型（VDM）依赖像素空间渲染的多步采样导致延迟和伪影，且直接回归 3D 坐标会混淆手部动作与相机自运动，难以实现无外部检测器的连续度量轨迹恢复。</p>
+<h2>创新点</h2>
+<ul>
+<li>将预训练视频扩散模型（VDM）重构为确定性干净潜在编码器（Deterministic Clean-Latent Encoder），通过单次噪声无前向传播并利用 LoRA 适配捕捉结构化物理表示</li>
+<li>提出双向时空解码器（Bidirectional Spatiotemporal Decoder），结合空间锚定查询与双向注意力（attention）聚合长程时序上下文以恢复出镜手部姿态</li>
+<li>设计射线相机求解器（Ray-Based Camera Solver），解耦手部运动与相机自运动以支持测试时无内参（K-free）推理</li>
+<li>构建离线片段级框架（offline clip-level framework），实现无需外部检测器的度量级连续双手轨迹恢复</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.20305" data-arxiv-id="2608.20305" data-status="ready">
 <h1>[2608.20305] CalcSeg: Confidence-aware 3D Latent Context Curriculum Learning For Myocardial Scar Segmentation From Single-Stack LGE-CMRs</h1>
 <p><a href="https://arxiv.org/abs/2608.20305" rel="nofollow">arXiv 原文</a></p>
@@ -229,6 +273,21 @@
 <li>提出在全帧图像域直接进行去噪，在斜率计算前处理原始 PyWFS 强度帧，而非仅在重建框架内修改</li>
 <li>利用 FFT 加速的块分组和全局协作 3D 小波滤波技术，利用图像块的非局部自相似性抑制噪声并保留结构特征</li>
 <li>在不引入重建偏差或损害环路稳定性的前提下，有效降低了模态噪声传播并扩展了可控模态基</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.19900" data-arxiv-id="2608.19900" data-status="ready">
+<h1>[2608.19900] AvatarDynamizer: From Static to Dynamic Human Avatars via Generative Dynamic Textures</h1>
+<p><a href="https://arxiv.org/abs/2608.19900" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出 AvatarDynamizer，通过纹理空间表面动力学嵌入与条件纹理生成，将静态 3D 头像转化为具有逼真表面动态且多视角一致的 4D 头像，有效解决了通用化动态头像建模中表面细节缺失与数据稀缺的矛盾。</p>
+<h2>解决的问题</h2>
+<p>现有通用化方法生成的骨架驱动动画缺乏衣物褶皱等真实表面动态，导致恐怖谷效应，而特定人物方法虽质量高但需昂贵多视角采集且无法跨身份泛化；此外，现有通用化动态头像方法难以嵌入表面动态，导致多视角一致性或动态表现力受限，且确定性回归难以建模高频随机表面细节。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出纹理空间表面动力学嵌入，将姿态依赖的表面动态显式嵌入彩色动态纹理图，替代确定性回归以支持细粒度动态建模</li>
+<li>设计动态纹理生成器，利用预训练视频 diffusion model 先验生成基于身份和运动的动态纹理，缓解数据稀缺问题</li>
+<li>构建 Generalized Gaussian Decoder，将动态纹理图解码为 3D Gaussian Splatting 以实现多视角一致的渲染</li>
+<li>收集并发布 DynaHuman 大规模多视角数据集，覆盖多样身份、相机视角和骨骼运动</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.19823" data-arxiv-id="2608.19823" data-status="ready">
@@ -316,6 +375,21 @@
 <li>设计 Unified Positional Encoding (UPE)，在共享度量时空坐标系统内对齐异构 token，建立密集 Gaussian 与稀疏 Box 之间的显式对应关系。</li>
 <li>开发基于 Multi-Modal Diffusion Transformer (MMDiT) 的生成框架，通过条件校正流去噪联合恢复几何与布局 token，实现高保真动态合成与时序一致检测。</li>
 <li>建立几何与布局的相互约束机制，利用密集几何提供度量证据辅助对象定位，同时利用对象布局先验正则化动态区域的几何重建。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.18948" data-arxiv-id="2608.18948" data-status="ready">
+<h1>[2608.18948] RoboEdit: Turning Human Manipulation Videos into Scalable Robot Experience</h1>
+<p><a href="https://arxiv.org/abs/2608.18948" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了 RoboEdit 套件，通过 RoboEdit-Trans 和 RoboEdit-ADC 将人类操作视频转化为物理可信且对齐 3D 手状态的机器人交互视频，实现了从人类视频到机器人经验的规模化高保真迁移。</p>
+<h2>解决的问题</h2>
+<p>现有机器人交互数据采集成本高且严格依赖特定机器人形态，导致数据无法跨形态迁移，而大量人类操作视频因形态不匹配无法直接利用，且从头生成机器人交互视频易破坏场景上下文并产生物理不合理的运动。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 RoboEdit-Trans，利用跨形态适应模块 (cross-embodiment adaptation modules) 联合建模外观、运动学与接触动力学，确保生成视频的时序一致性。</li>
+<li>集成 3D Robot-State Decoder 恢复每帧 3D 手状态，为下游学习和控制提供结构化运动监督。</li>
+<li>设计 RoboEdit-ADC 自动数据策展管道，结合深度正则化和基于物理的优化，构建包含 174K 对齐视频对的 RoboEdit-14M 大规模数据集。</li>
+<li>在人类到机器人视频编辑任务上实现 SOTA 性能，并验证了恢复的 3D 状态在真实机器人实验中的下游控制效用。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.18840" data-arxiv-id="2608.18840" data-status="ready">
@@ -518,6 +592,21 @@
 <li>提供语义标注以支持机器人代理集成，并具备支持任意数量并行工人的水平扩展能力</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.10744" data-arxiv-id="2608.10744" data-status="ready">
+<h1>[2608.10744] Beyond Pixels: From Video Priors to 4D Worlds</h1>
+<p><a href="https://arxiv.org/abs/2608.10744" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出 Latent-to-4D 框架，利用共享 VAE 的最终去噪潜变量作为可复用接口直接连接视频模型与 4D 解码器，实现了无需生成 RGB 的跨视频生成器 4D 场景生成，并在多个基准上超越了基于 RGB 的重建级联方法。</p>
+<h2>解决的问题</h2>
+<p>现有 4D 生成方法存在“生成后重建”与“集成前馈生成”两种范式：前者通过单独的重建模型处理 RGB 视频，面临分布不匹配和误差传播问题；后者将 4D 预测绑定在特定生成器上，切换模型时需重新训练。此外，4D 监督数据稀缺，难以建立通用接口让单一几何监督路径服务于多个兼容的视频生成器。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出直接潜变量到 4D 生成范式，将最终去噪 VAE 潜变量作为视频生成器与 4D 解码器之间的可复用接口，绕过生成的 RGB 数据。</li>
+<li>设计 Latent-to-4D 对齐与细化网络（L4AR），通过帧级和全局时空注意力将视频潜变量与 4D 解码器的 token 网格对齐并细化。</li>
+<li>实现跨兼容视频生成器的单检查点复用，同一 VAE 家族内的不同 DiT 模型无需重新训练即可使用相同的 4D 生成路径。</li>
+<li>采用冻结视频生成器与 VAE 的策略，仅优化对齐模块和预测头，利用约 1K 重建片段完成 4D 监督训练。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.09186" data-arxiv-id="2608.09186" data-status="ready">
 <h1>[2608.09186] RAGMesh with FaME-G2E: Long-Form Text-Driven 3D Face Generation and Editing</h1>
 <p><a href="https://arxiv.org/abs/2608.09186" rel="nofollow">arXiv 原文</a></p>
@@ -662,6 +751,20 @@
 <li>提出统一框架 Hunyuan3D-Buffalo 1.0，结合 Hunyuan3D-VLM 与 Hunyuan3D DiT 实现 3D 理解、生成、编辑及部件生成的单架构支持。</li>
 <li>在编辑任务中利用源 object representation 作为条件来保持整体结构和未编辑区域，同时支持 text-grounded part generation。</li>
 <li>揭示统一训练范式下的跨任务协同效应，即更强的 generation 与 understanding 能力能显著提升 editing 效果。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.02016" data-arxiv-id="2608.02016" data-status="ready">
+<h1>[2608.02016] Beyond Global Latents: Chunk-Based Sparse Grid VAE for Scalable 3D Modeling</h1>
+<p><a href="https://arxiv.org/abs/2608.02016" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 ChunkVAE，一种基于局部分块而非全局潜在体积的稀疏网格变分自编码器，通过独立编码器与解码器分区及灵活的推理分块预算，实现了在不重新训练的情况下从 $512^3$ 到 $1536^3$ 分辨率的扩展，显著降低了峰值内存并提升了并行推理速度。</p>
+<h2>解决的问题</h2>
+<p>现有的 3D VAE 方法常采用全局向量集或稀疏体素网格，前者受限于全局 token 数量难以表达局部细节，后者虽保留显式空间支持但激活内存随分辨率急剧增加。此外，传统分块方法因负载不平衡、数据重复或边界特征不稳定导致可见接缝，且依赖全局注意力机制限制了分区边界的灵活性，难以在保持潜在完整性的同时实现高分辨率扩展。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 ChunkVAE 架构，采用基于局部分块的稀疏网格 VAE，支持编码器与解码器分区独立及训练与推理分块预算解耦。</li>
+<li>引入 Balanced Binary Object Partitioning (BBOP) 与 S-Curve weighted stitching 算子，分别解决负载不平衡、数据重叠及边界特征不可靠问题。</li>
+<li>实现无需重新训练即可进行分辨率灵活推理，有效分离了全局分辨率、设备内存占用与训练分块大小，支持从 $512^3$ 到 $1536^3$ 的扩展。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.01605" data-arxiv-id="2608.01605" data-status="ready">
@@ -872,6 +975,6 @@
     </article>
     </div>
   </main>
-  <script type="application/json" id="summary-catalog">{"papers":{"2603.21611":{"status":"ready","url":"notes/3d-generation.html#summary-2603.21611"},"2603.22782":{"status":"ready","url":"notes/3d-generation.html#summary-2603.22782"},"2605.19748":{"status":"pending"},"2605.21472":{"status":"ready","url":"notes/3d-generation.html#summary-2605.21472"},"2606.29395":{"status":"ready","url":"notes/3d-generation.html#summary-2606.29395"},"2607.07459":{"status":"ready","url":"notes/3d-generation.html#summary-2607.07459"},"2607.08891":{"status":"ready","url":"notes/3d-generation.html#summary-2607.08891"},"2607.13468":{"status":"ready","url":"notes/3d-generation.html#summary-2607.13468"},"2607.17145":{"status":"ready","url":"notes/3d-generation.html#summary-2607.17145"},"2607.24721":{"status":"ready","url":"notes/3d-generation.html#summary-2607.24721"},"2607.28675":{"status":"ready","url":"notes/3d-generation.html#summary-2607.28675"},"2608.00094":{"status":"ready","url":"notes/3d-generation.html#summary-2608.00094"},"2608.00891":{"status":"ready","url":"notes/3d-generation.html#summary-2608.00891"},"2608.01335":{"status":"ready","url":"notes/3d-generation.html#summary-2608.01335"},"2608.01605":{"status":"ready","url":"notes/3d-generation.html#summary-2608.01605"},"2608.02016":{"status":"pending"},"2608.02711":{"status":"ready","url":"notes/3d-generation.html#summary-2608.02711"},"2608.03062":{"status":"ready","url":"notes/3d-generation.html#summary-2608.03062"},"2608.03179":{"status":"ready","url":"notes/3d-generation.html#summary-2608.03179"},"2608.05248":{"status":"ready","url":"notes/3d-generation.html#summary-2608.05248"},"2608.05714":{"status":"ready","url":"notes/3d-generation.html#summary-2608.05714"},"2608.05879":{"status":"ready","url":"notes/3d-generation.html#summary-2608.05879"},"2608.06161":{"status":"ready","url":"notes/3d-generation.html#summary-2608.06161"},"2608.08053":{"status":"ready","url":"notes/3d-generation.html#summary-2608.08053"},"2608.09110":{"status":"ready","url":"notes/3d-generation.html#summary-2608.09110"},"2608.09186":{"status":"ready","url":"notes/3d-generation.html#summary-2608.09186"},"2608.11876":{"status":"ready","url":"notes/3d-generation.html#summary-2608.11876"},"2608.12175":{"status":"ready","url":"notes/3d-generation.html#summary-2608.12175"},"2608.12997":{"status":"ready","url":"notes/3d-generation.html#summary-2608.12997"},"2608.13541":{"status":"ready","url":"notes/3d-generation.html#summary-2608.13541"},"2608.14783":{"status":"ready","url":"notes/3d-generation.html#summary-2608.14783"},"2608.15749":{"status":"ready","url":"notes/3d-generation.html#summary-2608.15749"},"2608.16234":{"status":"ready","url":"notes/3d-generation.html#summary-2608.16234"},"2608.17988":{"status":"ready","url":"notes/3d-generation.html#summary-2608.17988"},"2608.18616":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18616"},"2608.18627":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18627"},"2608.18711":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18711"},"2608.18734":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18734"},"2608.18750":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18750"},"2608.18840":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18840"},"2608.19036":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19036"},"2608.19063":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19063"},"2608.19177":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19177"},"2608.19756":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19756"},"2608.19769":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19769"},"2608.19823":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19823"},"2608.19934":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19934"},"2608.19965":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19965"},"2608.20093":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20093"},"2608.20277":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20277"},"2608.20305":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20305"},"2608.20639":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20639"},"2608.20659":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20659"},"2608.20691":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20691"},"2608.20699":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20699"},"2608.20720":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20720"},"2608.20740":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20740"},"2608.20748":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20748"},"2608.20759":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20759"},"2608.20775":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20775"},"2608.20891":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20891"}},"topic":"3D Generation","version":1}</script>
+  <script type="application/json" id="summary-catalog">{"papers":{"2603.21611":{"status":"ready","url":"notes/3d-generation.html#summary-2603.21611"},"2603.22782":{"status":"ready","url":"notes/3d-generation.html#summary-2603.22782"},"2605.19748":{"status":"pending"},"2605.21472":{"status":"ready","url":"notes/3d-generation.html#summary-2605.21472"},"2606.29395":{"status":"ready","url":"notes/3d-generation.html#summary-2606.29395"},"2607.07459":{"status":"ready","url":"notes/3d-generation.html#summary-2607.07459"},"2607.08891":{"status":"ready","url":"notes/3d-generation.html#summary-2607.08891"},"2607.13468":{"status":"ready","url":"notes/3d-generation.html#summary-2607.13468"},"2607.17145":{"status":"ready","url":"notes/3d-generation.html#summary-2607.17145"},"2607.24721":{"status":"ready","url":"notes/3d-generation.html#summary-2607.24721"},"2607.28675":{"status":"ready","url":"notes/3d-generation.html#summary-2607.28675"},"2608.00094":{"status":"ready","url":"notes/3d-generation.html#summary-2608.00094"},"2608.00891":{"status":"ready","url":"notes/3d-generation.html#summary-2608.00891"},"2608.01335":{"status":"ready","url":"notes/3d-generation.html#summary-2608.01335"},"2608.01605":{"status":"ready","url":"notes/3d-generation.html#summary-2608.01605"},"2608.02016":{"status":"ready","url":"notes/3d-generation.html#summary-2608.02016"},"2608.02711":{"status":"ready","url":"notes/3d-generation.html#summary-2608.02711"},"2608.03062":{"status":"ready","url":"notes/3d-generation.html#summary-2608.03062"},"2608.03179":{"status":"ready","url":"notes/3d-generation.html#summary-2608.03179"},"2608.05248":{"status":"ready","url":"notes/3d-generation.html#summary-2608.05248"},"2608.05714":{"status":"ready","url":"notes/3d-generation.html#summary-2608.05714"},"2608.05879":{"status":"ready","url":"notes/3d-generation.html#summary-2608.05879"},"2608.06161":{"status":"ready","url":"notes/3d-generation.html#summary-2608.06161"},"2608.08053":{"status":"ready","url":"notes/3d-generation.html#summary-2608.08053"},"2608.09110":{"status":"ready","url":"notes/3d-generation.html#summary-2608.09110"},"2608.09186":{"status":"ready","url":"notes/3d-generation.html#summary-2608.09186"},"2608.10744":{"status":"ready","url":"notes/3d-generation.html#summary-2608.10744"},"2608.11876":{"status":"ready","url":"notes/3d-generation.html#summary-2608.11876"},"2608.12175":{"status":"ready","url":"notes/3d-generation.html#summary-2608.12175"},"2608.12997":{"status":"ready","url":"notes/3d-generation.html#summary-2608.12997"},"2608.13541":{"status":"ready","url":"notes/3d-generation.html#summary-2608.13541"},"2608.14783":{"status":"ready","url":"notes/3d-generation.html#summary-2608.14783"},"2608.15749":{"status":"ready","url":"notes/3d-generation.html#summary-2608.15749"},"2608.16234":{"status":"ready","url":"notes/3d-generation.html#summary-2608.16234"},"2608.17988":{"status":"ready","url":"notes/3d-generation.html#summary-2608.17988"},"2608.18616":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18616"},"2608.18627":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18627"},"2608.18711":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18711"},"2608.18734":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18734"},"2608.18750":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18750"},"2608.18840":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18840"},"2608.18948":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18948"},"2608.19036":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19036"},"2608.19063":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19063"},"2608.19177":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19177"},"2608.19756":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19756"},"2608.19769":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19769"},"2608.19823":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19823"},"2608.19900":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19900"},"2608.19934":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19934"},"2608.19965":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19965"},"2608.20093":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20093"},"2608.20277":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20277"},"2608.20305":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20305"},"2608.20308":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20308"},"2608.20639":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20639"},"2608.20659":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20659"},"2608.20691":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20691"},"2608.20699":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20699"},"2608.20720":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20720"},"2608.20740":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20740"},"2608.20748":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20748"},"2608.20759":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20759"},"2608.20775":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20775"},"2608.20891":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20891"},"2608.22821":{"status":"pending"},"2608.22833":{"status":"pending"},"2608.22888":{"status":"pending"},"2608.22906":{"status":"pending"},"2608.23014":{"status":"pending"},"2608.23140":{"status":"pending"},"2608.23206":{"status":"pending"},"2608.23210":{"status":"pending"},"2608.23410":{"status":"ready","url":"notes/3d-generation.html#summary-2608.23410"},"2608.23549":{"status":"ready","url":"notes/3d-generation.html#summary-2608.23549"}},"topic":"3D Generation","version":1}</script>
 </body>
 </html>

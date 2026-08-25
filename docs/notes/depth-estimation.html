@@ -13,6 +13,21 @@
       <h1>Depth Estimation · 论文要点</h1>
     </header>
     <div class="summary-topic-list">
+    <article class="summary-article summary-topic-entry" id="summary-2608.23290" data-arxiv-id="2608.23290" data-status="ready">
+<h1>[2608.23290] Spotter: Efficient Urban Visual Localization via Geo-Referenced Facade Landmarks in GPS-Degraded Environments</h1>
+<p><a href="https://arxiv.org/abs/2608.23290" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 Spotter 框架，通过利用建筑立面作为可靠的地理参考并结合 GPS 信号，在 GPS 信号退化环境下实现了实时、高精度的城市视觉定位，性能优于里程计基线且帧率显著高于现有基于地图的方法。</p>
+<h2>解决的问题</h2>
+<p>现有视觉定位方法在密集城市环境中面临 GPS 信号因多径效应退化导致定位失效的问题，同时视觉里程计 (VO) 与视觉 SLAM 因增量式运动估计不可避免地产生无界漂移，而基于地图的图像定位方法虽能提供全局参考，但计算开销大且依赖不可靠的 GPS 先验来缩小搜索空间，难以满足轻量化平台实时边缘计算的需求。</p>
+<h2>创新点</h2>
+<ul>
+<li>离线阶段利用 Google Street View 全景图，通过 semantic segmentation 立面并结合 multi-view stereo depth 与地图数据构建紧凑度量数据库</li>
+<li>运行时采用 cascaded retrieval and geometric verification pipeline，实现细粒度全局相机定位</li>
+<li>框架保留在可用时集成 GPS 信号的能力，且在 GPS 信号退化环境下保持鲁棒性</li>
+<li>在保持精度与现有基于地图方法相当的同时，实现了显著更高的帧率</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.20788" data-arxiv-id="2608.20788" data-status="ready">
 <h1>[2608.20788] M2Depth: Unifying Monocular Depth Foundation Priors with Multi-View Stereo</h1>
 <p><a href="https://arxiv.org/abs/2608.20788" rel="nofollow">arXiv 原文</a></p>
@@ -40,6 +55,34 @@
 <li>设计 Asymmetric Feature Extraction (AsymFeX) 模块，结合 3D 局部跨半球 attention、feature disparity estimation 与 dual-scale gating，限制比较范围至局部邻域以降低计算成本。</li>
 <li>在 AISD 数据集上进行全面评估，包含消融实验、体积分析及临床相关性分析，验证方法在不同模态和卒中阶段的有效性。</li>
 <li>提供跨模态泛化证明与不确定性量化分析，评估模型在临床部署下的可靠性。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.18413" data-arxiv-id="2608.18413" data-status="ready">
+<h1>[2608.18413] CoMVS-GS: Collaborative Multi-View Stereo and 3D Gaussian Splatting for Surface Reconstruction</h1>
+<p><a href="https://arxiv.org/abs/2608.18413" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 CoMVS-GS 框架，通过结合多视图立体视觉（MVS）与 3D 高斯泼溅（3DGS）技术，利用稠密 MVS 点初始化、PatchMatch-3DGS 双向监督及 Delaunay 图切割网格化管线，解决了 3DGS 在弱观测区域表面重建不稳定及网格提取对体素分辨率敏感的问题，显著提升了室外场景的几何精度与网格紧凑性。</p>
+<h2>解决的问题</h2>
+<p>现有的基于 3DGS 的表面重建方法主要优化光度视图合成，其高斯原语在弱观测和遮挡区域易形成几何不一致结构，且稀疏 SfM 初始化导致空间空洞；同时传统多视图正则化在遮挡边界附近可见性不一致，而基于 TSDF 体素融合的网格提取对分辨率敏感，难以兼顾细节保持与计算效率，无法满足室外复杂场景的高精度重建需求。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于 MVS 稠密点云的预展平与法向对齐高斯初始化策略，将几何先验嵌入原语以减少弱观测区域的法向恢复歧义</li>
+<li>开发 PatchMatch-3DGS 双向监督机制，利用渲染深度和法向初始化 PatchMatch 并监督高斯优化，提供显式的深度级几何约束</li>
+<li>采用 Delaunay 图切割网格化管线替代 TSDF 体素融合进行表面提取，降低对体素分辨率的敏感性并提升室外场景的网格紧凑性</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.17832" data-arxiv-id="2608.17832" data-status="ready">
+<h1>[2608.17832] GenRec: Knowing Where to Reconstruct and Where to Generate</h1>
+<p><a href="https://arxiv.org/abs/2608.17832" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>GenRec 提出了一种多视角 flow matching 模型，通过观察掩码将重建与生成任务分离，在观测区域实现了最佳几何保真度，同时在未观测区域超越了纯生成基线，且推理速度比最强基线快两个数量级。</p>
+<h2>解决的问题</h2>
+<p>现有生成新视角合成方法将重建与生成混为单一统一损失，模糊了几何保真度与创意幻觉的界限，且传统 3D 场景表示如 NeRF 和 3D Gaussian Splatting 在稀疏输入下无法处理未观测区域。单一网络无法同时满足观测像素的唯一正确答案和未观测像素的可信补全需求，导致监督信号互相干扰。</p>
+<h2>创新点</h2>
+<ul>
+<li>基于几何的生成新视角合成分解，使用每像素观察掩码对观测/未观测像素采用独立模块和损失。</li>
+<li>多视角 flow matching backbone 联合去噪 RGB 和 scene-coordinate maps，实现跨视角一致性与 3D 对应信号。</li>
+<li>像素空间重建分支利用 sparse 3D cross-attention 恢复潜在压缩丢失的细节，且不干扰未观测区域的生成先验。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.17553" data-arxiv-id="2608.17553" data-status="ready">
@@ -336,6 +379,6 @@
     </article>
     </div>
   </main>
-  <script type="application/json" id="summary-catalog">{"papers":{"2605.12027":{"status":"ready","url":"notes/depth-estimation.html#summary-2605.12027"},"2608.00415":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.00415"},"2608.00678":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.00678"},"2608.01129":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.01129"},"2608.02068":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.02068"},"2608.03666":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.03666"},"2608.03851":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.03851"},"2608.04737":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.04737"},"2608.07562":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.07562"},"2608.11564":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.11564"},"2608.12743":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.12743"},"2608.13102":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.13102"},"2608.13147":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.13147"},"2608.15297":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.15297"},"2608.15471":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.15471"},"2608.15659":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.15659"},"2608.16756":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.16756"},"2608.16984":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.16984"},"2608.17178":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.17178"},"2608.17553":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.17553"},"2608.19769":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.19769"},"2608.20788":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.20788"}},"topic":"Depth Estimation","version":1}</script>
+  <script type="application/json" id="summary-catalog">{"papers":{"2605.12027":{"status":"ready","url":"notes/depth-estimation.html#summary-2605.12027"},"2608.00415":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.00415"},"2608.00678":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.00678"},"2608.01129":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.01129"},"2608.02068":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.02068"},"2608.03666":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.03666"},"2608.03851":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.03851"},"2608.04737":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.04737"},"2608.07562":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.07562"},"2608.11564":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.11564"},"2608.12743":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.12743"},"2608.13102":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.13102"},"2608.13147":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.13147"},"2608.15297":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.15297"},"2608.15471":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.15471"},"2608.15659":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.15659"},"2608.16756":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.16756"},"2608.16984":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.16984"},"2608.17178":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.17178"},"2608.17553":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.17553"},"2608.17832":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.17832"},"2608.18413":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.18413"},"2608.19769":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.19769"},"2608.20788":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.20788"},"2608.21468":{"status":"pending"},"2608.21710":{"status":"pending"},"2608.22289":{"status":"pending"},"2608.22821":{"status":"pending"},"2608.23175":{"status":"pending"},"2608.23290":{"status":"ready","url":"notes/depth-estimation.html#summary-2608.23290"}},"topic":"Depth Estimation","version":1}</script>
 </body>
 </html>
