@@ -158,6 +158,94 @@
 <li>在未见相机配置（unseen camera configurations）下展现出优于现有方法的泛化性能。</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.20305" data-arxiv-id="2608.20305" data-status="ready">
+<h1>[2608.20305] CalcSeg: Confidence-aware 3D Latent Context Curriculum Learning For Myocardial Scar Segmentation From Single-Stack LGE-CMRs</h1>
+<p><a href="https://arxiv.org/abs/2608.20305" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 CalcSeg 框架，通过引入置信感知的 3D Latent Context Curriculum Learning 和 2D 输入下的切片自注意力机制，有效解决了单栈 LGE-CMR 成像中 3D 空间上下文受限的问题，在多中心临床数据集上的分割性能显著优于现有方法。</p>
+<h2>解决的问题</h2>
+<p>现有方法在处理单栈 LGE-CMR 成像时面临低组织对比度、瘢痕区域弥散且微小以及 3D 空间上下文信息受限的挑战，导致分割鲁棒性不足，难以有效应对临床中复杂的低对比度及小病灶场景。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了置信感知的 3D Latent Context Curriculum Learning 框架，利用融合 3D 特征表示实现鲁棒的瘢痕分割。</li>
+<li>设计了动态半监督策略，通过结合预测误差、epistemic uncertainty 和 scar burden estimation 的置信评分函数自动评估样本难度。</li>
+<li>开发了 Latent slice-wise self-attention 机制，从稀疏 2D 输入中捕捉切片间依赖关系并推断 3D 空间表示以补偿空间上下文限制。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.20277" data-arxiv-id="2608.20277" data-status="ready">
+<h1>[2608.20277] Point Spread Function Engineering Using Implicit Neural Representations</h1>
+<p><a href="https://arxiv.org/abs/2608.20277" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种基于隐式神经表示（Implicit Neural Representations, INR）的瞳孔相位面设计方法，将 3D 点扩散函数（PSF）工程建模为相位检索问题，实现了无需预设基函数的任意 3D PSF 分布优化，相比 pixel-wise 优化方法具有更强的初始化鲁棒性。</p>
+<h2>解决的问题</h2>
+<p>现有 PSF 设计方法高度依赖领域知识和特定任务基函数（如 Laguerre-Gaussian modes），难以跨应用泛化；pixel-wise 相位检索优化易陷入局部最优、产生高频散斑噪声且对初始化敏感，导致相位分布缺乏物理可解释性，难以满足微米级精度与可解释性的期望。</p>
+<h2>创新点</h2>
+<ul>
+<li>利用隐式神经表示（INR）配合多层感知机（MLP）参数化瞳孔相位面，提供隐式正则化并消除对先验基函数的依赖。</li>
+<li>针对 PSF 工程特有的频带限制频率响应，引入目标 PSF 堆栈预处理步骤以加速收敛。</li>
+<li>基于可微傅里叶光学模型训练，实现连续功能表示，支持任意空间分辨率查询而无需插值或重训练。</li>
+<li>相比 pixel-wise 优化方法，该方法在相位分布上具有更高的初始化鲁棒性和物理可解释性。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.20093" data-arxiv-id="2608.20093" data-status="ready">
+<h1>[2608.20093] HandMvNet: Real-Time 3D Hand Pose Estimation Using Multi-View Cross-Attention Fusion</h1>
+<p><a href="https://arxiv.org/abs/2608.20093" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>HandMvNet 提出了一种基于 Multi-View Cross-Attention Fusion 的实时 3D 手部姿态估计方法，通过多视角注意力融合机制有效整合特征，解决了单目视角的深度与尺度模糊问题并消除了对相机参数的依赖，在保持高精度的同时显著降低了推理时间，优于现有最先进方法。</p>
+<h2>解决的问题</h2>
+<p>现有单目 3D 手部姿态估计方法受限于深度与尺度模糊，难以确定手部的绝对位置和尺寸，且易受遮挡影响，通常仅能估计根相对顶点；而现有多视图方法虽能缓解上述问题，但通常计算开销大且依赖相机参数输入，难以在无需相机校准的情况下实现兼顾实时性与精度的绝对 3D 手部形状与运动重建。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于 Multi-View Cross-Attention Fusion 的多视角注意力融合机制，有效整合多视角特征以解决深度与尺度模糊问题。</li>
+<li>消除对相机参数输入的依赖，能够在无需 camera calibration 的情况下学习 3D 几何结构。</li>
+<li>实现 Real-Time Performance，显著降低 inference time 以满足时间关键型应用需求。</li>
+<li>在公开数据集上评估，在相同设置下定性和定量均优于现有 State-of-the-Art 方法。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.19965" data-arxiv-id="2608.19965" data-status="ready">
+<h1>[2608.19965] Flow Matching Meets 3D Curvilinear Structure Segmentation in Medical Imaging</h1>
+<p><a href="https://arxiv.org/abs/2608.19965" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 3D-CurvSegFlow，一种基于 Flow Matching 的模型，通过实现从简单源分布到目标血管表示的连续变换，在保持高效推理的同时显著提升了 3D 曲线性结构分割的精度与泛化能力，并在多个医学影像数据集上优于现有方法。</p>
+<h2>解决的问题</h2>
+<p>现有 3D 曲线性结构分割方法通常针对特定解剖或模态定制，限制了跨临床场景的泛化能力，且基于 diffusion-based 的方法因采样计算昂贵，难以应用于高分辨率 3D 体积。此外，医学影像中存在的复杂拓扑、严重类别不平衡（class imbalance）、弱对比及结构形态大变异等特征进一步增加了分割难度。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 3D-CurvSegFlow，基于 Flow Matching 学习从简单源分布到目标血管表示的连续变换。</li>
+<li>利用高效推理机制，克服了 diffusion-based 方法采样计算成本高昂的限制。</li>
+<li>采用通用架构和训练策略，实现了跨 portal vein、cerebral vessel 和 coronary arteries 等不同解剖结构和模态的泛化。</li>
+<li>有效保持了薄分支和血管连续性，在多个数据集上优于通用及血管专用方法。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.19934" data-arxiv-id="2608.19934" data-status="ready">
+<h1>[2608.19934] Full frame denoising for pyramid wavefront sensors</h1>
+<p><a href="https://arxiv.org/abs/2608.19934" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>该研究提出了一种应用于金字塔波前传感器（PyWFS）的全帧图像去噪策略，通过 FFT 加速的块分组与 3D 小波滤波在斜率计算前直接处理原始强度帧，有效提升了低信噪比条件下的波前测量精度与自适应光学系统性能。</p>
+<h2>解决的问题</h2>
+<p>现有自适应光学系统在低通量条件下受光子噪声和探测器噪声影响显著，尽管金字塔波前传感器（PyWFS）灵敏度较高，但在微弱导星下性能下降严重。现有缓解策略如时域滤波仅提供部分改善，无法直接解决 WFS 帧层面的噪声问题，导致波前估计精度受限且难以扩展至 low signal-to-noise regimes 工作区间。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出在全帧图像域直接进行去噪，在斜率计算前处理原始 PyWFS 强度帧，而非仅在重建框架内修改</li>
+<li>利用 FFT 加速的块分组和全局协作 3D 小波滤波技术，利用图像块的非局部自相似性抑制噪声并保留结构特征</li>
+<li>在不引入重建偏差或损害环路稳定性的前提下，有效降低了模态噪声传播并扩展了可控模态基</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.19823" data-arxiv-id="2608.19823" data-status="ready">
+<h1>[2608.19823] Simultaneous 3D co-registered perfusion and oxygenation with ULM, photoacoustic imaging, and a planar matrix array</h1>
+<p><a href="https://arxiv.org/abs/2608.19823" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种基于 planar ultrasonic matrix array 的双模态成像平台，整合了 photoacoustic imaging 与 ULM，实现了 3D 配准的 blood oxygenation 与 microvascular perfusion 联合容积成像。</p>
+<h2>解决的问题</h2>
+<p>现有成像技术难以同时评估 tissue oxygenation 与 microvascular perfusion，且多模态成像往往缺乏精确的 3D 配准能力，导致无法在病理条件下同步表征血管结构与功能，限制了跨生物医学应用中对血管功能的联合洞察。</p>
+<h2>创新点</h2>
+<ul>
+<li>基于 planar ultrasonic matrix array 开发的双模态成像平台，整合了 photoacoustic imaging 与 ULM。</li>
+<li>实现了 3D 配准的 blood oxygenation 与 microvascular perfusion 联合容积成像，体外验证核心配准精度为 20 μm。</li>
+<li>利用仅 5 个光学波长实现生理范围（60-95%）内 5% 精度的氧饱和度测量。</li>
+<li>识别并分析了该 array configuration 在 photoacoustic imaging 中固有的 limited-view artifacts。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.19769" data-arxiv-id="2608.19769" data-status="ready">
 <h1>[2608.19769] AsymFeX: A Symmetry-Driven Framework for Ischemic Stroke Segmentation Across Imaging Modalities and Stroke Stages</h1>
 <p><a href="https://arxiv.org/abs/2608.19769" rel="nofollow">arXiv 原文</a></p>
@@ -173,8 +261,617 @@
 <li>提供跨模态泛化证明与不确定性量化分析，评估模型在临床部署下的可靠性。</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.19756" data-arxiv-id="2608.19756" data-status="ready">
+<h1>[2608.19756] Asymmetric Aerosol Distribution on the Terminators of the Warm Saturn WASP-69 b Revealed by JWST NIRISS/SOSS</h1>
+<p><a href="https://arxiv.org/abs/2608.19756" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文利用 JWST NIRISS/SOSS 透射光谱数据，在平衡温度约 960 K 的系外行星 WASP-69 b 上稳健检测到了晨昏两侧的气溶胶分布不对称性，揭示了晨侧高海拔厚云层遮挡分子特征而傍晚侧较低云透明度允许 H2O 吸收线显现的机制，并通过 3D 环流模型验证了冷凝物在传输中蒸发导致傍晚侧温度更高的理论。</p>
+<h2>解决的问题</h2>
+<p>现有研究主要关注温度高于 1000 K 的系外行星，对于平衡温度在 800–1000 K 过渡区的气溶胶分布特性缺乏稳健观测，且此前未报告过该温区行星存在晨昏依赖的气溶胶不透明度差异，导致关于气溶胶分布从均匀向纵向异质转变的临界点尚未明确。</p>
+<h2>创新点</h2>
+<ul>
+<li>利用 JWST NIRISS/SOSS 透射光谱对 WASP-69 b 进行分边缘（limb-resolved）分析，首次在该温区稳健检测到气溶胶不对称性</li>
+<li>通过大气反演揭示晨昏两侧显著的气溶胶不透明度差异，晨侧高海拔云层抑制分子特征而傍晚侧允许 H2O 吸收线显现</li>
+<li>结合 3D 一般环流模型（3D GCM）独立验证了晨侧冷凝物在传输过程中部分蒸发导致傍晚侧温度更高且气溶胶分布不对称的机制</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.19177" data-arxiv-id="2608.19177" data-status="ready">
+<h1>[2608.19177] Image-Guided Pavement Defect Recognition in GPR Data with novel 3D Deep Learning Architecture</h1>
+<p><a href="https://arxiv.org/abs/2608.19177" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种结合 RGB 图像引导标注的新型 3D GPR 数据准备流程与专用 3D CNN 架构，有效解决了真实世界 GPR 数据集稀缺及现有模型缺乏 3D 特性适配的问题，在路面缺陷检测任务上优于基准模型。</p>
+<h2>解决的问题</h2>
+<p>现有路面检测主要依赖可见表面缺陷的视觉检测或成本高昂的破坏性检测，难以实现实时维护；同时，基于 GPR 的深度学习应用面临真实世界标注数据集稀缺，且缺乏专为 3D GPR 数据特性设计的模型架构，导致现有通用方法难以有效处理纵向、横向及深度维度的复杂特征。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了一种结合正射影像 RGB 与 3D GPR 扫描的图像引导数据准备流程，利用路面表面图像作为参考将标签转移到对应的 GPR 分段，实现了高效的大规模标注。</li>
+<li>设计了一种专用的 3D CNN 架构，整合了残差连接、混合卷积核尺寸以及 depthwise and channelwise attention mechanisms，以增强特征表示和缺陷分类能力。</li>
+<li>构建了包含英国 A14 高速公路路段共配 GPR 和 RGB 图像样本的双模态数据集，为真实世界 GPR 分析提供了基准。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.19063" data-arxiv-id="2608.19063" data-status="ready">
+<h1>[2608.19063] When Two Tracers Disagree: An Investigation of Multimodal Fusion for Clinical PET/CT Segmentation</h1>
+<p><a href="https://arxiv.org/abs/2608.19063" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文评估了前列腺癌临床 PET/CT 多模态融合分割策略，发现 tracer-specific 基线模型性能优于当前融合架构，表明实现临床增益需开发能更好保留示踪剂特定表征的模型。</p>
+<h2>解决的问题</h2>
+<p>现有方法缺乏对 PSMA 和 FDG 互补信息的有效融合共识，且多模态融合策略在 tracer-specific 设置下导致 FDG 性能退化，未能一致超越单模态基线。</p>
+<h2>创新点</h2>
+<ul>
+<li>在 DEEP-PSMA 数据集上对比了早期融合（OEOD/OETD）与中间融合（DECA-UNet）策略</li>
+<li>建立了针对特定示踪剂的 3D nnU-Net 基线以量化融合带来的性能变化</li>
+<li>指出当前融合架构未能平衡互补信息，确立了 tracer-specific 模型为当前更强基线</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.19036" data-arxiv-id="2608.19036" data-status="ready">
+<h1>[2608.19036] USR-Drive: Unified Driving Scene Representation via Joint Denoising of 3D Gaussians and Boxes</h1>
+<p><a href="https://arxiv.org/abs/2608.19036" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 USR-Drive，通过统一多模态扩散 Transformer 联合去噪 3D Gaussians 与 3D Bounding Boxes，实现了动态场景重建与实例级检测的协同优化，在 nuScenes 和 VKitti 数据集上取得 SOTA 性能。</p>
+<h2>解决的问题</h2>
+<p>现有方法通常将动态重建与实例级感知视为独立任务，导致重建欠约束且检测缺乏几何先验；此外，现有统一方案建模不对称，Gaussian 方法缺乏实例语义，Occupancy 方法网格粗糙限制渲染保真度。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出统一表示框架，将 3D Gaussians 与 3D Bounding Boxes 建模为动态场景状态中协同进化的状态变量，超越独立感知与无约束重建范式。</li>
+<li>设计 Unified Positional Encoding (UPE)，在共享度量时空坐标系统内对齐异构 token，建立密集 Gaussian 与稀疏 Box 之间的显式对应关系。</li>
+<li>开发基于 Multi-Modal Diffusion Transformer (MMDiT) 的生成框架，通过条件校正流去噪联合恢复几何与布局 token，实现高保真动态合成与时序一致检测。</li>
+<li>建立几何与布局的相互约束机制，利用密集几何提供度量证据辅助对象定位，同时利用对象布局先验正则化动态区域的几何重建。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.18840" data-arxiv-id="2608.18840" data-status="ready">
+<h1>[2608.18840] Beyond Placement and Articulation: Usage-Driven Code Scenes for Embodied Interaction</h1>
+<p><a href="https://arxiv.org/abs/2608.18840" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 RoomWright 框架，通过 usage-driven 对象推理与基于代码的多部件交互，生成完全由代码表示的、可执行且模拟就绪的 3D 场景，有效解决了现有方法缺乏功能使用建模的问题。</p>
+<h2>解决的问题</h2>
+<p>现有基于代码的场景生成方法主要聚焦于视觉构建和物体级 articulation，忽略了场景的功能使用建模，导致生成的场景仅是静态几何或孤立的可动部件，缺乏跨物体的因果依赖和实际交互逻辑，难以满足 embodied AI 对可执行交互环境的需求。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 usage-driven object reasoning 和用户中心化组合，根据预期活动推导场景内容与空间组织。</li>
+<li>通过 code agent 实现基于代码的多部件交互，将交互表示为结构化状态上的 trigger-condition-effect 规则。</li>
+<li>采用 annotation-informed usage-guided orientation，利用建模阶段记录的语义注释指导可操作物体的朝向分配，缓解视觉歧义。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.18750" data-arxiv-id="2608.18750" data-status="ready">
+<h1>[2608.18750] Seeded SU(1,1) interferometry for Fourier-domain optical coherence tomography</h1>
+<p><a href="https://arxiv.org/abs/2608.18750" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文演示了基于 seeded SU(1,1) 干涉仪的傅里叶域光学相干层析成像（FD-OCT），证明在低 parametric-gain regime 下，seeding 能增加光子通量，使得使用 spectrometer 替代 single-photon detectors 进行体成像成为可能，且在该条件下比单纯增加 parametric gain 更能有效提升灵敏度。</p>
+<h2>解决的问题</h2>
+<p>现有基于 SU(1,1) 干涉仪的光学相干层析成像（OCT）方案在实际实现中受限于损耗效应，且高灵敏度探测通常需依赖 single-photon detectors，这限制了数据采集速度和应用可行性，如何在保持量子增强优势的同时降低对探测设备的依赖是关键矛盾。</p>
+<h2>创新点</h2>
+<ul>
+<li>演示了基于 seeded SU(1,1) 干涉仪的傅里叶域光学相干层析成像（FD-OCT）系统。</li>
+<li>证明在低 parametric-gain regime 下，seeding 能增加光子通量，允许使用 spectrometer 替代 single-photon detectors 进行体成像。</li>
+<li>分析表明在该条件下，seeding 是比增加 parametric gain 更有效的灵敏度增强途径，有助于突破 shot-noise limit。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.18734" data-arxiv-id="2608.18734" data-status="ready">
+<h1>[2608.18734] CL4D: Contrastive Language-4D Pretraining for Vision-Language Reasoning in Dynamic Scenes</h1>
+<p><a href="https://arxiv.org/abs/2608.18734" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 CL4D，首个针对动态场景的对比式语言 -4D 预训练视觉编码器，以及首个直接基于动态 4D point clouds 进行推理的 4D Vision-Language Model (4DVLM)，在无需依赖 RGB images 或静态 3D 场景的情况下实现了动态环境中的零样本 motion-to-text 检索与语言生成，并在多个 4D human action benchmarks 中取得了优于 Gemini 等前沿视频 VLM 的性能，Recall@1 提升了约 16.75%。</p>
+<h2>解决的问题</h2>
+<p>现有的视觉编码器大多局限于静态 2D images 或 3D point clouds 而缺乏时序建模，或者基于 2D videos 但缺乏准确的几何深度 reasoning，导致现有方法无法联合捕捉动态场景中的空间结构与运动演化。尽管 Video VLMs 引入了 temporal signals，但仍基于 2D pixel observations 且缺乏显式的 3D geometric reasoning，而现有的 3D point cloud 方法（如 Ges3ViG）仅支持静态场景，无法建模 temporal dynamics，限制了其在动态物理环境中的应用。</p>
+<h2>创新点</h2>
+<ul>
+<li>CL4D: 首个基于对比学习目标的 4D 视觉编码器，能够动态 4D point cloud sequences 与自然语言描述对齐，实现零样本 cross-modal retrieval。</li>
+<li>4DVLM: 首个直接基于动态 4D point clouds 进行推理的 Vision-Language Model，无需依赖 RGB images 或视频即可进行语言 grounded reasoning。</li>
+<li>DynAction4D: 首个针对语言 -4D 对齐构建的基准数据集，包含动态人类动作的 4D point cloud sequences 及自然语言描述，支持大规模对比训练。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.18711" data-arxiv-id="2608.18711" data-status="ready">
+<h1>[2608.18711] EgoHRV: Continuous Heart Rate Variability Estimation from Egocentric Systems for Autonomic Response and Skill Assessment</h1>
+<p><a href="https://arxiv.org/abs/2608.18711" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 EgoHRV 方法，利用 egocentric headset 中集成的 gaze cameras 估计 HRV 与 HR，通过结合 3D backbone 与新型 low--high decomposition module 提取 BVP 信号，并采用 cross-domain pretraining 对齐频域表示，从而在 egocentric video 上实现了 HRV 估计的 state-of-the-art 精度及下游任务性能提升。</p>
+<h2>解决的问题</h2>
+<p>现有的 egocentric vision systems 虽然能捕捉行为，但忽略了自主状态（如压力、参与度）的生理指标，且 HRV 所反映的连续心跳间微小时间差异极易被 gaze video 中的运动和噪声所掩盖，导致现有 egocentric 平台难以实现高精度的 HRV 估计。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出结合 3D backbone 与新型 low--high decomposition module 的 pipeline，从 gaze video 中提取 BVP 信号</li>
+<li>采用 cross-domain pretraining 对齐 contact-based 和 camera-derived 信号的频域表示，提升从 gaze video 中恢复 HRV 的时间精度</li>
+<li>设计 uncertainty-aware 机制，将 HRV 估计与置信度整合进下游行为模型（如 EgoExo4D 的 proficiency estimator），提升准确率</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.18627" data-arxiv-id="2608.18627" data-status="ready">
+<h1>[2608.18627] PCQA-R1: Advancing Generalized 3D Point Cloud Quality Assessment with Reinforcement Learning</h1>
+<p><a href="https://arxiv.org/abs/2608.18627" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了首个基于强化学习的 PCQA-R1 框架，利用 GRPO 策略与链式思维数据实现了无参考点云质量评估的跨数据集泛化，显著提升了跨域评分的稳定性与可解释性。</p>
+<h2>解决的问题</h2>
+<p>现有基于 LMM 的 PCQA 方法主要依赖监督微调直接预测数值分数，缺乏跨数据集泛化能力；绝对 MOS 回归在不同数据集的分数尺度与畸变分布下表现脆弱，而相对质量排名更具鲁棒性，但现有方法未能有效利用这一特性解决跨域评估中的尺度偏移问题。</p>
+<h2>创新点</h2>
+<ul>
+<li>首个基于强化学习的大多模态模型（LMM）无参考点云质量评估框架，利用排名不变性理论实现跨域泛化。</li>
+<li>引入高斯邻近奖励（Gaussian proximity reward）防止校准漂移，并结合链式思维冷启动数据集（PCQA-CoT）初始化推理策略。</li>
+<li>将结构化质量证据（如视图特定退化线索）纳入学习问题核心，而非事后装饰，增强模型对跨域缺陷的识别能力。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.18616" data-arxiv-id="2608.18616" data-status="ready">
+<h1>[2608.18616] SPARC: Slice-to-volume Pipeline for Automated Reconstruction of gated 3D+time fetal Cardiac MRI</h1>
+<p><a href="https://arxiv.org/abs/2608.18616" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>SPARC 提出了一种结合物理信息驱动的 slice-to-volume reconstruction（SVR）与深度学习模型的全自动端到端流水线，实现了从多方向门控 2D+time 切片堆栈到 3D+time 胎儿心脏 cine 体积的重建与重定向，显著降低了重建时间并提升了临床可用性。</p>
+<h2>解决的问题</h2>
+<p>现有胎儿心脏 MRI（fCMR）方法受限于不可预测的胎儿运动及缺乏自动化鲁棒处理工具，且非胎儿 ECG gating 技术无法直接应用，基于图像的自我 gating 策略在自由呼吸条件下表现次优。现有的 slice-to-volume reconstruction（SVR）方法多用于静态 3D 重建或单周期 cine 重建，存在处理时间长、依赖手动分割与重定向等步骤，限制了其在临床实践中的适用性，而深度学习方案往往缺乏有效的运动缓解机制。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出首个针对门控 3D+time 胎儿心脏 cine 体积的自动化端到端流水线，实现从多方向 Doppler-gated MRI 堆栈的自动定位、重建与重定向。</li>
+<li>设计了一种精简的切片级时空前向模型（slice-wise spatio-temporal forward model），专门适配 Doppler-gated 胎儿心脏 cine 重建，相比逐帧方法将重建时间减少十倍。</li>
+<li>结合物理信息驱动的 SVR 算法与深度学习模型，自动完成胸腔分割（thoracic segmentation）和解剖重定向（anatomical reorientation）。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.17988" data-arxiv-id="2608.17988" data-status="ready">
+<h1>[2608.17988] GS-Voxel: Fitting-Free Structured Latents for Large-Scale 3DGS Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.17988" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 GS-Voxel，一种无需拟合的有结构隐变量框架，通过将预优化 3DGS 重构成稀疏体素并配合因式分解 VAE 编码，实现了在无需全局重优化情况下将大规模无序 3DGS 转换为结构化隐变量，并支持基于图像条件的大面积场景生成。</p>
+<h2>解决的问题</h2>
+<p>现有的潜在 3D 生成模型依赖紧凑的结构化隐变量，但预优化的 3DGS 重建是无序且空间不规则的集合，其基元数量在不同场景中差异巨大，无法直接匹配稀疏隐变量架构所需的固定空间张量。现有方法如 GaussianCube 需要全局重拟合与 Optimal Transport，或 L3DG、Can3Tok 等针对固定基数或物体尺度，均无法直接将百万级预优化 3DGS 重建转换为空间隐变量而不进行全局重排。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出无需拟合的有结构隐变量框架，将预优化 3DGS 确定性转换为稀疏体素且无需额外 per-scene 优化</li>
+<li>设计 GS 特定因式分解 VAE，分别编码体素几何与高斯属性，隐变量容量随占用体素数量增长而非受限于固定基元预算</li>
+<li>支持基于卫星视图图像的大面积场景生成，通过重叠感知平铺推理 (overlap-aware tiled inference) 扩展合成范围</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.16234" data-arxiv-id="2608.16234" data-status="ready">
+<h1>[2608.16234] GaussianDWM++: Language-Grounded 3D Gaussian Driving World Model for Unified Scene Understanding, Editing, and Multi-Modal Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.16234" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种统一场景理解、语言 grounded 推理、可控 4D 编辑及多模态生成的 Gaussian 驾驶世界模型，通过蒸馏视觉语言特征构建 open-vocabulary Gaussian semantic field，在多个理解与生成基准上实现了最先进的性能。</p>
+<h2>解决的问题</h2>
+<p>现有驾驶世界模型主要关注条件场景生成，缺乏明确的 3D 场景理解、语言 grounded 推理及可控 4D 编辑能力；且常用的点云、占据或 BEV 表示难以实现文本信息与底层 3D 场景结构之间的细粒度对齐，导致模型难以通过自然语言查询并提供上下文理解。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 foundation-feature Gaussian tokenizer，将 Qwen/SigLIP 视觉语言特征直接蒸馏为 3D Gaussian primitives，构建紧凑的 open-vocabulary Gaussian semantic field。</li>
+<li>设计 geometry-aware Gaussian adapter，结合 importance-aware hierarchical selection 与 text-conditioned Perceiver-style cross-attention 聚合 dense Gaussian primitives 为 compact world tokens。</li>
+<li>引入 KL-based Gaussian--image distribution alignment objective，对齐 Gaussian world tokens 与 foundation image tokens 以提升 representation compatibility。</li>
+<li>基于对齐的 Gaussian 表示支持 instruction-controllable scene editing，包括 weather-conditioned generation 和 dynamic vehicle manipulation。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.15749" data-arxiv-id="2608.15749" data-status="ready">
+<h1>[2608.15749] ES3D: Embedding Semantics into 3D Space for Component-Aware Editing</h1>
+<p><a href="https://arxiv.org/abs/2608.15749" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>ES3D 框架通过将语义直接嵌入 3D 空间，实现了基于多张 local reference images 和 optional text queries 的 component-aware 检索与编辑，相比现有方法显著提升了 3D 资产编辑的 geometrically consistent 与 semantically coherent 效果。</p>
+<h2>解决的问题</h2>
+<p>现有 3D 编辑方法要么依赖 manually supplied 3D masks 进行区域指定，要么通过 2D 修改后传播回 3D 空间导致 global inconsistencies，且大多以 text-conditioned 为主难以表达 fine-grained visual intent，核心矛盾在于缺乏 fine-grained semantic understanding 以自动识别并修改特定 3D components。</p>
+<h2>创新点</h2>
+<ul>
+<li>首个提供显式 3D semantic embedding 的框架，支持 component-aware 的精确检索与编辑</li>
+<li>提出基于 local reference images 的驱动方法，相比 pure text-based 条件提供更精细的 visual control</li>
+<li>设计 image stacking strategy 为局部参考图像提供空间上下文，弥合 inference 时局部条件与 training 时 global setup 之间的差距</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.14783" data-arxiv-id="2608.14783" data-status="ready">
+<h1>[2608.14783] MegaParts: Scaling Part-Aware 3D Object Generation to 300 Parts via Token-Efficient Autoregressive Modeling</h1>
+<p><a href="https://arxiv.org/abs/2608.14783" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 MegaParts 框架，通过结合结构化的序列建模与高效的向量量化形状分词器，实现了基于 LLM 的 token 高效自回归 3D 生成，成功将部分感知 3D 生成扩展至 300 个部分及 256k token 序列，在保持几何保真度的同时显著提升了可扩展性，优于现有的自回归和扩散基线模型。</p>
+<h2>解决的问题</h2>
+<p>现有部分感知 3D 生成方法主要依赖 diffusion-based 架构，难以扩展至高度复杂对象，且随着部分数量增加 token 长度和内存成本过高；直接应用自回归模型面临几何保真度与 token 效率之间的权衡，难以在保持细节的同时支持大规模生成。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了一种 token 高效的向量量化分词器，通过最小化 token 使用量同时保持高保真重建，学习部分级几何的自适应长度离散表示。</li>
+<li>设计了基于长上下文的大语言模型框架，在统一的有序序列中生成物体 bounding box、部分 bounding box 及部分 shape token，保留了显式的部分结构。</li>
+<li>实现了可扩展的生成规模，支持最多 300 个部分和 256k token 序列，相比基线模型生成了更高质量的 mesh。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.13541" data-arxiv-id="2608.13541" data-status="ready">
+<h1>[2608.13541] SCULPT: Subtractive Composition for 3D Part Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.13541" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 SCULPT 框架，通过减法合成机制在结构化 3D 潜在空间中迭代提取语义部分，实现了完整 3D 物体与连贯结构的同时生成，在 PartObjaverse 上达到最先进几何效果并支持细粒度纹理分解。</p>
+<h2>解决的问题</h2>
+<p>现有 Part-aware 3D 生成方法要么在生成后分割导致物体在边界确定前被固定，要么通过加法合成暴露部分数量但存在缝隙、穿插和材质不连续问题，难以同时保证生成几何的完整性与部分边界的精确性。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 SCULPT 减法合成框架，通过迭代应用 joint split predictor 从完整 3D 物体中协同提取部分与剩余物体，而非后期调和。</li>
+<li>实现 coupled denoising process，联合分割预测器基于图像和当前 3D 状态条件生成，确保部分与剩余物体同步生成。</li>
+<li>在 native sparse 3D supports 的并集上处理输出，允许相邻支持重叠，避免强制 disjoint voxel partition。</li>
+<li>支持自适应部分数量，当剩余支持为空或达到 safety cap 时结束，适应不同物体的部分数量需求。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.12997" data-arxiv-id="2608.12997" data-status="ready">
+<h1>[2608.12997] PixSDS: Why Latent SDS Makes Noisy Pixels</h1>
+<p><a href="https://arxiv.org/abs/2608.12997" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>PixSDS 提出了一种轻量级的 VAE-consistent gradient repair method，通过解码 latent SDS lookahead step 并利用解码图像作为像素空间优化的清洁方向，在无需重新训练 diffusion model、改变 renderer 或替换 SDS objective 的前提下，显著减少了结构化颜色和高频纹理噪声。</p>
+<h2>解决的问题</h2>
+<p>现有的 latent-diffusion-based pipelines 在使用 pretrained text-to-image diffusion model 作为 prior 时，常产生结构化颜色图案和高频纹理噪声等视觉干扰，其核心矛盾在于 VAE 编码器对像素空间方向的约束较弱，导致优化图像在潜在空间保持语义清晰的同时，在像素空间沿弱约束方向发生漂移并积累可见伪影。</p>
+<h2>创新点</h2>
+<ul>
+<li>揭示了 latent SDS 中 VAE-induced pixel drift（VAE 诱导的像素漂移）故障模式，解释了为何潜在空间语义清晰而像素空间积累噪声</li>
+<li>提出了 PixSDS 轻量级 VAE-consistent gradient repair method，利用解码后的图像作为像素空间优化的清洁方向</li>
+<li>设计了无需重新训练 diffusion model、修改 renderer 或替换 SDS objective 的改进方案，仅通过解码 latent SDS lookahead step 实现</li>
+<li>在 2D 优化和 text-to-3D generation 中显著减少了结构化伪影同时保留了语义内容</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.12175" data-arxiv-id="2608.12175" data-status="ready">
+<h1>[2608.12175] TGRHuman: Text-Guided Realistic 3D Human Generation via Diffusion Renderer</h1>
+<p><a href="https://arxiv.org/abs/2608.12175" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 TGRHuman，通过解耦几何与纹理生成并利用显式多视图观察优化，实现了高效且高质量的文本引导真实 3D 人体生成，在几何与纹理质量上优于现有方法。</p>
+<h2>解决的问题</h2>
+<p>现有方法难以同时实现高质量几何与纹理、多视图一致性、推理效率及宽松衣物支持。原生 3D 生成模型特征维度高难以利用预训练 diffusion model，训练成本高；基于 NeRF 的两阶段方法依赖 Score Distillation Sampling (SDS) 优化耗时且缺乏 3D 结构感知，导致多视图不一致与过度平滑；部分多视图扩散方法分辨率受限，基于 SMPL 的方法因拓扑固定无法支持宽松衣物。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出通过解耦几何与纹理生成策略，利用显式 2D 观察生成与维度提升替代隐式 SDS 优化，在保持多样性的同时提升效率。</li>
+<li>设计高分辨率多视图法线生成模块与 geometry-carving 策略，确保视图一致性并支持宽松衣物。</li>
+<li>提出人体纹理先验获取策略与 diffusion renderer，确保视图一致性并获取密集环绕视角 RGB 观察用于高分辨率纹理生成。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.11876" data-arxiv-id="2608.11876" data-status="ready">
+<h1>[2608.11876] D3D-GEN: Robot-Aware Domain-Grounded Interactive 3D World Generation for Social Robotics</h1>
+<p><a href="https://arxiv.org/abs/2608.11876" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 D3D-GEN，一种结合领域代理与检索增强生成（RAG）管道的交互式 3D 世界生成系统，能够根据领域描述自动生成物理合理且语义正确的仿真环境，无需依赖固定 3D 模型数据库。</p>
+<h2>解决的问题</h2>
+<p>现有模拟方法难以在感知真实感与物理可仿真性之间取得平衡，注重视觉真实的方法常产生物理不合理的场景，而注重可仿真性的方法则生成缺乏特定领域语义正确性的通用布局，导致机器人模型难以有效迁移到特定领域（如医院、办公室）的实际部署中。</p>
+<h2>创新点</h2>
+<ul>
+<li>结合领域代理与检索增强生成（RAG）管道，实现基于领域知识的自动化交互式 3D 世界生成</li>
+<li>无需依赖固定 3D 模型数据库，通过自动收集公开领域数据构建持久数据库来支撑布局与物体放置的合成</li>
+<li>生成的环境兼具物理合理性与特定领域语义正确性，并支持 Isaac Sim 和 Gazebo 等主流仿真器加载</li>
+<li>提供语义标注以支持机器人代理集成，并具备支持任意数量并行工人的水平扩展能力</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.09186" data-arxiv-id="2608.09186" data-status="ready">
+<h1>[2608.09186] RAGMesh with FaME-G2E: Long-Form Text-Driven 3D Face Generation and Editing</h1>
+<p><a href="https://arxiv.org/abs/2608.09186" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 RAGMesh 框架与 FaME-G2E 数据集，利用检索增强生成技术通过多尺度检索融合与自适应监督，实现了 text-driven 长文本驱动下的高保真 3D 人脸生成与编辑，显著提升了局部几何精度和区域控制能力。</p>
+<h2>解决的问题</h2>
+<p>现有 text-driven 3D 人脸生成与编辑方法难以将复杂结构化长文本转化为细微的面部几何，主要对齐全局语义却忽略局部形变，导致几何保真度低且存在方向混淆问题；基于 CLIP 的 2D 先验受限于特征空间分辨率，而 LLM 解析方法在整体连贯性上仍不理想，无法实现复杂文本描述与局部几何形变的精确对齐。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建 FaME-G2E 大规模多模态数据集，包含细粒度文本-mesh 和文本-BlendShape 标注以支持统一生成与编辑</li>
+<li>提出 RAGMesh 检索增强框架，利用文本相关的几何先验提升高保真合成与编辑效果</li>
+<li>设计多尺度检索融合（MSRF）模块，在 BlendShape 空间融合全局与区域先验以抑制冲突形变</li>
+<li>引入自适应 RAG 引导监督（AdaRAGS），通过区域感知约束显式对齐文本语义与面部区域</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.09110" data-arxiv-id="2608.09110" data-status="ready">
+<h1>[2608.09110] View-Adaptive Renderer for View-Consistent 2D-to-3D Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.09110" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种视图自适应神经渲染框架，通过引入视图自适应神经渲染器 (view-adaptive neural renderer) 与自注意力融合模块，在不依赖扩散模型 SDS 监督的情况下，有效解决了多视图输入不一致导致的 3D 重建几何失真问题，实现了高精度与高效率的平衡。</p>
+<h2>解决的问题</h2>
+<p>传统单目 3D 重建方法通常先生成多视图再应用 Neural Radiance Field (NeRF) 进行重建，但由于投影歧义性，生成的多视图之间常存在视觉不连续，导致重建模型出现模糊或几何畸变。现有解决方案要么依赖计算密集的间接监督方法（如 Score Distillation Sampling (SDS)、Contrastive Language-Image Pretraining (CLIP)）导致开销过大，要么受限于生成模型的能力无法完美对齐视图，难以在保持全局结构一致性的同时有效修正局部视图差异。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出视图自适应神经渲染器，通过为每个视图分配专用网络层并共享全局特征骨干，独立修正视图依赖误差同时保持结构一致性。</li>
+<li>设计自注意力融合模块，自适应地整合多视图信息，确保几何一致性而无需依赖计算密集型的间接正则化方法。</li>
+<li>摒弃扩散模型 SDS 监督，主要依赖光度渲染损失与轻量级注意力正则器，在保持 SOTA 性能的同时显著降低计算开销。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.08053" data-arxiv-id="2608.08053" data-status="ready">
+<h1>[2608.08053] PhysX-CoT: Structured Physical Reasoning from a Single Image to Simulation-Ready 3D Assets</h1>
+<p><a href="https://arxiv.org/abs/2608.08053" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>PhysX-CoT 将单图像 3D 资产生成重构为显式的结构化物理推理过程，通过分解几何与物理状态并应用 CoT-aligned GRPO 优化，显著提升了资产在 Unreal Engine 5 中的解析度、碰撞与运动有效性。</p>
+<h2>解决的问题</h2>
+<p>现有方法多采用 vision-language model 输出序列化资产，导致图像到 3D 的推理隐含在 global-coordinate token stream 中，部分放置与局部形状纠缠且中间物理状态无法被监督或验证。这导致生成的资产视觉上 plausible 但物理上不可用，缺乏 metric scale、part hierarchy、physical materials 及 articulation 等交互所需属性，无法在物理引擎中稳定运行。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出显式结构化物理推理过程，将 decomposition、2D and 3D grounding、relations 等作为可监督的中间状态，而非隐含在 token 流中</li>
+<li>几何因子化设计，3D boxes 负责 placement 而 local codes 负责 shape，解耦物理状态与几何表达</li>
+<li>引入 CoT-aligned GRPO 优化 parse validity、grounding、geometry、placement 及 physical consistency</li>
+<li>建立统一评估协议，在相同 backbone 与 frozen decoder 下重新训练 baselines 以确保公平对比</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.06161" data-arxiv-id="2608.06161" data-status="ready">
+<h1>[2608.06161] iARCS: Iterative Agentic RL for Controllable 3D Scene Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.06161" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出 iARCS，一种迭代代理强化学习框架，通过两阶段策略适配预训练场景生成器以满足自然语言任务约束，在保持生成质量的同时显著提升了场景的功能约束满足度并证明其可作为高质量合成数据源。</p>
+<h2>解决的问题</h2>
+<p>现有合成 3D 场景生成方法通常优化感知真实感而难以可靠满足下游任务关键的功能约束（如通行性、可达性），导致合成数据与功能性需求不匹配；同时，现有可控合成方法要么依赖手工设计奖励难以扩展至任意新约束，要么 LLM 引导的管道缺乏对复杂多约束场景的可靠验证与几何约束强制执行。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出两阶段代理强化学习框架，结合通用奖励预训练与任务特定微调以平衡物理合理性与功能效用。</li>
+<li>设计迭代代理循环，利用 LLM 生成奖励程序并通过训练反馈与奖励演化记忆进行迭代优化，无需显式手工设计奖励。</li>
+<li>采用 Denoising Diffusion Policy Optimization (DDPO) 对扩散生成器进行微调，以优化不可微的功能目标（如通行性、可达性）并防止分布坍塌。</li>
+<li>证明该方法可作为合成数据引擎，生成的数据能提升基础生成器（如 MiDiffusion）的性能同时保持多样性。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.05879" data-arxiv-id="2608.05879" data-status="ready">
+<h1>[2608.05879] To See a World in a Living Context: Unified Indoor-Outdoor Urban World Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.05879" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了 HoloWorld 框架，基于连续更新的跨尺度世界上下文实现了室内外统一的城市生成，在保持建筑内外显式对应关系的同时，显著提升了城市外观生成质量与跨街区连续性。</p>
+<h2>解决的问题</h2>
+<p>现有的文本驱动 3D 生成方法通常独立合成室内外场景，导致生成的城市外观与室内空间缺乏连贯对应关系。城市生成方法主要关注外部环境的构建而忽略内部空间，而室内生成方法通常产生孤立场景且未锚定在城市上下文中，两者在语义、视觉和几何跨尺度一致性上存在根本分离。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 HoloWorld 统一框架，将室内外生成视为同一 3D 城市世界的对应实现，而非独立合成。</li>
+<li>构建连续更新的跨尺度世界上下文（cross-scale world context），支持从城市尺度到建筑尺度的信息传递与验证。</li>
+<li>设计跨尺度上下文桥接机制，确保室外建筑结构与室内空间在语义和视觉上的连续性。</li>
+<li>开发基于建筑实例的室内生成策略，利用建筑脚印（footprint）约束室内布局并继承外观特征。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.05714" data-arxiv-id="2608.05714" data-status="ready">
+<h1>[2608.05714] RA-CAD: Learning Post-Execution Critique for State-Aware Text-to-CAD Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.05714" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>RA-CAD 提出了一种状态感知的 ReAct Agent，通过 Generate--Execute--Critique--Rewrite 循环将后执行批判转化为可学习的策略决策，结合 CCB 与 FAO 训练方法，在 CADFusion 和 Text2CAD 基准上实现了最先进的执行有效性和几何质量。</p>
+<h2>解决的问题</h2>
+<p>现有 Text-to-CAD 方法多采用固定、外部供给或单独优化的批判机制，未能有效优化反馈在生成过程中如何被解释并转化为有效的修正行动，存在反馈利用差距，导致生成代码的可执行性与几何质量受限。</p>
+<h2>创新点</h2>
+<ul>
+<li>设计状态感知代理（state-aware agent），通过 Generate--Execute--Critique--Rewrite 循环实现生成、执行与修正的迭代交互。</li>
+<li>将后执行批判（post-execution critique）定义为中间策略动作，使其成为结果对齐的可学习策略决策而非辅助输出。</li>
+<li>提出 CAD Code Bootstrapping（CCB）与 Feedback-Driven Agent Optimization（FAO）训练框架，利用轨迹级 Group Relative Policy Optimization 优化策略生成的代码与批判序列。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.05248" data-arxiv-id="2608.05248" data-status="ready">
+<h1>[2608.05248] WorldClaw: Agentic 3D Open-World Generation at Scale</h1>
+<p><a href="https://arxiv.org/abs/2608.05248" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>WorldClaw 提出了一种完全 Agentic 的粗到细（coarse-to-fine）框架，通过 Planning agents (规划代理) 与 render-based agents (渲染代理) 的协同，实现了从开放文本到大规模、空间一致且可编辑的 3D 开放世界生成，有效解决了 global spatial coherence 与 rich local content 之间的矛盾。</p>
+<h2>解决的问题</h2>
+<p>现有方法难以从开放文本生成大规模可探索的 3D 世界，主要矛盾在于系统需同时兼顾 global spatial coherence、rich local content 以及 explicit assets suitable for downstream editing，而单一生成流程往往难以平衡这些相互制约的需求。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了完全 Agentic 的粗到细（coarse-to-fine）框架，利用 Planning agents (规划代理) 将文本提示转化为包含地形、资产及空间关系的结构化规范。</li>
+<li>基于语义布局与 region-aware height field (区域感知高度场) 构建全局一致的地形基础，支持生成式或程序化材料。</li>
+<li>针对细节区域生成 terrain-conditioned compositions (地形条件组合) 并重建 editable textured meshes (可编辑纹理网格) 以恢复其在地形上的位置。</li>
+<li>引入 render-based agents (渲染代理) 进一步细化地形、物体外观及接触关系，确保视觉连贯性与物理合理性。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.03179" data-arxiv-id="2608.03179" data-status="ready">
+<h1>[2608.03179] EditFlow3D: Automated Local Editing of 3D Assets with Trajectory Preservation</h1>
+<p><a href="https://arxiv.org/abs/2608.03179" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了 EditFlow3D，这是一个 training-free 框架，通过 VLM 驱动的自动化控制构建和局部 3D 流编辑，实现了高精度的 3D 资产局部编辑并有效保留了非目标区域的结构与外观。</p>
+<h2>解决的问题</h2>
+<p>现有 3D 编辑方法难以在目标区域修改与非目标区域源保留之间取得平衡，基于优化的方法依赖表示质量且易受跨视图不一致影响，基于原生 3D 表示的方法虽改善了结构感知但仍会在非目标区域引入意外退化，且自动构建的 3D 掩码精度不足导致定位不准确。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了 EditFlow3D，一个 training-free 框架，自动将灵活的用户输入转换为准确的视觉和空间控制，并在预训练 3D 生成模型的原始表示空间中进行精确局部编辑。</li>
+<li>引入了局部 3D 流编辑算法，结合 mask-guided differential flow 与 step-wise trajectory preservation，限制流更新至目标区域并在每一步生成中约束非目标特征以抑制意外退化。</li>
+<li>构建了 EditFlow-Bench 基准，涵盖五种跨越结构和纹理变化的编辑类型，用于全面评估不同方法的局部编辑能力。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.03062" data-arxiv-id="2608.03062" data-status="ready">
+<h1>[2608.03062] TraceCAD: Trace-Guided Repair for Agentic CAD Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.03062" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>TraceCAD 提出了一种针对可执行 CAD 代理的持久化恢复层，通过关联需求、建模步骤、失败证据与候选结果的状态记录，结合局部化搜索与技能记忆，在 DeepCAD 基准上实现了具有竞争力的几何质量与修复可靠性，有效解决了修正循环中关键证据丢失及全局重写导致的几何退化问题。</p>
+<h2>解决的问题</h2>
+<p>现有基于 LLM 的 CAD 代理在生成可执行程序时，其修正循环往往仅依赖当前提示中的执行日志，导致已满足的需求、故障操作及先前修复证据在后续尝试中无法被显式暴露。此外，无约束的全局重生成虽然能修复错误，但会重写有效几何并掩盖修复原因，而现有方法缺乏针对建模步骤的局部诊断与验证机制，难以在保持正确特征的同时精准修复局部缺陷。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出持久化恢复状态（persistent recovery state）框架，跨修正循环记录需求、建模步骤、失败证据及修复结果。</li>
+<li>引入局部化修复搜索（localized repair search），结合步骤级诊断、受限编辑区域及执行检查，避免全局重写。</li>
+<li>集成修复技能记忆（repair-skill memory）进入恢复循环，将成功的修复轨迹转化为可复用的技能并评估其重用效果。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.02711" data-arxiv-id="2608.02711" data-status="ready">
+<h1>[2608.02711] Hunyuan3D-Buffalo 1.0: A Unified Multimodal Model for Scalable 3D Generation, Understanding, and Editing</h1>
+<p><a href="https://arxiv.org/abs/2608.02711" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 Hunyuan3D-Buffalo 1.0，这是一个统一的多模态框架，通过构建 87M 规模的 3D 多模态语料库并结合 Hunyuan3D-VLM 与 Hunyuan3D DiT 架构，实现了 3D 理解、text-to-3D 生成、instruction-guided 3D 编辑及部件生成的统一，在多项 benchmark 上达到最先进或领先水平。</p>
+<h2>解决的问题</h2>
+<p>现有 3D 生成领域进展受限，主要因为 3D 资产难以大规模收集、标注和编辑，特别是缺乏大规模且几何一致的 3D editing data。这导致 3D 理解、生成和编辑模型通常作为独立系统开发，造成碎片化，阻碍了统一语义 - 视觉 - 几何 representation 的学习，且不清楚这些任务在统一训练范式下能否相互增强。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建 87M 规模的 3D 多模态训练语料库，引入 Nano3D-v2 算法生成高质量且几何一致的 3D editing pairs 以缓解数据瓶颈。</li>
+<li>提出统一框架 Hunyuan3D-Buffalo 1.0，结合 Hunyuan3D-VLM 与 Hunyuan3D DiT 实现 3D 理解、生成、编辑及部件生成的单架构支持。</li>
+<li>在编辑任务中利用源 object representation 作为条件来保持整体结构和未编辑区域，同时支持 text-grounded part generation。</li>
+<li>揭示统一训练范式下的跨任务协同效应，即更强的 generation 与 understanding 能力能显著提升 editing 效果。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.01605" data-arxiv-id="2608.01605" data-status="ready">
+<h1>[2608.01605] ETHead: Generating Expressive 3D Facial Animation and Head Movement from Speech</h1>
+<p><a href="https://arxiv.org/abs/2608.01605" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 ETHead 方法，通过结合大规模 2D talking videos 预训练的 self-distillation framework 与 emotion-modulated probabilistic masking mechanism，仅从 speech 生成生动的 3D facial and head motions，在标准数据集上显著超越 state-of-the-art 方法，并提供了可迁移的 speech encoder 模块。</p>
+<h2>解决的问题</h2>
+<p>现有 3D talking head 生成方法受限于 high-fidelity 3D data 的 scarcity，难以 modeling complex emotional motion patterns；reference-based methods 需获取 diverse emotional expressions 的外部 clips，而 2D 到 3D reconstruction 算法仅在 lab-controlled videos 上保证高精度，导致可用于 learning speech-to-motion mappings 的高保真数据规模严重受限。</p>
+<h2>创新点</h2>
+<ul>
+<li>设计 self-distillation framework，利用大规模 2D talking videos 预训练 specialized speech encoder 以解决 3D data 稀缺问题。</li>
+<li>引入 emotion-modulated probabilistic masking mechanism，引导 encoders 聚焦 emotion-intensive temporal segments，实现 speech representations 与 expressive visual dynamics 的精确对齐。</li>
+<li>构建 emotion-centric joint speech-motion latent space，通过 enriching input cues 和提供 explicit supervision 增强 3D generation 效果。</li>
+<li>提供 transferable motion-aligned speech encoder 模块，可作为 independent module 应用于其他 facial animation frameworks 以提升 expressiveness。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.01335" data-arxiv-id="2608.01335" data-status="ready">
+<h1>[2608.01335] PartInteractor: Intent-Driven Part-Aware 3D Authoring for Continuous Co-Creation in XR</h1>
+<p><a href="https://arxiv.org/abs/2608.01335" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>PartInteractor 提出了一种面向 XR 的表示到交互框架，通过引入语义部件层级和意图支架工作流，将一次性提示生成转变为持续的部件级协同创作，显著提升了后生成控制能力与意图对齐度。</p>
+<h2>解决的问题</h2>
+<p>现有生成式 XR 创作系统通常产生缺乏显式语义结构的单体输出，仅支持对象或场景级别的交互，导致生成资产粒度与沉浸式创作所需的部件级控制需求之间存在表示 - 交互不匹配；同时，多模态输入（如语音、草图）固有的模糊性若缺乏生成前的意图解释机制，易导致下游修正成本高昂。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出表示到交互框架，生成具有显式语义部件层级的 3D 资产，将部件作为一等交互单元暴露，支持细粒度组件级交互。</li>
+<li>引入人类在环意图支架工作流，结合 LLM 解释器与检索生成策略，在 3D 生成前通过用户确认的视觉候选项减少歧义并优化意图对齐。</li>
+<li>支持语音、草图和图像等多模态输入，通过 LLM 解释器与检索生成推荐器推断用户设计意图。</li>
+<li>将 XR 创作从单次提示生成转变为持续的人机协同创作流程，支持生成后的部件级探索与迭代优化。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.00891" data-arxiv-id="2608.00891" data-status="ready">
+<h1>[2608.00891] CADIR: A Cross-Backend Editable Intermediate Representation for Agentic CAD Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.00891" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>CADIR 提出了一种基于 OCP/OCCT 几何内核的面向代理的可执行 CAD 中间表示，通过 Construction Graph 记录建模操作与依赖，结合 Geometric Signature Matching 实现跨后端重建，并利用基于图的检索支持复杂模型的生成与子结构复用，显著提升了生成几何保真度与跨系统编辑可靠性。</p>
+<h2>解决的问题</h2>
+<p>现有方法将建模过程表示为特定后端的具体顺序脚本或静态几何，具有隐式依赖关系，难以同时在不同 CAD 系统中保持 Construction History、稳定的拓扑引用以及特征级别的编辑性；且现有代理框架缺乏支持跨后端重建或检索完整模型及建模子结构的结构化表示。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于 OCP/OCCT 的面向代理的可执行 CAD 中间表示，暴露显式组合操作、语义拓扑感知选择及结构化诊断。</li>
+<li>引入 Geometric Signature Matching 方法，利用 Construction Graph 建立跨 CAD 系统的拓扑对应，支持 FreeCAD、SolidWorks 和 Fusion 360 的原生特征历史重建。</li>
+<li>设计支持文本和图像查询的 Construction Graph 检索机制，涵盖全图与子图检索，实现建模子结构的复用。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.00094" data-arxiv-id="2608.00094" data-status="ready">
+<h1>[2608.00094] Video Models as Native 4D Renderers: World-Grounded Conditioning from Animated Mesh</h1>
+<p><a href="https://arxiv.org/abs/2608.00094" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 DAR 参考引导渲染器，通过扩展 Wan2.2 相机控制接口联合相机轨迹与几何信息，利用神经 4D G-buffer 实现世界 grounded 条件，在 DAR-4D 基准上 LoRA 版本达到 PSNR 23.22，显著优于现有 Wan2.2-Depth 方法。</p>
+<h2>解决的问题</h2>
+<p>现有可控视频模型存在接口不完整问题，相机控制方法缺乏每帧几何信息，深度条件模型将相机与物体运动混合，稀疏跟踪方法在遮挡下失效。关键矛盾在于单一相机图或深度图无法同时明确渲染射线对应的动画表面状态，导致观察者运动与物体运动难以解耦。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 4D 生成式渲染的参考引导形式化方法，基于动画网格和目标相机路径</li>
+<li>设计神经 4D G-buffer 条件，将 Plücker rays 与追踪、世界位置和法线图配对</li>
+<li>论证追踪加世界位置作为可见 4D 状态代码优于相机依赖的 depth 用于双运动控制</li>
+<li>构建 DAR-4D 渲染就绪语料库与基准，包含 RGB 视频及每帧缓冲数据</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.28675" data-arxiv-id="2607.28675" data-status="ready">
+<h1>[2607.28675] Meshy T2: Fast Native Mesh Generation with Flow Matching</h1>
+<p><a href="https://arxiv.org/abs/2607.28675" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>Meshy T2 提出了一种基于 flow matching 的快速原生网格生成框架，通过顶点集合 mesh VAE 与级联流匹配模型，实现了在 6 秒内完成端到端图像到网格生成，显著提升了交互速度并保持了高精度几何与拓扑结构。</p>
+<h2>解决的问题</h2>
+<p>现有主流方法将网格序列化为 token 序列并进行 autoregressive 解码，导致推理速度慢且对误差累积敏感，难以满足交互式资产创作需求，同时难以在保持高精度几何与艺术家风格拓扑的同时实现高效生成。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于 flow matching 的级联生成架构，包含 image-conditioned voxel flow 与 mesh flow 两个阶段</li>
+<li>设计顶点集合 mesh VAE，将网格编码为每个顶点的连续 latent token 并单 pass 解码顶点、边连接及 face winding order</li>
+<li>实现原生多部件资产支持，组件直接由生成的连接性涌现</li>
+<li>通过请求的 vertex budget 实现有效的面数量控制</li>
+<li>无需顶点量化或 welding 即可保持高精度几何与艺术家风格拓扑结构</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.24721" data-arxiv-id="2607.24721" data-status="ready">
+<h1>[2607.24721] DreamStyle3D: Efficient 3D Stylized Asset Generation via Dual-Attention Disentanglement</h1>
+<p><a href="https://arxiv.org/abs/2607.24721" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 DreamStyle3D，一种基于 Decoupled Dual Cross-Attention 的原生 3D 风格化框架，能在 10 seconds 内生成高保真且几何一致的 3D 资产，显著提升了效率与风格质量。</p>
+<h2>解决的问题</h2>
+<p>现有 3D 风格化方法主要依赖间接的 2D-to-3D 流程，优化类方法基于 2D 预训练模型进行 score distillation sampling (SDS) 或多视图生成，耗时过长；特征融合方法将风格注入大型重建模型 (LRM)，虽速度快但受限于风格与几何耦合，导致语义漂移和结构扭曲，难以在保持风格保真度、几何一致性与生成效率三者间取得平衡。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 DreamStyle3D 框架，引入 Decoupled Dual Cross-Attention 机制，在原生 3D 空间中显式解耦并融合几何与风格表示</li>
+<li>设计 Style Disentanglement Augmentation 策略，结合结构感知风格扰动和前景颜色重映射，提升几何 - 风格解耦与生成稳定性</li>
+<li>构建自动化的三元组数据生成 pipeline，生产约 15K 个风格化 3D 样本，为模型训练和评估提供标准化配对监督与基准</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.17145" data-arxiv-id="2607.17145" data-status="ready">
+<h1>[2607.17145] Text2Villa: Hierarchical Generation of 3D Indoor Environments with Physics-Aware Analysis-by-Synthesis</h1>
+<p><a href="https://arxiv.org/abs/2607.17145" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 Text2Villa 分层生成框架，通过宏微观解耦与物理感知 analysis-by-synthesis 优化，实现了从文本到具备多楼层连通性及任意多边形边界的 3D 室内环境的高保真生成。</p>
+<h2>解决的问题</h2>
+<p>现有主流室内场景生成方法局限于单房间宏观假设和简单矩形轮廓，难以处理真实建筑的多楼层垂直约束与任意多边形边界；同时缺乏对连续 3D 物理空间的深层 grounding，导致生成结果常出现几何穿透、漂浮伪影 (floating artifacts) 及微观资产布置不合理等物理不真实问题。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了 Text2Villa 分层生成框架，通过 autoregressive 布局生成器在自定义多楼层数据集上微调，实现从文本到具有任意多边形边界的 3D 建筑基础的直接解析。</li>
+<li>设计了 Affordance-driven Physical-Semantic Scene Graph (A-PSSG)，将物理功能（如支撑面与容纳腔）抽象为图节点属性并构建严格的几何 - 语义边约束。</li>
+<li>构建了基于 analysis-by-synthesis 范式的约束闭环优化求解器，融合几何碰撞检测引擎与多模态大语言模型 (MLLMs) 的视觉语义反馈，动态修正微观资产放置的物理错误。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.13468" data-arxiv-id="2607.13468" data-status="ready">
+<h1>[2607.13468] HIVE-3D: Hierarchical Voxel Enhancement for High-Quality 3D Scene Generation</h1>
+<p><a href="https://arxiv.org/abs/2607.13468" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 HIVE-3D 方法，通过分层体素增强框架，基于单张 RGB 图像生成高分辨率、高质量的 3D 场景，实现了 State-of-the-Art 性能。</p>
+<h2>解决的问题</h2>
+<p>现有 3D 场景生成方法面临多重挑战：基于检索的方法受限于模板多样性无法精确对齐形状且缺乏纹理；端到端神经网络方法在单次推理中受限于空间分辨率和细节保真度；而组合法虽能提升细节，但未考虑不同组件需要不同级别的细节和 refinement，导致整体生成质量受限。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 HIVE-3D 分层管道，通过 coarse-to-fine 方案渐进式生成高分辨率 3D 场景。</li>
+<li>引入 2D-to-3D matching strategy，将分层 2D 图像分割提升至 3D 场景空间，构建分层场景树。</li>
+<li>提出 voxel super-resolution model，在保持与 coarse voxels 特征一致的同时增加目标 3D 组件的分辨率。</li>
+<li>采用基于形状的策略对齐每个再生组件与其粗糙对应物，并注册回原始场景以完成最终场景。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.08891" data-arxiv-id="2607.08891" data-status="ready">
+<h1>[2607.08891] Ortho2CAD: 3D CAD generation from orthographic drawings using vision language models</h1>
+<p><a href="https://arxiv.org/abs/2607.08891" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出 Ortho2CAD 框架，利用 VLM 将正交工程图（orthographic drawings）转化为可编辑的 CadQuery 代码及 3D CAD 模型，通过合成数据集与推理时自优化框架显著提升了重构精度与代码有效性。</p>
+<h2>解决的问题</h2>
+<p>现有方法多基于文本或透视图像生成 CAD，未能解决正交工程图（orthographic drawings）到可编辑 3D CAD 模型的转换难题；同时面临大规模标准化配对数据集缺失以及不同数据集中监督信号可用性差异大的挑战，导致自动化重建受阻。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建了基于 pythonOCC 的大规模正交工程图生成器，解决了标准化图纸数据稀缺问题</li>
+<li>提出基于监督微调（SFT）与几何基础强化学习（RL）的混合训练策略，适应不同数据集中代码监督的可用性差异</li>
+<li>设计了推理时自优化（self-refinement）框架，利用前沿 VLM 反复修复无效代码并对比正交投影以迭代提升生成质量</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.07459" data-arxiv-id="2607.07459" data-status="ready">
+<h1>[2607.07459] EmbodiedGen V2: An Agentic, Simulation-Ready 3D World Engine for Embodied AI</h1>
+<p><a href="https://arxiv.org/abs/2607.07459" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出 EmbodiedGen V2，通过构建统一的仿真就绪（sim-ready）3D 世界引擎，实现了从 3D 内容生成到可执行策略环境的自动化闭环，显著提升了机器人强化学习及 sim-to-real 迁移的成功率。</p>
+<h2>解决的问题</h2>
+<p>现有生成式 3D 方法虽能产出视觉逼真的物体，但缺乏可执行的物理属性与交互语义，且将资产组装为策略就绪（policy-ready）任务环境仍需大量人工干预，难以满足机器人强化学习对跨模拟器、可编辑及物理验证环境的统一需求。</p>
+<h2>创新点</h2>
+<ul>
+<li>统一的仿真就绪（sim-ready）表示，耦合度量几何、物理有效性及跨模拟器可移植性，提供全生成与编辑流程的通用接口</li>
+<li>模型无关的仿真资产生成，构建模块化流程将 TRELLIS、SAM3D 和 Hunyuan3D 等生成器输出转化为可部署仿真资产</li>
+<li>感知交互语义，通过自动标注管道增强资产的动作属性与物理验证抓取，使视觉对象变为可验证的仿真实体</li>
+<li>任务驱动的 3D 场景生成，将自然语言任务解析为 Scene Graphs 并生成具备多房间拓扑和实例级可编辑性的可执行交互世界</li>
+<li>基于状态感知的 Vibe Coding 编辑，将生成、组合、编辑和导出转化为可组合的技能，支持持久物理验证世界状态的自然语言修改</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.29395" data-arxiv-id="2606.29395" data-status="ready">
+<h1>[2606.29395] NaLA: A 3D Native LLM Layout Agent for High-quality 3D Scene Generation</h1>
+<p><a href="https://arxiv.org/abs/2606.29395" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 NaLA，一种原生 3D LLM 布局代理，通过直接编码 3D 场景边界和资产并采用 coarse-to-fine 预测机制，有效解决了 modality gap 问题，显著提升了 3D 场景生成的几何感知能力与布局连贯性，在质量与效率上均优于现有方法。</p>
+<h2>解决的问题</h2>
+<p>现有布局代理通常将 3D 资产和布局转换为文本描述进行处理，受限于文本与 3D 资产及布局之间的严重 modality gap，导致关键几何信息丢失，从而产生 implausible layout generation 的问题。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出原生 3D LLM 布局代理架构，直接将 3D 场景边界和资产编码进模型，以保留细粒度几何信息。</li>
+<li>设计粗到细（coarse-to-fine）预测机制，先以自回归（autoregressive）方式预测离散姿态，再通过连续回归（continuous regression）细化连续位置与朝向。</li>
+<li>支持在输入端对碰撞、表面支撑和包含关系等显式关系进行推理，增强几何感知能力。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2605.21472" data-arxiv-id="2605.21472" data-status="ready">
+<h1>[2605.21472] Stream3D: Sequential Multi-View 3D Generation via Evidential Memory</h1>
+<p><a href="https://arxiv.org/abs/2605.21472" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>Stream3D 提出了一种无需训练的流式机制，将冻结的 view-conditioned 3D generator 转化为具备恒定 cross-chunk memory 的流式生成器，通过 evidential memory 实现长单目流下的时序一致 3D 重建，在 photometric 和 geometric metrics 上优于 latent-transport baselines。</p>
+<h2>解决的问题</h2>
+<p>现有的 view-conditioned 3D generators (如 SAM 3D, TRELLIS) 针对单视图重建效果良好，但面对真实场景的长单目流 (long monocular streams) 时，逐帧独立生成导致严重时序不一致 (temporal inconsistency)。联合处理所有帧计算成本过高，而基于 flow-matching 的固定块处理会丢失历史上下文；现有的流式状态传输机制 (如 KV-cache reuse) 因潜在状态 (latent states) 在生成器中深度纠缠难以跨帧对齐，导致严重误差积累，且内存占用随序列长度线性增长，无法解决长序列下的退化问题。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出首个无需训练 (training-free) 的流式机制，将冻结的 view-conditioned 3D generator 转化为长流生成器，无需修改权重或架构。</li>
+<li>引入 token-level Adaptive Evidential Memory，通过证据分数机制选择性缓存历史帧，保持内存占用恒定且避免线性增长。</li>
+<li>设计 Evidence-Based Multi-Generation 策略，将 token 级证据聚合为帧级条件束，使不同空间区域检索最可靠的历史观测。</li>
+<li>实现非退化 (non-degradation) 特性，证据在流式过程中仅维持或改进，有效避免长序列下的误差积累。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2603.22782" data-arxiv-id="2603.22782" data-status="ready">
+<h1>[2603.22782] Know3D: Prompting 3D Generation with Knowledge from Vision-Language Models</h1>
+<p><a href="https://arxiv.org/abs/2603.22782" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>Know3D 通过潜在隐藏状态注入（latent hidden-state injection）将多模态大语言模型（VLM）的知识融入基于扩散模型（diffusion model）的生成框架，实现了用户意图对齐的 3D 资产不可见区域语义可控生成。</p>
+<h2>解决的问题</h2>
+<p>现有 3D 生成方法受限于单目观测的固有模糊性和 3D 训练数据匮乏导致的鲁棒全局结构先验缺失，使得生成的不可见区域往往具有随机性且难以控制，容易无法对齐用户意图或产生不合理的几何结构。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 Know3D 框架，通过潜在隐藏状态注入（latent hidden-state injection）将多模态大语言模型（VLM）的丰富知识融入 3D 生成过程。</li>
+<li>构建基于 VLM 与 diffusion model 的混合架构，利用 VLM 进行语义理解与指导，diffusion model 作为桥梁转移知识。</li>
+<li>将传统的随机背面生成（back-view hallucination）转变为语义可控的几何重建过程，弥合抽象文本指令与几何重建之间的差距。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2603.21611" data-arxiv-id="2603.21611" data-status="ready">
+<h1>[2603.21611] SARe: Structure-Aware Generative 3D Fragment Reassembly</h1>
+<p><a href="https://arxiv.org/abs/2603.21611" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出结构感知重拼（SARe）框架，通过整合查询对齐的局部几何与任务原生结构监督，在无需额外预训练或教师对齐阶段的情况下，利用推理时的几何验证与子装配引导重采样，在多碎片 3D 重拼任务中实现了最先进的性能与更稳健的退化表现。</p>
+<h2>解决的问题</h2>
+<p>随着碎片数量增加，现有方法面临局部误差累积与组合复杂性挑战，且早期几何匹配难以处理弱语义碎片，而近期生成式方法或依赖任务特定预训练编码器，或需冻结教师模型进行特征对齐，难以直接利用查询对齐的局部几何先验，且缺乏推理阶段的结构修正机制。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 SARe-Gen 框架，将查询对齐的点传输与任务原生断裂区域及接触图监督联合优化，无需额外结构预训练阶段。</li>
+<li>设计 SARe-Refine 模块，通过几何一致性检查筛选可靠局部子装配，并以此引导推理时的二次重采样以修正首通错误。</li>
+<li>利用 ShapeVAE 的局部几何潜变量作为查询条件，提供查询对齐的邻域信息以驱动坐标生成与结构预测。</li>
+<li>构建并开源包含约 5.5 万样本的扫描衍生模拟断裂基准，包含结构监督信号。</li>
+</ul>
+    </article>
     </div>
   </main>
-  <script type="application/json" id="summary-catalog">{"papers":{"2608.19769":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19769"},"2608.20639":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20639"},"2608.20659":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20659"},"2608.20691":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20691"},"2608.20699":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20699"},"2608.20720":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20720"},"2608.20740":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20740"},"2608.20748":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20748"},"2608.20759":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20759"},"2608.20775":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20775"},"2608.20891":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20891"}},"topic":"3D Generation","version":1}</script>
+  <script type="application/json" id="summary-catalog">{"papers":{"2603.21611":{"status":"ready","url":"notes/3d-generation.html#summary-2603.21611"},"2603.22782":{"status":"ready","url":"notes/3d-generation.html#summary-2603.22782"},"2605.19748":{"status":"pending"},"2605.21472":{"status":"ready","url":"notes/3d-generation.html#summary-2605.21472"},"2606.29395":{"status":"ready","url":"notes/3d-generation.html#summary-2606.29395"},"2607.07459":{"status":"ready","url":"notes/3d-generation.html#summary-2607.07459"},"2607.08891":{"status":"ready","url":"notes/3d-generation.html#summary-2607.08891"},"2607.13468":{"status":"ready","url":"notes/3d-generation.html#summary-2607.13468"},"2607.17145":{"status":"ready","url":"notes/3d-generation.html#summary-2607.17145"},"2607.24721":{"status":"ready","url":"notes/3d-generation.html#summary-2607.24721"},"2607.28675":{"status":"ready","url":"notes/3d-generation.html#summary-2607.28675"},"2608.00094":{"status":"ready","url":"notes/3d-generation.html#summary-2608.00094"},"2608.00891":{"status":"ready","url":"notes/3d-generation.html#summary-2608.00891"},"2608.01335":{"status":"ready","url":"notes/3d-generation.html#summary-2608.01335"},"2608.01605":{"status":"ready","url":"notes/3d-generation.html#summary-2608.01605"},"2608.02016":{"status":"pending"},"2608.02711":{"status":"ready","url":"notes/3d-generation.html#summary-2608.02711"},"2608.03062":{"status":"ready","url":"notes/3d-generation.html#summary-2608.03062"},"2608.03179":{"status":"ready","url":"notes/3d-generation.html#summary-2608.03179"},"2608.05248":{"status":"ready","url":"notes/3d-generation.html#summary-2608.05248"},"2608.05714":{"status":"ready","url":"notes/3d-generation.html#summary-2608.05714"},"2608.05879":{"status":"ready","url":"notes/3d-generation.html#summary-2608.05879"},"2608.06161":{"status":"ready","url":"notes/3d-generation.html#summary-2608.06161"},"2608.08053":{"status":"ready","url":"notes/3d-generation.html#summary-2608.08053"},"2608.09110":{"status":"ready","url":"notes/3d-generation.html#summary-2608.09110"},"2608.09186":{"status":"ready","url":"notes/3d-generation.html#summary-2608.09186"},"2608.11876":{"status":"ready","url":"notes/3d-generation.html#summary-2608.11876"},"2608.12175":{"status":"ready","url":"notes/3d-generation.html#summary-2608.12175"},"2608.12997":{"status":"ready","url":"notes/3d-generation.html#summary-2608.12997"},"2608.13541":{"status":"ready","url":"notes/3d-generation.html#summary-2608.13541"},"2608.14783":{"status":"ready","url":"notes/3d-generation.html#summary-2608.14783"},"2608.15749":{"status":"ready","url":"notes/3d-generation.html#summary-2608.15749"},"2608.16234":{"status":"ready","url":"notes/3d-generation.html#summary-2608.16234"},"2608.17988":{"status":"ready","url":"notes/3d-generation.html#summary-2608.17988"},"2608.18616":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18616"},"2608.18627":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18627"},"2608.18711":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18711"},"2608.18734":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18734"},"2608.18750":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18750"},"2608.18840":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18840"},"2608.19036":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19036"},"2608.19063":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19063"},"2608.19177":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19177"},"2608.19756":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19756"},"2608.19769":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19769"},"2608.19823":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19823"},"2608.19934":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19934"},"2608.19965":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19965"},"2608.20093":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20093"},"2608.20277":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20277"},"2608.20305":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20305"},"2608.20639":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20639"},"2608.20659":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20659"},"2608.20691":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20691"},"2608.20699":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20699"},"2608.20720":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20720"},"2608.20740":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20740"},"2608.20748":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20748"},"2608.20759":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20759"},"2608.20775":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20775"},"2608.20891":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20891"}},"topic":"3D Generation","version":1}</script>
 </body>
 </html>
