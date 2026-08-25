@@ -63,8 +63,12 @@ jobs:
           "$VENV_PATH/bin/python" -m pip install --upgrade pip
           "$VENV_PATH/bin/python" -m pip install -r requirements.txt
 
-      - name: Wait for local vLLM
+      - name: Start local vLLM
         run: |
+          START_MARKER="$RUNNER_TEMP/vllm-paper-$GITHUB_RUN_ID.started"
+          rm -f "$START_MARKER"
+          sudo -n /usr/bin/systemctl start vllm-paper.service
+          touch "$START_MARKER"
           curl --fail --retry 60 --retry-all-errors --retry-delay 5 --retry-max-time 300 --max-time 10 "$VLLM_BASE_URL/models"
 
       - name: Backfill paper summaries
@@ -85,6 +89,22 @@ jobs:
             git commit -m "Github Action Backfill Paper Summaries"
             git push origin main
           fi
+
+      - name: Stop local vLLM and release GPU
+        if: ${{ always() }}
+        run: |
+          START_MARKER="$RUNNER_TEMP/vllm-paper-$GITHUB_RUN_ID.started"
+          if [ ! -f "$START_MARKER" ]; then
+            echo "vLLM was not started by this job"
+            exit 0
+          fi
+          sudo -n /usr/bin/systemctl stop vllm-paper.service
+          rm -f "$START_MARKER"
+          if /usr/bin/systemctl is-active --quiet vllm-paper.service; then
+            echo "vLLM service is still active after stop" >&2
+            exit 1
+          fi
+          echo "vLLM stopped; GPU resources released"
 
   deploy:
     name: deploy-pages

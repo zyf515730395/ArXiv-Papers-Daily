@@ -29,18 +29,34 @@ equivalent command:
   --reasoning-parser qwen3
 ```
 
-Install the tracked service file from the current repository location, restart
-the service, and verify the OpenAI-compatible endpoint:
+Install the tracked service and the narrowly scoped Runner sudoers rule from
+the current repository location. The service must remain disabled between
+backfill runs so it does not reserve GPU memory at boot:
 
 ```bash
 cd /mnt/g/share/projects/arxiv-papers-daily
+sudo visudo -cf ops/arxiv-vllm-runner.sudoers
 sudo install -m 0644 ops/vllm-paper.service /etc/systemd/system/vllm-paper.service
+sudo install -m 0440 ops/arxiv-vllm-runner.sudoers /etc/sudoers.d/arxiv-vllm-runner
 sudo systemctl daemon-reload
-sudo systemctl enable vllm-paper.service
-sudo systemctl restart vllm-paper.service
+sudo systemctl disable --now vllm-paper.service
+
+# Verify the same non-interactive start/stop commands used by the Runner.
+sudo -n /usr/bin/systemctl start vllm-paper.service
 curl --fail --retry 30 --retry-connrefused --retry-delay 5 \
   http://127.0.0.1:8000/v1/models
+sudo -n /usr/bin/systemctl stop vllm-paper.service
+systemctl is-active vllm-paper.service  # expected: inactive
 ```
+
+The sudoers rule grants user `zyf` only the exact start and stop commands for
+`vllm-paper.service`; it does not grant general passwordless sudo. Each
+backfill job writes a run-specific marker after starting the service and uses
+an `always()` cleanup step to stop the unit after success, failure, or
+cancellation. `RuntimeMaxSec=4h` and control-group shutdown provide a final
+safety net if the Runner itself becomes unavailable. The unit uses
+`Restart=no`, so a crash or safety timeout cannot silently reacquire the GPU;
+the next scheduled workflow performs the next start attempt.
 
 The endpoint must expose exactly one model unless the workflow environment sets
 `VLLM_MODEL`; for this configuration the model ID is `PaperReader-Qwen3.5`.
@@ -71,19 +87,20 @@ Create a Windows Task Scheduler task that runs at system startup or user logon:
 wsl.exe -d Ubuntu-24.04 --exec /bin/true
 ```
 
-After each Windows boot, verify that both services started with WSL:
+After each Windows boot, verify that the Runner is active and vLLM remains
+inactive until a backfill workflow starts it:
 
 ```bash
-systemctl is-active vllm-paper.service
 systemctl is-active actions.runner.zyf515730395-ArXiv-Papers-Daily.ZYF-WinSZ.service
+systemctl is-active vllm-paper.service  # expected: inactive
 ```
 
 After the runner and vLLM services are healthy, the two independent workflows
 can be triggered manually for validation:
 
 - **Run Arxiv Papers Daily** fetches at 01:00 UTC (09:00 Asia/Shanghai).
-- **Backfill Arxiv Paper Summaries** starts at 13:30 UTC (21:30
-  Asia/Shanghai) and runs its summary phase for up to 150 minutes.
+- **Backfill Arxiv Paper Summaries** starts at 01:30 and 13:30 UTC (09:30 and
+  21:30 Asia/Shanghai) and runs each summary phase for up to 150 minutes.
 
 Both workflows use the same `arxiv-paper-pipeline` concurrency group. If daily
 ingestion is delayed, backfill waits rather than accessing the shared checkout,
@@ -152,6 +169,11 @@ if [ ! -x "$VENV_PATH/bin/python" ]; then
   /home/zyf/softwares/miniforge3/envs/vllm/bin/python -m venv "$VENV_PATH"
 fi
 "$VENV_PATH/bin/python" -m pip install -r requirements.txt
+
+sudo -n /usr/bin/systemctl start vllm-paper.service
+trap 'sudo -n /usr/bin/systemctl stop vllm-paper.service' EXIT
+curl --fail --retry 60 --retry-all-errors --retry-delay 5 \
+  --retry-max-time 300 --max-time 10 http://127.0.0.1:8000/v1/models
 
 SUMMARY_ENABLED=1 \
 SUMMARY_BACKFILL_LIMIT=10 \

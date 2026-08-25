@@ -1,0 +1,3 @@
+# Allow only the repository runner user to start and stop the paper vLLM unit.
+Cmnd_Alias ARXIV_VLLM_CONTROL = /usr/bin/systemctl start vllm-paper.service, /usr/bin/systemctl stop vllm-paper.service
+zyf ALL=(root) NOPASSWD: ARXIV_VLLM_CONTROL
