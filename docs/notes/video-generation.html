@@ -27,6 +27,49 @@
 <li>采用几何感知偏好优化，利用相机姿态精度作为奖励信号通过 Flow-DPO 将多视图 3D 一致性嵌入模型，支持下游重建应用。</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.23090" data-arxiv-id="2608.23090" data-status="ready">
+<h1>[2608.23090] Loopy: Seamless Video Loop Generation via Anchored Looping Shift of Positional Embedding</h1>
+<p><a href="https://arxiv.org/abs/2608.23090" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 Loopy 框架，通过揭示 DiT 中不同注意力层 RoPE 的位置控制差异并确定锚点层，设计了锚定位置嵌入移位策略，将模型的时序感知从直线转换为圆形，显著提升了生成视频在时序一致性和视觉保真度上的质量，支持 RGB 及 RGBA 视频生成。</p>
+<h2>解决的问题</h2>
+<p>现有通用视频生成模型未明确设计用于循环生成，微调受限于高质量循环数据稀缺，而首尾帧约束方法易导致静态坍塌或运动不足，无训练策略又引入不自然的时序不一致，核心矛盾在于缺乏有效机制建立首尾帧之间的时序连贯性，且现有方法忽视了视频生成模型感知时序顺序与循环行为形成的关系。</p>
+<h2>创新点</h2>
+<ul>
+<li>首次揭示 DiT 中不同注意力层 RoPE 的位置控制差异，发现最具影响力的层作为锚点层提供关键上下文先验。</li>
+<li>提出锚定位置嵌入移位策略，根据各层时序控制效应应用层特异性移位长度，将 DiT 的时序感知从直线转变为圆形。</li>
+<li>构建 Loopy 框架，支持 RGB 及 RGBA 视频生成，并兼容身份控制、风格迁移等 AIGC 功能。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.22819" data-arxiv-id="2608.22819" data-status="ready">
+<h1>[2608.22819] Direct, Parallel, or Sequential? A Comparative Study of Training-Free Multi-Subject Image-to-Video Generation</h1>
+<p><a href="https://arxiv.org/abs/2608.22819" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文系统评估了直接、并行和序列三种 training-free 多主体图像到视频（I2V）生成范式，揭示了各范式在外观保持、运动保真度及主体间交互一致性上的优势与局限，为设计可控视频生成系统提供实践见解。</p>
+<h2>解决的问题</h2>
+<p>现有 training-free 多主体图像到视频（I2V）生成方法难以在保持多主体外观与独立运动的同时维持空间时间交互，核心矛盾在于如何在冻结预训练模型下平衡联合合成复杂度与主体间上下文一致性，现有直接生成易产生纠缠伪影，并行生成缺乏主体间交互，序列生成存在误差传播风险。</p>
+<h2>创新点</h2>
+<ul>
+<li>系统研究了 training-free 多主体图像到视频（I2V）生成的三种代表性范式：直接、并行和序列生成。</li>
+<li>从外观保持、运动保真度、时间一致性及主体间连贯性四个维度对比评估各范式性能。</li>
+<li>分析了不同范式在联合合成复杂度、主体间上下文建模及推理时间上的权衡与失败模式。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.21849" data-arxiv-id="2608.21849" data-status="ready">
+<h1>[2608.21849] GaussVid: Sparse-View Gaussian Splatting with 3D-Aware Video Diffusion Priors</h1>
+<p><a href="https://arxiv.org/abs/2608.21849" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 GaussVid，一种利用首尾帧边界锚点与相机姿态条件构建 3D 感知 diffusion model 先验的框架，在稀疏视图 3DGS 重建中实现了最佳的像素与结构保真度并显著提升了多视图一致性。</p>
+<h2>解决的问题</h2>
+<p>现有稀疏视图 3DGS 方法依赖的正则化策略对噪声敏感且提升有限，而引入的 2D diffusion model 先验缺乏 3D 几何感知导致多视图不一致，利用 video diffusion model 时依赖的稀疏视图几何估计又存在噪声，难以提供有效的 3D 监督信号。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于首尾帧条件 video model 的 3D 感知恢复框架，将稀疏 3DGS 重建转化为 frame-conditioned reconstruction 问题。</li>
+<li>构建大规模配对 3DGS video dataset，支持对 video prior 模型进行专业化监督 fine-tuning。</li>
+<li>引入 camera-conditioned geometric prior，直接编码 camera poses (camera-ray) 注入空间结构，避免依赖稀疏视图下估计的噪声 geometry。</li>
+<li>实现了 video diffusion prior 与 3D 多视图约束的有效对齐，显著改善了 multi-view consistency 并保持 perceptual quality (LPIPS)。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.20910" data-arxiv-id="2608.20910" data-status="ready">
 <h1>[2608.20910] InfinityEdit: Infinite Video Editing with a Lightweight Edit-Ignition Adapter</h1>
 <p><a href="https://arxiv.org/abs/2608.20910" rel="nofollow">arXiv 原文</a></p>
@@ -2392,6 +2435,50 @@
 <li>提出 Event Voxel Density Augmentation 以增强对不同传感器分辨率的鲁棒性</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.08766" data-arxiv-id="2607.08766" data-status="ready">
+<h1>[2607.08766] OPSD-V: On-Policy Self-Distillation for Post-Training Few-Step Autoregressive Video Generators</h1>
+<p><a href="https://arxiv.org/abs/2607.08766" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了 OPSD-V 范式，通过在线策略自蒸馏将真实长视频上下文引入 few-step autoregressive (AR) video diffusion model 训练，在保持原有推理路径的同时显著降低了长视界生成误差并提升了运动动态与视觉质量。</p>
+<h2>解决的问题</h2>
+<p>现有的 few-step autoregressive (AR) video diffusion model 虽具备低延迟优势，但在长 autoregressive rollout 过程中存在误差累积和 motion dynamics 弱化的问题，导致长视界生成质量下降，而传统蒸馏方法往往难以在不改变 sampler 或推理机制的情况下有效解决这一矛盾。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出在线策略自蒸馏范式，将真实长视频数据作为时间上下文引入训练，为 few-step autoregressive (AR) video diffusion model 提供密集 trajectory-level supervision。</li>
+<li>学生模型遵循推理时的 autoregressive rollout 并使用自身生成的 KV cache，教师模型在相同 denoising states 下利用包含真实视频上下文的 cleaner AR-consistent temporal cache 提供修正目标。</li>
+<li>在不改变 sampler、denoising steps 或 inference-time cache mechanism 的前提下，有效缓解长视界生成中的误差累积并增强 motion dynamics。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.08763" data-arxiv-id="2607.08763" data-status="ready">
+<h1>[2607.08763] OpenCoF: Learning to Reason Through Video Generation</h1>
+<p><a href="https://arxiv.org/abs/2607.08763" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了 OpenCoF 框架，通过构建 OpenCoF-17K dataset 及微调 Wan-CoF model，结合时序监督与视觉/文本 reasoning token 机制，显著提升了视频生成模型在多个 video reasoning benchmark 上的推理表现，验证了广域时序监督与显式推理状态组织对强化 video reasoning 的关键作用。</p>
+<h2>解决的问题</h2>
+<p>现有视频生成 model 主要基于通用 video corpora 训练，缺乏针对 Chain-of-Frame (CoF) reasoning 的多样化监督和专用 design，难以支持长时序一致性、物理空间一致性和逻辑连续性。此外，主流视觉 Chain-of-Thought (CoT) pipeline 依赖 static visual observations 或辅助步骤，无法 intrinsic 建模 dynamic transitions，且现有研究多聚焦于 data scaling 与 inference strategies，忽视了 internal video model architectures 针对 reasoning 的显式优化，导致高 visual realism 无法 guarantee 可靠 reasoning。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建 OpenCoF-17K dataset：包含 11 个任务家族的 17,312 个 videos，整合四种采集 pipeline 提供多样化时序监督，填补了 CoF reasoning 专用 data 的空白。</li>
+<li>提出 Wan-CoF model：基于 Wan2.2-I2V-A14B 微调，实证表明仅靠多样化时序监督即可有效激发 CoF behavior，并在多个 benchmark 上超越 baseline。</li>
+<li>设计视觉与文本 reasoning token：为 model 配备 visual 和 textual reasoning tokens 以分别捕捉 low-level visual cues 和 high-level semantic priors，增强空间与时间 reasoning 能力。</li>
+<li>分析 reasoning token 贡献：通过 attention analysis 考察 token 在 model depth、denoising steps 及 space/time 维度上的作用，证实显式 mechanism 对 organizing intermediate reasoning state 的重要性。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.08020" data-arxiv-id="2607.08020" data-status="ready">
+<h1>[2607.08020] SAGA: Stable Acceleration Guidance for Autoregressive Video Generation</h1>
+<p><a href="https://arxiv.org/abs/2607.08020" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 SAGA，一种无需重训即可应用于现有分块 autoregressive diffusion 模型的 training-free 稳定加速引导方法，通过频谱引导与噪声初始化策略显著提升了视频生成的时序稳定性与视觉保真度。</p>
+<h2>解决的问题</h2>
+<p>现有的 autoregressive video generation 方法虽然支持高效流式生成，但在重复利用生成的 latents 作为 causal context 时，会放大时序误差，引发闪烁、运动抖动和 structural drift 等失败模式；同时高质量模型依赖的全序列或 bidirectional denoising 机制难以满足流式与长视野生成的计算效率需求。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 training-free 的稳定加速引导方法，无需修改 backbone 即可应用于现有的 chunk-wise autoregressive diffusion 模型</li>
+<li>从 spectral kinematic 视角出发，利用 discrete latent acceleration 作为有效信号来揭示不稳定的 high-frequency temporal perturbations</li>
+<li>结合 finite-window Slepian projections 的 acceleration domain spectral guidance 目标与 structured autoregressive noise initialization 策略</li>
+<li>在 suppress short-range temporal correlations 的同时 preserve long-range motion structure，从而减少 temporal instability 并维持 visual fidelity</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2607.08016" data-arxiv-id="2607.08016" data-status="ready">
 <h1>[2607.08016] LightCrafter: PBR-Conditioned Video Diffusion Refinement for Controllable and Consistent Relighting</h1>
 <p><a href="https://arxiv.org/abs/2607.08016" rel="nofollow">arXiv 原文</a></p>
@@ -2404,6 +2491,50 @@
 <li>提出将视频重光照重构为 PBR 代理视频到最终目标的视频翻译任务，将光照目标嵌入 PBR 代理，无需教导扩散模型光照概念</li>
 <li>利用 PBR 渲染捕获大部分结构化光照变化，结合视频扩散模型修正噪声几何和近似渲染带来的系统性伪影，自然提供长序列时间一致性</li>
 <li>通过合成视频对和真实世界无配对视频对后训练 CogVideoX，以捕捉如全局光照等 PBR 渲染难以处理的复杂光照效果</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.06856" data-arxiv-id="2607.06856" data-status="ready">
+<h1>[2607.06856] Gen4U: Unifying Video Generation and Understanding via Diffusion</h1>
+<p><a href="https://arxiv.org/abs/2607.06856" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 Gen4U 框架，证明冻结的预训练视频 diffusion models 可通过单次前向传播有效提取特征，统一了视频生成与理解范式，在无需微调的情况下实现了从语义分类到几何估计的广泛感知任务性能。</p>
+<h2>解决的问题</h2>
+<p>现有视觉表征学习方法难以调和几何与语义的矛盾，对比学习与 VLMs 主要操作于语言空间，虽语义强但忽略精确的时空细节，而像素级重建方法如 MAE 虽擅长保留局部几何与运动却难以泛化至广泛语义任务，且现有研究认为视频 diffusion models 仅能捕捉低层几何而难以处理高层语义。</p>
+<h2>创新点</h2>
+<ul>
+<li>利用零样本 mutual-kNN alignment metrics 系统探测中间激活，映射扩散特征在深度与噪声水平上的演变，识别提取线性可分全局语义的最优位置。</li>
+<li>提出 Gen4U 框架，仅需单次前向传播即可通过冻结的扩散骨干提取特征，计算效率与标准判别式视觉编码器相当，无需迭代去噪。</li>
+<li>证明冻结的预训练视频 diffusion models 可作为通用视频编码器，在无需微调的情况下支持语义与非语义多种下游任务。</li>
+<li>通过搭配轻量级解码器，在不改变预训练生成权重的情况下实现强感知性能，同时完全保留了模型生成高质量视频的能力。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.06631" data-arxiv-id="2607.06631" data-status="ready">
+<h1>[2607.06631] Dynamic-in-Few-Step: Unifying Dynamic Computation and Few-Step Distillation for Efficient Video Generation</h1>
+<p><a href="https://arxiv.org/abs/2607.06631" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种新颖的后训练加速框架，通过联合优化去噪步骤与结构化模型稀疏化，将预训练的 Video Diffusion Models (VDMs) 转化为紧凑的步特定 Mixture-of-Models (MoM)，在 Wan-14B 上实现了在 4 步蒸馏基础上去除 24% 每步 FLOPs 并达到 30 倍加速，显著降低了计算冗余同时保持了生成质量。</p>
+<h2>解决的问题</h2>
+<p>现有少步蒸馏技术虽然加速显著，但强制静态模型架构，忽略了扩散过程在不同噪声水平下的计算需求差异。同时，传统动态计算方法难以适配少步蒸馏范式，解耦的剪枝与蒸馏流程会导致模型容量受限或生成轨迹破坏，无法有效利用扩散过程的异构性来动态分配计算资源。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出端到端框架联合优化少步蒸馏与动态结构稀疏化，构建步特定 Mixture-of-Models (MoM) 以消除时空冗余。</li>
+<li>引入渐进式训练策略与输出展开机制，解决联合优化中的梯度冲突与训练不稳定性。</li>
+<li>开发专用推理引擎以高效部署动态混合模型，实现理论稀疏度的实际加速转化。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.05994" data-arxiv-id="2607.05994" data-status="ready">
+<h1>[2607.05994] SparseCtrl-HOI: Sparse Temporal Control for Human-Object Interaction Video Generation</h1>
+<p><a href="https://arxiv.org/abs/2607.05994" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出 SparseCtrl-HOI 框架，利用稀疏时序关键帧结合 MLLM 运动先验注入机制，在大幅降低标注成本的同时实现了高保真人机交互视频的自然生成。</p>
+<h2>解决的问题</h2>
+<p>现有 HOI 视频生成方法普遍依赖密集时序引导（如逐帧姿态序列），不仅导致高昂的标注成本，还因过度约束抑制了生成模型的固有运动先验，造成运动僵硬及噪声传播导致的物理不合理性，难以平衡控制精度与生成多样性。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出稀疏时序控制框架，仅需少量关键帧即可替代密集时序引导</li>
+<li>设计 Time-Controlled Rotary Positional Embedding (TiRoPE) 机制，锚定关键帧的时间位置</li>
+<li>提出基于 Multimodal Large Language Models (MLLMs) 的运动先验注入模块，利用 Q-Former 压缩引导 token 以合成物理合理的中间帧过渡</li>
+<li>采用解耦训练策略，分离关键帧对齐与运动过渡的学习过程</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2607.05376" data-arxiv-id="2607.05376" data-status="ready">
@@ -2479,6 +2610,20 @@
 <li>基于结构因果模型（SCM）的检测视角，将内在取证线索视为因果因素，将域特定偏差视为非因果因素以优化跨域泛化</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.04553" data-arxiv-id="2607.04553" data-status="ready">
+<h1>[2607.04553] Lights, Camera, Carbon: Architectural Scaling Laws for Video Generation Energy Consumption</h1>
+<p><a href="https://arxiv.org/abs/2607.04553" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种无需访问模型权重即可基于架构原理和生成参数双向估算文本生成视频能耗的框架，验证了视频扩散模型能耗遵循理论推导的扩展定律，实现了低于 3% 的平均绝对百分比误差。</p>
+<h2>解决的问题</h2>
+<p>现有研究主要集中于文本或图像生成任务，针对文本生成视频（T2V）的能耗分析尚不深入，且多局限于特定模型或少数开源家族，缺乏基于通用架构原理的可扩展性分析，难以对专有模型进行有效的可持续性基准测试。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出无需访问模型权重、模型大小或实现细节即可基于生成参数和架构原理双向估算能耗的框架</li>
+<li>从架构第一性原理出发，理论上推导出视频生成能耗遵循二次和线性扩展定律，并验证了系数反映架构复杂度</li>
+<li>涵盖音频生成开销扩展律及多 GPU 推理能耗影响，并成功应用于无法直接测量的专有 T2V 系统能耗估算</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2607.04311" data-arxiv-id="2607.04311" data-status="ready">
 <h1>[2607.04311] Aura: Consistent Multi-Subject Video Generation via VLM-Grounded Semantic Alignment</h1>
 <p><a href="https://arxiv.org/abs/2607.04311" rel="nofollow">arXiv 原文</a></p>
@@ -2492,6 +2637,64 @@
 <li>主体感知消歧机制，结合 per-category learnable tokens 与 Subject-Aware RoPE shift，在 3D rotary grid 上为每个参考提供特征与坐标级身份以避免碰撞。</li>
 <li>课程学习策略，采用“Coarse-Align →Refine-Align →Ref-Only →Joint-Mix”配合 norm-only progressive APG 方案，稳定高引导生成。</li>
 <li>纯 AIGC 数据构建 pipeline，通过 grounding–augmenting–verification 流程提供高质量视频参考对，去除对 studio 捕捉数据的依赖。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.03960" data-arxiv-id="2607.03960" data-status="ready">
+<h1>[2607.03960] Reward Lightning: Fast Video Generation via Homologous Preference Distillation</h1>
+<p><a href="https://arxiv.org/abs/2607.03960" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 Reward Lightning 框架，利用同源偏好蒸馏（Homologous Preference Distillation, HPD）和潜在奖励模型（Latent Reward Model, LRM），在单一共享表示空间内统一对齐 video diffusion model 的人类偏好并加速推理，实现了仅需 1 到 4 步即可生成高保真视频，显著提升了 VBench 分数及文本对齐与运动质量。</p>
+<h2>解决的问题</h2>
+<p>现有 video diffusion model 方法在优化偏好对齐与蒸馏加速时，往往在错配的表示空间上进行，导致改进一个目标会损害另一个目标，产生梯度冲突。此外，蒸馏技术虽然能有效减少采样步数，但不可避免地会扭曲反映人类偏好的生成先验，难以在减少推理成本的同时保持高保真度。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 Reward Lightning 统一框架，基于同源原则（Homology）在单一共享表示空间内同时优化偏好对齐与蒸馏加速，缓解梯度冲突。</li>
+<li>设计潜在奖励模型（Latent Reward Model, LRM），直接在潜在空间（latent space）对视频进行评分，避免了解码回像素空间（pixel space）的开销。</li>
+<li>实现同源偏好蒸馏（Homologous Preference Distillation, HPD），复用共享骨干网络联合执行对抗蒸馏与偏好对齐，生成仅需 1 到 4 步的高保真视频。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.03803" data-arxiv-id="2607.03803" data-status="ready">
+<h1>[2607.03803] CineMobile: On-Device Image-to-Video Diffusion for Cinematic Camera Motion Generation</h1>
+<p><a href="https://arxiv.org/abs/2607.03803" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>CineMobile 提出了一种面向移动设备的图像到视频扩散模型，通过结构化剪枝、步骤蒸馏和混合精度量化策略，在保持与 Wan 2.1 教师模型相当视觉效果的同时实现了 40 倍生成加速，实现了高效的在端电影感相机运动生成。</p>
+<h2>解决的问题</h2>
+<p>现有的基于 Diffusion Transformers (DiTs) 的视频生成模型虽然性能强大，但参数量巨大且多步迭代去噪过程导致计算开销大，难以在移动设备上高效部署；此外，现有加速方法主要针对 U-Net 架构，对 DiT 模型探索不足，且激进的加速往往导致模型难以忠实保留提示语义。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于蒸馏引导的剪枝方法，扩展 PPCL 至 I2V DiT 并采用结构化深度剪枝，在保持背骨隐藏维度的同时压缩模型。</li>
+<li>结合扩散蒸馏与强化学习（RL）优化为 4 步生成器，通过监督微调预热和对抗蒸馏恢复生成能力并适应相机运动分布。</li>
+<li>采用混合精度量化策略（FFN 权重 4 位，其余组件 8 位），将模型足迹压缩至 1 GB 以下以降低端侧内存成本。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.03732" data-arxiv-id="2607.03732" data-status="ready">
+<h1>[2607.03732] ProxyUp: Training-Free Proxy-Conditioned Video Generation for Controllable Dynamics</h1>
+<p><a href="https://arxiv.org/abs/2607.03732" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了 ProxyUp，一种基于预训练视频生成模型的无训练代理条件视频生成框架，通过结合物理仿真或真实世界代理视频作为动态载体与文本提示词，在无需配对数据训练的情况下，实现了在保持代理动态的同时根据提示生成新颖内容，显著提升了动态保真度和文本对齐能力。</p>
+<h2>解决的问题</h2>
+<p>现有视频生成模型依赖文本提示难以精确控制复杂的时空动态，导致运动模式不自然；现有的 motion transfer 方法难以生成复杂的交互背景动态，video editing 方法受限于源视频外观且无法生成新内容，inpainting 方法无法生成被遮挡区域的连贯动态，且缺乏成对的代理 - 目标视频数据来训练专门模型，难以实现仅用代理视频作为条件信号的可控生成。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出无训练的 proxy-conditioned video generation 框架 ProxyUp，利用预训练视频生成模型实现可控动态生成。</li>
+<li>设计 region-wise latent noising 策略，在 ODE 倒推代理视频潜变量时保留运动关键区域的潜变量以维持动态，同时对需再生区域注入噪声以支持文本驱动合成。</li>
+<li>提出 Stochastic Flow Relaxation (SFR) 机制，通过多轮松弛过程缓解混合潜变量带来的分布不匹配及前后景弱耦合问题，确保全局一致性。</li>
+<li>构建了包含物理仿真和真实世界记录的任务专用评估集，填补了现有 benchmark 无法评估代理视频作为纯条件信号的空白。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.03509" data-arxiv-id="2607.03509" data-status="ready">
+<h1>[2607.03509] Flex-Forcing: Towards a Unified Autoregressive and Bidirectional Video Diffusion Model</h1>
+<p><a href="https://arxiv.org/abs/2607.03509" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 Flex-Forcing，一种统一的视频扩散模型框架，通过灵活的 chunking 机制将双向扩散与自回归生成范式结合，在保持高质量的同时显著提升了推理效率与长视频稳定性。</p>
+<h2>解决的问题</h2>
+<p>现有视频生成方法受限于僵化的推理范式，双向扩散模型虽具备全局一致性但推理缓慢，而自回归模型虽高效却存在长程一致性与误差累积问题，且现有工作缺乏在统一框架内同时实现双向与自回归优势的机制。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出统一的 Flex-Forcing 框架，实现在单模型内双向扩散与自回归生成范式的无缝切换。</li>
+<li>设计基于时间轴与去噪步骤的灵活 chunking 机制，支持跨 chunk 双向推理与 chunk 内高效自回归生成。</li>
+<li>引入对齐机制明确约束因果与非因果注意力上下文的表征一致性，解决噪声水平差异问题。</li>
+<li>支持任意顺序与任意时间步的自回归生成，消除严格因果约束带来的限制。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2607.03118" data-arxiv-id="2607.03118" data-status="ready">
@@ -2509,6 +2712,49 @@
 <li>构建了包含 TurboDiffusion 和 TurboServe 的高效推理与服务栈，在普通消费级 GPU 上实现 540p 分辨率下 42 FPS 的低成本实时推理。</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.03069" data-arxiv-id="2607.03069" data-status="ready">
+<h1>[2607.03069] SafeGuard: A Multi-Agent Perception-Reasoning Framework for Social-Risk AI-Generated Video Detection</h1>
+<p><a href="https://arxiv.org/abs/2607.03069" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 SafeGuard 多智能体感知推理框架与 SafeVid 基准，通过结合细粒度取证感知与高层语义一致性验证，显著提升了社会风险 AI 生成视频的检测准确率与可解释性。</p>
+<h2>解决的问题</h2>
+<p>现有 AI 生成视频检测基准主要偏向感知保真度与良性场景，缺乏对物理定律、结构一致性或社会逻辑的覆盖，导致检测系统在社会风险环境下的泛化能力受限；同时存在 Perception-Reasoning Gap，即任务专用检测器虽能提取低层取证线索但缺乏语义推断，而视觉语言模型虽擅长高层推理却对细微取证线索不敏感，难以兼顾细粒度证据与语义一致性。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 SafeGuard 多智能体框架，通过 Hierarchical Perceptual Solver 与 Self-Reflective Verifier 协同，实现细粒度取证线索提取与高层语义 - 物理一致性验证。</li>
+<li>构建 SafeVid 基准，包含 20K 视频及 10 类社会风险场景，覆盖物理合理性、结构一致性与社会行为逻辑的评估需求。</li>
+<li>定义社会风险 AI 生成视频检测新任务，要求模型联合评估物理可能性、身份一致性及社会逻辑连贯性。</li>
+<li>设计无需端到端微调的检测流程，利用轻量级取证工具与公开权重，提供基于证据链的可解释推理过程。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.03012" data-arxiv-id="2607.03012" data-status="ready">
+<h1>[2607.03012] HyperVAttention: Efficient Sparse Attention with Spatio-Temporal Clustering for Video Diffusion</h1>
+<p><a href="https://arxiv.org/abs/2607.03012" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 HyperVAttention (HVA)，一种针对视频扩散模型的免训练稀疏注意力框架，通过结合 3D local-window clustering、混合聚类策略和硬件感知聚类合并，有效解决了聚类开销大和线程利用率低的问题，在 Wan2.2 和 HunyuanVideo 上显著降低了端到端延迟并提升了生成保真度。</p>
+<h2>解决的问题</h2>
+<p>现有的视频扩散 Transformer (VDiTs) 受限于自注意力机制的二次复杂度，而现有的基于聚类的稀疏注意力方法虽改善了质量 - 速度权衡，但仍面临两个关键限制：一是聚类开销大，因通用全局聚类未充分利用视频 token 的时空局部性和去噪步骤间的时序稳定性；二是线程利用率低，因聚类诱导的块与 FlashAttention 内核的 CTA 瓦片尺寸不匹配，导致填充区域线程闲置，无法将理论稀疏性转化为实际加速。</p>
+<h2>创新点</h2>
+<ul>
+<li>3D local-window clustering：利用视频 token 的时空局部性，将质心搜索限制在固定局部邻域内，并使用自定义 Triton 内核实现高效执行。</li>
+<li>Hybrid clustering strategy：利用 token 分配在去噪步骤间的时序稳定性，仅在 anchor steps 执行完全聚类，在 intermediate steps 仅更新部分 token。</li>
+<li>Hardware-aware cluster merging：将稀疏注意力的瓦片执行成本建模为硬件成本最小化问题，通过并行聚合合并优化 CTA 利用率并减少延迟。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.02798" data-arxiv-id="2607.02798" data-status="ready">
+<h1>[2607.02798] Track the Noise, Move the World:3D-Grounded Motion-Consistent Noise for Controllable Video Generation</h1>
+<p><a href="https://arxiv.org/abs/2607.02798" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>UniCaMo 提出一种统一框架，通过构建共享的 3D-grounded motion-consistent noise space 直接构造扩散模型输入噪声，实现了无需辅助适配器即可同时精确控制物体轨迹与相机视角，在 Wan 2.1 等大模型上实现了视频质量与运动可控性的最先进水平。</p>
+<h2>解决的问题</h2>
+<p>现有方法缺乏对物体运动和相机运动的统一控制，往往将两者分离处理导致运动模糊与纠缠伪影；同时，基于 2D 轨迹的方法无法完整描述 3D 动态，且运动约束通常在生成后期注入，难以在保持视觉真实性的同时解决几何一致性与运动歧义问题。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出直接构造扩散模型输入噪声的策略，将运动控制约束前置而非注入生成后期，从源头保证几何与时间一致性</li>
+<li>构建共享的 3D-grounded motion-consistent noise space，利用虚拟球面噪声表示解决相机运动带来的未观测区域一致性问题</li>
+<li>无需修改底层视频扩散模型架构，仅需轻量级 LoRA fine-tuning 即可实现物体轨迹与相机视角的联合控制</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2607.02584" data-arxiv-id="2607.02584" data-status="ready">
 <h1>[2607.02584] RotateAttention: RoPE-Aware Rotation and Range Rectification for INT4 Quantized Attention in Video Generation</h1>
 <p><a href="https://arxiv.org/abs/2607.02584" rel="nofollow">arXiv 原文</a></p>
@@ -2521,6 +2767,37 @@
 <li>提出 RoPE-aware Rotation 技术，通过可合并旋转矩阵融合进 RoPE 或采用零开销矩阵，缓解 3D RoPE 诱导的 Q 和 K 异常值。</li>
 <li>设计 Range-optimized P Quantization 方法，利用固定比例和零点对充分利用 INT4 数值范围，减少对称量化浪费。</li>
 <li>构建混合精度 INT4 FlashAttention 框架，对精度敏感注意力块和去噪步骤采用 FP16 fallback 策略。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.02461" data-arxiv-id="2607.02461" data-status="ready">
+<h1>[2607.02461] OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion Transformers</h1>
+<p><a href="https://arxiv.org/abs/2607.02461" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了 OrbitQuant，一种数据无关的扩散 Transformer 量化框架，通过旋转基和单一 Lloyd-Max 代码本实现了无需校准的低比特权重与激活量化，在图像和视频生成模型上达到了 SOTA 效果并支持 W2A4 配置。</p>
+<h2>解决的问题</h2>
+<p>尽管扩散 Transformer (DiT) 在图像和视频生成中表现卓越，但其推理成本高昂且计算密集，需要低比特后训练量化 (PTQ) 来压缩存储和计算。然而，现有方法依赖单校准集来捕获激活统计，无法应对 DiT 激活值随时间步、提示词和引导分支动态漂移的特性，导致每更换检查点或模态都需要重新收集校准数据，缺乏通用性。</p>
+<h2>创新点</h2>
+<ul>
+<li>将低比特 DiT 激活量化重构为分布代码本问题，利用单一 Lloyd-Max 代码本替代逐时间步的范围校准，共享于所有去噪步骤。</li>
+<li>提出共享旋转设计将量化扩展至权重行，使权重与激活在统一基下量化，仅保留前向旋转计算。</li>
+<li>设计随机置换块哈达玛 (RPBH) 旋转，利用均匀随机置换使旋转后边际分布稳定，无需校准即可支持低比特宽度。</li>
+<li>实现从图像到视频模态的无需模态调参迁移，在 FLUX.1、Wan 2.1 等多个基准上达到 SOTA 效果。</li>
+<li>在 W2A4 极低比特设置下仍生成可用图像，解决了此前基线退化为噪声的问题。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.02317" data-arxiv-id="2607.02317" data-status="ready">
+<h1>[2607.02317] NEvo: Neural-Guided Evolutionary Video Synthesis for Dynamic Visual Selectivity</h1>
+<p><a href="https://arxiv.org/abs/2607.02317" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>NEvo 提出了一种神经引导的进化视频合成框架，结合动态脑编码模型（dynamic brain encoding model）与进化搜索，生成针对特定脑区（ROI）优化的动态视觉刺激视频，显著超越了手工制作的局部定位视频（handcrafted localizer videos），并揭示了视觉皮层对时间动态的系统性敏感性差异。</p>
+<h2>解决的问题</h2>
+<p>现有基于神经编码的视觉刺激合成方法主要局限于静态图像领域（static image domain），导致动态视觉处理过程未被充分探索，无法系统研究视觉皮层如何表征自然输入的时间结构，特别是那些依赖运动、交互或事件动态的区域。</p>
+<h2>创新点</h2>
+<ul>
+<li>建立首个基于模型的框架（model-based framework）用于在自然化动态刺激下研究视觉选择性。</li>
+<li>提出基于语义、运动和事件描述符的提示引导优化，在高维时空空间中实现目标视频合成。</li>
+<li>合成跨腹侧（ventral）、背侧（dorsal）及外侧（lateral）视觉皮层的高激活刺激，恢复已知选择性并揭示对时间动态的区域敏感性。</li>
+<li>演示非自然化刺激的受控合成，展示生成假设驱动实验刺激的能力。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2607.02075" data-arxiv-id="2607.02075" data-status="ready">
@@ -2537,6 +2814,49 @@
 <li>构建 EgoVid-Pro 数据集，提供涵盖多样化日常场景的干净主角手部轨迹数据，增强模型泛化能力。</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.01962" data-arxiv-id="2607.01962" data-status="ready">
+<h1>[2607.01962] NeoMap: Training-free Novel-View Synthesis from Single Images and Videos</h1>
+<p><a href="https://arxiv.org/abs/2607.01962" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 NeoMap 框架，这是一个无需训练（training-free）的方法，旨在从通用预训练视频模型中定位高保真且视图一致的新视图解决方案，通过收敛流形交替投影迭代优化初始噪声，在 Tanks-and-Temples、LLFF 和 DAVIS 基准测试中显著优于现有方法，实现了最先进的生成保真度和一流的视图一致性。</p>
+<h2>解决的问题</h2>
+<p>现有方法通常假设预训练视频模型缺乏原生新视图合成（NVS）能力，需通过相机条件、特定任务微调或逐步硬去噪指导来强制视图对齐，这往往导致生成结果出现伪影并损害全局场景一致性。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出无需训练（training-free）的框架，直接利用通用预训练视频模型进行新视图视频合成。</li>
+<li>洞察到高保真新视图解决方案内在于预训练模型学习的自然视频数据流形（video data manifold）中。</li>
+<li>设计了收敛流形交替投影迭代（convergent manifold alternating projection iterations）机制以优化初始噪声，从而定位最优解。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.01869" data-arxiv-id="2607.01869" data-status="ready">
+<h1>[2607.01869] QWERTY: Training-Free Motion Control via Query-Warped Video Diffusion Transformers</h1>
+<p><a href="https://arxiv.org/abs/2607.01869" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了 QWERTY，这是一种专为图像到视频 (I2V) Diffusion Transformer 设计的无训练运动控制框架，通过 Query 扭曲和语义 - 时间通道分解技术，实现了无需微调的灵活用户定义运动控制，在最新图像到视频 DiT 上实现了最有效的无训练运动控制，性能与微调方法相当。</p>
+<h2>解决的问题</h2>
+<p>现有视频生成方法主要依赖文本 prompt 进行隐式运动控制，难以精确指定物体运动的具体位置、距离和速度；而引入空间提示的显式控制方法通常需要对预训练模型进行微调，这不仅需要大量的数据准备和计算资源，还可能损害模型的生成能力。此外，针对 U-Net 架构的无训练运动控制策略往往与 Diffusion Transformer 的 3D full attention 机制不兼容，且现有基于 DiT 的无训练方法多依赖参考视频，缺乏用户自定义的灵活性，难以满足实际场景中对直接指定运动的需求。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了首个专为图像到视频 (I2V) Diffusion Transformer 设计的无训练运动控制框架 QWERTY，支持通过 mask warping 或 optical flow 实现用户自定义的物体与相机运动控制。</li>
+<li>设计了 Query 扭曲机制，通过操纵 Diffusion Transformer 的 3D full attention 中的 Query token，直接引导扩散轨迹向期望运动演化。</li>
+<li>提出了语义 - 时间通道分解（STCD）技术，利用主成分分析（PCA）将 Query 特征分解为语义和时序子空间，仅对帧一致的语义部分进行扭曲以避免视觉伪影。</li>
+<li>利用 Query 扭曲后的预测噪声作为 latent optimization 的自指导信号，提升了运动控制的稳定性和生成视频的视觉质量。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.01677" data-arxiv-id="2607.01677" data-status="ready">
+<h1>[2607.01677] ICDepth: Taming Video Diffusion Models for Video Depth Estimation via In-Context Conditioning</h1>
+<p><a href="https://arxiv.org/abs/2607.01677" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>ICDepth 通过引入 In-Context Conditioning (ICC) 机制适配预训练文本到视频 diffusion Transformer，在仅需 0.8M 帧训练数据下实现了视频深度估计任务的多基准最先进结果及零样本泛化能力。</p>
+<h2>解决的问题</h2>
+<p>现有方法难以同时满足时序一致性、几何精度与跨场景泛化：判别式模型单帧精度高但受限于上下文窗口存在时序漂移，生成式方法虽改善一致性却需要海量训练数据且几何精度不足。</p>
+<h2>创新点</h2>
+<ul>
+<li>利用预训练文本到视频 diffusion Transformer 的丰富时空先验，通过 In-Context Conditioning (ICC) 实现从生成任务到稠密预测任务的适配。</li>
+<li>提出 SAND-Attention 模块，通过共享 RoPE 确保精确时空对齐并强制单向 attention 防止噪声污染。</li>
+<li>提出 SRFM 模块，注入 DINOv2 语义和分辨率先验以增强几何精度。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2607.01499" data-arxiv-id="2607.01499" data-status="ready">
 <h1>[2607.01499] Anti-Prompt: Image Protection against Text-Guided Image-to-Video Generation</h1>
 <p><a href="https://arxiv.org/abs/2607.01499" rel="nofollow">arXiv 原文</a></p>
@@ -2549,6 +2869,66 @@
 <li>提出 Anti-Prompt 方法，通过削弱去噪过程中的文本条件化交互并增强视觉通路，实现对两种主流 I2V 架构（full-attention 和 cross-attention）的有效保护。</li>
 <li>引入 Video-LLM 辅助评估协议，提供基于帧的可解释性诊断，涵盖主体保留、结构一致性等四个维度。</li>
 <li>优化操作在中间注意力统计上，无需生成参考视频，显著提升了保护效率并增强了跨模型迁移性。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.01222" data-arxiv-id="2607.01222" data-status="ready">
+<h1>[2607.01222] Ink3D: Sculpting 3D Assets with Extremely Complex Textures via Video Generative Models</h1>
+<p><a href="https://arxiv.org/abs/2607.01222" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>Ink3D 通过解耦几何与纹理合成，利用离线的 3D 生成模型构建 white-mesh geometry，并结合大规模预训练的 Video Generative Models 生成稠密轨道扫描视频，最终经由 TextureOptimizer 实现神经烘焙，显著提升了 3D 资产在复杂纹理上的生成质量与忠实度。</p>
+<h2>解决的问题</h2>
+<p>现有 3D 生成方法虽然能合成高质量的几何结构，但受限于大规模 3D 训练数据的稀缺，难以准确复刻参考图像中的复杂纹理细节（如文字、织物图案）。现有的纹理合成方法多依赖稀疏的多视图图像生成，存在视图覆盖不完整以及跨视图不一致（颜色或图案冲突）的问题，且难以利用互联网海量视觉数据中的强大视觉先验来弥补 3D 外观建模的不足。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 Ink3D 框架，通过解耦几何与纹理合成，利用现有 3D 生成模型构建 white-mesh geometry，并引入大规模预训练的 Video Generative Models 进行纹理生成。</li>
+<li>设计 OrbitPainter 模块，利用条件视频生成模型生成包含水平与垂直旋转的稠密 360 度轨道扫描视频，实现物体表面的完整视图覆盖与时空一致性。</li>
+<li>开发 TextureOptimizer 神经烘焙模块，将稠密多视图观察转化为纹理体素表示，并通过先验引导的去噪过程纠正几何不一致性，有效减少颜色溢出与模糊伪影。</li>
+<li>利用视频生成的内在时空一致性，解决了传统稀疏多视图方法中存在的跨视图纹理冲突与表面区域缺失问题，实现了比 prior approaches 更丰富的纹理生成。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.00948" data-arxiv-id="2607.00948" data-status="ready">
+<h1>[2607.00948] Dataset Biases and Shortcut Learning in Motion-Based AI-Generated Video Detection</h1>
+<p><a href="https://arxiv.org/abs/2607.00948" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文评估了四种最先进的基于运动的 AI 生成视频检测器，揭示了其性能严重依赖于数据集采样和预处理偏差及捷径学习，并在无偏数据集上性能崩溃，同时指出基于频率的方法可能提供更通用的检测路径。</p>
+<h2>解决的问题</h2>
+<p>现有基于运动的 AI 生成视频检测器在评估数据集上报告了近乎完美的性能，但分析发现其严重依赖数据集采样和预处理偏差，且高度敏感于 AI 生成视频帧间运动较少这一特定模式。这种对捷径学习的过度依赖导致方法无法泛化，当在去除运动偏差的平衡数据集上评估时，性能会崩溃至接近随机水平。</p>
+<h2>创新点</h2>
+<ul>
+<li>系统评估了 D3, ReStraV, Over-Coherence 和 NSG-VD 四种基于运动的检测器，识别出其性能主要源于对数据集运动偏差的利用。</li>
+<li>证明了当在去除运动偏差的时间平衡数据集上重新评估时，这些检测器的性能会严重退化。</li>
+<li>通过空间增强实验展示了现有方法对捷径学习的脆弱性，并对比了基于频率的检测方法 WaveRep 的鲁棒性。</li>
+<li>提出了构建更具代表性、无偏数据集和更可靠评估协议的建议。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.00712" data-arxiv-id="2607.00712" data-status="ready">
+<h1>[2607.00712] Towards Memory-Efficient Autoregressive Video Generation via Instance-Specific Parametric Absorption</h1>
+<p><a href="https://arxiv.org/abs/2607.00712" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出 Instance-Specific Parametric Absorption (ISPA) 框架，通过参数吸收机制将自回归视频生成中的 KV 缓存压缩从丢弃转向蒸馏，在移除高达 50% 缓存的同时实现了近乎无损的视觉质量与推理效率。</p>
+<h2>解决的问题</h2>
+<p>现有自回归（AR）流式模型在长视频生成中面临线性增长的 Key-Value (KV) 缓存导致的内存过载与推理吞吐量下降瓶颈，而常见的丢弃冗余 KV token 压缩方法往往破坏长程依赖关系，引发时间闪烁和身份丢失，难以在压缩率与生成质量间取得平衡。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出从丢弃到蒸馏的 KV 缓存压缩范式转变，通过 Instance-Specific Parametric Absorption (ISPA) 框架实现记忆高效生成。</li>
+<li>设计从全注意力层（Full-Attention, F-Layers）到局部注意力层（Local-Attention, L-Layers）的层间转换机制，将历史上下文吸收进模型权重。</li>
+<li>在转换阶段通过求解闭式最小二乘问题计算实例特定的权重调制，补偿缺失的历史信息。</li>
+<li>在 1.3B 至 14B 架构上验证，可移除高达 50% 的 KV 缓存并保持近乎无损的视觉质量。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.32028" data-arxiv-id="2606.32028" data-status="ready">
+<h1>[2606.32028] DVG-WM: Disentangled Video Generation Enables Efficient Embodied World Model for Robotic Manipulation</h1>
+<p><a href="https://arxiv.org/abs/2606.32028" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 DVG-WM 框架，通过显式解耦动力学学习与视觉合成任务，在确保物理交互一致性的同时实现了机器人操作场景下具身世界模型的高效视频生成与推理加速。</p>
+<h2>解决的问题</h2>
+<p>现有具身世界模型通常采用单一视频生成器同时处理动力学建模与高保真视觉合成，导致低层时序推理与高层语义合成紧密纠缠。这种设计在高分辨率设置下推理速度慢，难以满足实时迭代规划需求，或为保留接触细节而牺牲预测精度，无法兼顾效率与细节。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出解耦视频生成世界模型（DVG-WM），显式将世界建模分解为动力学学习与视觉合成两部分。</li>
+<li>设计级联机制，利用 flow matching 直接映射动力学到 video latents，并引入 latent degradation mechanism 再生接触丰富的细节。</li>
+<li>采用两阶段生成策略，先生成低分辨率中间视觉状态预览物理交互，再精细化重建高保真视频。</li>
+<li>在 LIBERO 基准和真实世界平台上验证了该方法在保持视频质量的同时可实现显著推理加速。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2606.31946" data-arxiv-id="2606.31946" data-status="ready">
@@ -2566,6 +2946,21 @@
 <li>开发支持 human refinement 的人机 AI 平台及开放模块化框架，允许 world representation、control agents 等组件独立改进以适配 professional filmmaking pipelines。</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.30308" data-arxiv-id="2606.30308" data-status="ready">
+<h1>[2606.30308] The Surprising Effectiveness of Video Diffusion Models for Hand Motion Reconstruction</h1>
+<p><a href="https://arxiv.org/abs/2606.30308" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 ViDiHand，作为首个利用预训练 Video Diffusion model 进行第一人称视频下 4D 双手运动重建的方法，通过手部叠加渲染任务适配模型特征，在无需 detector 或 test-time optimization 的情况下，在 ARCTIC、HOT3D 和 HOI4D 基准上显著优于现有方法并确立 state-of-the-art 性能。</p>
+<h2>解决的问题</h2>
+<p>现有手部运动重建方法存在瓶颈，基于图像的方法依赖 detector 在严重遮挡下失效，而基于视频的方法仅依赖稀缺标注学习时序模块，信号不足以建模运动动态、遮挡推理及手物交互。现有方法无法有效利用大规模视频生成模型中隐含的时空一致性与几何先验，导致在遮挡丰富场景下的重建效果受限。</p>
+<h2>创新点</h2>
+<ul>
+<li>首个利用预训练 Video Diffusion model 进行第一人称视频下 4D 双手运动重建的范式，解码器从内部表征中获取关于手部、操作物体及场景的丰富结构信息。</li>
+<li>提出手部叠加渲染（Hand-overlay rendering）作为适配目标，在适配视频扩散模型以专用于手部重建的同时保留其世界先验。</li>
+<li>构建端到端 pipeline 直接处理完整视频帧，无需 upstream hand detector、motion infiller 或 test-time optimization。</li>
+<li>采用双分支解码器预测相对 3D 手部关节与每关节 2D 图像平面定位，组合后锚定手部实现度量级姿态恢复。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2606.30248" data-arxiv-id="2606.30248" data-status="ready">
 <h1>[2606.30248] Your Data Manifold is Secretly a Reward Model: Shell-LCC for Text-to-Video Generation</h1>
 <p><a href="https://arxiv.org/abs/2606.30248" rel="nofollow">arXiv 原文</a></p>
@@ -2578,6 +2973,20 @@
 <li>提出数据流形即奖励模型的核心观点，利用高质量 SFT 数据的内在结构替代外部奖励信号，实现密集、可微且近乎零成本的奖励信号生成。</li>
 <li>提出 Shell 局部坐标编码（Shell-LCC），改进传统 Local Coordinate Coding（LCC）的均值回归缺陷，将流形建模为各向同性壳层以对齐高密度区域。</li>
 <li>显著缓解低层失真、过度平滑及运动模糊，增强视频的高频细节与整体真实感。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.28016" data-arxiv-id="2606.28016" data-status="ready">
+<h1>[2606.28016] TempAct: Advancing Temporal Plausibility in Autoregressive Video Generation via Planner-Executor RL</h1>
+<p><a href="https://arxiv.org/abs/2606.28016" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>TempAct 提出了一种基于 Planner-Executor 强化学习（RL）框架的方法，通过联合优化时间分解与步级条件执行，在保持视觉质量的同时显著提升了自回归（AR）视频生成的时序一致性。</p>
+<h2>解决的问题</h2>
+<p>现有 AR 视频生成方法虽通过分块生成降低了延迟，但单一全局提示导致时序指令遵循模糊（Temporal Confusion），事件顺序在分块间坍塌；而直接切换分步提示则引发反应延迟与错误传播，且监督微调（SFT）或蒸馏难以直接约束动作顺序与提示转换的正确性，存在暴露偏差与优化目标错位。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 Planner-Executor 强化学习框架，利用 LLM 规划器探索步级提示，训练 AR Diffusion 执行器跟随提示</li>
+<li>设计分层组探索机制，通过规划组与执行组实现长视野时序结果与提示切换行为级的信用分配</li>
+<li>构建分层奖励机制，结合计划质量与全视频时序反馈优化规划器，并包含本地过渡跟随奖励、美学正则化及 KL 约束优化执行器</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2606.27741" data-arxiv-id="2606.27741" data-status="ready">
@@ -2683,6 +3092,21 @@
 <li>引入质量感知过滤机制，剔除部分遮挡或模糊的实体特征，确保记忆库中参考的高可靠性。</li>
 <li>提出星形一致性约束，要求所有实体出现均忠实于首次清晰印象，防止累积性身份漂移。</li>
 <li>设计 training-free 且 model-agnostic 的 agentic 框架，无需修改基础模型即可提升多镜头视频一致性。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.13971" data-arxiv-id="2606.13971" data-status="ready">
+<h1>[2606.13971] Prompt2Effect: Training-Free Image-to-Video Model Specialization via LoRA Generation</h1>
+<p><a href="https://arxiv.org/abs/2606.13971" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>Prompt2Effect 提出了一种基于权重的超网络，通过单次前向传播直接合成特定效果的 LoRA 权重，无需针对每个效果进行迭代优化，实现了与常规 LoRA 微调相当甚至更优的视频质量与效果对齐，同时将计算成本从 56 GPU 训练小时降低至 3.3 秒推理时间。</p>
+<h2>解决的问题</h2>
+<p>现有的 Image-to-Video (I2V) 扩散模型个性化方法通常要求为每个效果单独训练 Low-Rank Adaptation (LoRA) 模块，涉及高昂的数据整理和迭代优化成本，难以支持交互式创作；同时现有超网络方法主要关注静态图像的身份注入，难以应对 I2V 模型中高维时间潜变量动力学及巨大的参数空间回归挑战，导致收敛困难。</p>
+<h2>创新点</h2>
+<ul>
+<li>权重驱动的 LoRA 合成：超网络显式条件化于冻结的基础模型权重，利用层几何结构 grounding 预测，解决高维模型下的 ill-posed 问题。</li>
+<li>SVD 规范化的 LoRA 预测：通过分解并预测 SVD 规范化的因子，消除分解歧义性，约束解空间并稳定大规模权重合成。</li>
+<li>训练即时的效果控制：通过单次前向传播合成层级 LoRA 更新，实现了无需优化的即时效果生成，显著降低计算开销。</li>
+<li>快速适应与组合控制：预测权重可作为微调初始化加速优化约 10 倍，并支持权重空间内的插值与组合。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2606.12995" data-arxiv-id="2606.12995" data-status="ready">
@@ -2917,6 +3341,20 @@
 <li>通过压缩 1-D latent sequences 显著降低推理成本，实现接近实时生成与 streaming output，解决了传统 non-causal diffusion 无法提供的低延迟问题。</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2604.17195" data-arxiv-id="2604.17195" data-status="ready">
+<h1>[2604.17195] DreamShot: Personalized Storyboard Synthesis with Video Diffusion Prior</h1>
+<p><a href="https://arxiv.org/abs/2604.17195" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了 DreamShot，一种基于 video diffusion prior 的故事板生成框架，通过融合视频生成模型的时空一致性优势，在保持图像生成效率与控制性的同时，显著提升了多镜头叙事中的人物身份一致性与场景连贯性。</p>
+<h2>解决的问题</h2>
+<p>现有基于 text-to-image diffusion models 的故事板合成方法难以在多个镜头间维持长程时间一致性与角色身份，且受限于肖像级特征控制，多参考条件下易出现角色混淆；直接视频合成则存在计算冗余与效率低下问题，导致图像模型缺乏连贯性而视频模型缺乏效率的关键矛盾。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于 video diffusion prior 的 DreamShot 框架，支持 Text-to-Shot、Reference-to-Shot 及 Shot-to-Shot 多种生成模式，兼顾效率与可控性。</li>
+<li>设计 Role-Attention Consistency Loss (RACL) 模块，通过显式约束参考图像与生成镜头间的注意力分布，解决多角色场景下的特征纠缠与身份混淆问题。</li>
+<li>构建包含时间连贯镜头序列及丰富镜头级标注的高质量故事板数据集，支持上下文感知与身份保持的叙事一致性训练。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2604.03181" data-arxiv-id="2604.03181" data-status="ready">
 <h1>[2604.03181] SpatialVAM:Spatial-Aware Multi-View Video Diffusion as a Data-Efficient Robot Policy</h1>
 <p><a href="https://arxiv.org/abs/2604.03181" rel="nofollow">arXiv 原文</a></p>
@@ -2929,6 +3367,20 @@
 <li>提出首个利用视频基础模型构建的 3D 世界 - 动作模型，通过空间感知多视图视频扩散策略实现感知与控制间的表示格式对齐。</li>
 <li>采用空间感知多视图投影机制，将彩色点云转化为多视图 RGB 图像并将目标位置表示为多视图热力图，隐式编码 3D 结构。</li>
 <li>利用统一视频基础模型联合预测未来 RGB 视频帧与热力图序列，无需额外预训练即可从少量演示中获取技能。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2604.03118" data-arxiv-id="2604.03118" data-status="ready">
+<h1>[2604.03118] Salt: Self-Consistent Distribution Matching with Cache-Aware Training for Fast Video Generation</h1>
+<p><a href="https://arxiv.org/abs/2604.03118" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 Salt 方法，通过 Self-Consistent Distribution Matching Distillation (SC-DMD) 显式正则化去噪更新的端点一致性，并结合 Cache-Distribution-Aware training 利用 KV cache 作为质量条件，有效解决了极低推理预算下视频生成模型的动力学平滑与漂移问题，显著提升了实时视频生成质量。</p>
+<h2>解决的问题</h2>
+<p>现有视频生成蒸馏方法在极低推理预算下面临显著挑战：轨迹一致性蒸馏在复杂视频动态中表现保守，导致外观过平滑和运动微弱；而分布匹配蒸馏虽能恢复锐利样本，但其局部训练信号未显式正则化跨时间步的去噪更新组合，使得组合后的去噪过程容易产生漂移，难以适应视频固有的多模态未来特性。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 Self-Consistent Distribution Matching Distillation (SC-DMD)，显式正则化连续去噪更新的端点一致性以解决漂移问题。</li>
+<li>提出 Cache-Distribution-Aware training 方案，将 KV cache 视为质量参数化条件并引入 cache-conditioned feature alignment objective。</li>
+<li>该方法在非自回归 backbone（如 Wan~2.1）和自回归实时范式（如 Self Forcing）上均有效，显著提升了低 NFE 视频生成质量。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2604.02979" data-arxiv-id="2604.02979" data-status="ready">
@@ -2976,6 +3428,21 @@
 <li>在 Melting Pot 基准上实现了对多达 seven players 的同时控制，显著提升了 action-following accuracy 与 identity consistency。</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2604.01761" data-arxiv-id="2604.01761" data-status="ready">
+<h1>[2604.01761] Control-DINO: Feature Space Conditioning for Controllable Image-to-Video Diffusion</h1>
+<p><a href="https://arxiv.org/abs/2604.01761" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 Control-DINO，通过解耦外观特征实现了基于 DINO 特征空间的视频扩散模型条件控制，有效解决了现有控制接口碎片化及自监督特征纠缠导致的泛化难题，支持视频域转移及从 3D 生成视频等任务。</p>
+<h2>解决的问题</h2>
+<p>现有视频生成控制管道依赖低层几何或感知输入（如边缘、深度图），导致控制类型碎片化且难以统一；同时自监督特征虽包含丰富语义与几何信息，但外观、几何与风格相互纠缠，限制了其在训练数据有限情况下的通用条件控制能力与泛化性。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出通用的 DINO-conditioned ControlNet 架构，在保留结构与语义引导的同时，将外观从条件信号中解耦。</li>
+<li>设计特定训练策略，使模型通过去噪外观增强版本的场景来学习，从而依赖空间与语义信息而非外观线索。</li>
+<li>证明低空间分辨率配合高维度特征可提供鲁棒控制，实现了从低分辨率 3D 体素结构到真实视频的生成。</li>
+<li>构建了统一的 2D 与 3D 特征源设置，展示了在视频域转移及从 3D 生成视频任务中的通用性与鲁棒性。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2604.01700" data-arxiv-id="2604.01700" data-status="ready">
 <h1>[2604.01700] Can Video Diffusion Models Predict Past Frames? Bidirectional Cycle Consistency for Reversible Interpolation</h1>
 <p><a href="https://arxiv.org/abs/2604.01700" rel="nofollow">arXiv 原文</a></p>
@@ -2988,6 +3455,35 @@
 <li>提出双向循环一致性框架，通过可学习方向 token 显式条件化 shared backbone 上的 temporal orientation，实现 forward synthesis 与 backward reconstruction 的联合优化。</li>
 <li>引入 curriculum learning 策略，从 37-frame sequences 逐步训练至 73-frame sequences 以稳定 dynamics，确保跨不同持续时间的鲁棒性。</li>
 <li>循环约束仅应用于 training 阶段，inference 仅需 single forward pass，确保无额外计算开销。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2604.01654" data-arxiv-id="2604.01654" data-status="ready">
+<h1>[2604.01654] Moiré Video Authentication: A Physical Signature Against AI Video Generation</h1>
+<p><a href="https://arxiv.org/abs/2604.01654" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种基于莫尔效应（Moiré effect）的物理认证签名方法，利用真实相机自然产生而生成模型无法忠实复现的干涉条纹特性，通过验证条纹相位与光栅图像位移的光学几何耦合关系，有效区分了真实捕获视频与 Sora、Runway 等主流生成模型生成的 AI 视频。</p>
+<h2>解决的问题</h2>
+<p>随着生成式视频模型（如 Sora、Runway、Seedance）的快速发展，AI 合成内容已难以与真实画面区分，导致人类观察者、自动化检测器及法医分析师均难以辨别真伪，且现有方法缺乏能够基于物理底层原理进行可靠鉴别的机制。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出利用相机固有莫尔效应（Moiré effect）作为物理认证签名，该现象由真实相机产生但生成模型无法忠实复现。</li>
+<li>推导了莫尔运动不变量（Moiré motion invariant），证明条纹相位与光栅图像位移由光学几何线性耦合，且独立于观看距离和光栅结构。</li>
+<li>设计了验证器从视频中提取信号并测试其相关性的方法，以区分真实与 AI 生成视频。</li>
+<li>在多个最先进生成器（如 Sora、Runway）的真实与 AI 生成视频上验证了该不变量，证明了不同视频具有显著不同的相关性签名。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2603.28489" data-arxiv-id="2603.28489" data-status="ready">
+<h1>[2603.28489] Video Generation Models as World Models: Efficient Paradigms, Architectures and Algorithms</h1>
+<p><a href="https://arxiv.org/abs/2603.28489" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文系统综述了视频生成模型作为世界模型的效率范式、架构与算法，提出了涵盖高效建模范式（efficient modeling paradigms）、网络架构（efficient network architectures）及推理算法（efficient inference algorithms）的三维分类体系，旨在弥合世界模拟能力与计算成本之间的差距，推动其实时部署与交互应用。</p>
+<h2>解决的问题</h2>
+<p>现有视频生成方法虽具备模拟复杂物理动力学和长视界因果性的潜力，但时空建模带来沉重的计算成本，导致高维数据与复杂动力学产生严重的计算和内存瓶颈，如自回归模型的 KV 缓存爆炸和扩散模型的迭代去噪高延迟，阻碍了实时交互应用的规模化扩展。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了涵盖高效建模范式（efficient modeling paradigms）、网络架构（efficient network architectures）及推理算法（efficient inference algorithms）的三维分类体系</li>
+<li>系统梳理了视频生成框架中效率作为实践世界建模关键要求的技术现状，填补了理论能力与计算成本之间的差距</li>
+<li>论证了效率是视频生成器演变为通用、实时且鲁棒的世界模拟器（general-purpose, real-time and robust world simulators）的根本先决条件</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2603.26599" data-arxiv-id="2603.26599" data-status="ready">
@@ -3020,6 +3516,21 @@
 <li>评估涵盖了不同架构及开源与商业系统的多种 I2V 模型（如 DiT 和 U-Net），验证了方法的泛化性。</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2603.19048" data-arxiv-id="2603.19048" data-status="ready">
+<h1>[2603.19048] Measuring 3D Spatial Geometric Consistency in Dynamic Video Generation</h1>
+<p><a href="https://arxiv.org/abs/2603.19048" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 SGC 指标，专门用于评估动态生成视频中的 3D 空间几何一致性，通过量化不同局部区域估计出的 camera pose 发散度，有效识别了现有 FVD 等指标无法检测的几何失真问题。</p>
+<h2>解决的问题</h2>
+<p>现有生成视频合成模型虽在视觉保真度上表现优异，但普遍存在严重的 3D 空间几何不一致现象，如背景几何形变、动静融合不连贯等。然而，现有的评估方法存在显著不足：以 FVD 为代表的保真度中心指标对几何失真不敏感，而关注一致性的基准测试往往惩罚有效的动态前景，导致缺乏能够准确衡量动态生成视频中 3D 空间几何一致性的鲁棒指标。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 SGC 指标，专门用于评估动态生成视频中的 3D 空间几何一致性。</li>
+<li>设计了静态与动态区域分离及静态背景空间 subregion 划分的预处理流程。</li>
+<li>通过预测 depth 并估计每个 subregion 的局部 camera pose，计算 pose 发散度来量化几何一致性。</li>
+<li>能够鲁棒地量化几何不一致性，有效识别现有指标（如 FVD）无法检测的关键失败案例。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2603.17889" data-arxiv-id="2603.17889" data-status="ready">
 <h1>[2603.17889] Identity as Presence: Towards Appearance and Voice Personalized Joint Audio-Video Generation</h1>
 <p><a href="https://arxiv.org/abs/2603.17889" rel="nofollow">arXiv 原文</a></p>
@@ -3046,6 +3557,34 @@
 <li>提出了一种无需训练（training-free）的方法，利用预计算的潜在先验（latent prior）增强分块去噪过程。</li>
 <li>在模型输出空间通过最小化加权最小二乘（weighted least-squares）目标函数融合每块噪声预测与全局参考，实现闭式更新以增强全局一致性。</li>
 <li>引入了空间正则化变量（spatial regularization variable），实现了对运动允许区域的区域级控制。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2603.15129" data-arxiv-id="2603.15129" data-status="ready">
+<h1>[2603.15129] Next-Frame Decoding for Ultra-Low-Bitrate Image Compression with Video Diffusion Priors</h1>
+<p><a href="https://arxiv.org/abs/2603.15129" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种利用视频扩散模型（VDM）先验的超低保真图像压缩（ULB-IC）新范式，通过将解码过程重构为从语义锚帧（anchor frame）到目标图像的虚拟时序过渡，实现了比现有方法更高的保真度与解码速度。</p>
+<h2>解决的问题</h2>
+<p>现有基于图像扩散的超低保真图像压缩方法缺乏显式的中间状态定义，导致解码过程难以兼顾语义保真度与高频细节恢复，且在低码率下难以平衡感知质量与计算效率之间的矛盾。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出显式中间状态（anchor frame）定义，保留场景几何与语义布局</li>
+<li>利用预训练视频扩散模型（VDM）作为时序先验，将解码转化为下一帧预测任务</li>
+<li>解码过程从可见且语义忠实的 anchor frame 开始，提升感知压缩的保真度与真实感</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2603.08982" data-arxiv-id="2603.08982" data-status="ready">
+<h1>[2603.08982] SVG-EAR: Parameter-Free Linear Compensation for Sparse Video Generation via Error-aware Routing</h1>
+<p><a href="https://arxiv.org/abs/2603.08982" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文针对 Diffusion Transformers (DiT) 在视频生成中的二次方注意力成本瓶颈，提出 SVG-EAR，一种 Parameter-Free（无参）线性补偿方法，通过 Error-aware Routing（误差感知路由）恢复跳过块的贡献，在保持生成保真度的同时显著提升了吞吐量与质量效率。</p>
+<h2>解决的问题</h2>
+<p>现有稀疏注意力方法通常通过丢弃块导致信息丢失，或依赖学习预测器引入训练开销和分布偏移；此外，传统稀疏化策略仅依据注意力分数选择块，无法准确识别近似误差最大的位置，难以在降低计算成本的同时保证生成质量。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 Parameter-Free 线性补偿分支，利用语义聚类中心近似跳过块以恢复贡献。</li>
+<li>设计 Error-aware Routing 机制，通过轻量探针评估补偿误差并选择误差成本比最高的块。</li>
+<li>建立注意力重建误差与聚类质量之间的理论保证。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2602.19161" data-arxiv-id="2602.19161" data-status="ready">
@@ -3092,6 +3631,21 @@
 <li>构建了包含一百万单一人像视频的大规模高质量音视频人类数据集 OmniCustom-1M。</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2602.11117" data-arxiv-id="2602.11117" data-status="ready">
+<h1>[2602.11117] HairWeaver: Few-Shot Photorealistic Hair Motion Synthesis with Sim-to-Real Guided Video Diffusion</h1>
+<p><a href="https://arxiv.org/abs/2602.11117" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出 HairWeaver 这一基于 Video Diffusion 的 pipeline，利用 Sim-to-Real 引导的数据集训练与 Motion-Context-LoRA 及 Style-Alignment-LoRA 模块，成功实现了单张人像图像在运动序列驱动下的逼真发丝动态合成，显著提升了头发运动细节的自然度。</p>
+<h2>解决的问题</h2>
+<p>现有方法虽然能成功控制人体姿态，但缺乏对头发运动的特异性控制，导致生成的动画僵硬且不真实。这是因为现有模型往往忽视了头发运动的复杂物理特性和细粒度视觉本质，使得合成结果呈现流体般的不自然头发运动，破坏了虚拟人的真实感幻觉。</p>
+<h2>创新点</h2>
+<ul>
+<li>基于 Sim-to-Real 引导的视频扩散模型训练，利用 CG 模拟器生成的动态人类运动数据集</li>
+<li>设计 Motion-Context-LoRA 模块，用于整合运动条件并指导视频扩散主干</li>
+<li>引入 Style-Alignment-LoRA 模块，确保主体在不同数据域间保持照片级真实外观</li>
+<li>实现了单张图像驱动下的头发运动精细控制，显著提升了动态细节的真实感</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2602.04789" data-arxiv-id="2602.04789" data-status="ready">
 <h1>[2602.04789] Light Forcing: Accelerating Autoregressive Video Diffusion via Sparse Attention</h1>
 <p><a href="https://arxiv.org/abs/2602.04789" rel="nofollow">arXiv 原文</a></p>
@@ -3106,8 +3660,50 @@
 <li>设计 Hierarchical Sparse Attention 机制，通过 frame 级和 block 级的双层掩码选择策略，在固定计算预算下平衡全局与局部感知能力</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2601.11641" data-arxiv-id="2601.11641" data-status="ready">
+<h1>[2601.11641] Mixture of Distributions Matters: Dynamic Sparse Attention for Efficient Video Diffusion Transformers</h1>
+<p><a href="https://arxiv.org/abs/2601.11641" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种名为 MOD-DiT 的新型采样-free 动态注意力框架，通过两阶段过程准确建模随去噪步骤演化的注意力分布模式，在多个基准和模型架构上实现了视频生成的一致加速与质量提升。</p>
+<h2>解决的问题</h2>
+<p>现有稀疏注意力方法通常依赖过于简化的静态模式或需要昂贵的采样操作，导致模式预测不准确并降低生成质量。这造成了计算效率与高保真视频合成之间的矛盾，因为现有的静态掩码无法捕捉 vDiTs 在去噪过程中连续演化的注意力分布动态。</p>
+<h2>创新点</h2>
+<ul>
+<li>揭示 vDiTs 注意力图在去噪过程中存在 block-diagonal（块对角）、parallel-to-main-diagonal（平行主对角）和 vertical（垂直）三种模式的动态混合特征。</li>
+<li>提出基于早期去噪步骤先验信息的分布式混合近似方法，以线性模型预测特定去噪区间的掩码模式。</li>
+<li>设计在线块掩码策略，利用历史稀疏信息动态应用预测掩码，实现 sampling-free 动态稀疏注意力。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2601.09881" data-arxiv-id="2601.09881" data-status="ready">
+<h1>[2601.09881] Transition Matching Distillation for Fast Video Generation</h1>
+<p><a href="https://arxiv.org/abs/2601.09881" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 Transition Matching Distillation (TMD) 框架，通过将多步 denoising trajectory 匹配为少量步 probability transition process，并将 diffusion backbone 解耦为语义主干与 flow head，实现了 Wan2.1 等大模型的高效蒸馏，在推理成本相当的情况下显著提升了视频生成的 visual fidelity 与 prompt adherence。</p>
+<h2>解决的问题</h2>
+<p>现有大视频 diffusion model 存在多步采样导致的推理延迟高问题，难以满足实时交互需求；现有蒸馏方法多将网络视为 monolithic mapping，忽略了分层结构和 semantic progression，难以在视频领域同时保持 global motion coherence 和 fine-grained spatial details，无法有效解决加速采样与保持视觉质量之间的矛盾。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 Transition Matching Distillation (TMD) 框架，将多步 denoising trajectory 匹配为少量步 probability transition process</li>
+<li>设计解耦的 diffusion backbone 架构，分解为提取高层 semantic representations 的 main backbone 和进行内层 flow updates 的 flow head</li>
+<li>采用两阶段训练策略，结合 trajectory-based distillation 与改进的 distribution matching distillation (DMD2)</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2601.08828" data-arxiv-id="2601.08828" data-status="ready">
+<h1>[2601.08828] Motion Attribution for Video Generation</h1>
+<p><a href="https://arxiv.org/abs/2601.08828" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了 Motive，这是一种运动中心、gradient-based 数据归因框架，通过运动加权损失掩码（motion-weighted loss masks）隔离时间动态与静态外观，指导 fine-tuning 数据选择以提升视频生成模型的运动平滑度和动态程度，在 VBench 上实现了显著的人偏好胜率提升。</p>
+<h2>解决的问题</h2>
+<p>现有 diffusion model 数据归因方法主要关注图像静态内容，直接扩展至视频会忽略时间结构，导致无法定位动态区域或捕捉速度、加速度等时序关系，难以解决训练数据如何具体影响生成视频运动特性的关键矛盾。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了一种可扩展的 gradient-based 归因方法，通过运动加权损失掩码（motion-weighted loss masks）强调动态区域而非静态外观</li>
+<li>实现了高效近似计算，使其能够适应现代高质量视频数据集和大型生成模型的规模</li>
+<li>首次实现了针对运动而非视觉外观的数据归因，并利用归因结果指导 fine-tuning 数据筛选以改善时序一致性和物理合理性</li>
+</ul>
+    </article>
     </div>
   </main>
-  <script type="application/json" id="summary-catalog">{"papers":{"2602.04789":{"status":"ready","url":"notes/video-generation.html#summary-2602.04789"},"2602.12304":{"status":"ready","url":"notes/video-generation.html#summary-2602.12304"},"2602.13185":{"status":"ready","url":"notes/video-generation.html#summary-2602.13185"},"2602.19161":{"status":"ready","url":"notes/video-generation.html#summary-2602.19161"},"2603.08982":{"status":"pending"},"2603.17555":{"status":"ready","url":"notes/video-generation.html#summary-2603.17555"},"2603.17889":{"status":"ready","url":"notes/video-generation.html#summary-2603.17889"},"2603.19048":{"status":"pending"},"2603.26154":{"status":"ready","url":"notes/video-generation.html#summary-2603.26154"},"2603.26599":{"status":"ready","url":"notes/video-generation.html#summary-2603.26599"},"2604.01700":{"status":"ready","url":"notes/video-generation.html#summary-2604.01700"},"2604.02330":{"status":"ready","url":"notes/video-generation.html#summary-2604.02330"},"2604.02817":{"status":"ready","url":"notes/video-generation.html#summary-2604.02817"},"2604.02979":{"status":"ready","url":"notes/video-generation.html#summary-2604.02979"},"2604.03181":{"status":"ready","url":"notes/video-generation.html#summary-2604.03181"},"2604.17195":{"status":"pending"},"2604.23586":{"status":"ready","url":"notes/video-generation.html#summary-2604.23586"},"2604.23789":{"status":"ready","url":"notes/video-generation.html#summary-2604.23789"},"2605.05895":{"status":"ready","url":"notes/video-generation.html#summary-2605.05895"},"2605.10723":{"status":"ready","url":"notes/video-generation.html#summary-2605.10723"},"2605.14382":{"status":"ready","url":"notes/video-generation.html#summary-2605.14382"},"2605.14513":{"status":"ready","url":"notes/video-generation.html#summary-2605.14513"},"2605.16716":{"status":"ready","url":"notes/video-generation.html#summary-2605.16716"},"2605.18736":{"status":"ready","url":"notes/video-generation.html#summary-2605.18736"},"2605.21028":{"status":"ready","url":"notes/video-generation.html#summary-2605.21028"},"2605.25333":{"status":"ready","url":"notes/video-generation.html#summary-2605.25333"},"2605.30116":{"status":"ready","url":"notes/video-generation.html#summary-2605.30116"},"2606.07636":{"status":"ready","url":"notes/video-generation.html#summary-2606.07636"},"2606.07649":{"status":"ready","url":"notes/video-generation.html#summary-2606.07649"},"2606.08260":{"status":"ready","url":"notes/video-generation.html#summary-2606.08260"},"2606.10671":{"status":"ready","url":"notes/video-generation.html#summary-2606.10671"},"2606.12995":{"status":"ready","url":"notes/video-generation.html#summary-2606.12995"},"2606.20233":{"status":"pending"},"2606.20799":{"status":"ready","url":"notes/video-generation.html#summary-2606.20799"},"2606.20919":{"status":"ready","url":"notes/video-generation.html#summary-2606.20919"},"2606.24152":{"status":"ready","url":"notes/video-generation.html#summary-2606.24152"},"2606.26740":{"status":"ready","url":"notes/video-generation.html#summary-2606.26740"},"2606.26795":{"status":"ready","url":"notes/video-generation.html#summary-2606.26795"},"2606.27345":{"status":"ready","url":"notes/video-generation.html#summary-2606.27345"},"2606.27741":{"status":"ready","url":"notes/video-generation.html#summary-2606.27741"},"2606.30248":{"status":"ready","url":"notes/video-generation.html#summary-2606.30248"},"2606.31946":{"status":"ready","url":"notes/video-generation.html#summary-2606.31946"},"2607.01499":{"status":"ready","url":"notes/video-generation.html#summary-2607.01499"},"2607.02075":{"status":"ready","url":"notes/video-generation.html#summary-2607.02075"},"2607.02584":{"status":"ready","url":"notes/video-generation.html#summary-2607.02584"},"2607.03118":{"status":"ready","url":"notes/video-generation.html#summary-2607.03118"},"2607.03960":{"status":"pending"},"2607.04311":{"status":"ready","url":"notes/video-generation.html#summary-2607.04311"},"2607.04553":{"status":"pending"},"2607.04607":{"status":"ready","url":"notes/video-generation.html#summary-2607.04607"},"2607.04674":{"status":"ready","url":"notes/video-generation.html#summary-2607.04674"},"2607.05056":{"status":"ready","url":"notes/video-generation.html#summary-2607.05056"},"2607.05354":{"status":"ready","url":"notes/video-generation.html#summary-2607.05354"},"2607.05376":{"status":"ready","url":"notes/video-generation.html#summary-2607.05376"},"2607.06173":{"status":"pending"},"2607.08016":{"status":"ready","url":"notes/video-generation.html#summary-2607.08016"},"2607.08770":{"status":"ready","url":"notes/video-generation.html#summary-2607.08770"},"2607.09024":{"status":"ready","url":"notes/video-generation.html#summary-2607.09024"},"2607.09191":{"status":"ready","url":"notes/video-generation.html#summary-2607.09191"},"2607.09876":{"status":"ready","url":"notes/video-generation.html#summary-2607.09876"},"2607.10787":{"status":"ready","url":"notes/video-generation.html#summary-2607.10787"},"2607.10860":{"status":"ready","url":"notes/video-generation.html#summary-2607.10860"},"2607.12358":{"status":"ready","url":"notes/video-generation.html#summary-2607.12358"},"2607.13031":{"status":"ready","url":"notes/video-generation.html#summary-2607.13031"},"2607.13164":{"status":"ready","url":"notes/video-generation.html#summary-2607.13164"},"2607.13336":{"status":"ready","url":"notes/video-generation.html#summary-2607.13336"},"2607.13460":{"status":"ready","url":"notes/video-generation.html#summary-2607.13460"},"2607.13471":{"status":"ready","url":"notes/video-generation.html#summary-2607.13471"},"2607.13527":{"status":"ready","url":"notes/video-generation.html#summary-2607.13527"},"2607.13770":{"status":"ready","url":"notes/video-generation.html#summary-2607.13770"},"2607.14189":{"status":"ready","url":"notes/video-generation.html#summary-2607.14189"},"2607.14194":{"status":"ready","url":"notes/video-generation.html#summary-2607.14194"},"2607.14202":{"status":"pending"},"2607.14595":{"status":"ready","url":"notes/video-generation.html#summary-2607.14595"},"2607.14681":{"status":"ready","url":"notes/video-generation.html#summary-2607.14681"},"2607.15321":{"status":"ready","url":"notes/video-generation.html#summary-2607.15321"},"2607.15667":{"status":"ready","url":"notes/video-generation.html#summary-2607.15667"},"2607.15772":{"status":"ready","url":"notes/video-generation.html#summary-2607.15772"},"2607.15849":{"status":"ready","url":"notes/video-generation.html#summary-2607.15849"},"2607.16190":{"status":"ready","url":"notes/video-generation.html#summary-2607.16190"},"2607.16355":{"status":"ready","url":"notes/video-generation.html#summary-2607.16355"},"2607.16947":{"status":"ready","url":"notes/video-generation.html#summary-2607.16947"},"2607.17279":{"status":"ready","url":"notes/video-generation.html#summary-2607.17279"},"2607.17523":{"status":"ready","url":"notes/video-generation.html#summary-2607.17523"},"2607.17675":{"status":"ready","url":"notes/video-generation.html#summary-2607.17675"},"2607.17985":{"status":"ready","url":"notes/video-generation.html#summary-2607.17985"},"2607.18116":{"status":"ready","url":"notes/video-generation.html#summary-2607.18116"},"2607.18217":{"status":"ready","url":"notes/video-generation.html#summary-2607.18217"},"2607.18227":{"status":"ready","url":"notes/video-generation.html#summary-2607.18227"},"2607.18436":{"status":"ready","url":"notes/video-generation.html#summary-2607.18436"},"2607.18664":{"status":"ready","url":"notes/video-generation.html#summary-2607.18664"},"2607.18789":{"status":"ready","url":"notes/video-generation.html#summary-2607.18789"},"2607.18924":{"status":"ready","url":"notes/video-generation.html#summary-2607.18924"},"2607.19476":{"status":"ready","url":"notes/video-generation.html#summary-2607.19476"},"2607.19701":{"status":"ready","url":"notes/video-generation.html#summary-2607.19701"},"2607.19895":{"status":"ready","url":"notes/video-generation.html#summary-2607.19895"},"2607.20125":{"status":"ready","url":"notes/video-generation.html#summary-2607.20125"},"2607.20174":{"status":"ready","url":"notes/video-generation.html#summary-2607.20174"},"2607.20247":{"status":"ready","url":"notes/video-generation.html#summary-2607.20247"},"2607.20940":{"status":"ready","url":"notes/video-generation.html#summary-2607.20940"},"2607.20984":{"status":"ready","url":"notes/video-generation.html#summary-2607.20984"},"2607.21027":{"status":"ready","url":"notes/video-generation.html#summary-2607.21027"},"2607.21529":{"status":"ready","url":"notes/video-generation.html#summary-2607.21529"},"2607.21553":{"status":"ready","url":"notes/video-generation.html#summary-2607.21553"},"2607.21580":{"status":"ready","url":"notes/video-generation.html#summary-2607.21580"},"2607.22241":{"status":"ready","url":"notes/video-generation.html#summary-2607.22241"},"2607.22696":{"status":"ready","url":"notes/video-generation.html#summary-2607.22696"},"2607.22772":{"status":"ready","url":"notes/video-generation.html#summary-2607.22772"},"2607.22959":{"status":"ready","url":"notes/video-generation.html#summary-2607.22959"},"2607.23159":{"status":"ready","url":"notes/video-generation.html#summary-2607.23159"},"2607.23472":{"status":"ready","url":"notes/video-generation.html#summary-2607.23472"},"2607.24013":{"status":"ready","url":"notes/video-generation.html#summary-2607.24013"},"2607.24027":{"status":"ready","url":"notes/video-generation.html#summary-2607.24027"},"2607.24124":{"status":"ready","url":"notes/video-generation.html#summary-2607.24124"},"2607.24241":{"status":"ready","url":"notes/video-generation.html#summary-2607.24241"},"2607.24560":{"status":"ready","url":"notes/video-generation.html#summary-2607.24560"},"2607.24821":{"status":"ready","url":"notes/video-generation.html#summary-2607.24821"},"2607.25300":{"status":"ready","url":"notes/video-generation.html#summary-2607.25300"},"2607.25321":{"status":"ready","url":"notes/video-generation.html#summary-2607.25321"},"2607.25522":{"status":"ready","url":"notes/video-generation.html#summary-2607.25522"},"2607.26004":{"status":"ready","url":"notes/video-generation.html#summary-2607.26004"},"2607.26203":{"status":"ready","url":"notes/video-generation.html#summary-2607.26203"},"2607.26529":{"status":"ready","url":"notes/video-generation.html#summary-2607.26529"},"2607.26694":{"status":"ready","url":"notes/video-generation.html#summary-2607.26694"},"2607.26706":{"status":"ready","url":"notes/video-generation.html#summary-2607.26706"},"2607.26811":{"status":"ready","url":"notes/video-generation.html#summary-2607.26811"},"2607.26818":{"status":"ready","url":"notes/video-generation.html#summary-2607.26818"},"2607.27110":{"status":"ready","url":"notes/video-generation.html#summary-2607.27110"},"2607.27380":{"status":"ready","url":"notes/video-generation.html#summary-2607.27380"},"2607.28058":{"status":"ready","url":"notes/video-generation.html#summary-2607.28058"},"2607.28144":{"status":"ready","url":"notes/video-generation.html#summary-2607.28144"},"2607.28509":{"status":"ready","url":"notes/video-generation.html#summary-2607.28509"},"2607.28955":{"status":"ready","url":"notes/video-generation.html#summary-2607.28955"},"2607.29545":{"status":"ready","url":"notes/video-generation.html#summary-2607.29545"},"2608.00486":{"status":"ready","url":"notes/video-generation.html#summary-2608.00486"},"2608.00617":{"status":"ready","url":"notes/video-generation.html#summary-2608.00617"},"2608.00769":{"status":"ready","url":"notes/video-generation.html#summary-2608.00769"},"2608.01113":{"status":"ready","url":"notes/video-generation.html#summary-2608.01113"},"2608.01334":{"status":"ready","url":"notes/video-generation.html#summary-2608.01334"},"2608.01942":{"status":"ready","url":"notes/video-generation.html#summary-2608.01942"},"2608.01944":{"status":"ready","url":"notes/video-generation.html#summary-2608.01944"},"2608.02474":{"status":"ready","url":"notes/video-generation.html#summary-2608.02474"},"2608.02504":{"status":"ready","url":"notes/video-generation.html#summary-2608.02504"},"2608.03046":{"status":"ready","url":"notes/video-generation.html#summary-2608.03046"},"2608.03084":{"status":"ready","url":"notes/video-generation.html#summary-2608.03084"},"2608.03335":{"status":"ready","url":"notes/video-generation.html#summary-2608.03335"},"2608.03974":{"status":"ready","url":"notes/video-generation.html#summary-2608.03974"},"2608.04412":{"status":"ready","url":"notes/video-generation.html#summary-2608.04412"},"2608.04701":{"status":"ready","url":"notes/video-generation.html#summary-2608.04701"},"2608.05049":{"status":"ready","url":"notes/video-generation.html#summary-2608.05049"},"2608.05237":{"status":"ready","url":"notes/video-generation.html#summary-2608.05237"},"2608.05485":{"status":"ready","url":"notes/video-generation.html#summary-2608.05485"},"2608.05648":{"status":"ready","url":"notes/video-generation.html#summary-2608.05648"},"2608.05976":{"status":"ready","url":"notes/video-generation.html#summary-2608.05976"},"2608.06008":{"status":"ready","url":"notes/video-generation.html#summary-2608.06008"},"2608.06231":{"status":"ready","url":"notes/video-generation.html#summary-2608.06231"},"2608.07463":{"status":"ready","url":"notes/video-generation.html#summary-2608.07463"},"2608.08558":{"status":"ready","url":"notes/video-generation.html#summary-2608.08558"},"2608.08820":{"status":"ready","url":"notes/video-generation.html#summary-2608.08820"},"2608.09111":{"status":"ready","url":"notes/video-generation.html#summary-2608.09111"},"2608.09355":{"status":"ready","url":"notes/video-generation.html#summary-2608.09355"},"2608.09637":{"status":"ready","url":"notes/video-generation.html#summary-2608.09637"},"2608.09873":{"status":"ready","url":"notes/video-generation.html#summary-2608.09873"},"2608.10439":{"status":"ready","url":"notes/video-generation.html#summary-2608.10439"},"2608.10519":{"status":"ready","url":"notes/video-generation.html#summary-2608.10519"},"2608.10744":{"status":"ready","url":"notes/video-generation.html#summary-2608.10744"},"2608.10933":{"status":"ready","url":"notes/video-generation.html#summary-2608.10933"},"2608.11201":{"status":"ready","url":"notes/video-generation.html#summary-2608.11201"},"2608.11618":{"status":"ready","url":"notes/video-generation.html#summary-2608.11618"},"2608.11745":{"status":"ready","url":"notes/video-generation.html#summary-2608.11745"},"2608.12032":{"status":"ready","url":"notes/video-generation.html#summary-2608.12032"},"2608.12203":{"status":"ready","url":"notes/video-generation.html#summary-2608.12203"},"2608.12290":{"status":"ready","url":"notes/video-generation.html#summary-2608.12290"},"2608.13028":{"status":"ready","url":"notes/video-generation.html#summary-2608.13028"},"2608.13037":{"status":"ready","url":"notes/video-generation.html#summary-2608.13037"},"2608.13043":{"status":"ready","url":"notes/video-generation.html#summary-2608.13043"},"2608.13049":{"status":"ready","url":"notes/video-generation.html#summary-2608.13049"},"2608.13092":{"status":"ready","url":"notes/video-generation.html#summary-2608.13092"},"2608.13183":{"status":"ready","url":"notes/video-generation.html#summary-2608.13183"},"2608.13205":{"status":"ready","url":"notes/video-generation.html#summary-2608.13205"},"2608.13368":{"status":"ready","url":"notes/video-generation.html#summary-2608.13368"},"2608.13391":{"status":"ready","url":"notes/video-generation.html#summary-2608.13391"},"2608.13460":{"status":"ready","url":"notes/video-generation.html#summary-2608.13460"},"2608.14043":{"status":"ready","url":"notes/video-generation.html#summary-2608.14043"},"2608.14391":{"status":"ready","url":"notes/video-generation.html#summary-2608.14391"},"2608.14706":{"status":"ready","url":"notes/video-generation.html#summary-2608.14706"},"2608.14740":{"status":"ready","url":"notes/video-generation.html#summary-2608.14740"},"2608.14790":{"status":"ready","url":"notes/video-generation.html#summary-2608.14790"},"2608.15555":{"status":"ready","url":"notes/video-generation.html#summary-2608.15555"},"2608.15818":{"status":"ready","url":"notes/video-generation.html#summary-2608.15818"},"2608.16143":{"status":"ready","url":"notes/video-generation.html#summary-2608.16143"},"2608.16154":{"status":"ready","url":"notes/video-generation.html#summary-2608.16154"},"2608.16220":{"status":"ready","url":"notes/video-generation.html#summary-2608.16220"},"2608.16328":{"status":"ready","url":"notes/video-generation.html#summary-2608.16328"},"2608.16513":{"status":"ready","url":"notes/video-generation.html#summary-2608.16513"},"2608.16585":{"status":"ready","url":"notes/video-generation.html#summary-2608.16585"},"2608.16717":{"status":"ready","url":"notes/video-generation.html#summary-2608.16717"},"2608.16745":{"status":"ready","url":"notes/video-generation.html#summary-2608.16745"},"2608.17402":{"status":"ready","url":"notes/video-generation.html#summary-2608.17402"},"2608.17420":{"status":"ready","url":"notes/video-generation.html#summary-2608.17420"},"2608.17426":{"status":"ready","url":"notes/video-generation.html#summary-2608.17426"},"2608.17559":{"status":"ready","url":"notes/video-generation.html#summary-2608.17559"},"2608.17566":{"status":"ready","url":"notes/video-generation.html#summary-2608.17566"},"2608.17695":{"status":"ready","url":"notes/video-generation.html#summary-2608.17695"},"2608.17973":{"status":"ready","url":"notes/video-generation.html#summary-2608.17973"},"2608.18607":{"status":"ready","url":"notes/video-generation.html#summary-2608.18607"},"2608.18710":{"status":"ready","url":"notes/video-generation.html#summary-2608.18710"},"2608.18948":{"status":"ready","url":"notes/video-generation.html#summary-2608.18948"},"2608.19583":{"status":"ready","url":"notes/video-generation.html#summary-2608.19583"},"2608.19900":{"status":"ready","url":"notes/video-generation.html#summary-2608.19900"},"2608.20107":{"status":"ready","url":"notes/video-generation.html#summary-2608.20107"},"2608.20308":{"status":"ready","url":"notes/video-generation.html#summary-2608.20308"},"2608.20335":{"status":"ready","url":"notes/video-generation.html#summary-2608.20335"},"2608.20515":{"status":"ready","url":"notes/video-generation.html#summary-2608.20515"},"2608.20534":{"status":"ready","url":"notes/video-generation.html#summary-2608.20534"},"2608.20749":{"status":"ready","url":"notes/video-generation.html#summary-2608.20749"},"2608.20770":{"status":"ready","url":"notes/video-generation.html#summary-2608.20770"},"2608.20910":{"status":"ready","url":"notes/video-generation.html#summary-2608.20910"},"2608.21849":{"status":"pending"},"2608.22819":{"status":"pending"},"2608.23090":{"status":"pending"},"2608.23549":{"status":"ready","url":"notes/video-generation.html#summary-2608.23549"}},"topic":"Video Generation","version":1}</script>
+  <script type="application/json" id="summary-catalog">{"papers":{"2601.08828":{"status":"ready","url":"notes/video-generation.html#summary-2601.08828"},"2601.09881":{"status":"ready","url":"notes/video-generation.html#summary-2601.09881"},"2601.11641":{"status":"ready","url":"notes/video-generation.html#summary-2601.11641"},"2602.04789":{"status":"ready","url":"notes/video-generation.html#summary-2602.04789"},"2602.11117":{"status":"ready","url":"notes/video-generation.html#summary-2602.11117"},"2602.12304":{"status":"ready","url":"notes/video-generation.html#summary-2602.12304"},"2602.13185":{"status":"ready","url":"notes/video-generation.html#summary-2602.13185"},"2602.19161":{"status":"ready","url":"notes/video-generation.html#summary-2602.19161"},"2603.08982":{"status":"ready","url":"notes/video-generation.html#summary-2603.08982"},"2603.15129":{"status":"ready","url":"notes/video-generation.html#summary-2603.15129"},"2603.17555":{"status":"ready","url":"notes/video-generation.html#summary-2603.17555"},"2603.17889":{"status":"ready","url":"notes/video-generation.html#summary-2603.17889"},"2603.19048":{"status":"ready","url":"notes/video-generation.html#summary-2603.19048"},"2603.26154":{"status":"ready","url":"notes/video-generation.html#summary-2603.26154"},"2603.26599":{"status":"ready","url":"notes/video-generation.html#summary-2603.26599"},"2603.28489":{"status":"ready","url":"notes/video-generation.html#summary-2603.28489"},"2604.01654":{"status":"ready","url":"notes/video-generation.html#summary-2604.01654"},"2604.01700":{"status":"ready","url":"notes/video-generation.html#summary-2604.01700"},"2604.01761":{"status":"ready","url":"notes/video-generation.html#summary-2604.01761"},"2604.02330":{"status":"ready","url":"notes/video-generation.html#summary-2604.02330"},"2604.02817":{"status":"ready","url":"notes/video-generation.html#summary-2604.02817"},"2604.02979":{"status":"ready","url":"notes/video-generation.html#summary-2604.02979"},"2604.03118":{"status":"ready","url":"notes/video-generation.html#summary-2604.03118"},"2604.03181":{"status":"ready","url":"notes/video-generation.html#summary-2604.03181"},"2604.17195":{"status":"ready","url":"notes/video-generation.html#summary-2604.17195"},"2604.23586":{"status":"ready","url":"notes/video-generation.html#summary-2604.23586"},"2604.23789":{"status":"ready","url":"notes/video-generation.html#summary-2604.23789"},"2605.05895":{"status":"ready","url":"notes/video-generation.html#summary-2605.05895"},"2605.10723":{"status":"ready","url":"notes/video-generation.html#summary-2605.10723"},"2605.14382":{"status":"ready","url":"notes/video-generation.html#summary-2605.14382"},"2605.14513":{"status":"ready","url":"notes/video-generation.html#summary-2605.14513"},"2605.16716":{"status":"ready","url":"notes/video-generation.html#summary-2605.16716"},"2605.18736":{"status":"ready","url":"notes/video-generation.html#summary-2605.18736"},"2605.21028":{"status":"ready","url":"notes/video-generation.html#summary-2605.21028"},"2605.25333":{"status":"ready","url":"notes/video-generation.html#summary-2605.25333"},"2605.30116":{"status":"ready","url":"notes/video-generation.html#summary-2605.30116"},"2606.07636":{"status":"ready","url":"notes/video-generation.html#summary-2606.07636"},"2606.07649":{"status":"ready","url":"notes/video-generation.html#summary-2606.07649"},"2606.08260":{"status":"ready","url":"notes/video-generation.html#summary-2606.08260"},"2606.10671":{"status":"ready","url":"notes/video-generation.html#summary-2606.10671"},"2606.12995":{"status":"ready","url":"notes/video-generation.html#summary-2606.12995"},"2606.13971":{"status":"ready","url":"notes/video-generation.html#summary-2606.13971"},"2606.20233":{"status":"pending"},"2606.20799":{"status":"ready","url":"notes/video-generation.html#summary-2606.20799"},"2606.20919":{"status":"ready","url":"notes/video-generation.html#summary-2606.20919"},"2606.24152":{"status":"ready","url":"notes/video-generation.html#summary-2606.24152"},"2606.26740":{"status":"ready","url":"notes/video-generation.html#summary-2606.26740"},"2606.26795":{"status":"ready","url":"notes/video-generation.html#summary-2606.26795"},"2606.27345":{"status":"ready","url":"notes/video-generation.html#summary-2606.27345"},"2606.27741":{"status":"ready","url":"notes/video-generation.html#summary-2606.27741"},"2606.28016":{"status":"ready","url":"notes/video-generation.html#summary-2606.28016"},"2606.30248":{"status":"ready","url":"notes/video-generation.html#summary-2606.30248"},"2606.30308":{"status":"ready","url":"notes/video-generation.html#summary-2606.30308"},"2606.31946":{"status":"ready","url":"notes/video-generation.html#summary-2606.31946"},"2606.32028":{"status":"ready","url":"notes/video-generation.html#summary-2606.32028"},"2607.00712":{"status":"ready","url":"notes/video-generation.html#summary-2607.00712"},"2607.00948":{"status":"ready","url":"notes/video-generation.html#summary-2607.00948"},"2607.01222":{"status":"ready","url":"notes/video-generation.html#summary-2607.01222"},"2607.01499":{"status":"ready","url":"notes/video-generation.html#summary-2607.01499"},"2607.01677":{"status":"ready","url":"notes/video-generation.html#summary-2607.01677"},"2607.01869":{"status":"ready","url":"notes/video-generation.html#summary-2607.01869"},"2607.01962":{"status":"ready","url":"notes/video-generation.html#summary-2607.01962"},"2607.02075":{"status":"ready","url":"notes/video-generation.html#summary-2607.02075"},"2607.02317":{"status":"ready","url":"notes/video-generation.html#summary-2607.02317"},"2607.02461":{"status":"ready","url":"notes/video-generation.html#summary-2607.02461"},"2607.02584":{"status":"ready","url":"notes/video-generation.html#summary-2607.02584"},"2607.02798":{"status":"ready","url":"notes/video-generation.html#summary-2607.02798"},"2607.03012":{"status":"ready","url":"notes/video-generation.html#summary-2607.03012"},"2607.03069":{"status":"ready","url":"notes/video-generation.html#summary-2607.03069"},"2607.03118":{"status":"ready","url":"notes/video-generation.html#summary-2607.03118"},"2607.03509":{"status":"ready","url":"notes/video-generation.html#summary-2607.03509"},"2607.03732":{"status":"ready","url":"notes/video-generation.html#summary-2607.03732"},"2607.03803":{"status":"ready","url":"notes/video-generation.html#summary-2607.03803"},"2607.03960":{"status":"ready","url":"notes/video-generation.html#summary-2607.03960"},"2607.04311":{"status":"ready","url":"notes/video-generation.html#summary-2607.04311"},"2607.04553":{"status":"ready","url":"notes/video-generation.html#summary-2607.04553"},"2607.04607":{"status":"ready","url":"notes/video-generation.html#summary-2607.04607"},"2607.04674":{"status":"ready","url":"notes/video-generation.html#summary-2607.04674"},"2607.05056":{"status":"ready","url":"notes/video-generation.html#summary-2607.05056"},"2607.05354":{"status":"ready","url":"notes/video-generation.html#summary-2607.05354"},"2607.05376":{"status":"ready","url":"notes/video-generation.html#summary-2607.05376"},"2607.05994":{"status":"ready","url":"notes/video-generation.html#summary-2607.05994"},"2607.06173":{"status":"pending"},"2607.06631":{"status":"ready","url":"notes/video-generation.html#summary-2607.06631"},"2607.06856":{"status":"ready","url":"notes/video-generation.html#summary-2607.06856"},"2607.08016":{"status":"ready","url":"notes/video-generation.html#summary-2607.08016"},"2607.08020":{"status":"ready","url":"notes/video-generation.html#summary-2607.08020"},"2607.08763":{"status":"ready","url":"notes/video-generation.html#summary-2607.08763"},"2607.08766":{"status":"ready","url":"notes/video-generation.html#summary-2607.08766"},"2607.08770":{"status":"ready","url":"notes/video-generation.html#summary-2607.08770"},"2607.09024":{"status":"ready","url":"notes/video-generation.html#summary-2607.09024"},"2607.09191":{"status":"ready","url":"notes/video-generation.html#summary-2607.09191"},"2607.09876":{"status":"ready","url":"notes/video-generation.html#summary-2607.09876"},"2607.10787":{"status":"ready","url":"notes/video-generation.html#summary-2607.10787"},"2607.10860":{"status":"ready","url":"notes/video-generation.html#summary-2607.10860"},"2607.12358":{"status":"ready","url":"notes/video-generation.html#summary-2607.12358"},"2607.13031":{"status":"ready","url":"notes/video-generation.html#summary-2607.13031"},"2607.13164":{"status":"ready","url":"notes/video-generation.html#summary-2607.13164"},"2607.13336":{"status":"ready","url":"notes/video-generation.html#summary-2607.13336"},"2607.13460":{"status":"ready","url":"notes/video-generation.html#summary-2607.13460"},"2607.13471":{"status":"ready","url":"notes/video-generation.html#summary-2607.13471"},"2607.13527":{"status":"ready","url":"notes/video-generation.html#summary-2607.13527"},"2607.13770":{"status":"ready","url":"notes/video-generation.html#summary-2607.13770"},"2607.14189":{"status":"ready","url":"notes/video-generation.html#summary-2607.14189"},"2607.14194":{"status":"ready","url":"notes/video-generation.html#summary-2607.14194"},"2607.14202":{"status":"pending"},"2607.14595":{"status":"ready","url":"notes/video-generation.html#summary-2607.14595"},"2607.14681":{"status":"ready","url":"notes/video-generation.html#summary-2607.14681"},"2607.15321":{"status":"ready","url":"notes/video-generation.html#summary-2607.15321"},"2607.15667":{"status":"ready","url":"notes/video-generation.html#summary-2607.15667"},"2607.15772":{"status":"ready","url":"notes/video-generation.html#summary-2607.15772"},"2607.15849":{"status":"ready","url":"notes/video-generation.html#summary-2607.15849"},"2607.16190":{"status":"ready","url":"notes/video-generation.html#summary-2607.16190"},"2607.16355":{"status":"ready","url":"notes/video-generation.html#summary-2607.16355"},"2607.16947":{"status":"ready","url":"notes/video-generation.html#summary-2607.16947"},"2607.17279":{"status":"ready","url":"notes/video-generation.html#summary-2607.17279"},"2607.17523":{"status":"ready","url":"notes/video-generation.html#summary-2607.17523"},"2607.17675":{"status":"ready","url":"notes/video-generation.html#summary-2607.17675"},"2607.17985":{"status":"ready","url":"notes/video-generation.html#summary-2607.17985"},"2607.18116":{"status":"ready","url":"notes/video-generation.html#summary-2607.18116"},"2607.18217":{"status":"ready","url":"notes/video-generation.html#summary-2607.18217"},"2607.18227":{"status":"ready","url":"notes/video-generation.html#summary-2607.18227"},"2607.18436":{"status":"ready","url":"notes/video-generation.html#summary-2607.18436"},"2607.18664":{"status":"ready","url":"notes/video-generation.html#summary-2607.18664"},"2607.18789":{"status":"ready","url":"notes/video-generation.html#summary-2607.18789"},"2607.18924":{"status":"ready","url":"notes/video-generation.html#summary-2607.18924"},"2607.19476":{"status":"ready","url":"notes/video-generation.html#summary-2607.19476"},"2607.19701":{"status":"ready","url":"notes/video-generation.html#summary-2607.19701"},"2607.19895":{"status":"ready","url":"notes/video-generation.html#summary-2607.19895"},"2607.20125":{"status":"ready","url":"notes/video-generation.html#summary-2607.20125"},"2607.20174":{"status":"ready","url":"notes/video-generation.html#summary-2607.20174"},"2607.20247":{"status":"ready","url":"notes/video-generation.html#summary-2607.20247"},"2607.20940":{"status":"ready","url":"notes/video-generation.html#summary-2607.20940"},"2607.20984":{"status":"ready","url":"notes/video-generation.html#summary-2607.20984"},"2607.21027":{"status":"ready","url":"notes/video-generation.html#summary-2607.21027"},"2607.21529":{"status":"ready","url":"notes/video-generation.html#summary-2607.21529"},"2607.21553":{"status":"ready","url":"notes/video-generation.html#summary-2607.21553"},"2607.21580":{"status":"ready","url":"notes/video-generation.html#summary-2607.21580"},"2607.22241":{"status":"ready","url":"notes/video-generation.html#summary-2607.22241"},"2607.22696":{"status":"ready","url":"notes/video-generation.html#summary-2607.22696"},"2607.22772":{"status":"ready","url":"notes/video-generation.html#summary-2607.22772"},"2607.22959":{"status":"ready","url":"notes/video-generation.html#summary-2607.22959"},"2607.23159":{"status":"ready","url":"notes/video-generation.html#summary-2607.23159"},"2607.23472":{"status":"ready","url":"notes/video-generation.html#summary-2607.23472"},"2607.24013":{"status":"ready","url":"notes/video-generation.html#summary-2607.24013"},"2607.24027":{"status":"ready","url":"notes/video-generation.html#summary-2607.24027"},"2607.24124":{"status":"ready","url":"notes/video-generation.html#summary-2607.24124"},"2607.24241":{"status":"ready","url":"notes/video-generation.html#summary-2607.24241"},"2607.24560":{"status":"ready","url":"notes/video-generation.html#summary-2607.24560"},"2607.24821":{"status":"ready","url":"notes/video-generation.html#summary-2607.24821"},"2607.25300":{"status":"ready","url":"notes/video-generation.html#summary-2607.25300"},"2607.25321":{"status":"ready","url":"notes/video-generation.html#summary-2607.25321"},"2607.25522":{"status":"ready","url":"notes/video-generation.html#summary-2607.25522"},"2607.26004":{"status":"ready","url":"notes/video-generation.html#summary-2607.26004"},"2607.26203":{"status":"ready","url":"notes/video-generation.html#summary-2607.26203"},"2607.26529":{"status":"ready","url":"notes/video-generation.html#summary-2607.26529"},"2607.26694":{"status":"ready","url":"notes/video-generation.html#summary-2607.26694"},"2607.26706":{"status":"ready","url":"notes/video-generation.html#summary-2607.26706"},"2607.26811":{"status":"ready","url":"notes/video-generation.html#summary-2607.26811"},"2607.26818":{"status":"ready","url":"notes/video-generation.html#summary-2607.26818"},"2607.27110":{"status":"ready","url":"notes/video-generation.html#summary-2607.27110"},"2607.27380":{"status":"ready","url":"notes/video-generation.html#summary-2607.27380"},"2607.28058":{"status":"ready","url":"notes/video-generation.html#summary-2607.28058"},"2607.28144":{"status":"ready","url":"notes/video-generation.html#summary-2607.28144"},"2607.28509":{"status":"ready","url":"notes/video-generation.html#summary-2607.28509"},"2607.28955":{"status":"ready","url":"notes/video-generation.html#summary-2607.28955"},"2607.29545":{"status":"ready","url":"notes/video-generation.html#summary-2607.29545"},"2608.00486":{"status":"ready","url":"notes/video-generation.html#summary-2608.00486"},"2608.00617":{"status":"ready","url":"notes/video-generation.html#summary-2608.00617"},"2608.00769":{"status":"ready","url":"notes/video-generation.html#summary-2608.00769"},"2608.01113":{"status":"ready","url":"notes/video-generation.html#summary-2608.01113"},"2608.01334":{"status":"ready","url":"notes/video-generation.html#summary-2608.01334"},"2608.01942":{"status":"ready","url":"notes/video-generation.html#summary-2608.01942"},"2608.01944":{"status":"ready","url":"notes/video-generation.html#summary-2608.01944"},"2608.02474":{"status":"ready","url":"notes/video-generation.html#summary-2608.02474"},"2608.02504":{"status":"ready","url":"notes/video-generation.html#summary-2608.02504"},"2608.03046":{"status":"ready","url":"notes/video-generation.html#summary-2608.03046"},"2608.03084":{"status":"ready","url":"notes/video-generation.html#summary-2608.03084"},"2608.03335":{"status":"ready","url":"notes/video-generation.html#summary-2608.03335"},"2608.03974":{"status":"ready","url":"notes/video-generation.html#summary-2608.03974"},"2608.04412":{"status":"ready","url":"notes/video-generation.html#summary-2608.04412"},"2608.04701":{"status":"ready","url":"notes/video-generation.html#summary-2608.04701"},"2608.05049":{"status":"ready","url":"notes/video-generation.html#summary-2608.05049"},"2608.05237":{"status":"ready","url":"notes/video-generation.html#summary-2608.05237"},"2608.05485":{"status":"ready","url":"notes/video-generation.html#summary-2608.05485"},"2608.05648":{"status":"ready","url":"notes/video-generation.html#summary-2608.05648"},"2608.05976":{"status":"ready","url":"notes/video-generation.html#summary-2608.05976"},"2608.06008":{"status":"ready","url":"notes/video-generation.html#summary-2608.06008"},"2608.06231":{"status":"ready","url":"notes/video-generation.html#summary-2608.06231"},"2608.07463":{"status":"ready","url":"notes/video-generation.html#summary-2608.07463"},"2608.08558":{"status":"ready","url":"notes/video-generation.html#summary-2608.08558"},"2608.08820":{"status":"ready","url":"notes/video-generation.html#summary-2608.08820"},"2608.09111":{"status":"ready","url":"notes/video-generation.html#summary-2608.09111"},"2608.09355":{"status":"ready","url":"notes/video-generation.html#summary-2608.09355"},"2608.09637":{"status":"ready","url":"notes/video-generation.html#summary-2608.09637"},"2608.09873":{"status":"ready","url":"notes/video-generation.html#summary-2608.09873"},"2608.10439":{"status":"ready","url":"notes/video-generation.html#summary-2608.10439"},"2608.10519":{"status":"ready","url":"notes/video-generation.html#summary-2608.10519"},"2608.10744":{"status":"ready","url":"notes/video-generation.html#summary-2608.10744"},"2608.10933":{"status":"ready","url":"notes/video-generation.html#summary-2608.10933"},"2608.11201":{"status":"ready","url":"notes/video-generation.html#summary-2608.11201"},"2608.11618":{"status":"ready","url":"notes/video-generation.html#summary-2608.11618"},"2608.11745":{"status":"ready","url":"notes/video-generation.html#summary-2608.11745"},"2608.12032":{"status":"ready","url":"notes/video-generation.html#summary-2608.12032"},"2608.12203":{"status":"ready","url":"notes/video-generation.html#summary-2608.12203"},"2608.12290":{"status":"ready","url":"notes/video-generation.html#summary-2608.12290"},"2608.13028":{"status":"ready","url":"notes/video-generation.html#summary-2608.13028"},"2608.13037":{"status":"ready","url":"notes/video-generation.html#summary-2608.13037"},"2608.13043":{"status":"ready","url":"notes/video-generation.html#summary-2608.13043"},"2608.13049":{"status":"ready","url":"notes/video-generation.html#summary-2608.13049"},"2608.13092":{"status":"ready","url":"notes/video-generation.html#summary-2608.13092"},"2608.13183":{"status":"ready","url":"notes/video-generation.html#summary-2608.13183"},"2608.13205":{"status":"ready","url":"notes/video-generation.html#summary-2608.13205"},"2608.13368":{"status":"ready","url":"notes/video-generation.html#summary-2608.13368"},"2608.13391":{"status":"ready","url":"notes/video-generation.html#summary-2608.13391"},"2608.13460":{"status":"ready","url":"notes/video-generation.html#summary-2608.13460"},"2608.14043":{"status":"ready","url":"notes/video-generation.html#summary-2608.14043"},"2608.14391":{"status":"ready","url":"notes/video-generation.html#summary-2608.14391"},"2608.14706":{"status":"ready","url":"notes/video-generation.html#summary-2608.14706"},"2608.14740":{"status":"ready","url":"notes/video-generation.html#summary-2608.14740"},"2608.14790":{"status":"ready","url":"notes/video-generation.html#summary-2608.14790"},"2608.15555":{"status":"ready","url":"notes/video-generation.html#summary-2608.15555"},"2608.15818":{"status":"ready","url":"notes/video-generation.html#summary-2608.15818"},"2608.16143":{"status":"ready","url":"notes/video-generation.html#summary-2608.16143"},"2608.16154":{"status":"ready","url":"notes/video-generation.html#summary-2608.16154"},"2608.16220":{"status":"ready","url":"notes/video-generation.html#summary-2608.16220"},"2608.16328":{"status":"ready","url":"notes/video-generation.html#summary-2608.16328"},"2608.16513":{"status":"ready","url":"notes/video-generation.html#summary-2608.16513"},"2608.16585":{"status":"ready","url":"notes/video-generation.html#summary-2608.16585"},"2608.16717":{"status":"ready","url":"notes/video-generation.html#summary-2608.16717"},"2608.16745":{"status":"ready","url":"notes/video-generation.html#summary-2608.16745"},"2608.17402":{"status":"ready","url":"notes/video-generation.html#summary-2608.17402"},"2608.17420":{"status":"ready","url":"notes/video-generation.html#summary-2608.17420"},"2608.17426":{"status":"ready","url":"notes/video-generation.html#summary-2608.17426"},"2608.17559":{"status":"ready","url":"notes/video-generation.html#summary-2608.17559"},"2608.17566":{"status":"ready","url":"notes/video-generation.html#summary-2608.17566"},"2608.17695":{"status":"ready","url":"notes/video-generation.html#summary-2608.17695"},"2608.17973":{"status":"ready","url":"notes/video-generation.html#summary-2608.17973"},"2608.18607":{"status":"ready","url":"notes/video-generation.html#summary-2608.18607"},"2608.18710":{"status":"ready","url":"notes/video-generation.html#summary-2608.18710"},"2608.18948":{"status":"ready","url":"notes/video-generation.html#summary-2608.18948"},"2608.19583":{"status":"ready","url":"notes/video-generation.html#summary-2608.19583"},"2608.19900":{"status":"ready","url":"notes/video-generation.html#summary-2608.19900"},"2608.20107":{"status":"ready","url":"notes/video-generation.html#summary-2608.20107"},"2608.20308":{"status":"ready","url":"notes/video-generation.html#summary-2608.20308"},"2608.20335":{"status":"ready","url":"notes/video-generation.html#summary-2608.20335"},"2608.20515":{"status":"ready","url":"notes/video-generation.html#summary-2608.20515"},"2608.20534":{"status":"ready","url":"notes/video-generation.html#summary-2608.20534"},"2608.20749":{"status":"ready","url":"notes/video-generation.html#summary-2608.20749"},"2608.20770":{"status":"ready","url":"notes/video-generation.html#summary-2608.20770"},"2608.20910":{"status":"ready","url":"notes/video-generation.html#summary-2608.20910"},"2608.21849":{"status":"ready","url":"notes/video-generation.html#summary-2608.21849"},"2608.22819":{"status":"ready","url":"notes/video-generation.html#summary-2608.22819"},"2608.23090":{"status":"ready","url":"notes/video-generation.html#summary-2608.23090"},"2608.23549":{"status":"ready","url":"notes/video-generation.html#summary-2608.23549"},"2608.23927":{"status":"pending"},"2608.23938":{"status":"pending"},"2608.24293":{"status":"pending"},"2608.24329":{"status":"pending"},"2608.24680":{"status":"pending"}},"topic":"Video Generation","version":1}</script>
 </body>
 </html>
