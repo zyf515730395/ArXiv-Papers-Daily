@@ -13,6 +13,152 @@
       <h1>3D Generation · 论文要点</h1>
     </header>
     <div class="summary-topic-list">
+    <article class="summary-article summary-topic-entry" id="summary-2608.24760" data-arxiv-id="2608.24760" data-status="ready">
+<h1>[2608.24760] ExpConCAD: Experience-Guided Text-to-CAD Generation from Shape Descriptions with Implicit Spatial Constraints</h1>
+<p><a href="https://arxiv.org/abs/2608.24760" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了 ExpConCAD 框架，通过结合构造感知的空间约束推理与可复用经验记忆，有效解决自然语言描述中隐含空间约束缺失的问题，显著提升了从欠指定描述生成可执行 CadQuery 程序的效果。</p>
+<h2>解决的问题</h2>
+<p>现有 Text-to-CAD 方法通常依赖用户显式指定详细几何参数与空间关系，难以适应用户提供的欠指定高语义描述，导致生成结构错误的模型。此外，端到端优化方法仅学习输入输出相关性而忽视了底层隐含的空间约束，在面对未见过的空间排列或组件交互时泛化能力不足，无法准确推断缺失的约束。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 ExpConCAD 框架，明确将隐含空间约束补全作为关键挑战，结合构造感知的空间约束推理与可复用经验记忆。</li>
+<li>设计构造结构理解模块以恢复预期的构造过程并识别约束范围，确保空间约束补全基于底层构造结构而非仅表面描述。</li>
+<li>构建经验记忆机制，从历史 CAD 案例中蒸馏可复用的约束补全模式，通过检索相关经验指导相似约束范围下的缺失约束补全。</li>
+<li>实现了从欠指定自然语言描述到可执行 CadQuery 程序的生成，并在 CADFUSION-HARD 基准上验证了有效性。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.24714" data-arxiv-id="2608.24714" data-status="ready">
+<h1>[2608.24714] GaussianWAM: Distilling Geometry and Semantics from 3D Gaussian Fields into World-Action Models</h1>
+<p><a href="https://arxiv.org/abs/2608.24714" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了 GaussianWAM，利用 3D Gaussian 场作为统一空间载体，在 training-time 蒸馏异构几何与语义知识以增强 World-Action Models (WAMs) 的表示能力，在保持 inference path 效率的同时显著提升了机器人操作任务的性能。</p>
+<h2>解决的问题</h2>
+<p>现有的 World-Action Models (WAMs) 的 video latents 主要优化视觉预测，未显式约束保留 cross-view geometric structure 或 spatially localized semantics，导致几何可靠性不足；此外，现有几何或语义增强方法往往引入独立教师导致特征空间异构，或需要额外 3D/4D world modeling 模块增加推理复杂度，难以在不牺牲 inference efficiency 的前提下统一 heterogeneous teacher signals。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于 3D Gaussian 场的统一空间载体，将 multi-view geometric cues 与 visual-semantic features 绑定到 shared Gaussian primitives 上，实现 heterogeneous supervision 的空间对齐。</li>
+<li>采用 training-time 蒸馏策略，移除所有 teacher models 和 Gaussian components 后保留原始 WAM inference path，无需 additional modules 或 forward computation。</li>
+<li>利用 Gaussian rendering 自然产生的 coverage signal 作为额外监督信号，限制 supervision 范围并增强 spatial consistency。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.24364" data-arxiv-id="2608.24364" data-status="ready">
+<h1>[2608.24364] B-MIM: Biased Masked Image Modeling for Generalizable Segmentation of Fine-Grained Anatomical Structures</h1>
+<p><a href="https://arxiv.org/abs/2608.24364" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 B-MIM 方法，通过修改 iBOT 目标函数随机降低全局语义对齐以优先局部块重建，引导编码器捕获高频形态细节，在仅更新少量参数的情况下显著提升了 3D Swin Transformer 在肝血管等细粒度解剖结构分割中的拓扑保真度与泛化能力。</p>
+<h2>解决的问题</h2>
+<p>现有的自监督预训练 CT 编码器普遍偏向于粗粒度的语义理解，导致对血管或小肿瘤等细粒度解剖结构的敏感性不足，难以在跨数据集任务中同时保持高拓扑保真度与有效的语义表征。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 B-MIM 方法，通过随机降低全局语义对齐以优先局部块重建，引导编码器关注高频形态细节与结构连续性。</li>
+<li>构建了包含 9,955 个病例的多机构腹部 CT 数据集，用于预训练 3D Swin Transformer 骨干网络。</li>
+<li>在跨数据集肝血管分割实验中，相比全微调基线提升了拓扑保真度（clDice）并保持了有竞争力的 Dice 分数。</li>
+<li>证明了减少预训练阶段的全局语义压力能够增强模型对复杂解剖结构的泛化能力。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.24343" data-arxiv-id="2608.24343" data-status="ready">
+<h1>[2608.24343] Digging dark holes on-sky with the Self-Coherent Camera: Preliminary results</h1>
+<p><a href="https://arxiv.org/abs/2608.24343" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文首次展示了在 6.5 米 Magellan Clay 望远镜上搭载 MagAO-X 仪器进行的基于 Self-Coherent Camera (SCC) 与 Fast Atmospheric SCC Technique (FAST) 的闭环在轨波前传感与控制演示，在目标暗区实现了 1-sigma 原始对比度提升 10 倍的显著效果。</p>
+<h2>解决的问题</h2>
+<p>现有高对比度成像技术受限于由光学制造误差和系统温度漂移引起的非共同路径像差 (NCPAs)，导致最终科学图像中产生难以与伴星区分的准静态散斑；同时传统波前传感方法如 Pair-wise Probing (PWP) 需要四次测量才能重建电场，耗时较长，难以满足地面望远镜光子受限条件下的实时闭环控制需求。</p>
+<h2>创新点</h2>
+<ul>
+<li>首次实现了基于 Self-Coherent Camera (SCC) 与 Fast Atmospheric SCC Technique (FAST) 的主动闭环在轨波前传感与控制演示。</li>
+<li>利用 SCC 单次测量特性替代传统 Pair-wise Probing (PWP) 的四次测量需求，大幅降低传感时间以适应光子受限环境。</li>
+<li>引入带楔角的相位掩膜板设计，有效增加衍射至针孔的参考光束信号强度，优化 FAST 技术的光子利用率。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.24333" data-arxiv-id="2608.24333" data-status="ready">
+<h1>[2608.24333] Sub-diffraction-limited coronagraphic imaging with nano-printed PIAACMC phase masks</h1>
+<p><a href="https://arxiv.org/abs/2608.24333" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文报告了利用纳米打印的 PIAACMC 相位掩膜在 MagAO-X 仪器上实现亚衍射极限日冕成像的首批科学结果，成功在 6.5 米 Magellan Clay 望远镜上通过宽带 z' 滤镜检测到了分离度约为 0.8-5 lambda/D 的双星伴星，验证了该技术在 sub-lambda/D IWA 条件下观测系外行星的能力。</p>
+<h2>解决的问题</h2>
+<p>现有日冕仪技术难以同时满足成像类地系外行星所需的极端对比度与小分离度要求，而早期的 PIAACMC（Phase-Induced Amplitude Apodization Complex Mask Coronagraph）实验虽展示了高透过率和亚衍射极限内工作角（IWA）潜力，但受限于焦点平面掩膜的制造误差、残余抖动以及未校正的准静态散斑，导致实际天体观测性能受到显著制约。</p>
+<h2>创新点</h2>
+<ul>
+<li>首次利用 Nanoscribe 微 3D 打印机通过双光子聚合技术（two-photon polymerization）实现亚微米精度的 PIAACMC 焦点平面掩膜制造</li>
+<li>完成了 PIAACMC 在 MagAO-X 仪器上的全天空（on-sky）部署与性能表征，克服了早期实验室条件的局限</li>
+<li>成功观测到分离度约为 0.8-5 lambda/D 的双星伴星，证实了亚衍射极限（sub-diffraction-limited）成像能力</li>
+<li>在宽带 z' 滤镜（908 nm, 14% bandwidth）条件下验证了系统的高对比度性能</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.24212" data-arxiv-id="2608.24212" data-status="ready">
+<h1>[2608.24212] NeoWorld-Pro: Programming Interactive Scenes from Monocular Images for Embodied Simulation</h1>
+<p><a href="https://arxiv.org/abs/2608.24212" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>NeoWorld-Pro 框架将单目场景重建重构为基于 MLLM 的过程化编程，通过代码合成生成可执行程序，并结合 Physics-in-the-loop 机制利用物理引擎反馈迭代优化，显著优于现有开放回路方法，实现了从单张 RGB 图像到仿真就绪交互式 3D 环境的生成。</p>
+<h2>解决的问题</h2>
+<p>Embodied AI 领域现有图像到 URDF 方法存在缺乏物理基础和场景级交互性的挑战，主要瓶颈包括：现有工作多关注单资产重建而缺失场景级建模，依赖预置资产库导致泛化能力差，且传统流程为开放回路缺乏物理一致性修正机制，难以生成真正仿真就绪的环境。</p>
+<h2>创新点</h2>
+<ul>
+<li>基于 MLLM 的过程化代码合成资产重建，通过可执行程序明确定义对象几何、运动学及物理属性</li>
+<li>引入 Physics-in-the-loop 验证机制，利用仿真反馈迭代优化场景的物理一致性与交互关系</li>
+<li>采用程序为中心的范式替代传统密集重建，支持显式编辑与仿真就绪的交互式场景生成</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.24182" data-arxiv-id="2608.24182" data-status="ready">
+<h1>[2608.24182] Depth-Resolved Evolution of Buried Polar Topologies in a PbTiO3/SrTiO3 Superlattice</h1>
+<p><a href="https://arxiv.org/abs/2608.24182" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>该研究结合深度切片 STEM 与多切片电子 ptychography (MEP) 技术，在 PbTiO3/SrTiO3 超晶格中直接可视化了原子结构与极化拓扑的深度依赖性演化，揭示了传统投影图像掩盖的三维极化纹理及局部原子位移与极化拓扑的直接实验联系。</p>
+<h2>解决的问题</h2>
+<p>现有常规扫描透射电子显微镜 ((S)TEM) 主要提供投影结构信息且深度敏感性有限，而深度切片 STEM 存在剂量效率低及电子束通道效应导致的误差，难以直接确定埋藏的三维极化构型，导致传统投影图像中的极化模式可能由多种深度依赖态叠加而成，掩盖了真实的三维极化纹理。</p>
+<h2>创新点</h2>
+<ul>
+<li>结合深度切片低角暗场 STEM (LAADF-STEM)、高角暗场 STEM (HAADF-STEM) 与多切片电子 ptychography (MEP)，实现了对 PbTiO3/SrTiO3 超晶格中深度依赖原子结构与极化拓扑的直接可视化。</li>
+<li>利用 MEP 重建同时解析 Pb、Ti 和 O 子晶格，获得纳米级深度分辨率，实现了对重构体积内原子位移的定量映射。</li>
+<li>揭示了传统投影图像无法观测到的深度依赖原子位移及极化拓扑演化（如表面涡旋状结构在内部被抑制），建立了局部原子位移与深度依赖极化拓扑的直接实验联系。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.24169" data-arxiv-id="2608.24169" data-status="ready">
+<h1>[2608.24169] ViSculpt: Visual-Centric Agentic Geometry Editing</h1>
+<p><a href="https://arxiv.org/abs/2608.24169" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种视觉为中心的无训练多智能体系统，通过在 Blender GUI 中模拟人类艺术家的迭代工作流，实现了基于自然语言指令的现有 3D 网格原地编辑并有效保留了输入资产的身份特征。</p>
+<h2>解决的问题</h2>
+<p>现有基于扩散的方法倾向于重新生成几何体而非原地修改，难以保留实例特定细节和高保真对应关系；而基于脚本生成的大语言模型方法缺乏对任意现有网格的感知驱动，难以将自然语言指令转化为建模界面上的精确局部操作，且无法利用实时视觉反馈进行迭代修正。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出视觉为中心的范式，通过 Blender GUI 操作而非脚本生成，实现感知驱动的几何编辑。</li>
+<li>设计无训练多智能体系统，包含 Planner Agent、Action Agent 和 Reflection Agent，模拟人类艺术家的迭代工作流。</li>
+<li>将复杂的雕刻操作分解为紧凑的原语交互模式（如 Smear、Drag、Draw），降低 GUI 操作空间的复杂性。</li>
+<li>利用多模态 LLM 的感知能力，基于实时视觉反馈迭代修正操作，确保编辑结果保留输入网格的身份特征。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.24130" data-arxiv-id="2608.24130" data-status="ready">
+<h1>[2608.24130] Syn2RealTrack: Bridging the Gap Between Synthetic and Real-World Datasets for Online Multi-View Multi-Target Tracking</h1>
+<p><a href="https://arxiv.org/abs/2608.24130" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了 Syn2RealTrack 系统，通过分解合成到真实世界的差距至相机标定、物体形状先验及目标普查假设三个独立点，在不重新训练特征提取器的情况下，通过重新分配几何与外观之间的信任度，实现了在真实物理环境下的在线多视图多目标跟踪性能提升。</p>
+<h2>解决的问题</h2>
+<p>现有的多相机 3D 感知系统主要依赖合成数据进行训练并在真实物理环境中评估，由此产生的 synthetic-to-real gap 会破坏地面定位和跨摄像头身份关联。传统方法通常将这一差距视为单一缺陷，试图用一个域适应模块来吸收，但忽略了该差距实际上在相机标定、物体形状先验和目标普查假设三个可分离点上进入流水线，且每个点需要不同的局部解决方案。</p>
+<h2>创新点</h2>
+<ul>
+<li>将合成到真实世界的差距分解为相机标定、物体形状先验和目标普查假设三个独立点，针对每个点提供不同的局部解决方案</li>
+<li>采用基于可见性权重的部件描述符进行跨视图检测融合，对遮挡部分进行放弃而非猜测</li>
+<li>通过重新分配几何与外观之间的信任度来适应环境，无需重新训练特征提取器</li>
+<li>在无标定提供的情况下，仅从图像中恢复镜头畸变</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2608.24039" data-arxiv-id="2608.24039" data-status="ready">
+<h1>[2608.24039] Design-to-Plan: A Large Language Model-Based Multi-Agent Framework for Manufacturing Process Planning from 3D CAD Models and 2D Engineering Drawings</h1>
+<p><a href="https://arxiv.org/abs/2608.24039" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 Design-to-Plan 框架，利用基于大语言模型（LLM）的多智能体协同机制，实现了从 3D CAD 模型和 2D 工程图到可执行制造过程计划的全流程端到端自动化，显著提升了工具选择准确率并优化了推理效率。</p>
+<h2>解决的问题</h2>
+<p>现有制造过程规划（CAPP）系统多依赖预定义模板，难以适应材料、几何及工艺要求的多样性；尽管机器学习在自动特征识别（AFR）和图纸理解等子任务上表现优异，但各模块相互孤立，缺乏从设计工件到过程计划的完整推理链条，且现有大语言模型（LLM）相关研究多局限于概念或单任务，缺乏智能体间通信、工作流级协调及端到端评估。</p>
+<h2>创新点</h2>
+<ul>
+<li>首个完全实现的基于大语言模型（LLM）的多智能体框架，连接异构设计工件与可执行制造过程规划</li>
+<li>采用混合确定性 - 智能体（Hybrid deterministic-agentic）设计，结合可靠的信息提取与灵活的不确定性推理</li>
+<li>构建包含特征提取、上下文融合、知识检索及工具选择等专用智能体的协同工作流</li>
+<li>提供系统化的端到端基准评估，比较了顺序与并行 ReAct 架构并在异构知识源下评估智能体行为</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2608.23549" data-arxiv-id="2608.23549" data-status="ready">
 <h1>[2608.23549] FixAnything: 3D-Consistent Rendering Refinement via Video Generative Priors</h1>
 <p><a href="https://arxiv.org/abs/2608.23549" rel="nofollow">arXiv 原文</a></p>
@@ -1639,6 +1785,21 @@
 <li>采用规划者 - 编码者 - 审查者工作流，通过分层场景协议与失败本地化重试机制，防止早期错误污染后续行为。</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.01222" data-arxiv-id="2607.01222" data-status="ready">
+<h1>[2607.01222] Ink3D: Sculpting 3D Assets with Extremely Complex Textures via Video Generative Models</h1>
+<p><a href="https://arxiv.org/abs/2607.01222" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>Ink3D 通过解耦几何与纹理合成，利用离线的 3D 生成模型构建 white-mesh geometry，并结合大规模预训练的 Video Generative Models 生成稠密轨道扫描视频，最终经由 TextureOptimizer 实现神经烘焙，显著提升了 3D 资产在复杂纹理上的生成质量与忠实度。</p>
+<h2>解决的问题</h2>
+<p>现有 3D 生成方法虽然能合成高质量的几何结构，但受限于大规模 3D 训练数据的稀缺，难以准确复刻参考图像中的复杂纹理细节（如文字、织物图案）。现有的纹理合成方法多依赖稀疏的多视图图像生成，存在视图覆盖不完整以及跨视图不一致（颜色或图案冲突）的问题，且难以利用互联网海量视觉数据中的强大视觉先验来弥补 3D 外观建模的不足。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 Ink3D 框架，通过解耦几何与纹理合成，利用现有 3D 生成模型构建 white-mesh geometry，并引入大规模预训练的 Video Generative Models 进行纹理生成。</li>
+<li>设计 OrbitPainter 模块，利用条件视频生成模型生成包含水平与垂直旋转的稠密 360 度轨道扫描视频，实现物体表面的完整视图覆盖与时空一致性。</li>
+<li>开发 TextureOptimizer 神经烘焙模块，将稠密多视图观察转化为纹理体素表示，并通过先验引导的去噪过程纠正几何不一致性，有效减少颜色溢出与模糊伪影。</li>
+<li>利用视频生成的内在时空一致性，解决了传统稀疏多视图方法中存在的跨视图纹理冲突与表面区域缺失问题，实现了比 prior approaches 更丰富的纹理生成。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2607.00832" data-arxiv-id="2607.00832" data-status="ready">
 <h1>[2607.00832] Pano2World: End-to-End 3D Generation via Unified Multi-View Sequences</h1>
 <p><a href="https://arxiv.org/abs/2607.00832" rel="nofollow">arXiv 原文</a></p>
@@ -1815,6 +1976,6 @@
     </article>
     </div>
   </main>
-  <script type="application/json" id="summary-catalog">{"papers":{"2603.05607":{"status":"ready","url":"notes/3d-generation.html#summary-2603.05607"},"2603.16085":{"status":"ready","url":"notes/3d-generation.html#summary-2603.16085"},"2603.19216":{"status":"ready","url":"notes/3d-generation.html#summary-2603.19216"},"2603.21611":{"status":"ready","url":"notes/3d-generation.html#summary-2603.21611"},"2603.22782":{"status":"ready","url":"notes/3d-generation.html#summary-2603.22782"},"2603.27084":{"status":"ready","url":"notes/3d-generation.html#summary-2603.27084"},"2605.16813":{"status":"ready","url":"notes/3d-generation.html#summary-2605.16813"},"2605.19748":{"status":"pending"},"2605.21472":{"status":"ready","url":"notes/3d-generation.html#summary-2605.21472"},"2605.27351":{"status":"ready","url":"notes/3d-generation.html#summary-2605.27351"},"2606.29395":{"status":"ready","url":"notes/3d-generation.html#summary-2606.29395"},"2607.00382":{"status":"ready","url":"notes/3d-generation.html#summary-2607.00382"},"2607.00832":{"status":"ready","url":"notes/3d-generation.html#summary-2607.00832"},"2607.01766":{"status":"ready","url":"notes/3d-generation.html#summary-2607.01766"},"2607.01803":{"status":"ready","url":"notes/3d-generation.html#summary-2607.01803"},"2607.02045":{"status":"ready","url":"notes/3d-generation.html#summary-2607.02045"},"2607.02407":{"status":"ready","url":"notes/3d-generation.html#summary-2607.02407"},"2607.02516":{"status":"ready","url":"notes/3d-generation.html#summary-2607.02516"},"2607.02674":{"status":"ready","url":"notes/3d-generation.html#summary-2607.02674"},"2607.03731":{"status":"ready","url":"notes/3d-generation.html#summary-2607.03731"},"2607.03819":{"status":"ready","url":"notes/3d-generation.html#summary-2607.03819"},"2607.03990":{"status":"ready","url":"notes/3d-generation.html#summary-2607.03990"},"2607.04540":{"status":"ready","url":"notes/3d-generation.html#summary-2607.04540"},"2607.05373":{"status":"ready","url":"notes/3d-generation.html#summary-2607.05373"},"2607.05392":{"status":"ready","url":"notes/3d-generation.html#summary-2607.05392"},"2607.05573":{"status":"ready","url":"notes/3d-generation.html#summary-2607.05573"},"2607.06565":{"status":"ready","url":"notes/3d-generation.html#summary-2607.06565"},"2607.07187":{"status":"ready","url":"notes/3d-generation.html#summary-2607.07187"},"2607.07459":{"status":"ready","url":"notes/3d-generation.html#summary-2607.07459"},"2607.07749":{"status":"ready","url":"notes/3d-generation.html#summary-2607.07749"},"2607.07817":{"status":"ready","url":"notes/3d-generation.html#summary-2607.07817"},"2607.08246":{"status":"ready","url":"notes/3d-generation.html#summary-2607.08246"},"2607.08891":{"status":"ready","url":"notes/3d-generation.html#summary-2607.08891"},"2607.10560":{"status":"ready","url":"notes/3d-generation.html#summary-2607.10560"},"2607.10623":{"status":"ready","url":"notes/3d-generation.html#summary-2607.10623"},"2607.10826":{"status":"ready","url":"notes/3d-generation.html#summary-2607.10826"},"2607.11673":{"status":"ready","url":"notes/3d-generation.html#summary-2607.11673"},"2607.12193":{"status":"ready","url":"notes/3d-generation.html#summary-2607.12193"},"2607.12752":{"status":"ready","url":"notes/3d-generation.html#summary-2607.12752"},"2607.13365":{"status":"ready","url":"notes/3d-generation.html#summary-2607.13365"},"2607.13468":{"status":"ready","url":"notes/3d-generation.html#summary-2607.13468"},"2607.13563":{"status":"ready","url":"notes/3d-generation.html#summary-2607.13563"},"2607.13654":{"status":"ready","url":"notes/3d-generation.html#summary-2607.13654"},"2607.14927":{"status":"ready","url":"notes/3d-generation.html#summary-2607.14927"},"2607.16352":{"status":"ready","url":"notes/3d-generation.html#summary-2607.16352"},"2607.16577":{"status":"ready","url":"notes/3d-generation.html#summary-2607.16577"},"2607.16805":{"status":"ready","url":"notes/3d-generation.html#summary-2607.16805"},"2607.17093":{"status":"ready","url":"notes/3d-generation.html#summary-2607.17093"},"2607.17145":{"status":"ready","url":"notes/3d-generation.html#summary-2607.17145"},"2607.19120":{"status":"ready","url":"notes/3d-generation.html#summary-2607.19120"},"2607.19777":{"status":"ready","url":"notes/3d-generation.html#summary-2607.19777"},"2607.20660":{"status":"ready","url":"notes/3d-generation.html#summary-2607.20660"},"2607.20789":{"status":"ready","url":"notes/3d-generation.html#summary-2607.20789"},"2607.22738":{"status":"ready","url":"notes/3d-generation.html#summary-2607.22738"},"2607.24298":{"status":"ready","url":"notes/3d-generation.html#summary-2607.24298"},"2607.24721":{"status":"ready","url":"notes/3d-generation.html#summary-2607.24721"},"2607.26646":{"status":"ready","url":"notes/3d-generation.html#summary-2607.26646"},"2607.28164":{"status":"ready","url":"notes/3d-generation.html#summary-2607.28164"},"2607.28581":{"status":"ready","url":"notes/3d-generation.html#summary-2607.28581"},"2607.28675":{"status":"ready","url":"notes/3d-generation.html#summary-2607.28675"},"2608.00094":{"status":"ready","url":"notes/3d-generation.html#summary-2608.00094"},"2608.00891":{"status":"ready","url":"notes/3d-generation.html#summary-2608.00891"},"2608.01335":{"status":"ready","url":"notes/3d-generation.html#summary-2608.01335"},"2608.01605":{"status":"ready","url":"notes/3d-generation.html#summary-2608.01605"},"2608.02016":{"status":"ready","url":"notes/3d-generation.html#summary-2608.02016"},"2608.02711":{"status":"ready","url":"notes/3d-generation.html#summary-2608.02711"},"2608.03062":{"status":"ready","url":"notes/3d-generation.html#summary-2608.03062"},"2608.03179":{"status":"ready","url":"notes/3d-generation.html#summary-2608.03179"},"2608.05248":{"status":"ready","url":"notes/3d-generation.html#summary-2608.05248"},"2608.05714":{"status":"ready","url":"notes/3d-generation.html#summary-2608.05714"},"2608.05879":{"status":"ready","url":"notes/3d-generation.html#summary-2608.05879"},"2608.06161":{"status":"ready","url":"notes/3d-generation.html#summary-2608.06161"},"2608.08053":{"status":"ready","url":"notes/3d-generation.html#summary-2608.08053"},"2608.09110":{"status":"ready","url":"notes/3d-generation.html#summary-2608.09110"},"2608.09186":{"status":"ready","url":"notes/3d-generation.html#summary-2608.09186"},"2608.10744":{"status":"ready","url":"notes/3d-generation.html#summary-2608.10744"},"2608.11876":{"status":"ready","url":"notes/3d-generation.html#summary-2608.11876"},"2608.12175":{"status":"ready","url":"notes/3d-generation.html#summary-2608.12175"},"2608.12997":{"status":"ready","url":"notes/3d-generation.html#summary-2608.12997"},"2608.13541":{"status":"ready","url":"notes/3d-generation.html#summary-2608.13541"},"2608.14783":{"status":"ready","url":"notes/3d-generation.html#summary-2608.14783"},"2608.15749":{"status":"ready","url":"notes/3d-generation.html#summary-2608.15749"},"2608.16234":{"status":"ready","url":"notes/3d-generation.html#summary-2608.16234"},"2608.17988":{"status":"ready","url":"notes/3d-generation.html#summary-2608.17988"},"2608.18616":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18616"},"2608.18627":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18627"},"2608.18711":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18711"},"2608.18734":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18734"},"2608.18750":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18750"},"2608.18840":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18840"},"2608.18948":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18948"},"2608.19036":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19036"},"2608.19063":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19063"},"2608.19177":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19177"},"2608.19756":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19756"},"2608.19769":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19769"},"2608.19823":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19823"},"2608.19900":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19900"},"2608.19934":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19934"},"2608.19965":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19965"},"2608.20093":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20093"},"2608.20277":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20277"},"2608.20305":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20305"},"2608.20308":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20308"},"2608.20639":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20639"},"2608.20659":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20659"},"2608.20691":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20691"},"2608.20699":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20699"},"2608.20720":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20720"},"2608.20740":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20740"},"2608.20748":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20748"},"2608.20759":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20759"},"2608.20775":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20775"},"2608.20891":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20891"},"2608.22821":{"status":"ready","url":"notes/3d-generation.html#summary-2608.22821"},"2608.22833":{"status":"ready","url":"notes/3d-generation.html#summary-2608.22833"},"2608.22888":{"status":"ready","url":"notes/3d-generation.html#summary-2608.22888"},"2608.22906":{"status":"ready","url":"notes/3d-generation.html#summary-2608.22906"},"2608.23014":{"status":"ready","url":"notes/3d-generation.html#summary-2608.23014"},"2608.23140":{"status":"ready","url":"notes/3d-generation.html#summary-2608.23140"},"2608.23206":{"status":"ready","url":"notes/3d-generation.html#summary-2608.23206"},"2608.23210":{"status":"ready","url":"notes/3d-generation.html#summary-2608.23210"},"2608.23410":{"status":"ready","url":"notes/3d-generation.html#summary-2608.23410"},"2608.23549":{"status":"ready","url":"notes/3d-generation.html#summary-2608.23549"},"2608.24039":{"status":"pending"},"2608.24130":{"status":"pending"},"2608.24169":{"status":"pending"},"2608.24182":{"status":"pending"},"2608.24212":{"status":"pending"},"2608.24333":{"status":"pending"},"2608.24343":{"status":"pending"},"2608.24364":{"status":"pending"},"2608.24714":{"status":"pending"},"2608.24760":{"status":"pending"}},"topic":"3D Generation","version":1}</script>
+  <script type="application/json" id="summary-catalog">{"papers":{"2603.05607":{"status":"ready","url":"notes/3d-generation.html#summary-2603.05607"},"2603.16085":{"status":"ready","url":"notes/3d-generation.html#summary-2603.16085"},"2603.19216":{"status":"ready","url":"notes/3d-generation.html#summary-2603.19216"},"2603.21611":{"status":"ready","url":"notes/3d-generation.html#summary-2603.21611"},"2603.22782":{"status":"ready","url":"notes/3d-generation.html#summary-2603.22782"},"2603.27084":{"status":"ready","url":"notes/3d-generation.html#summary-2603.27084"},"2605.16813":{"status":"ready","url":"notes/3d-generation.html#summary-2605.16813"},"2605.19748":{"status":"pending"},"2605.21472":{"status":"ready","url":"notes/3d-generation.html#summary-2605.21472"},"2605.27351":{"status":"ready","url":"notes/3d-generation.html#summary-2605.27351"},"2606.29395":{"status":"ready","url":"notes/3d-generation.html#summary-2606.29395"},"2607.00382":{"status":"ready","url":"notes/3d-generation.html#summary-2607.00382"},"2607.00832":{"status":"ready","url":"notes/3d-generation.html#summary-2607.00832"},"2607.01222":{"status":"ready","url":"notes/3d-generation.html#summary-2607.01222"},"2607.01766":{"status":"ready","url":"notes/3d-generation.html#summary-2607.01766"},"2607.01803":{"status":"ready","url":"notes/3d-generation.html#summary-2607.01803"},"2607.02045":{"status":"ready","url":"notes/3d-generation.html#summary-2607.02045"},"2607.02407":{"status":"ready","url":"notes/3d-generation.html#summary-2607.02407"},"2607.02516":{"status":"ready","url":"notes/3d-generation.html#summary-2607.02516"},"2607.02674":{"status":"ready","url":"notes/3d-generation.html#summary-2607.02674"},"2607.03731":{"status":"ready","url":"notes/3d-generation.html#summary-2607.03731"},"2607.03819":{"status":"ready","url":"notes/3d-generation.html#summary-2607.03819"},"2607.03990":{"status":"ready","url":"notes/3d-generation.html#summary-2607.03990"},"2607.04540":{"status":"ready","url":"notes/3d-generation.html#summary-2607.04540"},"2607.05373":{"status":"ready","url":"notes/3d-generation.html#summary-2607.05373"},"2607.05392":{"status":"ready","url":"notes/3d-generation.html#summary-2607.05392"},"2607.05573":{"status":"ready","url":"notes/3d-generation.html#summary-2607.05573"},"2607.06565":{"status":"ready","url":"notes/3d-generation.html#summary-2607.06565"},"2607.07187":{"status":"ready","url":"notes/3d-generation.html#summary-2607.07187"},"2607.07459":{"status":"ready","url":"notes/3d-generation.html#summary-2607.07459"},"2607.07749":{"status":"ready","url":"notes/3d-generation.html#summary-2607.07749"},"2607.07817":{"status":"ready","url":"notes/3d-generation.html#summary-2607.07817"},"2607.08246":{"status":"ready","url":"notes/3d-generation.html#summary-2607.08246"},"2607.08891":{"status":"ready","url":"notes/3d-generation.html#summary-2607.08891"},"2607.10560":{"status":"ready","url":"notes/3d-generation.html#summary-2607.10560"},"2607.10623":{"status":"ready","url":"notes/3d-generation.html#summary-2607.10623"},"2607.10826":{"status":"ready","url":"notes/3d-generation.html#summary-2607.10826"},"2607.11673":{"status":"ready","url":"notes/3d-generation.html#summary-2607.11673"},"2607.12193":{"status":"ready","url":"notes/3d-generation.html#summary-2607.12193"},"2607.12752":{"status":"ready","url":"notes/3d-generation.html#summary-2607.12752"},"2607.13365":{"status":"ready","url":"notes/3d-generation.html#summary-2607.13365"},"2607.13468":{"status":"ready","url":"notes/3d-generation.html#summary-2607.13468"},"2607.13563":{"status":"ready","url":"notes/3d-generation.html#summary-2607.13563"},"2607.13654":{"status":"ready","url":"notes/3d-generation.html#summary-2607.13654"},"2607.14927":{"status":"ready","url":"notes/3d-generation.html#summary-2607.14927"},"2607.16352":{"status":"ready","url":"notes/3d-generation.html#summary-2607.16352"},"2607.16577":{"status":"ready","url":"notes/3d-generation.html#summary-2607.16577"},"2607.16805":{"status":"ready","url":"notes/3d-generation.html#summary-2607.16805"},"2607.17093":{"status":"ready","url":"notes/3d-generation.html#summary-2607.17093"},"2607.17145":{"status":"ready","url":"notes/3d-generation.html#summary-2607.17145"},"2607.19120":{"status":"ready","url":"notes/3d-generation.html#summary-2607.19120"},"2607.19777":{"status":"ready","url":"notes/3d-generation.html#summary-2607.19777"},"2607.20660":{"status":"ready","url":"notes/3d-generation.html#summary-2607.20660"},"2607.20789":{"status":"ready","url":"notes/3d-generation.html#summary-2607.20789"},"2607.22738":{"status":"ready","url":"notes/3d-generation.html#summary-2607.22738"},"2607.24298":{"status":"ready","url":"notes/3d-generation.html#summary-2607.24298"},"2607.24721":{"status":"ready","url":"notes/3d-generation.html#summary-2607.24721"},"2607.26646":{"status":"ready","url":"notes/3d-generation.html#summary-2607.26646"},"2607.28164":{"status":"ready","url":"notes/3d-generation.html#summary-2607.28164"},"2607.28581":{"status":"ready","url":"notes/3d-generation.html#summary-2607.28581"},"2607.28675":{"status":"ready","url":"notes/3d-generation.html#summary-2607.28675"},"2608.00094":{"status":"ready","url":"notes/3d-generation.html#summary-2608.00094"},"2608.00891":{"status":"ready","url":"notes/3d-generation.html#summary-2608.00891"},"2608.01335":{"status":"ready","url":"notes/3d-generation.html#summary-2608.01335"},"2608.01605":{"status":"ready","url":"notes/3d-generation.html#summary-2608.01605"},"2608.02016":{"status":"ready","url":"notes/3d-generation.html#summary-2608.02016"},"2608.02711":{"status":"ready","url":"notes/3d-generation.html#summary-2608.02711"},"2608.03062":{"status":"ready","url":"notes/3d-generation.html#summary-2608.03062"},"2608.03179":{"status":"ready","url":"notes/3d-generation.html#summary-2608.03179"},"2608.05248":{"status":"ready","url":"notes/3d-generation.html#summary-2608.05248"},"2608.05714":{"status":"ready","url":"notes/3d-generation.html#summary-2608.05714"},"2608.05879":{"status":"ready","url":"notes/3d-generation.html#summary-2608.05879"},"2608.06161":{"status":"ready","url":"notes/3d-generation.html#summary-2608.06161"},"2608.08053":{"status":"ready","url":"notes/3d-generation.html#summary-2608.08053"},"2608.09110":{"status":"ready","url":"notes/3d-generation.html#summary-2608.09110"},"2608.09186":{"status":"ready","url":"notes/3d-generation.html#summary-2608.09186"},"2608.10744":{"status":"ready","url":"notes/3d-generation.html#summary-2608.10744"},"2608.11876":{"status":"ready","url":"notes/3d-generation.html#summary-2608.11876"},"2608.12175":{"status":"ready","url":"notes/3d-generation.html#summary-2608.12175"},"2608.12997":{"status":"ready","url":"notes/3d-generation.html#summary-2608.12997"},"2608.13541":{"status":"ready","url":"notes/3d-generation.html#summary-2608.13541"},"2608.14783":{"status":"ready","url":"notes/3d-generation.html#summary-2608.14783"},"2608.15749":{"status":"ready","url":"notes/3d-generation.html#summary-2608.15749"},"2608.16234":{"status":"ready","url":"notes/3d-generation.html#summary-2608.16234"},"2608.17988":{"status":"ready","url":"notes/3d-generation.html#summary-2608.17988"},"2608.18616":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18616"},"2608.18627":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18627"},"2608.18711":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18711"},"2608.18734":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18734"},"2608.18750":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18750"},"2608.18840":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18840"},"2608.18948":{"status":"ready","url":"notes/3d-generation.html#summary-2608.18948"},"2608.19036":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19036"},"2608.19063":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19063"},"2608.19177":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19177"},"2608.19756":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19756"},"2608.19769":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19769"},"2608.19823":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19823"},"2608.19900":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19900"},"2608.19934":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19934"},"2608.19965":{"status":"ready","url":"notes/3d-generation.html#summary-2608.19965"},"2608.20093":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20093"},"2608.20277":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20277"},"2608.20305":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20305"},"2608.20308":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20308"},"2608.20639":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20639"},"2608.20659":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20659"},"2608.20691":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20691"},"2608.20699":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20699"},"2608.20720":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20720"},"2608.20740":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20740"},"2608.20748":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20748"},"2608.20759":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20759"},"2608.20775":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20775"},"2608.20891":{"status":"ready","url":"notes/3d-generation.html#summary-2608.20891"},"2608.22821":{"status":"ready","url":"notes/3d-generation.html#summary-2608.22821"},"2608.22833":{"status":"ready","url":"notes/3d-generation.html#summary-2608.22833"},"2608.22888":{"status":"ready","url":"notes/3d-generation.html#summary-2608.22888"},"2608.22906":{"status":"ready","url":"notes/3d-generation.html#summary-2608.22906"},"2608.23014":{"status":"ready","url":"notes/3d-generation.html#summary-2608.23014"},"2608.23140":{"status":"ready","url":"notes/3d-generation.html#summary-2608.23140"},"2608.23206":{"status":"ready","url":"notes/3d-generation.html#summary-2608.23206"},"2608.23210":{"status":"ready","url":"notes/3d-generation.html#summary-2608.23210"},"2608.23410":{"status":"ready","url":"notes/3d-generation.html#summary-2608.23410"},"2608.23549":{"status":"ready","url":"notes/3d-generation.html#summary-2608.23549"},"2608.24039":{"status":"ready","url":"notes/3d-generation.html#summary-2608.24039"},"2608.24130":{"status":"ready","url":"notes/3d-generation.html#summary-2608.24130"},"2608.24169":{"status":"ready","url":"notes/3d-generation.html#summary-2608.24169"},"2608.24182":{"status":"ready","url":"notes/3d-generation.html#summary-2608.24182"},"2608.24212":{"status":"ready","url":"notes/3d-generation.html#summary-2608.24212"},"2608.24333":{"status":"ready","url":"notes/3d-generation.html#summary-2608.24333"},"2608.24343":{"status":"ready","url":"notes/3d-generation.html#summary-2608.24343"},"2608.24364":{"status":"ready","url":"notes/3d-generation.html#summary-2608.24364"},"2608.24714":{"status":"ready","url":"notes/3d-generation.html#summary-2608.24714"},"2608.24760":{"status":"ready","url":"notes/3d-generation.html#summary-2608.24760"}},"topic":"3D Generation","version":1}</script>
 </body>
 </html>

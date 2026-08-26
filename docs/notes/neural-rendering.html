@@ -1304,6 +1304,80 @@
 <li>采用耦合 optical-RF optimization 策略，联合 refine shared Gaussians 而非冻结 optical geometry</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.24538" data-arxiv-id="2607.24538" data-status="ready">
+<h1>[2607.24538] NEO: NeRF It Once, Edit It Many Times for Continuous Object Manipulation</h1>
+<p><a href="https://arxiv.org/abs/2607.24538" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>NEO 提出了一种统一的 NeRF 编辑框架，专为语言引导的机器人操作设计，能够在无需重新扫描场景的情况下通过直接更新网络权重实现连续物体操作，在物体移除和抓取放置任务中展现出优于最先进基线的视觉连贯性与几何一致性。</p>
+<h2>解决的问题</h2>
+<p>现有的基于 NeRF 的机器人操作流水线通常需要在每次交互后重新观察或扫描场景以更新表示，耗时且难以在现实应用中实现；同时，虽然已有直接编辑 NeRF 表示的方法，但它们往往缺乏真实世界机器人操作所需的稳健性和一致性，例如编辑无法永久保持、移除物体后底层几何不一致、跨视角可靠性不足或容易产生幻觉。</p>
+<h2>创新点</h2>
+<ul>
+<li>结合 neural field resampling 与 multiview-consistent progressive inpainting 的语言引导物体移除方法。</li>
+<li>利用 knowledge distillation 直接编辑 NeRF 权重的方法，通过 teacher-student model 组合原始与 edited NeRFs 以实现 coherent modeling of future scene states。</li>
+<li>首个针对机器人操作场景的 NeRF 场景编辑评估基准（NEO-Dataset），包含 registered pre- and post-edit scenes 以支持 rigorous, quantitative evaluation。</li>
+<li>支持无需 additional scene re-scanning 即可进行 multi-stage robotic assembly tasks 的持久化 NeRF plus language-field representation 更新框架。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.24403" data-arxiv-id="2607.24403" data-status="ready">
+<h1>[2607.24403] GenSplatCodec: Feed-Forward Gaussian Splatting Compression via One-Step Diffusion</h1>
+<p><a href="https://arxiv.org/abs/2607.24403" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 GenSplatCodec，一种统一的 Feed-Forward 3D Gaussian Splatting (3DGS) 编码器，通过将低比特率压缩重构为几何引导的生成式解码，实现了在保持传输结构一致性的同时恢复高保真视图，显著优于现有方法。</p>
+<h2>解决的问题</h2>
+<p>现有前馈 3DGS 方法因高维高斯原语导致存储传输开销大，而现有压缩方法依赖确定性重构，在低比特率下丢失高频纹理和视图依赖外观；同时，独立的生成式后处理虽能增强质量，但因与编码结构解耦且常采用多步采样，导致跨视角一致性受损，难以平衡保真度与结构约束。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出统一的 GenSplatCodec 架构，将低比特率高斯压缩重构为几何引导的生成式解码，统一了紧凑编码与生成式重建。</li>
+<li>设计细节感知的前馈高斯编码方案，采用双流形式包含紧凑高斯结构流与轻量参考外观流。</li>
+<li>引入几何引导的单步生成式解码方法，通过层级几何控制联合利用解码的结构与外观线索。</li>
+<li>开发三阶段优化策略，稳定统一编码器的学习过程并适配生成解码器对结构外观线索的适应。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.22956" data-arxiv-id="2607.22956" data-status="ready">
+<h1>[2607.22956] 3D Gaussian Splatting for Scientific Particle Data Compression and Rendering</h1>
+<p><a href="https://arxiv.org/abs/2607.22956" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种名为 ParticleGS 的基于 3D Gaussian Splatting 的可视化感知框架，通过多阶段训练、VizMapper 网络及空间块训练策略，实现了大规模科学粒子数据的高效压缩与实时渲染，在显著降低存储量的同时大幅提升了视觉保真度与交互帧率。</p>
+<h2>解决的问题</h2>
+<p>现有科学数据压缩器（如 SZ3）完全在数据空间操作，最小化坐标重建误差却缺乏对下游可视化保真度的保障，导致数据空间误差低但渲染图像存在伪影；同时，通用神经隐式表示方法（如 NeRF）主要针对结构化网格，难以处理非结构化粒子云及用户可调的渲染参数，无法在大规模粒子数据上实现高保真实时可视化。</p>
+<h2>创新点</h2>
+<ul>
+<li>设计了针对科学粒子渲染的多阶段、多分辨率及多轨道训练 pipeline，支持多相机距离与渐进式分辨率，以学习全局结构与局部细节</li>
+<li>提出了 VizMapper 轻量级网络，利用高斯属性与全局可视化参数生成乘法校正，使单模型在推理时无需重训练即可适应不同渲染设置</li>
+<li>实现了基于 KD-tree 分解的空间块训练与全局微调机制，通过并行训练独立块模型并合并，显著提升了模型容量与质量</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.22890" data-arxiv-id="2607.22890" data-status="ready">
+<h1>[2607.22890] Meshless Domain Randomization via Explicit Parameter Perturbation of 3D Gaussian Splatting</h1>
+<p><a href="https://arxiv.org/abs/2607.22890" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种基于 3D Gaussian Splatting (3DGS) 参数的无网格（meshless）域随机化（Domain Randomization, DR）框架，通过光测（Photometric DR）和过程化（Procedural DR）扰动管道生成合成数据集，有效解决了复杂生物样本在 Sim-to-Real 迁移中的纹理偏差与几何建模难题。</p>
+<h2>解决的问题</h2>
+<p>传统的域随机化（Domain Randomization, DR）管线依赖多边形网格（polygonal meshes）进行渲染，难以处理昆虫等复杂有机体中 1D、2D 及 3D 混合特征与高透明度纹理，导致建模需人工干预且结构信息丢失。同时，现有网格基 DR 方法为增强鲁棒性而随机化纹理，会削弱分类模型依赖的关键形态学视觉线索，加剧生物多样性研究中的纹理偏差（texture bias）。</p>
+<h2>创新点</h2>
+<ul>
+<li>基于 3D Gaussian Splatting (3DGS) 参数空间构建无网格（meshless）框架，替代传统多边形网格渲染以支持复杂几何。</li>
+<li>设计光测（Photometric DR）与过程化（Procedural DR）两条独立扰动管线，分别调制球谐系数（SH coefficients）与替换纹理为 3D 空间噪声。</li>
+<li>利用渲染引擎自动提取 2D 边界框（bounding boxes）以生成标注数据集，消除人工注释需求。</li>
+<li>在合成数据中保持生物物种的形态学完整性（morphological integrity），缓解传统网格方法导致的纹理偏差（texture bias）。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.22780" data-arxiv-id="2607.22780" data-status="ready">
+<h1>[2607.22780] Inter-Reflective Gaussian Splatting for Robust and Efficient Inverse Rendering</h1>
+<p><a href="https://arxiv.org/abs/2607.22780" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 IRGS++ 框架，通过可微分 2D Gaussian ray tracing 在表面导向的 Gaussian primitives 上查询可见性与间接辐射，结合多重 importance sampling 与 denoising 技术，实现了物理基础的渲染方程求解及高质量、高效的新光照重渲染。</p>
+<h2>解决的问题</h2>
+<p>现有的基于光栅化的 Gaussian representations 难以自然支持次级光线查询，无法有效解释二次照明和交互反射，导致逆渲染在物理准确性上存在不足，且难以扩展到光泽、镜面及金属等复杂材质场景。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 IRGS++ 框架，采用可微分 2D Gaussian ray tracing 在表面导向的 Gaussian primitives 上评估完整的渲染方程。</li>
+<li>引入金属感知材料建模与稳健反射初始化，以支持光泽、镜面及金属材质的处理。</li>
+<li>采用多重 importance sampling 和 denoising 技术来稳定有限样本渲染过程。</li>
+<li>利用 mesh-based 次级属性查询降低新光照条件下的重渲染计算成本。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2607.22673" data-arxiv-id="2607.22673" data-status="ready">
 <h1>[2607.22673] URHead: A Unified UV-Space Representation for Joint Mesh-3DGS Optimization in Head Avatars</h1>
 <p><a href="https://arxiv.org/abs/2607.22673" rel="nofollow">arXiv 原文</a></p>
@@ -1318,6 +1392,63 @@
 <li>提出误差驱动的高斯分配策略，通过在 UV 空间投影重建误差实现表面感知的自适应稠密化。</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.22446" data-arxiv-id="2607.22446" data-status="ready">
+<h1>[2607.22446] Deformable Triangle Splatting: Flexible Primitives for Real-Time Radiance Field Rendering</h1>
+<p><a href="https://arxiv.org/abs/2607.22446" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 Deformable Triangle Splatting 方法，通过为三角形边增加可学习的控制点实现非凸形状表示，结合基于重心坐标空间（barycentric coordinate space）的渲染管线，在保持实时渲染效率的同时显著提升了真实场景的视觉质量与几何适应性。</p>
+<h2>解决的问题</h2>
+<p>现有辐射场方法虽引入了 2D 原语以提高表面对齐效率，但普遍依赖凸边界，导致表示曲线或非凸结构时需要过度增殖原素；尽管三角形 Splatting 利用 GPU 硬件加速，但其固定拓扑结构仍无法有效建模非凸局部几何，难以在保持实时渲染效率的同时兼顾复杂的几何形状表达。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 Deformable Triangle Splatting，通过为三角形边增加可学习的控制点，利用标量位移沿边法向移动边界，在不修改基顶点的前提下实现非凸形状表示。</li>
+<li>设计基于三角形重心坐标空间（barycentric coordinate space）的渲染管线，结合绕数测试（winding number test）与窗口函数，确保非凸原素的可微渲染及透明度平滑过渡。</li>
+<li>提供高效的 CUDA 实现，在真实世界场景验证中优于基于非体积原语的最新工作，在视觉保真度与通用性上取得提升的同时保持具有竞争力的实时渲染效率。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.21675" data-arxiv-id="2607.21675" data-status="ready">
+<h1>[2607.21675] Hash-QNeRF: Multiresolution Hash Encoding for Quantum Neural Radiance Fields</h1>
+<p><a href="https://arxiv.org/abs/2607.21675" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>Hash-QNeRF 通过将 Instant-NGP 的多分辨率哈希编码引入量子神经辐射场管线，替换了原有的正弦位置编码，在保持量子辐射预测步骤不变的同时，实现了更快的训练收敛与内存效率，并在合成场景上达到了 24.5 dB PSNR。</p>
+<h2>解决的问题</h2>
+<p>现有 QNeRF 方法虽然证明了端到端可微量子 NeRF 训练的可行性，但其依赖的正弦位置编码作为空间坐标表示存在计算瓶颈，难以适应高场景复杂度与分辨率需求，且无法利用现代高效空间表示带来的内存与速度优势。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 Hash-QNeRF 架构，将 Instant-NGP 的多分辨率哈希编码集成至量子 NeRF 管线，仅替换正弦位置编码而保留其他量子组件。</li>
+<li>在 PennyLane 框架下实现了 CPU 端的端到端稳定训练，在 Blender 合成场景上获得 0.003534 的最终训练损失与 24.5 dB PSNR 渲染质量。</li>
+<li>验证了哈希编码替换不损害量子电路的噪声容忍度，在 Qiskit FakeKyiv 和 FakeTorino 后端下的状态保真度保持在 0.93 至 0.98 之间。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.21448" data-arxiv-id="2607.21448" data-status="ready">
+<h1>[2607.21448] GrainGS: Gradient-Decoupled Gaussian Splatting for Efficient Dynamic Novel View Synthesis</h1>
+<p><a href="https://arxiv.org/abs/2607.21448" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 GrainGS，一种结合分层锚点骨架（hierarchical anchor scaffold）与高斯点独立变形（per-Gaussian deformation）的动态 3D-GS 框架，通过梯度解耦操作和外观残差分解实现结构约束与细粒度运动的平衡，在合成与真实世界基准上实现了高质量重建与实时渲染。</p>
+<h2>解决的问题</h2>
+<p>现有动态 3D-GS 方法难以平衡运动表达性与结构稳定性。基于原语（per-primitive）的方法虽灵活但易导致冗余高斯增长，基于锚点（anchor-based）的方法虽正则化但抑制局部变化，近期方法仍使几何与时间变形紧密耦合。</p>
+<h2>创新点</h2>
+<ul>
+<li>结合分层锚点骨架（hierarchical anchor scaffold）与高斯点独立变形（per-Gaussian deformation）</li>
+<li>利用梯度解耦操作（stop-gradient operation）阻断变形梯度流向规范位置</li>
+<li>引入规范 - 残差外观分解（canonical-residual appearance decomposition）独立建模光度变化</li>
+<li>设置静态预热阶段（static warm-up stage）建立时间不变规范表示</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.20813" data-arxiv-id="2607.20813" data-status="ready">
+<h1>[2607.20813] SubSplat: High-Resolution Pixel-aligned 3DGS via Sub-pixel Gaussian Reparameterization</h1>
+<p><a href="https://arxiv.org/abs/2607.20813" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>SubSplat 提出了一种基于 Sub-pixel Gaussian Reparameterizer (SPGR) 的方法，通过将主高斯细分为细粒度基元并从低分辨率特征中恢复结构密度，有效解决了像素对齐 3DGS 在高分辨率渲染中细节质量与网络计算成本之间的权衡问题，在 RealEstate10K 和 ACID 数据集上实现了高保真渲染与高效能。</p>
+<h2>解决的问题</h2>
+<p>现有的像素对齐 3DGS 方法在高分辨率渲染时面临关键权衡，提高输入分辨率虽能改善细节但会导致网络计算成本呈二次方增长，而维持低分辨率输入虽稳定成本却导致高斯密度不足和伪影；此外，现有通过反走样和自适应稠密化改进质量的方法往往需要逐场景优化，限制了泛化能力。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 Sub-pixel Gaussian Reparameterizer (SPGR)，将主高斯细分为细粒度基元，直接从低分辨率特征中恢复结构密度。</li>
+<li>引入特征聚合机制增强重参数化质量，有效捕获多视图间的高频细节。</li>
+<li>解决了重参数化保真度与网络计算成本之间的固有权衡，在保持低分辨率输入稳定成本的同时实现高分辨率渲染。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2607.20417" data-arxiv-id="2607.20417" data-status="ready">
 <h1>[2607.20417] ATSplat: Compact Feed-forward 3D Gaussian Splatting with Adaptive Token Expansion</h1>
 <p><a href="https://arxiv.org/abs/2607.20417" rel="nofollow">arXiv 原文</a></p>
@@ -1330,6 +1461,107 @@
 <li>提出基于自适应 3D Token 的 Feed-forward 3DGS 框架，将稀疏初始化、自由放置和自适应容量分配转化为围绕自适应锚 Token 的 Feed-forward 操作。</li>
 <li>设计自适应 Token 扩展模块，通过预测 Token 级不确定性分数并监督渲染误差图，在不直接访问渲染误差的情况下选择性地扩展挑战性区域。</li>
 <li>通过 Token 锚点与局部高斯偏移解耦原语放置与输入图像网格，实现基于场景复杂度的紧凑表示。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.20325" data-arxiv-id="2607.20325" data-status="ready">
+<h1>[2607.20325] MR-Compare: A Mixed-Reality Framework for Spatially Grounded Visual Comparison of 3D Gaussian Splatting and Mesh Reconstructions with the Physical Environment</h1>
+<p><a href="https://arxiv.org/abs/2607.20325" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 MR-Compare 框架，在 Meta Quest 3 上实现了物理环境与 3D Gaussian Splatting (3DGS) 及 Mesh 重建之间的空间定位视觉比较，达到了厘米级平移误差并验证了系统级可行性。</p>
+<h2>解决的问题</h2>
+<p>传统 2D 显示会扁平化深度信息，而虚拟现实（VR）虽提供沉浸感但将用户与物理世界隔离，难以直接比较重建模型与真实物理环境。现有方法缺乏在混合现实（MR）中实现高精度空间对齐以支持物理环境与 3DGS、Mesh 等 3D 重建之间视觉比较的系统框架。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了一种 PC-tethered 的 Unity MR pipeline，支持物理环境与 3D Gaussian Splatting (3DGS) 及 Mesh 重建之间的空间定位视觉比较。</li>
+<li>设计了结合 TEASER++ 与 V-GICP 的鲁棒粗到细（coarse-to-fine）registration pipeline，解决坐标统一问题。</li>
+<li>提出了一个 zero-shot 的 anisotropy filter 模块，利用 Gaussian anisotropies 提升 3DGS 在 MR 环境下的 registration 精度。</li>
+<li>开发了 geometry-driven 3D Slider，允许用户在 3D 重建与 live VST stream 之间动态滑动以进行无缝比较。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.19777" data-arxiv-id="2607.19777" data-status="ready">
+<h1>[2607.19777] Look Before You Edit: Attention-Guided Camera Placement and Multi-View Alignment for 3D Gaussian Splatting Editing</h1>
+<p><a href="https://arxiv.org/abs/2607.19777" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了 LB-Edit 框架，利用注意力机制优化编辑相机放置位置并实现多视图对齐，解决了在复杂场景中基于 3D Gaussian Splatting 进行文本驱动编辑时的空间覆盖不足与多视图不一致问题，实现了更高的用户偏好与编辑效率。</p>
+<h2>解决的问题</h2>
+<p>现有基于 3D Gaussian Splatting 的文本驱动编辑方法通常复用重建优化的固定训练相机视图，导致在复杂场景中编辑目标非主导对象时出现空间覆盖受限与定位失败；此外，独立编辑新视图会产生外观与空间漂移，而现有方法仅孤立解决多视图一致性，忽视了相机放置位置对扩散模型注意力行为的影响。</p>
+<h2>创新点</h2>
+<ul>
+<li>Attention-Guided Editing Camera Placement (ACP) 策略，通过探测扩散模型自注意力与交叉注意力统计来确定注意力最优编辑距离，构建紧凑且几何多样化的编辑相机集。</li>
+<li>Multi-View Attention Alignment (MAA) 机制，通过 token 级自注意力特征匹配和将交叉注意力图提升为共享 3D 注意力场，沿外观与空间位置双轴对齐编辑器行为以抑制漂移。</li>
+<li>将相机放置与多视图一致性视为注意力感知问题进行联合优化，在仅需 5 个编辑视图的情况下显著降低了延迟并提升了复杂场景下的编辑保真度。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.18801" data-arxiv-id="2607.18801" data-status="ready">
+<h1>[2607.18801] ZeroSplat: Generalized Referring Segmentation in 3D Gaussian Splatting</h1>
+<p><a href="https://arxiv.org/abs/2607.18801" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>ZeroSplat 提出了一种无需训练且零特征存储的新型框架，通过多视图几何约束将 2D Vision-Language Model 先验提升至 3D 空间，实现了高效的广义指代 3D Gaussian Splatting 分割，在通用与单目标场景下均显著优于现有最先进方法。</p>
+<h2>解决的问题</h2>
+<p>现有指代 3D Gaussian Splatting 方法受限于单目标查询，无法反映真实指令中目标数量（0、1 或 N）的模糊性；同时存在根本性技术瓶颈，即缺乏内在的 3D 点级理解（仅基于 2D 渲染像素操作），且因需要为场景优化嵌入重型语义特征而带来高昂的计算开销。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出广义指代 3D Gaussian Splatting 分割（GR3DGS）任务，支持动态分割任意数量（0、1 或 N）的目标，解决现有方法仅支持单目标查询的局限。</li>
+<li>构建 GR-LERF 和 GR-ScanNet 两个新基准，用于全面评估广义指代分割任务的性能。</li>
+<li>提出 ZeroSplat 框架，通过多视图几何约束将 2D Vision-Language Model 先验提升至 3D 空间，实现无训练且零特征存储的内在点级理解。</li>
+<li>显著优于现有最先进方法，同时保持极高的计算效率，避免了场景级优化的重型语义特征存储开销。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.18466" data-arxiv-id="2607.18466" data-status="ready">
+<h1>[2607.18466] ECoNGS: Efficient Compressive Neural Gaussian Splats for Volume Visualization</h1>
+<p><a href="https://arxiv.org/abs/2607.18466" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>ECoNGS 提出了一种用于 VolVis 场景表示的高效压缩神经 Gaussian Splatting 框架，通过结合显式原语与隐式神经网络的优势、多场景联合优化及锚点压缩技术，在保持实时渲染质量的同时显著降低了模型体积与训练时间。</p>
+<h2>解决的问题</h2>
+<p>现有基于原语的方法（如 3DGS 及其扩展）虽渲染速度快，但因显式性质导致模型冗余且体积庞大；同时各场景独立优化忽略了场景间相关性，收敛慢且参数冗余；此外，VolVis 图像纹理有限导致传统 SfM 工具难以提取可靠点云，常需随机初始化引发训练不稳定。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出混合神经 - 显式 Gaussian Splatting 框架，利用锚点与轻量 MLP 动态预测可编辑的 Neural Gaussian Splats。</li>
+<li>引入多场景联合优化范式，通过聚类相似 TF-based 场景共享参数以减少冗余。</li>
+<li>利用 Neural Entropy Model 压缩锚点属性，实现基于熵编码的紧凑存储。</li>
+<li>针对 VolVis 场景研究可编辑 Gaussian 初始化策略，提升收敛速度与重建精度。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.18067" data-arxiv-id="2607.18067" data-status="ready">
+<h1>[2607.18067] QIRF Quantum-Inspired Non-Orthogonal Function-Space Compression for 3D Gaussian Splatting</h1>
+<p><a href="https://arxiv.org/abs/2607.18067" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>QIRF 提出了一种量子启发的非正交函数空间压缩方法，通过构建高斯重叠矩阵与辐射响应密度矩阵并利用广义特征分解进行子空间感知选择，在保持重建质量相当甚至平均 PSNR 提升 0.10 dB 的同时，显著降低了 3DGS 的存储占用与渲染成本。</p>
+<h2>解决的问题</h2>
+<p>现有的 3DGS 压缩方法主要依赖原语级剪枝、属性量化或聚类，未能显式建模由强重叠各向异性高斯基函数引起的函数空间冗余。传统剪枝标准仅根据个体重要性（如不透明度、梯度）分配分数，忽略了多个高斯可能跨越相同局部场景函数的情形，导致个体重要性评估与对底层辐射场表示的独特方向贡献存在矛盾。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出量子启发的非正交函数空间压缩框架，将 3DGS 场景建模为非正交高斯基函数空间</li>
+<li>构建高斯重叠矩阵与辐射响应密度矩阵，利用 Generalized eigendecomposition 识别主导局部子空间以选择代表性原语</li>
+<li>引入基于 RRDM 的响应模型及细节感知保护机制，在激进剪枝下保留高频结构</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.17965" data-arxiv-id="2607.17965" data-status="ready">
+<h1>[2607.17965] Exploration Matters for Escaping the Blur Trap in 3D Gaussian Splatting</h1>
+<p><a href="https://arxiv.org/abs/2607.17965" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出将显式探索机制引入 3D Gaussian Splatting (3DGS) 优化框架，通过形式化分析识别并解决由梯度偏差导致的模糊陷阱（Blur Trap），利用随机播种（Random Seeding）与随机分裂（Random Splitting）策略有效克服了远侧与近侧模糊问题，实现了高质量的场景重建。</p>
+<h2>解决的问题</h2>
+<p>现有 3DGS 方法存在固有的梯度偏差，导致非凸优化过程极易收敛至局部次优解。具体而言，3D 位置更新主要由 2D 重投影误差主导，梯度方向与视线射线正交，缺乏深度方向优化信号；同时 Alpha-blending 机制进一步衰减了被遮挡区域的梯度信号。这导致远距离内容缺乏深度优化信号，而被遮挡的前景区域无法触发稠密化，形成系统性的模糊陷阱（Blur Trap），而现有工作多仅调整阈值或噪声注入，未针对几何根源解决深度信号缺失问题。</p>
+<h2>创新点</h2>
+<ul>
+<li>形式化定义并分类了 3DGS 优化中的模糊陷阱（Blur Trap），将其细分为远侧模糊陷阱（Far-Side Blur Trap）和近侧模糊陷阱（Near-Side Blur Trap）。</li>
+<li>提出了随机播种（Random Seeding）策略，通过向场景中随机采样位置注入高斯原语，绕过梯度正交性约束以解决远距离模糊问题。</li>
+<li>提出了随机分裂（Random Splitting）策略，通过忽略累积梯度强制分裂高斯原语，绕过 Alpha-blending 导致的稠密化门控抑制以解决近侧模糊问题。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.17842" data-arxiv-id="2607.17842" data-status="ready">
+<h1>[2607.17842] CaT-GS: Efficient 3DGS Rendering for Large Scale Scenes via Inter-frame Caching and Tile Scheduling</h1>
+<p><a href="https://arxiv.org/abs/2607.17842" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>CaT-GS 提出了一种针对大规模场景的高效 3DGS 渲染管线，通过推测多帧预处理和帧间缓存机制消除冗余计算，并结合专用光栅化内核缓解负载不平衡，显著提升了大规模场景的实时渲染效率与帧率。</p>
+<h2>解决的问题</h2>
+<p>现有 3DGS 优化方法通常依赖场景重训练或仅针对模型表示进行压缩，难以满足大规模场景的实时部署需求。现有渲染管线优化工作忽视了视角一致性，多基于固定位姿评估而忽略了连续相机轨迹中的预处理冗余，且未能有效解决 Tile 级负载不平衡导致的 GPU 利用率低下问题，部分方法甚至以牺牲重建质量为代价来缓解负载。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出推测多帧预处理方法（speculative multi-frame preprocessing），消除连续帧间的冗余计算</li>
+<li>设计帧间缓存机制（inter-frame caching），消除基于视角的冗余渲染阶段</li>
+<li>重构光栅化任务并采用专用内核，缓解 Tile 级负载不平衡</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2607.14990" data-arxiv-id="2607.14990" data-status="ready">
@@ -1358,6 +1590,20 @@
 <li>提出后验方差是数据约束图而非误差图的理论洞察，解释了为何在物体内部区域不确定性排名失效</li>
 <li>利用 X-ray 渲染的严格线性特性，推导了无需采样的闭式解析解，单次前向传播即可计算精确不确定性，成本降低约 8 倍</li>
 <li>设计了后验尺度重参数化方案，将跨场景温度分布跨度从 19.3 倍压缩至 2.6 倍，实现了场景无关的温度转移与 photon count 跟踪</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.03819" data-arxiv-id="2607.03819" data-status="ready">
+<h1>[2607.03819] CGGS: Consistency-Augmented Geometric Gaussian Splatting for Ego-Centric 3D Scene Generation</h1>
+<p><a href="https://arxiv.org/abs/2607.03819" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 CGGS 框架，利用一致性增强 Geometric Gaussian Splatting 技术解决自心视角 3D 场景生成中的几何失真与多视图不一致问题，实现了高质量且语义对齐的文本驱动 3D 场景生成。</p>
+<h2>解决的问题</h2>
+<p>现有基于 LDM 的 NeRF 优化方法常受限于低渲染保真度、多视图不一致及细粒度细节保留困难；自心视角 3D 生成面临全景与多视图表示的根本性困境，全景生成因等距柱状投影导致极点附近严重几何失真并违反针孔相机假设，而多视图生成虽几何准确但缺乏统一画布导致视图间一致性难以保证。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出带一致性增强损失的 Ego-centric Generator，通过微调 Multi-View Latent Diffusion Model 生成与文本描述语义对齐且跨视图一致的 2D 先验。</li>
+<li>设计 Layout Decorator 利用光学流和点跟踪对应关系估计深度，将自心视角 2D 先验转化为稠密点云粗布局，克服直接 SfM 方法的低效与失效模式。</li>
+<li>提出 Geometric Refiner 结合层级 3D Gaussian 优化与熵基 Mutual Information Depth Loss (MID)，迭代锐化结构细节并强制跨视图一致性。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2606.30380" data-arxiv-id="2606.30380" data-status="ready">
@@ -1403,6 +1649,34 @@
 <li>实现超高效剪枝，在保持渲染质量的同时将剪枝计算复杂度降低 3000 倍，设备延迟提升约 20 倍</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.03254" data-arxiv-id="2606.03254" data-status="ready">
+<h1>[2606.03254] OF$^3$GS: On-the-Fly Feed-Forward 3D Gaussian Splatting from Unposed Images</h1>
+<p><a href="https://arxiv.org/abs/2606.03254" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 OF$^3$GS，一种面向无位姿图像的前馈 3DGS 框架，通过引入因果几何稳定机制，在稀疏输入下实现了低延迟且高质量的新视角合成。</p>
+<h2>解决的问题</h2>
+<p>现有离线前馈 3DGS 难以迁移至在线场景，而优化类方法因迭代更新导致延迟过高无法满足实时需求。关键矛盾在于，3DGS 渲染对跨视角多视图一致性（如尺度与位姿几何对齐）极为敏感，但在无未来帧访问的因果推断下，帧内内参预测漂移与位姿深度耦合误差会随时间累积，导致重建几何不稳定及严重的渲染伪影。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 Decoupled Intrinsic Recovery Head (DIR-Head)，通过跨帧锚定内参估计缓解累积的相机内参偏差与场景尺度抖动</li>
+<li>引入 Dynamic Point Refinement Offsets (DPR-Offsets)，通过松弛刚性像素到 3D 高斯反投影约束来补偿位姿深度耦合漂移</li>
+<li>构建了面向稀疏视图无位姿图像的因果约束前馈框架，在保持低延迟的同时实现了高质量的在线新视角合成</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2605.22069" data-arxiv-id="2605.22069" data-status="ready">
+<h1>[2605.22069] TWINGS: Thin Plate Splines Warp-aligned Initialization for Sparse-View Gaussian Splatting</h1>
+<p><a href="https://arxiv.org/abs/2605.22069" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 TWINGS 框架，通过利用薄板样条（Thin Plate Splines, TPS）进行非刚性变形对齐，有效解决了稀疏视角下 monocular depth 估计的尺度模糊问题，为 3D Gaussian Splatting (3DGS) 提供了几何准确的初始化，从而显著提升了稀疏视角场景重建的结构细节与色彩保真度。</p>
+<h2>解决的问题</h2>
+<p>现有 3D Gaussian Splatting (3DGS) 方法依赖 SfM（如 COLMAP）生成的点云初始化，但在稀疏视角场景下，COLMAP 难以找到足够的特征对应关系，导致点云极度稀疏且缺乏几何约束，引发过拟合与伪影。虽然引入 monocular depth 先验可缓解稀疏问题，但 monocular depth 存在固有的尺度模糊性，且现有方法仅采用全局缩放或刚性变换对齐，无法纠正不同视角间复杂的非刚性形变，导致几何对齐不足。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了基于薄板样条（Thin Plate Splines, TPS）的快速非刚性对齐 pipeline，用于高效对齐 monocular depth 估计与场景几何。</li>
+<li>通过 TPS 变形校准 backprojected points，生成几何一致的密集点云，解决了稀疏视角下 monocular depth 尺度模糊与几何不一致的矛盾。</li>
+<li>实现了前景与背景平衡的初始化，有效约束了 3D Gaussian Splatting (3DGS) 优化过程，提升了稀疏场景下的结构细节与色彩保真度。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2605.13794" data-arxiv-id="2605.13794" data-status="ready">
 <h1>[2605.13794] BlitzGS: City-Scale Gaussian Splatting at Lightning Speed</h1>
 <p><a href="https://arxiv.org/abs/2605.13794" rel="nofollow">arXiv 原文</a></p>
@@ -1415,6 +1689,21 @@
 <li>系统级：通过索引奇偶性分片高斯而非空间块，消除跨块可见性冗余，并采用单次跨 GPU 交换分发渲染步骤。</li>
 <li>模型级：从密度化的两端控制种群，利用重要性评分剪枝冗余幸存者，并在生成前否决预测无法存活的候选者。</li>
 <li>视图级：结合基于距离的 LOD 门控与重要性掩码，剔除当前相机视角下过细或贡献可忽略的高斯原语。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2605.10760" data-arxiv-id="2605.10760" data-status="ready">
+<h1>[2605.10760] MAGS-SLAM: Monocular Multi-Agent Gaussian Splatting SLAM for Geometrically and Photometrically Consistent Reconstruction</h1>
+<p><a href="https://arxiv.org/abs/2605.10760" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了首个 RGB-only 多智能体 3DGS SLAM 框架 MAGS-SLAM，通过紧凑子图通信与几何外观感知的闭环验证，实现了无需深度传感器的高保真大规模场景重建，在渲染质量与追踪精度上优于现有 RGB-D 协作方法。</p>
+<h2>解决的问题</h2>
+<p>现有协作式多智能体 Gaussian SLAM 方法大多依赖 RGB-D 传感器获取度量深度并简化跨智能体对齐，这限制了其在低成本或低功耗机器人平台上的部署，与 RGB 相机更广泛可用的现状存在矛盾，难以在无需主动深度传感器的场景下实现一致的重建。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出首个 RGB-only 多智能体 3DGS SLAM 框架，摆脱了对 RGB-D 传感器的依赖。</li>
+<li>设计紧凑子图通信机制，传输 compact submap summaries 而非原始观测或稠密地图。</li>
+<li>引入几何与外观感知的 loop verification 以解决单目尺度模糊问题。</li>
+<li>采用 occupancy-aware Gaussian fusion 实现无主动深度传感器下的全局一致重建。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2605.00177" data-arxiv-id="2605.00177" data-status="ready">
@@ -1486,6 +1775,21 @@
 <li>提出了一种相机无关式 (camera-agnostic)、一键式 (one-shot) 的后训练 (post-training) 剪枝方法，该方法仅依赖属性衍生的邻域描述符。</li>
 <li>引入混合描述符框架，直接从 splat 表示中捕获结构一致性和外观一致性。</li>
 <li>将剪枝问题形式化为统计证据估计，通过 Beta evidence 模型量化每个 splat 的可靠性概率置信度。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2603.06210" data-arxiv-id="2603.06210" data-status="ready">
+<h1>[2603.06210] VG3S: Visual Geometry Grounded Gaussian Splatting for Semantic Occupancy Prediction</h1>
+<p><a href="https://arxiv.org/abs/2603.06210" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 Visual Geometry Grounded Gaussian Splatting (VG3S) 框架，通过冻结的视觉基础模型（Visual Foundation Models, VFMs）注入跨视角 3D 几何先验，并设计层次化几何特征适配器（Hierarchical Geometric Feature Adapter, HGFA）将通用 VFM token 转化为针对 Gaussian-based 解码优化的视觉特征，在 nuScenes 基准上显著提升了语义占据预测的准确性与结构一致性。</p>
+<h2>解决的问题</h2>
+<p>现有的基于 Gaussian Splatting 的占据预测方法通常依赖有限的占据监督信号训练特征提取器，难以学习强 3D 几何先验和显式跨视角约束，导致跨视图结构一致性差（如几何碎片化）；同时，联合优化图像编码器与复杂提升模块会导致训练周期过长及 3D 几何信息丢失，且现有方法无法有效利用预训练视觉基础模型中蕴含的强大几何知识。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 VG3S 框架，利用冻结的 VFMs 为基于高斯的占据预测提供跨视角 3D 几何引导，解决几何理解不足的问题。</li>
+<li>设计即插即用的层次化几何特征适配器（HGFA），通过特征聚合、任务对齐及多尺度重构将通用 VFM embeddings 转化为 occupancy-specific 视觉特征。</li>
+<li>利用分组自适应 token 融合、任务对齐 token 细化及潜在空间特征金字塔机制，增强空间建模并强制特征空间内的局部几何一致性。</li>
+<li>验证了框架在多样化几何引导视觉基础模型上的无缝泛化能力，无需微调即可显著提升占据预测精度。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2602.18314" data-arxiv-id="2602.18314" data-status="ready">
@@ -1561,6 +1865,6 @@
     </article>
     </div>
   </main>
-  <script type="application/json" id="summary-catalog">{"papers":{"2601.04348":{"status":"ready","url":"notes/neural-rendering.html#summary-2601.04348"},"2601.12122":{"status":"ready","url":"notes/neural-rendering.html#summary-2601.12122"},"2602.06343":{"status":"ready","url":"notes/neural-rendering.html#summary-2602.06343"},"2602.15355":{"status":"ready","url":"notes/neural-rendering.html#summary-2602.15355"},"2602.18314":{"status":"ready","url":"notes/neural-rendering.html#summary-2602.18314"},"2603.21933":{"status":"ready","url":"notes/neural-rendering.html#summary-2603.21933"},"2603.25129":{"status":"ready","url":"notes/neural-rendering.html#summary-2603.25129"},"2603.27151":{"status":"ready","url":"notes/neural-rendering.html#summary-2603.27151"},"2604.16910":{"status":"ready","url":"notes/neural-rendering.html#summary-2604.16910"},"2605.00177":{"status":"ready","url":"notes/neural-rendering.html#summary-2605.00177"},"2605.10760":{"status":"pending"},"2605.13794":{"status":"ready","url":"notes/neural-rendering.html#summary-2605.13794"},"2606.09074":{"status":"ready","url":"notes/neural-rendering.html#summary-2606.09074"},"2606.16278":{"status":"ready","url":"notes/neural-rendering.html#summary-2606.16278"},"2606.30380":{"status":"ready","url":"notes/neural-rendering.html#summary-2606.30380"},"2607.13682":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.13682"},"2607.14990":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.14990"},"2607.20417":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.20417"},"2607.22673":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.22673"},"2607.22780":{"status":"pending"},"2607.22890":{"status":"pending"},"2607.22956":{"status":"pending"},"2607.24403":{"status":"pending"},"2607.24538":{"status":"pending"},"2607.25569":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.25569"},"2607.25971":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.25971"},"2607.26525":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.26525"},"2607.26578":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.26578"},"2607.26595":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.26595"},"2607.26889":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.26889"},"2607.27825":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.27825"},"2607.29284":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.29284"},"2607.29633":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.29633"},"2608.00214":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.00214"},"2608.00931":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.00931"},"2608.01178":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01178"},"2608.01186":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01186"},"2608.01492":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01492"},"2608.01588":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01588"},"2608.01659":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01659"},"2608.01761":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01761"},"2608.01958":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01958"},"2608.01969":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01969"},"2608.02099":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.02099"},"2608.02145":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.02145"},"2608.02191":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.02191"},"2608.03279":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.03279"},"2608.04475":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.04475"},"2608.04560":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.04560"},"2608.04581":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.04581"},"2608.05218":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.05218"},"2608.05704":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.05704"},"2608.05896":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.05896"},"2608.07144":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.07144"},"2608.07760":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.07760"},"2608.07937":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.07937"},"2608.08381":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.08381"},"2608.08585":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.08585"},"2608.08659":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.08659"},"2608.08949":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.08949"},"2608.09735":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.09735"},"2608.10057":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.10057"},"2608.10286":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.10286"},"2608.10345":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.10345"},"2608.10756":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.10756"},"2608.10938":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.10938"},"2608.11100":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.11100"},"2608.11150":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.11150"},"2608.12825":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.12825"},"2608.13095":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.13095"},"2608.13502":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.13502"},"2608.14136":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.14136"},"2608.14713":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.14713"},"2608.14902":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.14902"},"2608.15024":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.15024"},"2608.15420":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.15420"},"2608.15651":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.15651"},"2608.15785":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.15785"},"2608.16042":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.16042"},"2608.16103":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.16103"},"2608.16324":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.16324"},"2608.16863":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.16863"},"2608.17298":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17298"},"2608.17420":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17420"},"2608.17447":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17447"},"2608.17535":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17535"},"2608.17682":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17682"},"2608.17825":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17825"},"2608.17832":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17832"},"2608.17969":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17969"},"2608.17988":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17988"},"2608.18285":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.18285"},"2608.18388":{"status":"pending"},"2608.18413":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.18413"},"2608.18593":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.18593"},"2608.19066":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.19066"},"2608.19556":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.19556"},"2608.19837":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.19837"},"2608.20000":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.20000"},"2608.20335":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.20335"},"2608.20534":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.20534"},"2608.20602":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.20602"},"2608.20687":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.20687"},"2608.21008":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.21008"},"2608.22344":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.22344"},"2608.22465":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.22465"},"2608.22740":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.22740"},"2608.22757":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.22757"},"2608.22773":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.22773"},"2608.22821":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.22821"},"2608.22888":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.22888"},"2608.22906":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.22906"},"2608.23410":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.23410"},"2608.23549":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.23549"}},"topic":"Neural Rendering","version":1}</script>
+  <script type="application/json" id="summary-catalog">{"papers":{"2601.04348":{"status":"ready","url":"notes/neural-rendering.html#summary-2601.04348"},"2601.12122":{"status":"ready","url":"notes/neural-rendering.html#summary-2601.12122"},"2602.06343":{"status":"ready","url":"notes/neural-rendering.html#summary-2602.06343"},"2602.15355":{"status":"ready","url":"notes/neural-rendering.html#summary-2602.15355"},"2602.18314":{"status":"ready","url":"notes/neural-rendering.html#summary-2602.18314"},"2603.06210":{"status":"ready","url":"notes/neural-rendering.html#summary-2603.06210"},"2603.21933":{"status":"ready","url":"notes/neural-rendering.html#summary-2603.21933"},"2603.25129":{"status":"ready","url":"notes/neural-rendering.html#summary-2603.25129"},"2603.27151":{"status":"ready","url":"notes/neural-rendering.html#summary-2603.27151"},"2604.10259":{"status":"pending"},"2604.16910":{"status":"ready","url":"notes/neural-rendering.html#summary-2604.16910"},"2605.00177":{"status":"ready","url":"notes/neural-rendering.html#summary-2605.00177"},"2605.10760":{"status":"ready","url":"notes/neural-rendering.html#summary-2605.10760"},"2605.13794":{"status":"ready","url":"notes/neural-rendering.html#summary-2605.13794"},"2605.22069":{"status":"ready","url":"notes/neural-rendering.html#summary-2605.22069"},"2606.03254":{"status":"ready","url":"notes/neural-rendering.html#summary-2606.03254"},"2606.09074":{"status":"ready","url":"notes/neural-rendering.html#summary-2606.09074"},"2606.16278":{"status":"ready","url":"notes/neural-rendering.html#summary-2606.16278"},"2606.30380":{"status":"ready","url":"notes/neural-rendering.html#summary-2606.30380"},"2607.03819":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.03819"},"2607.09260":{"status":"pending"},"2607.13682":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.13682"},"2607.14990":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.14990"},"2607.16838":{"status":"pending"},"2607.17773":{"status":"pending"},"2607.17803":{"status":"pending"},"2607.17842":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.17842"},"2607.17965":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.17965"},"2607.18067":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.18067"},"2607.18466":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.18466"},"2607.18801":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.18801"},"2607.19777":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.19777"},"2607.20325":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.20325"},"2607.20417":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.20417"},"2607.20813":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.20813"},"2607.21448":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.21448"},"2607.21675":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.21675"},"2607.22446":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.22446"},"2607.22673":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.22673"},"2607.22780":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.22780"},"2607.22890":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.22890"},"2607.22956":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.22956"},"2607.24403":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.24403"},"2607.24538":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.24538"},"2607.25569":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.25569"},"2607.25971":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.25971"},"2607.26525":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.26525"},"2607.26578":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.26578"},"2607.26595":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.26595"},"2607.26889":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.26889"},"2607.27825":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.27825"},"2607.29284":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.29284"},"2607.29633":{"status":"ready","url":"notes/neural-rendering.html#summary-2607.29633"},"2608.00214":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.00214"},"2608.00931":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.00931"},"2608.01178":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01178"},"2608.01186":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01186"},"2608.01492":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01492"},"2608.01588":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01588"},"2608.01659":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01659"},"2608.01761":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01761"},"2608.01958":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01958"},"2608.01969":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.01969"},"2608.02099":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.02099"},"2608.02145":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.02145"},"2608.02191":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.02191"},"2608.03279":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.03279"},"2608.04475":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.04475"},"2608.04560":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.04560"},"2608.04581":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.04581"},"2608.05218":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.05218"},"2608.05704":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.05704"},"2608.05896":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.05896"},"2608.07144":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.07144"},"2608.07760":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.07760"},"2608.07937":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.07937"},"2608.08381":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.08381"},"2608.08585":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.08585"},"2608.08659":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.08659"},"2608.08949":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.08949"},"2608.09735":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.09735"},"2608.10057":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.10057"},"2608.10286":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.10286"},"2608.10345":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.10345"},"2608.10756":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.10756"},"2608.10938":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.10938"},"2608.11100":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.11100"},"2608.11150":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.11150"},"2608.12825":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.12825"},"2608.13095":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.13095"},"2608.13502":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.13502"},"2608.14136":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.14136"},"2608.14713":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.14713"},"2608.14902":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.14902"},"2608.15024":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.15024"},"2608.15420":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.15420"},"2608.15651":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.15651"},"2608.15785":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.15785"},"2608.16042":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.16042"},"2608.16103":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.16103"},"2608.16324":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.16324"},"2608.16863":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.16863"},"2608.17298":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17298"},"2608.17420":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17420"},"2608.17447":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17447"},"2608.17535":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17535"},"2608.17682":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17682"},"2608.17825":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17825"},"2608.17832":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17832"},"2608.17969":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17969"},"2608.17988":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.17988"},"2608.18285":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.18285"},"2608.18388":{"status":"pending"},"2608.18413":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.18413"},"2608.18593":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.18593"},"2608.19066":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.19066"},"2608.19556":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.19556"},"2608.19837":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.19837"},"2608.20000":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.20000"},"2608.20335":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.20335"},"2608.20534":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.20534"},"2608.20602":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.20602"},"2608.20687":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.20687"},"2608.21008":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.21008"},"2608.22344":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.22344"},"2608.22465":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.22465"},"2608.22740":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.22740"},"2608.22757":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.22757"},"2608.22773":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.22773"},"2608.22821":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.22821"},"2608.22888":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.22888"},"2608.22906":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.22906"},"2608.23410":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.23410"},"2608.23549":{"status":"ready","url":"notes/neural-rendering.html#summary-2608.23549"}},"topic":"Neural Rendering","version":1}</script>
 </body>
 </html>
