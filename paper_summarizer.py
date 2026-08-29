@@ -647,7 +647,12 @@ def process_summary_queue(
             for entry in pending_entries
             if entry.get("source") != "historical"
         ),
-        key=lambda entry: entry.get("id", ""),
+        key=lambda entry: (
+            entry.get("archive_date")
+            or entry.get("archive_month")
+            or entry.get("id", ""),
+            entry.get("id", ""),
+        ),
         reverse=True,
     )
     historical_pending = [

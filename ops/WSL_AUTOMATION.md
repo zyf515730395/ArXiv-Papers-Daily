@@ -1,20 +1,55 @@
-# WSL paper-summary automation
+# Cloud collection and local paper-summary automation
 
-The scheduled paper job runs on a repository-scoped GitHub Actions runner in
-the `Ubuntu-24.04` WSL distribution. The Windows host must remain powered on,
-online, and able to expose the NVIDIA GPU to WSL.
+The repository uses two deliberately separate paths:
 
-The repository checkout is located at:
+- GitHub-hosted Actions collects arXiv candidates at 09:00 Asia/Shanghai,
+  updates the public paper table, and deploys GitHub Pages. It never connects
+  to WSL, the G-drive notes state, or vLLM.
+- Codex local automations curate candidates and trigger the WSL summary
+  runtime. Summary Markdown and queue state remain under
+  `/mnt/g/share/papers`.
+
+The shared checkout is located at:
 
 ```text
 G:\share\projects\arxiv-papers-daily
 /mnt/g/share/projects/arxiv-papers-daily
 ```
 
-## vLLM service
+## Candidate collection and curation
 
-The service runs `Qwen3.5-9B-FP8-dynamic` as `PaperReader-Qwen3.5` with the following
-equivalent command:
+The tracked `data/arxiv-candidates.json` ledger keeps every cloud-discovered
+candidate as `pending`, `accepted`, or `rejected`. The 09:00 workflow adds new
+pending papers to the public archive immediately, generates `docs/index.html`,
+and pushes the result. Until local curation runs, Summary displays `待生成`.
+
+At 21:30 Monday through Friday, the local Codex automation reviews every
+pending candidate. It writes a temporary decision document and applies it with:
+
+```bash
+PAPER_NOTES_ROOT=/mnt/g/share/papers \
+/home/zyf/.cache/arxiv-papers-daily/venv/bin/python daily_arxiv.py \
+  --apply-curation /tmp/arxiv-curation-decisions.json
+```
+
+Accepted papers are assigned exactly one configured topic and enter the local
+summary queue. Rejected papers are removed from the public archive and remain
+recorded in the ledger so cloud collection cannot add them again. The temporary
+decision document is deleted and never committed.
+
+After the curation commit is clean and pushed, process only newly accepted or
+previously failed non-historical papers with:
+
+```bash
+ops/summary_runtime.sh weekday
+```
+
+This command starts vLLM on demand, handles the newest paper date and arXiv ID
+first, publishes completed summaries, and stops the model before returning.
+
+## vLLM and weekend backfill services
+
+The model service runs `Qwen3.5-9B-FP8-dynamic` as `PaperReader-Qwen3.5`:
 
 ```bash
 /home/zyf/softwares/miniforge3/envs/vllm/bin/vllm serve \
@@ -29,159 +64,73 @@ equivalent command:
   --reasoning-parser qwen3
 ```
 
-Install the tracked service and the narrowly scoped Runner sudoers rule from
-the current repository location. The service must remain disabled between
-backfill runs so it does not reserve GPU memory at boot:
+Install the tracked services and the narrowly scoped sudoers rule:
 
 ```bash
 cd /mnt/g/share/projects/arxiv-papers-daily
 sudo visudo -cf ops/arxiv-vllm-runner.sudoers
 sudo install -m 0644 ops/vllm-paper.service /etc/systemd/system/vllm-paper.service
-sudo install -m 0440 ops/arxiv-vllm-runner.sudoers /etc/sudoers.d/arxiv-vllm-runner
+sudo install -m 0644 ops/arxiv-weekend-backfill.service \
+  /etc/systemd/system/arxiv-weekend-backfill.service
+sudo install -m 0440 ops/arxiv-vllm-runner.sudoers \
+  /etc/sudoers.d/arxiv-vllm-runner
 sudo systemctl daemon-reload
-sudo systemctl disable --now vllm-paper.service
-
-# Verify the same non-interactive start/stop commands used by the Runner.
-sudo -n /usr/bin/systemctl start vllm-paper.service
-curl --fail --retry 30 --retry-connrefused --retry-delay 5 \
-  http://127.0.0.1:8000/v1/models
-sudo -n /usr/bin/systemctl stop vllm-paper.service
-systemctl is-active vllm-paper.service  # expected: inactive
+sudo systemctl disable --now vllm-paper.service arxiv-weekend-backfill.service
 ```
 
-The sudoers rule grants user `zyf` only the exact start and stop commands for
-`vllm-paper.service`; it does not grant general passwordless sudo. Each
-backfill job writes a run-specific marker after starting the service and uses
-an `always()` cleanup step to stop the unit after success, failure, or
-cancellation. `RuntimeMaxSec=4h` and control-group shutdown provide a final
-safety net if the Runner itself becomes unavailable. The unit uses
-`Restart=no`, so a crash or safety timeout cannot silently reacquire the GPU;
-the next scheduled workflow performs the next start attempt.
+Both services remain disabled at boot. `vllm-paper.service` has a 48-hour
+safety limit to cover the weekend window; the runtime script normally stops it
+earlier. `Restart=no`, process-group shutdown, a shell cleanup trap, and the
+weekend service runtime limit ensure GPU memory is released after completion or
+failure.
 
-The endpoint must expose exactly one model unless the workflow environment sets
-`VLLM_MODEL`; for this configuration the model ID is `PaperReader-Qwen3.5`.
-Model reasoning is parsed by vLLM and is never written to the published summary.
+The sudoers file grants `zyf` only the exact start/stop commands for these two
+units. It does not grant general passwordless sudo.
 
-## Repository runner
+## Weekend schedule and checkpoints
 
-In **GitHub repository → Settings → Actions → Runners**, add a Linux x64
-self-hosted runner. Install it at `/home/zyf/softwares/actions-runner`, add the custom
-labels `wsl2,gpu`, and then install it as a service:
+The local weekend automation starts the durable unit at 09:30 Saturday:
 
 ```bash
-cd /home/zyf/softwares/actions-runner
-sudo ./svc.sh install zyf
-sudo ./svc.sh start
-sudo ./svc.sh status
+sudo -n /usr/bin/systemctl start arxiv-weekend-backfill.service
+systemctl status arxiv-weekend-backfill.service --no-pager
 ```
 
-Registration commands contain a short-lived token and must be copied from the
-GitHub UI at setup time. Do not commit that token or the runner's `.credentials`
-files.
+The service holds a local lock, processes historical papers continuously, and
+stops by 23:30 Sunday. Historical order is month newest first, configured topic
+order, then paper date and arXiv ID newest first. Any pending non-historical
+paper still takes priority.
 
-## Start WSL with Windows
+Every approximately 150 minutes the service finishes the in-flight paper,
+pulls main with `git pull --ff-only`, renders the five aggregate summary pages,
+commits and pushes the checkpoint, and continues without restarting vLLM.
+Inference between checkpoints changes only G-drive Markdown and
+`.summary-state.json`, so the Git checkout remains clean and can safely receive
+the cloud candidate commit.
 
-Create a Windows Task Scheduler task that runs at system startup or user logon:
+The PDF is downloaded into memory and parsed with PyMuPDF. No PDF, arXiv HTML,
+extracted text, or cache directory is persisted. A paper shared by multiple
+topics is inferred once and its Markdown is written to each selected topic
+directory.
 
-```powershell
-wsl.exe -d Ubuntu-24.04 --exec /bin/true
-```
-
-After each Windows boot, verify that the Runner is active and vLLM remains
-inactive until a backfill workflow starts it:
+## Manual commands and verification
 
 ```bash
-systemctl is-active actions.runner.zyf515730395-ArXiv-Papers-Daily.ZYF-WinSZ.service
-systemctl is-active vllm-paper.service  # expected: inactive
-```
+# Model should normally be inactive outside a local summary run.
+systemctl is-active vllm-paper.service
+curl --fail http://127.0.0.1:8000/v1/models
 
-After the runner and vLLM services are healthy, the two independent workflows
-can be triggered manually for validation:
-
-- **Run Arxiv Papers Daily** fetches at 01:00 UTC (09:00 Asia/Shanghai).
-- **Backfill Arxiv Paper Summaries** starts at 01:30 and 13:30 UTC (09:30 and
-  21:30 Asia/Shanghai) and runs each summary phase for up to 150 minutes.
-
-Both workflows use the same `arxiv-paper-pipeline` concurrency group. If daily
-ingestion is delayed, backfill waits rather than accessing the shared checkout,
-summary state, or vLLM concurrently.
-
-## Daily ingestion and latest-paper priority
-
-Daily ingestion fetches arXiv metadata, appends the archive, and atomically
-queues newly discovered IDs in `/mnt/g/share/papers/.summary-state.json`. It
-sets `SUMMARY_DEFER_PROCESSING=1`, so it does not wait for vLLM or perform any
-paper inference. The latest paper list and current Summary states are published
-immediately after ingestion.
-
-The separate backfill workflow processes queued non-historical papers first,
-ordered by arXiv ID from newest to oldest. Consequently, papers added by the
-09:00 run have priority over the historical archive. Only after that latest
-queue is clear does it advance the historical schedule.
-
-## Historical summary backfill
-
-The independent backfill workflow covers every archived year. Historical
-buckets are ordered by month from newest to oldest, by the topic order in
-`config.yaml` within each month, and by paper date and arXiv ID from newest to
-oldest within each topic. Existing queue entries use the same order after a
-restart.
-
-`SUMMARY_BACKFILL_LIMIT` controls the arXiv metadata batch size rather than the
-number processed per run. The workflow leaves `SUMMARY_BACKFILL_YEAR` unset so
-every archived year remains eligible, and sets
-`SUMMARY_BACKFILL_TIME_BUDGET_MINUTES=150` so each historical phase starts new
-papers for up to 150 minutes. A paper already in progress at the deadline is
-allowed to finish; the runner then publishes and commits the completed pages.
-A paper shared by multiple topics is inferred once and its Markdown is copied
-into each topic directory. Failed items are attempted only once in a run,
-later ordered items continue, and failed items remain pending for the next run.
-
-The backfill GitHub Actions job has a 240-minute timeout to leave room for the
-150-minute summary phase, one in-flight paper to finish, and the final commit.
-Summary state and Markdown are saved atomically after every paper, so the next
-scheduled or manual run resumes the same all-years order.
-
-The summary instruction is a fixed, versioned expert template. Only the paper's
-configured topic list is inserted into the expert role; the title, abstract,
-and Introduction are appended as untrusted source material. The template
-requires standard English technical terms, abbreviations, method names,
-datasets, metrics, losses, and components such as `token` and `Transformer` to
-remain in English. Changing the template version marks earlier ready summaries
-for ordered background refresh without hiding their currently published text.
-
-## Python runtime and manual queue recovery
-
-The self-hosted job runs directly in the shared G-drive checkout and keeps its
-Python dependencies outside the repository at
-`/home/zyf/.cache/arxiv-papers-daily/venv`. This avoids modifying the vLLM
-Conda environment and does not create untracked files in the repository. The
-synchronization step also sets repository-local `core.autocrlf=true` so Windows
-and WSL agree on the shared checkout's CRLF files before the clean-tree check.
-
-To prepare the same runtime and manually enqueue and process the next ordered
-historical batch:
-
-```bash
+# Start a weekday new-paper pass directly.
 cd /mnt/g/share/projects/arxiv-papers-daily
-VENV_PATH=/home/zyf/.cache/arxiv-papers-daily/venv
-if [ ! -x "$VENV_PATH/bin/python" ]; then
-  /home/zyf/softwares/miniforge3/envs/vllm/bin/python -m venv "$VENV_PATH"
-fi
-"$VENV_PATH/bin/python" -m pip install -r requirements.txt
+ops/summary_runtime.sh weekday
 
-sudo -n /usr/bin/systemctl start vllm-paper.service
-trap 'sudo -n /usr/bin/systemctl stop vllm-paper.service' EXIT
-curl --fail --retry 60 --retry-all-errors --retry-delay 5 \
-  --retry-max-time 300 --max-time 10 http://127.0.0.1:8000/v1/models
-
-SUMMARY_ENABLED=1 \
-SUMMARY_BACKFILL_LIMIT=10 \
-SUMMARY_BACKFILL_TIME_BUDGET_MINUTES=150 \
-PAPER_NOTES_ROOT=/mnt/g/share/papers \
-VLLM_BASE_URL=http://127.0.0.1:8000/v1 \
-"$VENV_PATH/bin/python" daily_arxiv.py --summaries-only --backfill-history
+# Start or stop the durable weekend pass.
+sudo -n /usr/bin/systemctl start arxiv-weekend-backfill.service
+sudo -n /usr/bin/systemctl stop arxiv-weekend-backfill.service
+journalctl -u arxiv-weekend-backfill.service -f
 ```
 
-Omit --backfill-history to retry pending items without advancing the historical
-schedule.
+The fixed versioned summary prompt inserts only the configured topic into its
+expert role. It preserves standard English terms, abbreviations, method names,
+datasets, metrics, losses, and components such as `token`, `Transformer`,
+`NeRF`, and `Gaussian Splatting`.
