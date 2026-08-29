@@ -1,5 +1,4 @@
-# This workflow fetches and publishes the latest arXiv papers every day.
-# Summary inference is intentionally handled by summary-backfill.yml.
+# Collect candidates, publish the default Summary state, and deploy every day.
 
 name: Run Arxiv Papers Daily
 
@@ -10,104 +9,50 @@ on:
     - cron: "0 1 * * *"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
-  group: arxiv-paper-pipeline
+  group: arxiv-paper-collection
   cancel-in-progress: false
 
 env:
   GITHUB_USER_NAME: zyf515730395
   GITHUB_USER_EMAIL: zhangyufan.aiesec@gmail.com
-  SUMMARY_ENABLED: "1"
-  SUMMARY_DEFER_PROCESSING: "1"
-  PAPER_NOTES_ROOT: /mnt/g/share/papers
 
 jobs:
-  build:
-    name: update
-    permissions:
-      contents: write
-    runs-on: [self-hosted, Linux, X64, wsl2]
-    timeout-minutes: 120
-    defaults:
-      run:
-        shell: bash
-        working-directory: /mnt/g/share/projects/arxiv-papers-daily
-
-    steps:
-      - name: Synchronize repository
-        run: |
-          git config core.autocrlf true
-          if [ "$(git branch --show-current)" != "main" ]; then
-            echo "Expected the shared checkout to be on main" >&2
-            exit 1
-          fi
-          if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
-            echo "Shared checkout has uncommitted changes; refusing to overwrite them" >&2
-            git status --short
-            exit 1
-          fi
-          git pull --ff-only origin main
-
-      - name: Prepare Python environment
-        run: |
-          VENV_PATH=/home/zyf/.cache/arxiv-papers-daily/venv
-          if [ ! -x "$VENV_PATH/bin/python" ]; then
-            /home/zyf/softwares/miniforge3/envs/vllm/bin/python -m venv "$VENV_PATH"
-          fi
-          "$VENV_PATH/bin/python" -m pip install --upgrade pip
-          "$VENV_PATH/bin/python" -m pip install -r requirements.txt
-
-      - name: Fetch and queue latest arxiv papers
-        env:
-          SUMMARY_BACKFILL_ENABLED: "0"
-        run: |
-          /home/zyf/.cache/arxiv-papers-daily/venv/bin/python daily_arxiv.py
-
-      - name: Commit daily generated files
-        run: |
-          git config user.name "$GITHUB_USER_NAME"
-          git config user.email "$GITHUB_USER_EMAIL"
-          git add docs/arxiv-papers-daily-web.json docs/index.html
-          git add -A docs/notes
-          if git diff --cached --quiet; then
-            echo "No paper updates"
-          else
-            git commit -m "Github Action Automatic Update Arxiv Papers"
-            git push origin main
-          fi
-
-  deploy:
-    name: deploy-pages
-    needs: build
+  collect:
+    name: collect-and-publish-candidates
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    concurrency:
-      group: github-pages
-      cancel-in-progress: false
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    timeout-minutes: 60
 
     steps:
-      - name: Checkout generated site
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
           ref: main
+          fetch-depth: 0
 
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          path: ./docs
-          include-hidden-files: true
+          python-version: "3.12"
+          cache: pip
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Collect candidates and generate the site
+        run: python daily_arxiv.py --collect-only
+
+      - name: Commit candidate pages
+        run: |
+          git config user.name "$GITHUB_USER_NAME"
+          git config user.email "$GITHUB_USER_EMAIL"
+          git add data/arxiv-candidates.json
+          git add docs/arxiv-papers-daily-web.json docs/index.html
+          if git diff --cached --quiet; then
+            echo "No candidate updates"
+          else
+            git commit -m "Github Action Collect Arxiv Candidates"
+            git push origin main
+          fi
