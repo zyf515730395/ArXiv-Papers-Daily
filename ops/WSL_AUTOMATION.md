@@ -16,6 +16,21 @@ G:\share\projects\arxiv-papers-daily
 /mnt/g/share/projects/arxiv-papers-daily
 ```
 
+When Windows uses a localhost proxy, WSL must use mirrored networking so the
+proxy is reachable from background services. The host configuration is:
+
+```ini
+[wsl2]
+networkingMode=mirrored
+dnsTunneling=true
+firewall=true
+autoProxy=true
+```
+
+The weekend unit explicitly sets the host proxy at `127.0.0.1:7890` and keeps
+`127.0.0.1,localhost` in `NO_PROXY`, so arXiv downloads use the proxy while
+requests to the local vLLM endpoint never do.
+
 ## Candidate collection and curation
 
 The tracked `data/arxiv-candidates.json` ledger keeps every cloud-discovered
