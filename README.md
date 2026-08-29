@@ -12,4 +12,7 @@ A focused daily archive of computer vision papers from arXiv.
 - Neural Rendering
 - Depth Estimation
 
-The archive is updated automatically from arXiv by GitHub Actions.
+The public repository contains only the cloud-side arXiv collection, archive,
+site-generation, and GitHub Pages deployment code. Local paper review, model
+inference, generated summaries, and machine-specific automation are excluded
+from version control.

@@ -5,3 +5,12 @@ __pycache__/
 .vscode/
 tests/
 
+# Local-only paper review, summarization, and WSL runtime.
+/candidate_ledger.py
+/daily_arxiv.py
+/historical_backfill.py
+/paper_summarizer.py
+/requirements-local.txt
+/ops/
+/docs/notes/
+/local-site/
