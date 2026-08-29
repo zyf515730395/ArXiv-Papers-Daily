@@ -1931,6 +1931,21 @@
 <li>提出 Face Image Quality (FIQ) 作为互补评分，联合评估身份相似性与感知真实感。</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2607.24766" data-arxiv-id="2607.24766" data-status="ready">
+<h1>[2607.24766] Crystalis: Progressive Nucleation and Semantic Annealing for Coordinated Multi-View Visualization Generation</h1>
+<p><a href="https://arxiv.org/abs/2607.24766" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了 Crystalis 框架，通过查询为中心的建模抽象与渐进成核及语义退火机制，解决了大语言模型在生成协调多视图可视化（CMVs）时面临的组件耦合与一致性难题，实现了可靠的结构正确与语义一致输出。</p>
+<h2>解决的问题</h2>
+<p>现有基于大语言模型（LLM）的可视化方法主要生成松散连接的图表集合或叙事序列，缺乏对协调多视图可视化（CMVs）中视图间紧密结构依赖与数据流耦合的支持。直接代码生成将依赖关系埋藏在代码中难以检测，而平台介导生成限制了分析灵活性，核心矛盾在于缺乏一种既能被 LLM 可靠生成的紧凑抽象，又能充分表达跨组件依赖契约的方法，导致错误传播与全局不一致。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出查询为中心的 CMV 建模方法，将生成抽象为依赖图上的结构化查询组合，分解为具有显式模式契约的紧凑生成单元。</li>
+<li>设计 Progressive Nucleation 机制，沿依赖顺序在需求、规范与可执行对象三个抽象层级垂直细化每个查询。</li>
+<li>引入 Semantic Annealing 机制，在各抽象层级水平强制跨查询一致性，检测并纠正违反契约的错误以防止级联失效。</li>
+<li>构建 Crystalis 交互系统，支持用户将分析需求转化为数据转换代码与 Vega-Lite 规范，实现人机协同的原型共创。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2607.24353" data-arxiv-id="2607.24353" data-status="ready">
 <h1>[2607.24353] PRISM: Prompt Refinement via Image-grounded Self-rewarding Mechanism for Text-to-Image Generation</h1>
 <p><a href="https://arxiv.org/abs/2607.24353" rel="nofollow">arXiv 原文</a></p>
@@ -4169,6 +4184,21 @@
 <li>通过丰富对象级上下文信息增强场景图构建，提升复杂场景下的关系理解能力。</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.15982" data-arxiv-id="2606.15982" data-status="ready">
+<h1>[2606.15982] Mind the Gap: Diagnosing Constraint Discovery Failures in Text-in-Image Editing</h1>
+<p><a href="https://arxiv.org/abs/2606.15982" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种诊断多模态大语言模型（MLLM）在文本图像编辑中自发发现隐含约束失败的方法，通过引入隐性约束图（ICG）标注架构和受控诊断框架，揭示了模型在明确提示下能识别 94% 的依赖关系，但在无引导状态下存在显著的结构化发现失败现象。</p>
+<h2>解决的问题</h2>
+<p>现有 MLLM 虽具备优秀的视觉理解能力，但在任务驱动的图像编辑任务中常无法自发识别未陈述的视觉依赖关系，导致编辑结果缺乏全局一致性。关键矛盾在于模型内部存在潜在知识，当约束被显式提供时可验证 94% 的依赖，但在无引导的自发推理中却默认仅替换局部文本而忽略物理、语义或空间上的级联约束，形成显著的发现失败。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出隐性约束图（ICG）标注架构，显式表达编辑指令触发的约束节点、依赖原因及预期更新，区别于传统场景图。</li>
+<li>设计受控诊断框架，通过七种提示条件（从 Direct 到 full oracle provision）测试模型对因果约束信息的识别能力。</li>
+<li>建立大规模评测基准，评估 461 个案例涵盖四种主流 MLLM 在物理、空间、语义等五类约束下的表现。</li>
+<li>量化发现 - 验证差距（discovery-verification gap），揭示无引导召回率在不同约束类别间存在 2.7 倍的异质性。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2606.15867" data-arxiv-id="2606.15867" data-status="ready">
 <h1>[2606.15867] CogCanvas: A Benchmark for Evaluating Multi-Subject Reference-Based Image Generation</h1>
 <p><a href="https://arxiv.org/abs/2606.15867" rel="nofollow">arXiv 原文</a></p>
@@ -4238,6 +4268,21 @@
 <li>提出参考锚定方法，利用 DINOv2 余弦距离构建二维特征（patch_mean, ssim_clean）以捕捉图像到图像生成模型的行为指纹。</li>
 <li>建立由训练范式驱动的分类体系，在六个商业 API 和三个图像领域（COCO val2017, CelebA-HQ-256, Flux-generated）上验证，证明 AI 身份解释了 69.5% 的行为方差。</li>
 <li>量化分析不同模型对对抗扰动的生存能力，揭示 Gemini、Flux Kontext 与 gpt-image-1 在扰动保留与覆盖上的显著差异。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.14727" data-arxiv-id="2606.14727" data-status="ready">
+<h1>[2606.14727] FairGen: Preference-Aligned Diffusion for Demographically Equitable Medical Image Synthesis</h1>
+<p><a href="https://arxiv.org/abs/2606.14727" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>FairGen 提出了一种偏好对齐的 diffusion model 框架，用于生成人口统计公平的医疗图像，通过属性重采样、多样性正则化和医生对齐偏好引导，在保持生成图像高保真度的同时，显著降低了医疗图像合成中的亚组偏差并提升了下游诊断模型的公平性表现。</p>
+<h2>解决的问题</h2>
+<p>现有医疗图像生成方法受限于数据固有偏差，如肤色、性别和年龄的人口统计学不平衡，导致下游诊断模型在少数群体上表现不佳；早期公平性生成方法需精心策划数据集且易降低图像质量，而 diffusion model 公平性研究多依赖昂贵的平衡微调或事后控制，后者可能过度校正或放大偏差，且缺乏统一的跨模态公平基准。</p>
+<h2>创新点</h2>
+<ul>
+<li>设计了属性 - 疾病重采样策略，以平衡代表性不足的属性 - 疾病对。</li>
+<li>引入多样性促进损失，改善亚组覆盖并防止多数群体主导。</li>
+<li>采用医生对齐偏好引导，鼓励模型在罕见和少数病例中保留病理相关特征。</li>
+<li>构建了跨模态公平性框架，涵盖皮肤图像、chest radiography 和 T1-weighted MRI 等多种医疗成像设置。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2606.14351" data-arxiv-id="2606.14351" data-status="ready">
@@ -4401,6 +4446,35 @@
 <li>构建高分辨率多轮编辑基准并实现最先进性能</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.10653" data-arxiv-id="2606.10653" data-status="ready">
+<h1>[2606.10653] STEDiff: Strengthening Text Embedding for Text-to-Image Alignment in Diffusion Model</h1>
+<p><a href="https://arxiv.org/abs/2606.10653" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 STEDiff 方法，通过分析 CLIP text encoder 生成的文本 embedding 并利用 singular value decomposition 增强语义特征，在推理阶段使用语义增强 loss 与熵 loss 优化文本 embedding，实现了 train-free 的文本 - 图像语义对齐，在 T2I-CompBench benchmark 上显著改善了 diffusion model 在复杂 prompt 下的多对象与多属性生成一致性。</p>
+<h2>解决的问题</h2>
+<p>现有的 T2I diffusion model 在处理复杂 prompt 时，常面临 attribute binding、sub-objects binding 及 noun missing 等语义对齐难题。尽管已有方法尝试优化 latent representation、引入 Large Language Models 或调整 layout guidance，但往往需要大量计算资源微调、牺牲生成多样性，或采用简单的 token 求和导致图像连贯性低，难以有效解决实体间关系处理不当导致的文本 - 图像不一致问题。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于 singular value decomposition 的文本 embedding 增强策略，利用 [EOT] token 作为全局 semantic anchor 以强化主要 semantic components。</li>
+<li>设计 train-free 的 STEDiff 方法，通过拆分复杂 prompt 并按 entity-nouns 强化 sub-sentence 语义，避免多实体间的 semantic leakage。</li>
+<li>在推理阶段引入 semantic enhancement loss 和 entropy loss，分别优化对象关联与注意力分配，提升生成图像的结构完整性。</li>
+<li>无需额外 input conditions，仅需在文本 embedding space 进行修改，显著提升了多对象和多属性生成场景下的对齐效果。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.10492" data-arxiv-id="2606.10492" data-status="ready">
+<h1>[2606.10492] PathRelax: Parallel-Path Relaxed Speculative Jacobi Decoding for Accelerating Auto-Regressive Text-to-Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2606.10492" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 PathSpec，一种并行路径交叉松弛推测雅可比解码范式，通过扩展搜索结构和松弛空间，在保持视觉一致性的同时显著提升了文生图生成中的令牌接受率和解码效率，实现了至少 20% 的效率提升。</p>
+<h2>解决的问题</h2>
+<p>现有自推测方法受限于链式依赖结构，早期令牌拒绝会导致后续草稿失效，限制了接受长度；而跨域适应方法依赖单独训练的草稿模型且接受率低；现有松弛策略仅关注代码本空间中的单位置令牌相似度，忽略了草稿树分支间的结构依赖与语义关联。</p>
+<h2>创新点</h2>
+<ul>
+<li>设计并行路径推测雅可比解码（PathExplore），将线性草稿链泛化为多序列树，实现并行验证与分支间信息解耦，缓解级联丢弃问题</li>
+<li>提出跨路径松弛验证（PathRelax），引入跨路径概率聚合以建立语义相关分支位置的关联，实现路径级信息共享以扩大松弛空间</li>
+<li>在无需额外训练草稿模型的情况下，保持视觉保真度的同时显著提升了平均接受长度，实现至少 20% 的效率提升</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2606.10309" data-arxiv-id="2606.10309" data-status="ready">
 <h1>[2606.10309] Dissect and Prune: Enhancing Robustness in AI-Generated Image Detection</h1>
 <p><a href="https://arxiv.org/abs/2606.10309" rel="nofollow">arXiv 原文</a></p>
@@ -4429,6 +4503,80 @@
 <li>实现按需单件矢量化，仅对用户选中的组件执行矢量化处理，避免全图矢量化导致的形状不完整及语义结构丢失。</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.09156" data-arxiv-id="2606.09156" data-status="ready">
+<h1>[2606.09156] OmniGen-AR: AutoRegressive Any-to-Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2606.09156" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>OmniGen-AR 构建了一种支持任意条件输入的自回归图像生成框架，通过共享视觉 tokenizer 统一处理文本、掩码及参考图像等多种信号，并引入解耦因果注意力机制解决信息泄露问题，在多项视觉生成基准上实现了先进性能。</p>
+<h2>解决的问题</h2>
+<p>现有自回归视觉生成方法主要局限于单模态条件输入（如文本或标签），缺乏对语义掩码、参考图像及历史帧等多样化条件的支持，且统一模型架构在复杂条件处理下易出现信息泄露与捷径学习问题。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 OmniGen-AR 框架，利用共享视觉 tokenizer 将文本、分割掩码、深度图及参考图像离散化，实现单一模型对任意条件输入的通用生成支持。</li>
+<li>设计解耦因果注意力（Disentangled Causal Attention, DCA），分离条件与内容的因果注意力流，防止内容 token 向条件 token 的信息泄露。</li>
+<li>采用训练阶段随机替换标准因果注意力为 DCA 的正则化策略，抑制模型对条件上下文的过度依赖，提升指令遵循能力。</li>
+<li>扩展了视频生成与预测能力，支持文本到视频生成及帧预测任务，实现了多类型生成任务的统一处理。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.08864" data-arxiv-id="2606.08864" data-status="ready">
+<h1>[2606.08864] CHROMA: Detecting AI-Generated Images through Inter-Channel Color-Space Correlations</h1>
+<p><a href="https://arxiv.org/abs/2606.08864" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 Chroma 检测框架，通过挖掘感知色彩空间中图像通道间的统计相关性差异，在仅需少量训练数据的情况下有效区分真实图像与 AI 生成图像，并展现出优于传统方法的鲁棒性。</p>
+<h2>解决的问题</h2>
+<p>当前 AI 图像检测面临双重挑战：一方面生成模型（diffusion models）在 RGB 色彩空间上高度拟真，削弱了基于纹理或高层语义的传统线索；另一方面检测器泛化性脆弱，易受生成器或数据集偏差影响。现有方法虽探索了频域伪影或颜色统计，但未能有效利用真实摄影成像物理与生成模型在通道间依赖关系上的本质差异，导致在应对新模型时表现下降。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于通道间相关性（inter-channel correlations）的取证线索，证明感知色彩空间（如 Lab）相比 RGB 能提供更稳定的判别特征。</li>
+<li>通过扰动分析发现感知相似性指标（如 LPIPS）对通道耦合变化存在非均匀敏感性，揭示了跨通道统计约束的不一致性。</li>
+<li>构建 Chroma 检测器，通过增强 RGB 输入以包含通道相关性图，配合固定 ResNet-50 骨干网络实现轻量级检测。</li>
+<li>验证了 Lab 相关性特征在区分真实与合成图像时的有效性，并展示了在有限训练预算下对多生成器模式的覆盖能力。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.08847" data-arxiv-id="2606.08847" data-status="ready">
+<h1>[2606.08847] BLM-SGAN: Bidirectional Language Modeling for Semantic-Spatial Text-to-Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2606.08847" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 BLM-SGAN 模型，利用双向语言建模（Bidirectional Language Modeling）技术增强文本到图像（Text-to-Image）生成的语义建模能力，以解决跨模态任务中的语义一致性难题。</p>
+<h2>解决的问题</h2>
+<p>现有的文本到图像生成方法面临跨模态对齐的固有挑战，由于自然语言处理（NLP）与计算机视觉（CV）领域的差异，现有模型往往难以确保生成的图像在语义层面与给定的文本描述保持高度一致。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于双向语言建模（Bidirectional Language Modeling）的生成框架</li>
+<li>针对语义 - 空间（Semantic-Spatial）一致性进行建模优化</li>
+<li>旨在解决跨模态任务中图像与文本语义一致性的关键挑战</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.08841" data-arxiv-id="2606.08841" data-status="ready">
+<h1>[2606.08841] ZIPP:Zero-shot Image Personalization from Personas</h1>
+<p><a href="https://arxiv.org/abs/2606.08841" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 ZIPP 范式，通过利用 LLM 根据用户 Persona 重写输入提示词，实现了无需显式图像偏好数据的零样本图像个性化，有效解决了冷启动问题并提升了跨模型生成的对齐效果。</p>
+<h2>解决的问题</h2>
+<p>现有方法依赖交互数据导致冷启动（cold-start）困难，且将用户偏好简化为静态表示，无法适应上下文变化；同时现有数据集存在人口学偏差，难以代表全球用户群体，且偏好收集成本高昂。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了零样本图像个性化范式，通过 LLM 角色扮演重写提示词，无需显式图像偏好数据即可实现个性化。</li>
+<li>开发了基于 Graph Attention 的归纳框架，从大规模社交图中挖掘预测视觉偏好的 Persona。</li>
+<li>构建了 ZIP-Bench 基准，包含 1.5K 用户、详细 Persona 及 40K 生成图像，用于评估零样本个性化。</li>
+<li>实现了跨图像生成模型的迁移无需重新训练，并支持显式可编辑的提示词以提供透明度。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.08634" data-arxiv-id="2606.08634" data-status="ready">
+<h1>[2606.08634] SSAFE: Simple and Strong AI-Generated Image Detection via Frozen Vision Encoders</h1>
+<p><a href="https://arxiv.org/abs/2606.08634" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 SSAFE 方法，利用冻结的 PE-Core 编码器结合线性分类器，配合表示感知的数据策展策略，在仅需少量样本的情况下实现了在 AIGI-Holmes、OpenFake 及 RealWorldBench 上的最先进检测性能。</p>
+<h2>解决的问题</h2>
+<p>现有方法通过微调预训练 Vision-Language Models 构建检测系统，但往往难以泛化到微调时未见过的 T2I 模型，且持续收集所有现有 T2I 模型的训练数据计算负担重且需要不断更新，使得该方法在实际应用中不切实际。</p>
+<h2>创新点</h2>
+<ul>
+<li>发现冻结多模态编码器在嵌入空间中能自然分离真实与 AI 生成图像，并揭示不同生成器之间的高层聚类结构。</li>
+<li>提出表示感知的数据策展策略，通过选择代表性生成器将训练集从 50K 减少至 10K 张图像，同时保持广泛的分布覆盖。</li>
+<li>构建轻量级 PE-Core + Linear 检测器，通过附加线性分类器到冻结的 PE-Core 编码器实现数据高效且鲁棒的检测。</li>
+<li>引入 RealWorldBench 测试基准，包含智能手机拍摄的照片和现代商业合成图像。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2606.08492" data-arxiv-id="2606.08492" data-status="ready">
 <h1>[2606.08492] Seeing is Believing: Aligning Prompt Rewriting with Visual Anchors for Text-to-Image Generation</h1>
 <p><a href="https://arxiv.org/abs/2606.08492" rel="nofollow">arXiv 原文</a></p>
@@ -4442,6 +4590,153 @@
 <li>设计 Simulate-Then-Distill 框架，通过离线构建包含视觉错误样本的偏好对，利用 SFT 和 DPO 将跨模态先验蒸馏至轻量级文本模型。</li>
 <li>引入 FaithT2I 基准测试，针对空间、物理和语义约束设计 VQA 风格问题，全面评估重写效果。</li>
 <li>实现高效部署，蒸馏后的模型无需生成图像即可避免视觉陷阱，在推理阶段保持 text-only 特性。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.08016" data-arxiv-id="2606.08016" data-status="ready">
+<h1>[2606.08016] IEA: Amateur-Friendly Conversational Image Editing Agent via Three Stages of Multitask Alignment</h1>
+<p><a href="https://arxiv.org/abs/2606.08016" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了一种名为 IEA 的业余友好型对话式图像编辑 Agent，通过三阶段多任务对齐（Three Stages of Multitask Alignment）技术降低专业软件的学习门槛，使普通用户能够便捷地进行个性化图像编辑。</p>
+<h2>解决的问题</h2>
+<p>现有图像编辑工具存在明显两极分化：专业桌面软件（如 Photoshop 和 Lightroom）功能强大但学习曲线陡峭，阻碍业余用户使用；而轻量级工具往往功能有限，难以满足个性化编辑需求。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了一种业余友好型的对话式图像编辑 Agent（IEA）。</li>
+<li>采用三阶段多任务对齐（Three Stages of Multitask Alignment）架构。</li>
+<li>支持基于用户历史编辑的个性化风格参考。</li>
+<li>能够理解自然语言指令并自动调整图像属性（如亮度、色温、对比度）。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.07660" data-arxiv-id="2606.07660" data-status="ready">
+<h1>[2606.07660] Need We Teach Foundation Models What is a Generative Image? Gradient-Free Generative Artifact Detection via Analytic Spectral Adaptation</h1>
+<p><a href="https://arxiv.org/abs/2606.07660" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出 Lightning 框架，通过 Analytic Spectral Adaptation 实现 gradient-free 生成伪影检测，将冻结基座模型视为稳定坐标系并利用纯净图像锚点分析差异，有效解决了参数优化导致的锚点漂移与决策边界坍塌问题，显著提升了跨域 zero-shot 检测性能。</p>
+<h2>解决的问题</h2>
+<p>现有方法从全量微调（FFT）演进到参数高效微调（PEFT），但仍依赖预训练权重作为优化的起点。然而，参数优化会在高维特征空间中引入 L2 norm 差异和归纳偏置，导致决策边界系统性地向训练流形坍塌，严重削弱了跨域 zero-shot 伪造检测能力。核心矛盾在于如何在依赖有限且有偏的合成样本的同时，让模型鲁棒地学习不断演变的生成伪影流形。</p>
+<h2>创新点</h2>
+<ul>
+<li>锚点漂移现象的形式化分析：揭示参数优化导致的特征空间 L2 norm 扰动及决策边界坍塌机制。</li>
+<li>注意力引导自动对焦机制：利用 [CLS] token 聚焦显著对象，无需空间对齐即可提取高 SNR 特征图。</li>
+<li>不可信层假设与剪枝：显式识别并剔除提供负 SNR 的 ViT 层，防止噪声累积并最大化判别能力。</li>
+<li>无梯度解析谱适应框架：将冻结基座模型视为稳定坐标系，通过统计矩和正交基建立锚点进行差异测量。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.07638" data-arxiv-id="2606.07638" data-status="ready">
+<h1>[2606.07638] Anchor-Conditioned Compositional Control for Landscape Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2606.07638" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了一种锚点条件化组合控制机制，通过在微调后的 Diffusion model 中注入专用注意力路径，实现了对景观图像地平线位置与构图权重的精确指定，无需手动空间掩码。</p>
+<h2>解决的问题</h2>
+<p>现有的图像生成模型缺乏对构图（composition）的显式控制能力，Diffusion model 仅依赖预训练统计模式，无法让创作者可靠地控制地平线位置、画框划分等空间结果；现有结构条件化方法多依赖深度图或边界框，未能解决构图意图描述符在生成阶段的保留与指定问题。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出四维锚点向量（horizon position, detection confidence, average saliency, foreground ratio），利用 Hough-transform 和 spectral residual saliency 自动提取，无需手动标注。</li>
+<li>设计专用的 decoupled cross-attention 路径，为锚点 token 分配独立的 Key 和 Value 投影，避免与 77 个预训练文本 token 竞争注意力预算。</li>
+<li>实现无需手动空间掩码或结构条件输入的构图意图指定，在推理时直接设定目标地平线位置和构图权重。</li>
+<li>验证了特定类别训练（category specific training）相比混合训练能更可靠地提高锚点条件化的精度。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.07079" data-arxiv-id="2606.07079" data-status="ready">
+<h1>[2606.07079] AsyncPatch Diffusion: spatially-flexible image generation</h1>
+<p><a href="https://arxiv.org/abs/2606.07079" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了 AsyncPatch Diffusion，通过将联合扩散 (joint diffusion) 严格扩展至图像像素及 latent tokens 级别并证明首个有效 ELBO，实现了无需额外微调的空间灵活图像生成、inpainting 及像素级生成时序控制。</p>
+<h2>解决的问题</h2>
+<p>标准扩散模型中噪声水平在所有维度同步，限制了分布建模与轨迹控制；而独立噪声级别虽能扩展空间，却导致训练时 timestep sampling 难以覆盖高度异质状态，造成全噪声或清洁分区严重不足。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 AsyncPatch 框架，将联合扩散 (joint diffusion) 严格扩展至图像像素及 latent tokens 级别。</li>
+<li>证明了首个有效的联合扩散 ELBO，为空间灵活生成提供理论基础。</li>
+<li>设计受控 timestep sampler 解决独立噪声训练中的状态异质性问题。</li>
+<li>支持像素级别的噪声调度与 input guidance，实现无需额外微调的 inpainting 与生成时序控制。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.07053" data-arxiv-id="2606.07053" data-status="ready">
+<h1>[2606.07053] TrioPose: Native Triple-Stream Diffusion Transformers for Pose-Guided Text-to-Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2606.07053" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 TrioPose，一种基于 SD3.5M 的原生三重流扩散 Transformer 框架，通过独立模态姿态编码与注意力掩码机制，在 Human-Art 数据集上实现了 64.33 AP 的最先进性能。</p>
+<h2>解决的问题</h2>
+<p>现有高保真人类图像生成方法主要依赖基于 CNN 的 UNet 背骨，其局部感受野限制了全局交互建模，导致多人重叠场景中肢体畸形；转向 Multimodal Diffusion Transformers (MM-DiT) 后，传统插件拼接方式破坏潜在空间对齐，且全局自注意力机制在复杂重叠中引发特征串扰与身份混淆，难以有效捕捉真实肢体依赖。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 TSPA-DiT 原生三重流架构，将姿态作为独立模态与文本、图像并行处理，利用零初始化双重残差注入保持 MM-DiT 分布稳定。</li>
+<li>设计可学习关系偏置掩码，将拓扑连接性解耦为五种物理状态并映射为连续注意力偏置，缓解复杂重叠中的特征串扰。</li>
+<li>引入姿态引导的空间损失加权，利用冻结 ViTPose 提取关键点误差重新加权去噪目标，增强解剖结构监督。</li>
+<li>在 Human-Art 数据集上实现 64.33 AP 的最先进性能，较现有方法提升 30%。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.07036" data-arxiv-id="2606.07036" data-status="ready">
+<h1>[2606.07036] STREAM: Stochastic Riemannian Flow Matching with Anisotropic Decoder for Digital Histopathology Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2606.07036" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 STREAM 框架，首次将随机黎曼流匹配（Stochastic Riemannian Flow Matching）与 Anisotropic Decoder 应用于数字病理图像生成，通过直接利用视觉基础模型（VFM）的 patch-token 特征作为生成潜在空间，有效解决了现有方法中因 VAE 潜空间缺乏语义内容导致的 conditioning collapse 问题，实现了兼顾无条件生成能力与下游分类性能提升的目标。</p>
+<h2>解决的问题</h2>
+<p>现有高分辨率图像生成主要依赖基于 Variational Autoencoders (VAEs) 的潜在扩散模型，但 VAE 编码器的潜空间主要强调低级细节，缺乏语义内容，导致线性分类器性能远低于基于 representation-encoder 的特征。为弥补这一缺陷，现有病理生成模型（如 ZoomLDM 和 PixCell）依赖预训练 VFM 的 [CLS]-token 进行条件化，但这引发了 conditioning collapse，即条件信号主导了输出多样性且推理时需要 VFM，不利于临床部署。同时，数字病理学因专家标注成本高且组织形态多样性大，特别受益于无条件生成方法，而 VFM 特征天然位于单位超球面上，具有强烈的角主导性和内在曲率，传统欧氏空间流匹配难以适配。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 STREAM 框架，首次将随机黎曼流匹配（RFM）与 VFM 编码器结合应用于数字病理图像生成。</li>
+<li>直接将 histopathology VFM 的 patch-token 特征作为生成潜在空间，解决 VAE 潜空间语义缺失问题。</li>
+<li>识别并实证了现有模型中的 conditioning collapse 现象及 VFM 特征的球形几何特性。</li>
+<li>采用各向异性解码器（Anisotropic Decoder）适配 VFM 特征在单位超球面上的内在曲率。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.06918" data-arxiv-id="2606.06918" data-status="ready">
+<h1>[2606.06918] DRIFT: From Robustness Gaps to Invariance Manifolds for AI-Generated Image Detection</h1>
+<p><a href="https://arxiv.org/abs/2606.06918" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>DRIFT 通过从 Robustness Gaps（鲁棒性差距）到 Invariance Manifolds（不变流形）的转变，实现了针对 AI-generated images 的 generator-agnostic（生成器无关）检测。</p>
+<h2>解决的问题</h2>
+<p>现有检测主要依赖 supervised training（监督训练）并利用 model-specific artifacts（特定模型伪影）或 frequency inconsistencies（频率不一致性），虽然在 closed-world settings（封闭世界设置）有效，但难以泛化到 evolving generative paradigms（演化生成范式）。</p>
+<h2>创新点</h2>
+<ul>
+<li>从 Robustness Gaps 转向 Invariance Manifolds 进行分析</li>
+<li>提出 generator-agnostic 检测策略</li>
+<li>实现跨 evolving generative paradigms 的泛化</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.06875" data-arxiv-id="2606.06875" data-status="ready">
+<h1>[2606.06875] Unified Safe In-context Image Generation in Multimodal Diffusion Transformers via Restricting Unsafe Information Flows</h1>
+<p><a href="https://arxiv.org/abs/2606.06875" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出一种任务无关、无需训练的 Unified Visual Safety Regulator (UVR)，通过限制输出图像 token 中的不安全信息流，在保持生成与编辑性能的同时，有效统一了多模态扩散 Transformer (MM-DiTs) 中 T2I 合成与 I2I 编辑的安全抑制能力。</p>
+<h2>解决的问题</h2>
+<p>现有安全缓解方法主要集中于 U-Net 模型或仅针对 T2I 合成任务，在多模态扩散 Transformer (MM-DiTs) 的图像编辑场景中存在局限性，难以平衡安全性与图像质量，且依赖文本中心的概念擦除和人工提示词，无法有效处理参考图像中编码的不安全视觉语义，导致用户可通过编辑不安全参考图像绕过防护。</p>
+<h2>创新点</h2>
+<ul>
+<li>从不安全信息流视角分析 MM-Attn 机制，统一解释 T2I 与 I2I 任务中不安全语义如何融入输出图像 token</li>
+<li>提出任务无关、无需训练的 Unified Visual Safety Regulator (UVR)，通过限制输出图像 token 中的不安全信息流实现安全抑制</li>
+<li>利用不安全锚点定位语义启动阶段的不安全视觉 patch，并通过自适应 attention modulation 和明确限制相关有害信息流防止传播</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.06813" data-arxiv-id="2606.06813" data-status="ready">
+<h1>[2606.06813] Breaking the Lock-in: Diversifying Text-to-Image Generation via Representation Modulation</h1>
+<p><a href="https://arxiv.org/abs/2606.06813" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 DC Attenuation for Diversity Enhancement（DAVE），通过在推理阶段选择性衰减 Transformer 中间表示中的零频空间平均（DC）分量，在无需重训练或改变采样流程的情况下显著提升了 Text-to-Image 生成多样性。</p>
+<h2>解决的问题</h2>
+<p>现有高质量 Text-to-Image 模型在固定提示词下生成内容时往往存在多样性不足的问题，且现有训练自由方法通常伴随显著的内存与计算开销，同时缺乏对模型内部表示中多样性坍缩根本原因的机制性解释。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 DAVE 方法，基于 Transformer 中间表示分析，通过干预零频空间平均（DC）分量来解决生成多样性坍缩问题。</li>
+<li>无需重训练或改变采样 pipeline，仅需轻量级内部操作即可实现多样性增强。</li>
+<li>揭示了早期去噪步骤中 DC 分量导致 trajectory lock-in 的机制，并据此进行针对性抑制。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.06228" data-arxiv-id="2606.06228" data-status="ready">
+<h1>[2606.06228] SAM-Flow: Source-Anchored Masked Flow for Training-Free Image Editing</h1>
+<p><a href="https://arxiv.org/abs/2606.06228" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了 SAM-Flow，一种基于 Source-Anchored Masked Flow 的无训练图像编辑方法，通过将编辑范式从全局分布映射转变为精确的局部流编辑，有效减少了背景泄露并保留了源图像特征。</p>
+<h2>解决的问题</h2>
+<p>现有的无训练图像编辑方法主要分为基于 ODE 反演和基于 differential-flow-based 的方法，两者均依赖全局分布传输，导致编辑过程中整个图像都被更新，非编辑区域的背景像素被迫适应目标分布，引发严重的不可逆编辑泄露，削弱了源图像在保留区域中的特征保持能力。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了局部流编辑框架，将编辑过程从全局分布映射转向精确的局部流更新，有效减少背景泄露</li>
+<li>引入 Token-Grounded Semantic Localization 机制，采用 Scout-and-Union 注意力策略，为物体替换、添加、移除及大变形提供足够的空间覆盖</li>
+<li>设计 Source-Anchored Dynamic Projection，结合核心区域、过渡区域和源隐变量锚定，平滑混合局部编辑并保留非编辑区域</li>
+<li>具备 Plug-and-play 通用性，可与 FLUX 和 Stable Diffusion 3 等主流流匹配主干集成，无需训练或微调</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2606.06113" data-arxiv-id="2606.06113" data-status="ready">
@@ -4472,6 +4767,251 @@
 <li>优化编辑的长视界依赖，使编辑价值不仅取决于当前指令合规性，还取决于保留后续轮次上下文的能力</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.05829" data-arxiv-id="2606.05829" data-status="ready">
+<h1>[2606.05829] Gender Artifacts from Art History to Text-to-Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2606.05829" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文构建了 STYLEGENDER 数据集并提出 PixelSGA 与 MaskSGA 指标，实证分析了艺术史风格与文本生成图像（T2I）模型中隐含的性别伪影，证明 AI 领域的艺术风格应被重构为社会文化构建而非纯粹的美学转换。</p>
+<h2>解决的问题</h2>
+<p>现有 AI 研究常将艺术风格简化为调色板、笔触和纹理的视觉模板（如神经风格迁移），忽视了其根植于特定社会历史背景及性别层级的本质。这种将风格视为内容中立场景视觉过滤器的观点，使得文本生成图像（T2I）模型在响应风格提示时，可能无意中编码并放大历史时期嵌入的社会结构，特别是性别相关的伪影。</p>
+<h2>创新点</h2>
+<ul>
+<li>构建了 STYLEGENDER 数据集，包含约 74k 张图像，涵盖 19 种艺术史风格及两个 T2I 模型（Stable Diffusion 3.5 Medium 和 Flux.1-dev）生成的语义对齐图像。</li>
+<li>提出了 Set Gender Artifacts (SGA) 量化指标，包括 PixelSGA 和 MaskSGA，用于测量与性别相关的可解释视觉线索。</li>
+<li>揭示了艺术史风格与 T2I 模型输出中均存在显著的性别伪影，且模型生成的风格化内容倾向于放大历史作品中的既有伪影。</li>
+<li>主张将 AI 研究中的艺术风格重构为社会文化构建，而非纯粹的内容无关美学转换。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.05816" data-arxiv-id="2606.05816" data-status="ready">
+<h1>[2606.05816] Emotion-Aware Image Generation from Korean Diary Text via LLM-based Prompt Translation and LoRA Fine-Tuning</h1>
+<p><a href="https://arxiv.org/abs/2606.05816" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种基于 LLM-based Prompt Translation 和 LoRA Fine-Tuning 的情感感知图像生成管线，利用 zero-shot LLM Qwen3-8B 识别情感并通过带有 emotion-based trigger words 的 Stable Diffusion 3.5 Medium 生成儿童画风格图像，有效解决了 T2I models 难以表达日记文本中抽象情感的问题。</p>
+<h2>解决的问题</h2>
+<p>现有的 T2I models 在处理文本情感表示时存在困难，因为情感概念比具体视觉概念更抽象，难以被现有的 diffusion models 有效捕捉；尤其是日记条目包含隐含的情感语境和主观描述，导致现有 T2I 模型难以仅从文本中识别并呈现预期的情感细微差别。</p>
+<h2>创新点</h2>
+<ul>
+<li>设计包含情感识别与图像生成的双阶段管线，利用 LLM-based Prompt Translation 解决韩语输入的语言障碍。</li>
+<li>采用 zero-shot LLM Qwen3-8B 进行情感识别，并通过 emotion-based trigger words 微调 Stable Diffusion 3.5 Medium 以增强视觉情感表达。</li>
+<li>通过实验验证 emotion trigger words 对生成图像情感表达的影响，并指出 CLIP Score 在评估风格迁移质量方面存在局限性。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.05703" data-arxiv-id="2606.05703" data-status="ready">
+<h1>[2606.05703] Parallel Jacobi Decoding for Fast Autoregressive Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2606.05703" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 Parallel Jacobi Decoding (PJD)，一种 training-free 的二维并行 Jacobi 解码框架，通过利用图像的空间局部性解决了传统一维扩展方案的扩展性瓶颈，在 Lumina-mGPT 和 LlamaGen 上实现了显著且稳定的推理加速。</p>
+<h2>解决的问题</h2>
+<p>现有的自回归（AR）图像生成受限于顺序生成过程，推理速度慢，且扩散模型的加速技术难以应用。现有的 Jacobi 解码虽无需辅助模型，但其固有的一维（1D）扩展方案导致后期 token 关注不确定性增加，加速效果饱和，无法充分利用图像的空间结构。</p>
+<h2>创新点</h2>
+<ul>
+<li>识别出传统 Jacobi 解码的一维（1D）扩展方案无法充分利用图像的空间结构，导致加速饱和。</li>
+<li>提出一种 training-free 的二维（2D）并行 Jacobi 解码框架（PJD），利用图像的空间局部性初始化下一行草稿 token。</li>
+<li>通过每迭代轮次内多行并行细化，在保持自回归依赖结构的同时减少长距离误差传播。</li>
+<li>在 Lumina-mGPT 和 LlamaGen 上实现了最高 6.4× 和 4.8× 的推理加速，且未牺牲生成质量。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.05478" data-arxiv-id="2606.05478" data-status="ready">
+<h1>[2606.05478] Can We Predict The Human Preference For Text-to-Image Content Prior To Generation And Is It Even Useful To Do So?</h1>
+<p><a href="https://arxiv.org/abs/2606.05478" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文探讨了在生成前预测文本到图像内容的人类偏好是否可行，并评估该预测机制在生成式模型中的实际效用。</p>
+<h2>解决的问题</h2>
+<p>现有的视觉生成模型如 Variational AutoEncoders (VAE) 和 Generative Adversarial Networks (GAN) 主要依赖客观距离与噪声指标如 Fréchet Inception Distance (FID) 和 Peak Signal-to-Noise Ratio (PSNR) 进行评估，而新兴的 Text-to-Image (T2I) Diffusion Models (DM) 虽擅长从文本提示生成视觉内容，但缺乏对人类偏好 (Human Preference Metrics, HPM) 的有效量化，且现有方法未明确解决生成前预测人类偏好的可行性与实用性问题。</p>
+<h2>创新点</h2>
+<ul>
+<li>探究生成前预测人类偏好的可行性</li>
+<li>评估该预测机制在 Text-to-Image (T2I) 生成任务中的实际效用</li>
+<li>分析 Human Preference Metrics (HPM) 与传统客观指标在评估 Diffusion Models (DM) 时的差异</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.05290" data-arxiv-id="2606.05290" data-status="ready">
+<h1>[2606.05290] Do Models Share Safety Representations? Cross-Model Steering for Safe Visual Generation</h1>
+<p><a href="https://arxiv.org/abs/2606.05290" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种跨模型安全引导框架，通过仅使用 safe anchor prompts 在源 model 与异构 target model 间建立轻量级 alignment，实现了 safety direction 的跨模型迁移，从而在无需接触目标 model 不安全数据的情况下显著降低不安全生成率并保留生成效用。</p>
+<h2>解决的问题</h2>
+<p>现有安全机制主要依赖 prompt filtering 或 retraining，且通常假设 safety representations 具有 model-specific 特异性，难以在架构、数据或 tokenizer 不同的异构 models 间迁移；同时，目标 models 上缺乏不安全数据使得传统监督式安全对齐不可行，亟需一种无需接触目标 models 不安全数据即可实现安全干预的方法。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出跨模型安全引导框架，利用源 model 的 safety vector 与轻量级 alignment，将安全表示迁移至异构 target model。</li>
+<li>仅需使用 safe anchor prompts 进行 alignment，无需访问 target model 的任何不安全数据即可完成 safety adaptation。</li>
+<li>扩展至 multi-vector 设置，支持针对不同类别的不安全行为独立估计和转移 category-specific safety directions。</li>
+<li>在多种异构 generative models（如 Flux1-Schnell、Qwen-Image 等）上验证了安全方向的通用性与迁移效果。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.05031" data-arxiv-id="2606.05031" data-status="ready">
+<h1>[2606.05031] MetaPoint: Unlocking Precise Spatial Control in Agentic Visual Generation</h1>
+<p><a href="https://arxiv.org/abs/2606.05031" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>MetaPoint 提出了一种轻量级的特殊文本 token（）结合空间位置编码机制，在不改变统一多模态模型（UMMs）架构的情况下，实现了像素级的精确空间控制，显著提升了智能体视觉生成任务中的空间定位与布局能力。</p>
+<h2>解决的问题</h2>
+<p>现有的统一多模态模型（UMMs）虽能理解文本空间指令，但在将理解转化为精确视觉布局时存在显著差距，导致物体无法准确定位到指定坐标。现有方法如注意力掩码（attention-masking）仅提供粗略的块级控制，适配器方法（Adapter-based）难以集成到单一模型中，而基于位置词汇表的方法（如 ReCo）依赖大量离散 token 导致计算成本高且无法指定连续坐标，使得精度、可扩展性与架构简洁性之间始终存在难以调和的矛盾。</p>
+<h2>创新点</h2>
+<ul>
+<li>设计了一种带有空间位置编码的特殊文本 token（），其 word embedding 传达控制意图，positional embedding 编码目标点的精确坐标。</li>
+<li>无需架构手术或重型词汇表扩展，实现了轻量级且像素级精确的空间控制方案。</li>
+<li>构建了组合式空间控制系统，单个 token 指定点，成对定义精确边界框（bounding box），序列编码复杂姿态或物体布局。</li>
+<li>提供模型无关（model-agnostic）的解决方案，可无缝集成至现有统一多模态模型中。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.04457" data-arxiv-id="2606.04457" data-status="ready">
+<h1>[2606.04457] Imagine Before You Draw: Visual Prompt Engineering for Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2606.04457" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了视觉提示工程（Visual Prompt Engineering, VPE），通过插入 SigLIP 2 视觉令牌将图像生成分解为语义规划与细节渲染两个子问题，有效缓解了高维语义与像素合成之间的建模差距，在多种生成任务中实现了质量提升与收敛加速。</p>
+<h2>解决的问题</h2>
+<p>现有外部架构（如 X-Omni）因分离的生成器与条件器导致信息瓶颈，难以在图像编辑等任务中保留细节；内部架构（如 Transfusion）虽避免了瓶颈但未有效解决文本到像素的建模差距。同时，直接引入视觉语义提示面临训练与推理不一致（train-inference discrepancy）以及离散与连续 token 损失尺度不平衡（loss-scale imbalance）的关键挑战。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出视觉提示工程（VPE），通过插入 SigLIP 2 视觉令牌将图像生成分解为语义规划与细节渲染两个子问题。</li>
+<li>识别并解决训练与推理不一致（train-inference discrepancy）及损失尺度不平衡问题，提出渐进式训练计划（progressive training schedule）。</li>
+<li>支持内部集成（shared attention）与外部集成（separate AR + DiT）两种架构范式，并系统分析其优劣。</li>
+<li>在离散 token（如 Emu3）与连续 token（如 VAE vectors）模型上均验证了该方法的有效性。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.04409" data-arxiv-id="2606.04409" data-status="ready">
+<h1>[2606.04409] An Empirical Study of Data Scale, Model Complexity, and Input Modalities in Visual Generalization</h1>
+<p><a href="https://arxiv.org/abs/2606.04409" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文通过构建受控实验，系统探究了 Data Scale、Model Complexity 以及 Input Modalities 对 Visual Generalization 的影响机制，并验证了引入 Edges、Gradients 等 Prior Features 对提升模型拟合与泛化能力的有效性。</p>
+<h2>解决的问题</h2>
+<p>传统机器学习理论认为 Over-parameterization 会导致泛化性能下降，但现有研究表明过参数化模型仍能保持良好测试性能，理论解释尚不明确。直接分析大规模 Neural Networks 的泛化机制困难，因为训练过程受 Architecture、Optimizer、Loss Function 等多因素干扰，缺乏对 Data Scale、Model Complexity 及 Input Modalities 等关键变量的定量控制分析。</p>
+<h2>创新点</h2>
+<ul>
+<li>设计了受控实验框架，从 Data Scale、Model Complexity 及 Input Modalities 三个维度分析 Visual Generalization 性能</li>
+<li>构建了初步的一维 Nonlinear Function 拟合实验，通过 Polynomials 拟合与数据规模变化观察模型表现，为后续 Image Classification 实验提供现象学参考</li>
+<li>在 CIFAR-10 和 CIFAR-100 数据集上，对比了 MLP、AlexNet 和 ResNet 模型在不同设置下的泛化表现</li>
+<li>系统研究了去除 Color Information 及引入 Edges、Gradients、Wavelets 等 Prior Features 对模型 Fitting Ability 和 Generalization Performance 的影响</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.04299" data-arxiv-id="2606.04299" data-status="ready">
+<h1>[2606.04299] Efficient and Training-Free Single-Image Diffusion Models</h1>
+<p><a href="https://arxiv.org/abs/2606.04299" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种完全无需训练的高效单图像扩散模型，通过闭式解计算图像补丁分布的得分函数，在避免长时间内部学习成本的同时，实现了与需要数小时训练的传统扩散模型相当甚至更优的生成质量。</p>
+<h2>解决的问题</h2>
+<p>现有的单图像生成方法存在显著矛盾：基于生成对抗网络（GANs）或扩散模型的方法虽然能显式建模图像补丁的概率分布，但训练单个图像的计算成本高昂且优化困难；而经典的无训练补丁匹配方法虽然高效且无需学习，但缺乏灵活性，难以像基于分数的去噪扩散模型那样轻松结合视觉 - 语言模型进行文本编辑或对称性约束控制。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于闭式解的得分函数计算方法，无需训练神经网络即可计算单图像补丁分布的得分函数。</li>
+<li>设计了一种无需训练的训练-free 反向扩散过程，将闭式去噪器整合到粗到细的生成流程中。</li>
+<li>融合了多项加速技术，包括用于 Transformer 的融合注意力核、潜在空间扩散及近似最近邻搜索，实现秒级生成。</li>
+<li>继承了扩散模型的优势，支持基于预训练视觉 - 语言模型（vision–language models）的文本引导编辑及对称性约束控制。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.04264" data-arxiv-id="2606.04264" data-status="ready">
+<h1>[2606.04264] UniCanvas: A Diffusion-base Unified Model for Text-in-Image Joint Generation</h1>
+<p><a href="https://arxiv.org/abs/2606.04264" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>论文提出了 UniCanvas，这是一种基于 Diffusion model 的统一架构，旨在融合自回归 VLMs 的推理能力与 Diffusion models 的图像生成优势，实现 Text-in-Image Joint Generation。</p>
+<h2>解决的问题</h2>
+<p>现有自回归 VLMs 虽擅长跨模态推理与语言理解，但难以合成高质量且空间忠实度高的图像；而 Diffusion models 虽能生成具有强空间相干性的逼真内容，却缺乏逐步推理能力，两者优势的融合仍是开放挑战。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于 Diffusion model 的统一架构，旨在结合 VLMs 与 Diffusion models 的互补优势。</li>
+<li>实现 Text-in-Image Joint Generation，解决单一模型难以兼顾跨模态推理与高质量图像生成的矛盾。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.03715" data-arxiv-id="2606.03715" data-status="ready">
+<h1>[2606.03715] Text-to-Image Models Need Less from Text Encoders Than You Think</h1>
+<p><a href="https://arxiv.org/abs/2606.03715" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文发现预训练的文本到图像模型（TTI）对文本编码器提供的丰富上下文信息依赖远低于预期，证明仅保留词元（token）或单词级别信息的无上下文文本嵌入（contextless text embeddings）即可维持高生成质量与提示遵循度。</p>
+<h2>解决的问题</h2>
+<p>现有 TTI 模型普遍采用日益强大的文本编码器（如 T5、Qwen），基于“更丰富的文本表示能带来更好生成效果”的假设，但当前研究尚不清楚图像生成模型实际利用了文本表示中的哪些具体方面（如组合性、属性绑定等），导致可能存在冗余计算或效率问题。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出三种无上下文文本嵌入类型（Bag-of-Tokens, Bag-of-Words, Bag-of-Position-Tagged-Words），作为原始文本编码器输出的直接替换。</li>
+<li>发现预训练 TTI 模型对上下文信息的依赖低于预期，仅需保留词元或单词级别信息即可维持高视觉质量与提示遵循度。</li>
+<li>揭示了单词嵌入内的位置信息使模型能够间接解析词在提示中的角色，从而区分包含相同单词集合的不同句子。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.03243" data-arxiv-id="2606.03243" data-status="ready">
+<h1>[2606.03243] MemoGen: Can Past Experience Improve Future Text-to-Image Generation?</h1>
+<p><a href="https://arxiv.org/abs/2606.03243" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>MemoGen 提出了一种无需模型参数更新的 training-free 持续学习框架，通过在 agent layer 构建 test-time self-evolution 机制，复用历史生成经验以优化生成条件，使开源模型在知识密集型图像生成任务上超越主流闭源系统。</p>
+<h2>解决的问题</h2>
+<p>现有检索增强或代理生成方法主要局限于单任务增强，仅关注为当前任务构建更好的生成条件，缺乏系统性地保存成功策略与失败案例的机制。这导致生成系统无法利用过往经验来改进未来生成，未能解决如何在无需更新底层生成器参数的情况下，实现持续自我进化的关键矛盾。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 training-free 持续学习框架，通过 agent layer 优化而非更新底层生成器参数来提升性能。</li>
+<li>设计 test-time self-evolution 流程，包含理解、证据获取、视觉定位、反思、记忆与再创造阶段。</li>
+<li>建立显式记忆机制存储任务理解与成败经验，实现跨轮次的成功策略复用与失败案例学习。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.02090" data-arxiv-id="2606.02090" data-status="ready">
+<h1>[2606.02090] FocusDiT: Masking Queries in Diffusion Transformers for Fine-grained Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2606.02090" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 FocusDiT，通过查询令牌掩码策略优化 Diffusion Transformers 中的 FFN 词汇利用，显著提升了细粒度图像生成的质量与推理效率。</p>
+<h2>解决的问题</h2>
+<p>现有 Diffusion Transformers 缺乏对 FFN 的全面优化，关键查询令牌常被背景或低频区域令牌淹没，导致 FFN 视觉词汇资源浪费且无法充分解码细粒度内容，同时不同层级的解码需求未被有效适配，阻碍性能提升。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出查询令牌掩码策略，识别并优先处理包含复杂结构的查询令牌，增强 FFN 词汇利用率以捕捉细粒度细节，同时通过掩码跳过 FFN 层降低推理成本。</li>
+<li>提出词汇重分配方案，采用 local-expert 与 shared-expert 设计，在减少冗余 FFN 参数的同时保留逐层解码能力并提升词汇设计的鲁棒性。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.01985" data-arxiv-id="2606.01985" data-status="ready">
+<h1>[2606.01985] MT-EditFlow: Reinforcement Learning for Multi-Turn Image Editing with Flow Matching</h1>
+<p><a href="https://arxiv.org/abs/2606.01985" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>MT-EditFlow 提出了一种基于流匹配的强化学习框架，通过整合多轮视角与多奖励公式统一了 GRPO 与 NFT 方法的奖励信号设计，显著提升了流式图像编辑模型在多轮编辑中的指令遵循与视觉一致性。</p>
+<h2>解决的问题</h2>
+<p>现有图像编辑模型主要面向“单轮”交互，应用于多轮对话时存在“全有或全无”的严苛要求，单轮失败即导致整体体验受损；同时模型难以基于自身不完美的输出进行条件控制，导致误差传播（exposure bias）及质量漂移，且现有后训练方法未显式建模多轮交互的时间依赖性。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 MT-EditFlow 框架，通过整合多轮视角与多奖励公式，统一设计适用于 GRPO 与 NFT 方法的奖励信号结构。</li>
+<li>系统优化奖励信号设计，分析多轮奖励聚合策略、评估器模式权衡及优势融合水平，有效避免奖励黑客（reward hacking）。</li>
+<li>基于流匹配模型（flow-matching models）实现强化学习，通过广播聚合优势对齐局部规划决策与全局任务成功，减少连续编辑中的误差传播。</li>
+<li>构建约 2.5K 高质量多轮提示链数据集，结合 SOTA VLM（如 Qwen3-VL-8B）与 EdiVal-CC 评估指令遵循（IF）与内容一致性（CC）。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.01858" data-arxiv-id="2606.01858" data-status="ready">
+<h1>[2606.01858] Polaris: Scaling Up Instruction-Guided Image Generation Towards Millions of Personalized Style Needs</h1>
+<p><a href="https://arxiv.org/abs/2606.01858" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>Polaris 提出了一种无需额外训练的统一框架，通过系统整合社区贡献的模型库，利用高效检索策略解决了指令驱动图像生成中的长尾风格需求，实现了高质量且实时的个性化生成。</p>
+<h2>解决的问题</h2>
+<p>现有单一基础模型受限于数据不平衡和灾难性遗忘，难以可靠掌握广泛的风格与任务，尤其是长尾需求；而针对特定需求的小规模微调（如 LoRA）虽准确但需为每个新任务收集数据和训练，成本高昂。此外，如何从海量社区贡献的模型中高效检索并适配语义复杂的多模态用户指令，仍是当前实现规模化个性化生成的关键矛盾。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 Polaris 统一框架，将指令驱动的风格与能力选择建模为多模态检索任务，无需额外训练即可直接解析用户意图。</li>
+<li>设计高效的搜索与重排序（search-and-rerank）流水线，实现从数万个社区贡献模型中快速可扩展的检索与选择。</li>
+<li>通过整合社区检查点与适配器，弥补大型预训练模型在长尾风格概念上的盲区，实现高质量且实时的个性化生成。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.01803" data-arxiv-id="2606.01803" data-status="ready">
+<h1>[2606.01803] OctoT2I: A Self-Evolving Agentic Text-to-Image Router</h1>
+<p><a href="https://arxiv.org/abs/2606.01803" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 OctoT2I，一种自进化的代理 Text-to-Image (T2I) 路由框架，通过将代理 T2I 重构为生成质量与推理效率的联合优化，利用 Knowledge Module 与 Memory Module 实现基于实时反馈的自适应工具选择。</p>
+<h2>解决的问题</h2>
+<p>现有单一模型缩放边际收益递减且模型选择困难，现有的代理 T2I 方法在知识获取上依赖人工先验导致泛化受限，或依赖昂贵标注数据导致扩展性差且受限于人类监督，同时决策机制多为静态单路径且忽视了 inference efficiency，难以平衡性能与成本。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 OctoT2I 代理路由框架，利用 Knowledge Module 与 Memory Module 支持 router agent 的迭代决策，实现基于实时反馈的自适应工具选择。</li>
+<li>设计 Self-Evolving Mechanism，通过自主定义的 conceptual dimensions 与 Propose–Solve–Evaluate–Learn (PSEL) 循环，在无外部数据或人类监督下实现自主知识获取。</li>
+<li>实现生成质量与推理效率的联合优化，通过 Evaluation Module 反馈形成完整的 reason-act-reflect 闭环，平衡性能与效率。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2606.01651" data-arxiv-id="2606.01651" data-status="ready">
+<h1>[2606.01651] Restoring Initial Noise Sensitivity in Text-to-Image Distillation via Geometric Alignment</h1>
+<p><a href="https://arxiv.org/abs/2606.01651" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种名为几何感知蒸馏（GAD）的框架，通过强制学生模型复制教师模型对输入的雅可比 - 向量积（Jacobian-vector products）来对齐局部功能行为，成功恢复了蒸馏模型在文本到图像生成中对初始噪声的敏感性，从而在不牺牲图像保真度的前提下显著提升了生成多样性及噪声控制能力。</p>
+<h2>解决的问题</h2>
+<p>现有蒸馏方法主要关注推理效率与感知保真度，往往将教师模型视为静态输入 - 输出映射器并优先对齐最终结果，导致蒸馏模型表现出对初始噪声严重退化的敏感性。这是因为标准点对点输出对齐目标（如最小化均方误差（MSE）或反向 KL 散度（KL divergence））倾向于平滑潜在的多模态输出，抑制了教师映射的局部几何结构及其对输入扰动的微分响应，使得模型产生高度相关的样本且对噪声扰动响应微弱，从而损害了生成多样性及依赖噪声操控技术的控制能力。</p>
+<h2>创新点</h2>
+<ul>
+<li>识别并归因于蒸馏模型对初始噪声敏感性退化源于标准点对点对齐目标的平滑效应</li>
+<li>提出几何感知蒸馏（GAD），通过约束学生模型复制教师模型对输入的雅可比 - 向量积（Jacobian-vector products）来对齐局部功能行为</li>
+<li>实现模型无关的框架，在 SD2、PixArt-α 和 SANA 等多种生成架构上验证了恢复噪声敏感性的有效性</li>
+<li>在布局控制和无训练噪声检索等下游任务中证明，恢复敏感性可缓解多样性退化而不影响图像保真度</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2606.00094" data-arxiv-id="2606.00094" data-status="ready">
 <h1>[2606.00094] Diffusion Image Generation with Explicit Modeling of Data Manifold Geometry</h1>
 <p><a href="https://arxiv.org/abs/2606.00094" rel="nofollow">arXiv 原文</a></p>
@@ -4485,6 +5025,20 @@
 <li>设计 novel soft top-$k$ aggregation mechanism 实现端到端可微分训练，结合离散 token 的结构量化与连续 diffusion 的并行生成。</li>
 <li>引入 dual-branch high-frequency feature embedding layers 以缓解 Transformer 主干网络在低维输入上的频谱偏差。</li>
 <li>设计 multi-stage transition sampling scheme 在推理阶段根据 timestep 动态调整采样方案。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2605.30437" data-arxiv-id="2605.30437" data-status="ready">
+<h1>[2605.30437] Mitigating Content Shift and Hallucination in GenAI Image Editing via Structural Refinement</h1>
+<p><a href="https://arxiv.org/abs/2605.30437" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种通用的相机 - GenAI 图像融合框架，通过流式空间对齐、全局色彩与色调迁移及基于稀疏编码的可解释融合模块，在保留 GenAI 输出（如色调增强和去噪）的同时强制其与相机输入保持几何和空间分辨率一致性，从而有效缓解内容偏移和幻觉问题。</p>
+<h2>解决的问题</h2>
+<p>现有黑盒 GenAI 模型在图像增强任务中虽具备强大的感知质量，但存在空间错位、纹理扭曲、内容幻觉及分辨率不匹配等核心失败模式，且缺乏单一指标能全面量化此类保真度问题；同时，Photorealistic Style Transfer (PST) 方法缺乏严格的语义一致性且无法抑制噪声，Multimodal Image Fusion 方法假设源图像结构可靠，无法有效处理 GenAI 输出中的幻觉，难以在保留 GenAI 增强效果的同时维持输入图像的结构一致性。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出了一种通用的相机 - GenAI 图像融合框架，在保留 GenAI 输出增强效果的同时强制其与相机输入保持几何和空间分辨率一致性。</li>
+<li>设计了包含流式空间对齐、全局色彩与色调迁移及基于稀疏编码的可解释融合模块的三阶段处理管线。</li>
+<li>针对色调调整和低光增强等增强任务，利用相机图像作为结构参考，有效缓解了空间错位、纹理扭曲和内容幻觉问题。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2605.29471" data-arxiv-id="2605.29471" data-status="ready">
@@ -4560,6 +5114,35 @@
 <li>揭示了创意工作者在工具使用中的常见学习路径（如第三方教程与自我实验），并指出了混淆的 AI 术语（AI terminology）作为关键认知障碍。</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2605.09233" data-arxiv-id="2605.09233" data-status="ready">
+<h1>[2605.09233] Towards Robust Sequential Decomposition for Complex Image Editing</h1>
+<p><a href="https://arxiv.org/abs/2605.09233" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了一种面向复杂图像编辑的鲁棒序列分解方法，通过构建 in-context editing 框架并结合 BAGEL 模型微调，在合成数据与真实数据上均实现了优于 single-turn editing 及 zero-shot 序列编辑的性能，有效解决了复杂指令下的多步编辑误差累积与身份保持问题。</p>
+<h2>解决的问题</h2>
+<p>现有图像编辑模型在处理包含组合操作指令时面临显著挑战，single-turn editing 因需同时处理多操作而常导致结果不完整或错误，而 sequential editing 虽能分解任务却存在严重的误差累积问题，早期步骤的不准确会传播至后续步骤，难以在分解优势与保真度之间取得平衡。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出基于 in-context editing 框架的序列分解方法，利用多模态模型生成分解指令与编辑图像的交错序列并基于历史上下文进行条件化，统一了不同编辑范式。</li>
+<li>开发了包含 inter-step dependencies 的 Blender 合成数据生成管线，支持任意长度和依赖比的编辑序列，为分析编辑行为提供可控且可扩展的环境。</li>
+<li>设计了上下文引导的序列编辑范式，能够灵活调节先前编辑结果的影响，在具有 inter-step dependencies 的任务中展现出鲁棒的性能提升。</li>
+<li>实现了从合成到现实（sim-to-real）的迁移，通过在合成序列和现实单轮编辑对混合数据上微调，提升了复杂现实编辑任务的指令遵循与身份保持能力。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2605.07496" data-arxiv-id="2605.07496" data-status="ready">
+<h1>[2605.07496] PathPainter: Transferring the Generalization Ability of Image Generation Models to Embodied Navigation</h1>
+<p><a href="https://arxiv.org/abs/2605.07496" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 PathPainter 框架，通过将图像生成模型的泛化能力迁移至 BEV 导航，利用自然语言指令进行目标推断与可通行性掩码生成，并结合 A*搜索规划获得可执行的机器人全局路径。</p>
+<h2>解决的问题</h2>
+<p>现有的 BEV 导航系统通常将航拍观测压缩为语义图或拓扑地图，导致丢失道路边界、通道宽度等几何细节与视觉线索；同时，可通行性多依赖人类预定义的语义类别（如道路），难以捕捉开阔户外环境中多样化的可行走区域，限制了复杂场景下的导航能力。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 PathPainter 框架，将图像生成模型的泛化能力迁移至具身导航，通过目标推断、可通行性掩码生成及搜索规划实现自然语言条件（natural-language-conditioned）的 BEV 导航。</li>
+<li>开发集成跨视角定位（cross-view localization）、BEV 全局规划与局部运动执行的真实世界长距离导航系统，支持无需精确 GPS/RTK 的定位。</li>
+<li>在真实世界导航与路径生成基准上验证了框架的鲁棒性，证明了将图像生成先验应用于导航的可行性。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2605.06421" data-arxiv-id="2605.06421" data-status="ready">
 <h1>[2605.06421] FREPix: Frequency-Heterogeneous Flow Matching for Pixel-Space Image Generation</h1>
 <p><a href="https://arxiv.org/abs/2605.06421" rel="nofollow">arXiv 原文</a></p>
@@ -4588,6 +5171,21 @@
 <li>构建了 Gen4Regen 数据集（2101 对合成图像与语义掩码）及扩展后的 WilDReF-Q-V2 数据集（13 977 个未标注和 50 个手工标注图像），用于补充真实世界数据。</li>
 <li>提出混合真实数据与 AI 生成数据进行统一训练的方法，使未充分代表类别的 F1 分数提升超过 30%，有效缓解细粒度语义分割中的类别不平衡问题。</li>
 <li>验证了大规模视觉模型作为敏捷数据生成器在专家标签稀缺的细分 AI 领域中的潜力，实现了无需大量手工标注的感知任务引导。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2605.02439" data-arxiv-id="2605.02439" data-status="ready">
+<h1>[2605.02439] Anomaly-Preference Image Generation</h1>
+<p><a href="https://arxiv.org/abs/2605.02439" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 Anomaly Preference Optimization (APO) 框架，通过隐式偏好对齐机制实现无需人工标注的少样本异常生成，结合时间感知容量分配与分层采样策略，在保持生成先验的同时确保分布对齐，显著提升了异常合成的保真度及下游检测性能。</p>
+<h2>解决的问题</h2>
+<p>现有异常生成方法主要分为基于 Fine-tuning-based 和 training-free 两类，前者常因外观与位置解耦导致语义不连贯，且双流架构易引发特征冲突与训练不稳定；后者则将计算负担转移至推理阶段，造成延迟瓶颈。同时，现有范式均未能确保与目标异常的显式分布对齐，而 Direct Preference Optimization (DPO) 因依赖大量人工标注难以应用于数据稀缺场景，如何在数据稀缺下实现稳定优化目标与分布对齐成为关键矛盾。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 Anomaly Preference Optimization (APO) 框架，利用隐式偏好对齐机制实现无需人工标注的少样本异常生成。</li>
+<li>设计 Time-Aware Capacity Allocation (TACA) 策略，沿 diffusion timeline 动态调节模型适应能力以平衡多样性与保真度。</li>
+<li>实施 Hierarchical Sampling 方案，将 semantic context 与 defect injection 解耦以提供精确的生成控制。</li>
+<li>利用真实异常的 latent denoising trajectory deviations 作为内在监督信号，确保与目标缺陷的严格分布对齐。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2604.28185" data-arxiv-id="2604.28185" data-status="ready">
@@ -4645,6 +5243,20 @@
 <li>提出了 ServImageScore 评估体系，将图像质量解耦为基线需求满足（BRF）、视觉执行质量（VEQ）和商业必要性满足（CNS）三个维度。</li>
 <li>开发了 ServImageModel 结算模型，基于评分与任务价格预测人类支付概率，提供经济推断框架以评估预期收益。</li>
 <li>揭示了技术指标强的模型仅能捕获部分商业价值，表明用户偏好与任务价格共同决定经济结果。</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2604.20329" data-arxiv-id="2604.20329" data-status="ready">
+<h1>[2604.20329] Image Generators are Generalist Vision Learners</h1>
+<p><a href="https://arxiv.org/abs/2604.20329" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文通过 Instruction-tuning 预训练图像生成器（如 Vision Banana），证明其具备通用视觉理解能力，在保持图像生成能力的同时能在多项视觉基准测试中达到或接近最先进水平（SOTA）。</p>
+<h2>解决的问题</h2>
+<p>现有视觉表示学习方法主要属于非生成式建模，难以直接利用生成模型的视觉理解潜力；现有尝试虽能利用生成模型生成类似视觉输出的内容，但往往无法严格遵循 prompts 生成可解码的量化格式，或通过添加专用模块及全微调牺牲了模型在生成与理解任务间的通用性。</p>
+<h2>创新点</h2>
+<ul>
+<li>采用 Instruction-tuning 方法，将预训练图像生成器（如 Nano Banana Pro）转化为通用视觉学习者（Vision Banana）。</li>
+<li>使用少量计算机视觉数据（depth estimation, surface normal estimation, segmentation 等）进行微调，在保持图像生成能力的同时实现视觉理解任务的最先进水平（SOTA）。</li>
+<li>通过生成符合特定可视化格式的输出并解码回视觉输出来进行定量评估，解决了现有方法无法严格遵循 prompts 以支持量化指标计算的问题。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2604.19632" data-arxiv-id="2604.19632" data-status="ready">
@@ -5012,6 +5624,21 @@
 <li>相比扩散模型（diffusion models），该方法在减少视觉伪影（如幻觉）和计算效率方面更具优势。</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2603.09242" data-arxiv-id="2603.09242" data-status="ready">
+<h1>[2603.09242] When Detectors Forget Forensics: Blocking Semantic Shortcuts for Generalizable AI-Generated Image Detection</h1>
+<p><a href="https://arxiv.org/abs/2603.09242" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出通过阻断语义捷径（Semantic Shortcuts）的方法，旨在解决基于预训练视觉基础模型（VFMs）的检测器在面对未见生成技术时性能退化严重的问题，提升了 AI 生成图像检测的泛化能力。</p>
+<h2>解决的问题</h2>
+<p>现有基于预训练视觉基础模型（VFMs）如 CLIP 的检测器虽然提升了标准基准上的精度，但在面对未见过的生成技术时会出现灾难性的性能下降。其核心矛盾在于预训练的语义中心目标与法证中心目标之间的冲突，导致模型过度依赖身份或物体类别等强语义先验，从而掩盖了微弱的篡改信号。</p>
+<h2>创新点</h2>
+<ul>
+<li>揭示现有检测器在语义中心目标与法证中心目标之间存在根本冲突，导致面对未见生成技术时性能急剧下降。</li>
+<li>提出阻断语义捷径（Semantic Shortcuts）的假设，解释模型在细微伪造信号下为何会依赖强语义先验。</li>
+<li>设计通过对比冻结预训练 CLIP 编码器与全微调版本特征分布的方法，利用 t-SNE 可视化分析泛化瓶颈。</li>
+<li>在涵盖面部伪造和通用合成图像检测的十个数据集上验证了该分析框架的有效性。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2603.08652" data-arxiv-id="2603.08652" data-status="ready">
 <h1>[2603.08652] CoCo: Code as CoT for Text-to-Image Preview and Rare Concept Generation</h1>
 <p><a href="https://arxiv.org/abs/2603.08652" rel="nofollow">arXiv 原文</a></p>
@@ -5040,6 +5667,34 @@
 <li>设计难度与场景感知的评估体系，通过分层测试用例解耦参考主体的固有难度与提示场景的复杂性</li>
 <li>确立单主体范式为核心评估基石，为后续可靠的多主体评估提供必要前提</li>
 <li>提供多维度的评估机制，有效缓解因主体多样性有限而产生的潜在评估偏差</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2603.07236" data-arxiv-id="2603.07236" data-status="ready">
+<h1>[2603.07236] HY-WU (Part I): An Extensible Functional Neural Memory Framework and An Instantiation in Text-Guided Image Editing</h1>
+<p><a href="https://arxiv.org/abs/2603.07236" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 HY-WU 框架，这是一个可扩展的功能神经网络记忆框架，并在文本引导图像编辑任务中进行了实例化验证，旨在推动基础模型记忆接口范式的转变。</p>
+<h2>解决的问题</h2>
+<p>现有基础模型在记忆接口设计上存在局限，难以支持灵活扩展，且缺乏在文本引导图像编辑等具体任务中的有效实例化验证，导致模型功能与记忆机制之间出现矛盾。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出可扩展的功能神经网络记忆框架 HY-WU</li>
+<li>将记忆框架实例化应用于文本引导图像编辑任务</li>
+<li>重新审视基础模型中的记忆接口设计范式</li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="summary-2603.06453" data-arxiv-id="2603.06453" data-status="ready">
+<h1>[2603.06453] Pinterest Canvas: Large-Scale Image Generation at Pinterest</h1>
+<p><a href="https://arxiv.org/abs/2603.06453" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出了 Pinterest Canvas 框架，通过预训练一个基础 diffusion model 并针对特定任务微调专用变体，实现了在 Pinterest 大规模图像生成场景下的高效、可控且高质量的内容增强与编辑能力。</p>
+<h2>解决的问题</h2>
+<p>现有通用图像生成或增强模型主要依赖 prompting 控制，虽具备灵活性但难以满足用户具体意图（如搜索结果需可行动），且不同重绘任务的需求往往相互矛盾（例如背景生成需严格保留原产品，而产品插入场景常需调整姿态），导致单一通用模型难以有效处理多样化的下游任务。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 Pinterest Canvas 框架，采用“一个基础 diffusion model + 多个微调专用变体”的策略，在一次性训练成本下实现针对特定用例的快速模型生产。</li>
+<li>在基础模型预训练阶段引入多样化相关任务，加速特定任务变体的收敛速度。</li>
+<li>实现端到端的训练数据集控制，确保输入内容的安全性、合规性、质量与相关性。</li>
 </ul>
     </article>
     <article class="summary-article summary-topic-entry" id="summary-2603.05010" data-arxiv-id="2603.05010" data-status="ready">
@@ -5316,6 +5971,20 @@
 <li>具备高度的通用性与可控性，通过频带替换模块可灵活实现外观引导（appearance-guided）、布局引导（layout-guided）及轮廓引导（contour-guided）的图像翻译。</li>
 </ul>
     </article>
+    <article class="summary-article summary-topic-entry" id="summary-2601.18585" data-arxiv-id="2601.18585" data-status="ready">
+<h1>[2601.18585] GimmBO: Interactive Generative Image Model Merging via Bayesian Optimization</h1>
+<p><a href="https://arxiv.org/abs/2601.18585" rel="nofollow">arXiv 原文</a></p>
+<h2>一句话结论</h2>
+<p>本文提出 GimmBO，利用人类在环（human-in-the-loop）贝叶斯优化（Bayesian Optimization, BO）与领域特定结构，实现了 20–30 维高维适配器合并空间的高效交互探索，在收敛速度与生成质量上均优于现有方法。</p>
+<h2>解决的问题</h2>
+<p>现有扩散模型（diffusion models）适配器虽可合并形成设计空间，但用户手动调节滑块在超过 5-10 个时性能急剧下降，且现有交互式优化方法局限于低维（3-12D）设计空间，难以解决 20-30D 高维空间下黑盒目标定义与昂贵评估成本之间的矛盾。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 GimmBO 框架，采用人类在环（human-in-the-loop）贝叶斯优化（BO）策略，通过两阶段后端（保守搜索空间与稀疏性利用）解决高维空间下的收敛难题。</li>
+<li>结合真实观察到的稀疏合并特性与系数幅度限制，引入早期变量选择机制以加速优化收敛。</li>
+<li>支持 20–30 维高维适配器合并的交互探索，并可与社区模型检索方法集成，实现端到端的工作流。</li>
+</ul>
+    </article>
     <article class="summary-article summary-topic-entry" id="summary-2601.14232" data-arxiv-id="2601.14232" data-status="ready">
 <h1>[2601.14232] KAGE-Bench: Fast Known-Axis Visual Generalization Evaluation for Reinforcement Learning</h1>
 <p><a href="https://arxiv.org/abs/2601.14232" rel="nofollow">arXiv 原文</a></p>
@@ -5376,6 +6045,6 @@
     </article>
     </div>
   </main>
-  <script type="application/json" id="summary-catalog">{"papers":{"2601.03499":{"status":"ready","url":"notes/image-generation.html#summary-2601.03499"},"2601.08303":{"status":"ready","url":"notes/image-generation.html#summary-2601.08303"},"2601.09238":{"status":"pending"},"2601.12401":{"status":"ready","url":"notes/image-generation.html#summary-2601.12401"},"2601.14232":{"status":"ready","url":"notes/image-generation.html#summary-2601.14232"},"2601.19115":{"status":"ready","url":"notes/image-generation.html#summary-2601.19115"},"2602.00122":{"status":"ready","url":"notes/image-generation.html#summary-2602.00122"},"2602.03448":{"status":"ready","url":"notes/image-generation.html#summary-2602.03448"},"2602.03811":{"status":"ready","url":"notes/image-generation.html#summary-2602.03811"},"2602.06806":{"status":"ready","url":"notes/image-generation.html#summary-2602.06806"},"2602.06886":{"status":"ready","url":"notes/image-generation.html#summary-2602.06886"},"2602.10179":{"status":"ready","url":"notes/image-generation.html#summary-2602.10179"},"2602.11658":{"status":"ready","url":"notes/image-generation.html#summary-2602.11658"},"2602.12155":{"status":"ready","url":"notes/image-generation.html#summary-2602.12155"},"2602.13344":{"status":"pending"},"2602.14679":{"status":"ready","url":"notes/image-generation.html#summary-2602.14679"},"2602.17901":{"status":"ready","url":"notes/image-generation.html#summary-2602.17901"},"2602.19946":{"status":"ready","url":"notes/image-generation.html#summary-2602.19946"},"2602.20839":{"status":"ready","url":"notes/image-generation.html#summary-2602.20839"},"2602.21956":{"status":"ready","url":"notes/image-generation.html#summary-2602.21956"},"2602.23783":{"status":"ready","url":"notes/image-generation.html#summary-2602.23783"},"2603.00233":{"status":"ready","url":"notes/image-generation.html#summary-2603.00233"},"2603.01544":{"status":"ready","url":"notes/image-generation.html#summary-2603.01544"},"2603.02172":{"status":"ready","url":"notes/image-generation.html#summary-2603.02172"},"2603.05010":{"status":"ready","url":"notes/image-generation.html#summary-2603.05010"},"2603.07236":{"status":"pending"},"2603.08090":{"status":"ready","url":"notes/image-generation.html#summary-2603.08090"},"2603.08652":{"status":"ready","url":"notes/image-generation.html#summary-2603.08652"},"2603.10604":{"status":"ready","url":"notes/image-generation.html#summary-2603.10604"},"2603.11593":{"status":"pending"},"2603.11734":{"status":"ready","url":"notes/image-generation.html#summary-2603.11734"},"2603.12506":{"status":"ready","url":"notes/image-generation.html#summary-2603.12506"},"2603.12575":{"status":"ready","url":"notes/image-generation.html#summary-2603.12575"},"2603.12893":{"status":"ready","url":"notes/image-generation.html#summary-2603.12893"},"2603.15525":{"status":"ready","url":"notes/image-generation.html#summary-2603.15525"},"2603.16551":{"status":"ready","url":"notes/image-generation.html#summary-2603.16551"},"2603.17343":{"status":"ready","url":"notes/image-generation.html#summary-2603.17343"},"2603.19122":{"status":"ready","url":"notes/image-generation.html#summary-2603.19122"},"2603.22972":{"status":"ready","url":"notes/image-generation.html#summary-2603.22972"},"2603.23086":{"status":"ready","url":"notes/image-generation.html#summary-2603.23086"},"2603.23115":{"status":"ready","url":"notes/image-generation.html#summary-2603.23115"},"2603.23924":{"status":"ready","url":"notes/image-generation.html#summary-2603.23924"},"2603.27790":{"status":"ready","url":"notes/image-generation.html#summary-2603.27790"},"2603.27959":{"status":"ready","url":"notes/image-generation.html#summary-2603.27959"},"2604.00933":{"status":"ready","url":"notes/image-generation.html#summary-2604.00933"},"2604.03156":{"status":"ready","url":"notes/image-generation.html#summary-2604.03156"},"2604.06757":{"status":"ready","url":"notes/image-generation.html#summary-2604.06757"},"2604.07230":{"status":"ready","url":"notes/image-generation.html#summary-2604.07230"},"2604.09168":{"status":"ready","url":"notes/image-generation.html#summary-2604.09168"},"2604.13030":{"status":"ready","url":"notes/image-generation.html#summary-2604.13030"},"2604.15917":{"status":"ready","url":"notes/image-generation.html#summary-2604.15917"},"2604.15967":{"status":"ready","url":"notes/image-generation.html#summary-2604.15967"},"2604.17565":{"status":"ready","url":"notes/image-generation.html#summary-2604.17565"},"2604.19632":{"status":"ready","url":"notes/image-generation.html#summary-2604.19632"},"2604.24023":{"status":"ready","url":"notes/image-generation.html#summary-2604.24023"},"2604.24197":{"status":"ready","url":"notes/image-generation.html#summary-2604.24197"},"2604.27122":{"status":"ready","url":"notes/image-generation.html#summary-2604.27122"},"2604.28185":{"status":"ready","url":"notes/image-generation.html#summary-2604.28185"},"2605.05627":{"status":"ready","url":"notes/image-generation.html#summary-2605.05627"},"2605.06421":{"status":"ready","url":"notes/image-generation.html#summary-2605.06421"},"2605.10898":{"status":"ready","url":"notes/image-generation.html#summary-2605.10898"},"2605.16399":{"status":"ready","url":"notes/image-generation.html#summary-2605.16399"},"2605.18267":{"status":"ready","url":"notes/image-generation.html#summary-2605.18267"},"2605.20807":{"status":"ready","url":"notes/image-generation.html#summary-2605.20807"},"2605.28091":{"status":"pending"},"2605.29471":{"status":"ready","url":"notes/image-generation.html#summary-2605.29471"},"2605.30437":{"status":"pending"},"2606.00094":{"status":"ready","url":"notes/image-generation.html#summary-2606.00094"},"2606.05950":{"status":"ready","url":"notes/image-generation.html#summary-2606.05950"},"2606.06113":{"status":"ready","url":"notes/image-generation.html#summary-2606.06113"},"2606.08492":{"status":"ready","url":"notes/image-generation.html#summary-2606.08492"},"2606.09156":{"status":"pending"},"2606.09171":{"status":"ready","url":"notes/image-generation.html#summary-2606.09171"},"2606.10309":{"status":"ready","url":"notes/image-generation.html#summary-2606.10309"},"2606.10492":{"status":"pending"},"2606.10653":{"status":"pending"},"2606.11289":{"status":"pending"},"2606.11602":{"status":"pending"},"2606.11751":{"status":"ready","url":"notes/image-generation.html#summary-2606.11751"},"2606.12575":{"status":"ready","url":"notes/image-generation.html#summary-2606.12575"},"2606.12671":{"status":"ready","url":"notes/image-generation.html#summary-2606.12671"},"2606.12977":{"status":"ready","url":"notes/image-generation.html#summary-2606.12977"},"2606.13247":{"status":"ready","url":"notes/image-generation.html#summary-2606.13247"},"2606.13303":{"status":"ready","url":"notes/image-generation.html#summary-2606.13303"},"2606.13427":{"status":"ready","url":"notes/image-generation.html#summary-2606.13427"},"2606.13898":{"status":"ready","url":"notes/image-generation.html#summary-2606.13898"},"2606.14042":{"status":"ready","url":"notes/image-generation.html#summary-2606.14042"},"2606.14125":{"status":"ready","url":"notes/image-generation.html#summary-2606.14125"},"2606.14351":{"status":"ready","url":"notes/image-generation.html#summary-2606.14351"},"2606.14787":{"status":"ready","url":"notes/image-generation.html#summary-2606.14787"},"2606.15104":{"status":"ready","url":"notes/image-generation.html#summary-2606.15104"},"2606.15188":{"status":"ready","url":"notes/image-generation.html#summary-2606.15188"},"2606.15570":{"status":"ready","url":"notes/image-generation.html#summary-2606.15570"},"2606.15867":{"status":"ready","url":"notes/image-generation.html#summary-2606.15867"},"2606.15982":{"status":"pending"},"2606.16103":{"status":"ready","url":"notes/image-generation.html#summary-2606.16103"},"2606.16457":{"status":"ready","url":"notes/image-generation.html#summary-2606.16457"},"2606.16767":{"status":"ready","url":"notes/image-generation.html#summary-2606.16767"},"2606.16799":{"status":"ready","url":"notes/image-generation.html#summary-2606.16799"},"2606.17619":{"status":"ready","url":"notes/image-generation.html#summary-2606.17619"},"2606.17979":{"status":"ready","url":"notes/image-generation.html#summary-2606.17979"},"2606.18555":{"status":"ready","url":"notes/image-generation.html#summary-2606.18555"},"2606.18906":{"status":"ready","url":"notes/image-generation.html#summary-2606.18906"},"2606.19103":{"status":"ready","url":"notes/image-generation.html#summary-2606.19103"},"2606.19259":{"status":"ready","url":"notes/image-generation.html#summary-2606.19259"},"2606.19531":{"status":"ready","url":"notes/image-generation.html#summary-2606.19531"},"2606.19718":{"status":"ready","url":"notes/image-generation.html#summary-2606.19718"},"2606.19944":{"status":"ready","url":"notes/image-generation.html#summary-2606.19944"},"2606.20100":{"status":"ready","url":"notes/image-generation.html#summary-2606.20100"},"2606.20155":{"status":"ready","url":"notes/image-generation.html#summary-2606.20155"},"2606.20241":{"status":"ready","url":"notes/image-generation.html#summary-2606.20241"},"2606.20488":{"status":"ready","url":"notes/image-generation.html#summary-2606.20488"},"2606.20543":{"status":"ready","url":"notes/image-generation.html#summary-2606.20543"},"2606.20764":{"status":"ready","url":"notes/image-generation.html#summary-2606.20764"},"2606.20924":{"status":"ready","url":"notes/image-generation.html#summary-2606.20924"},"2606.20991":{"status":"ready","url":"notes/image-generation.html#summary-2606.20991"},"2606.21030":{"status":"ready","url":"notes/image-generation.html#summary-2606.21030"},"2606.21113":{"status":"ready","url":"notes/image-generation.html#summary-2606.21113"},"2606.21304":{"status":"ready","url":"notes/image-generation.html#summary-2606.21304"},"2606.21498":{"status":"ready","url":"notes/image-generation.html#summary-2606.21498"},"2606.22477":{"status":"ready","url":"notes/image-generation.html#summary-2606.22477"},"2606.22568":{"status":"ready","url":"notes/image-generation.html#summary-2606.22568"},"2606.23221":{"status":"ready","url":"notes/image-generation.html#summary-2606.23221"},"2606.23270":{"status":"ready","url":"notes/image-generation.html#summary-2606.23270"},"2606.23626":{"status":"ready","url":"notes/image-generation.html#summary-2606.23626"},"2606.23669":{"status":"ready","url":"notes/image-generation.html#summary-2606.23669"},"2606.23679":{"status":"ready","url":"notes/image-generation.html#summary-2606.23679"},"2606.24057":{"status":"ready","url":"notes/image-generation.html#summary-2606.24057"},"2606.24081":{"status":"ready","url":"notes/image-generation.html#summary-2606.24081"},"2606.24313":{"status":"ready","url":"notes/image-generation.html#summary-2606.24313"},"2606.24369":{"status":"pending"},"2606.24548":{"status":"ready","url":"notes/image-generation.html#summary-2606.24548"},"2606.24817":{"status":"ready","url":"notes/image-generation.html#summary-2606.24817"},"2606.24844":{"status":"ready","url":"notes/image-generation.html#summary-2606.24844"},"2606.24849":{"status":"ready","url":"notes/image-generation.html#summary-2606.24849"},"2606.25297":{"status":"ready","url":"notes/image-generation.html#summary-2606.25297"},"2606.25375":{"status":"ready","url":"notes/image-generation.html#summary-2606.25375"},"2606.25548":{"status":"ready","url":"notes/image-generation.html#summary-2606.25548"},"2606.26016":{"status":"ready","url":"notes/image-generation.html#summary-2606.26016"},"2606.26171":{"status":"ready","url":"notes/image-generation.html#summary-2606.26171"},"2606.26551":{"status":"ready","url":"notes/image-generation.html#summary-2606.26551"},"2606.26552":{"status":"ready","url":"notes/image-generation.html#summary-2606.26552"},"2606.26738":{"status":"ready","url":"notes/image-generation.html#summary-2606.26738"},"2606.26872":{"status":"ready","url":"notes/image-generation.html#summary-2606.26872"},"2606.26907":{"status":"ready","url":"notes/image-generation.html#summary-2606.26907"},"2606.26947":{"status":"ready","url":"notes/image-generation.html#summary-2606.26947"},"2606.27089":{"status":"ready","url":"notes/image-generation.html#summary-2606.27089"},"2606.27147":{"status":"ready","url":"notes/image-generation.html#summary-2606.27147"},"2606.27339":{"status":"ready","url":"notes/image-generation.html#summary-2606.27339"},"2606.27637":{"status":"ready","url":"notes/image-generation.html#summary-2606.27637"},"2606.27678":{"status":"ready","url":"notes/image-generation.html#summary-2606.27678"},"2606.27829":{"status":"ready","url":"notes/image-generation.html#summary-2606.27829"},"2606.27935":{"status":"ready","url":"notes/image-generation.html#summary-2606.27935"},"2606.27978":{"status":"ready","url":"notes/image-generation.html#summary-2606.27978"},"2606.28398":{"status":"ready","url":"notes/image-generation.html#summary-2606.28398"},"2606.28406":{"status":"ready","url":"notes/image-generation.html#summary-2606.28406"},"2606.28421":{"status":"ready","url":"notes/image-generation.html#summary-2606.28421"},"2606.28510":{"status":"ready","url":"notes/image-generation.html#summary-2606.28510"},"2606.28643":{"status":"ready","url":"notes/image-generation.html#summary-2606.28643"},"2606.29013":{"status":"ready","url":"notes/image-generation.html#summary-2606.29013"},"2606.29282":{"status":"ready","url":"notes/image-generation.html#summary-2606.29282"},"2606.29473":{"status":"ready","url":"notes/image-generation.html#summary-2606.29473"},"2606.29814":{"status":"ready","url":"notes/image-generation.html#summary-2606.29814"},"2606.30054":{"status":"ready","url":"notes/image-generation.html#summary-2606.30054"},"2606.30262":{"status":"ready","url":"notes/image-generation.html#summary-2606.30262"},"2606.30458":{"status":"ready","url":"notes/image-generation.html#summary-2606.30458"},"2606.30608":{"status":"ready","url":"notes/image-generation.html#summary-2606.30608"},"2606.31018":{"status":"ready","url":"notes/image-generation.html#summary-2606.31018"},"2606.31029":{"status":"ready","url":"notes/image-generation.html#summary-2606.31029"},"2606.31082":{"status":"ready","url":"notes/image-generation.html#summary-2606.31082"},"2606.31147":{"status":"ready","url":"notes/image-generation.html#summary-2606.31147"},"2606.31537":{"status":"ready","url":"notes/image-generation.html#summary-2606.31537"},"2606.31683":{"status":"ready","url":"notes/image-generation.html#summary-2606.31683"},"2606.31924":{"status":"ready","url":"notes/image-generation.html#summary-2606.31924"},"2606.32039":{"status":"ready","url":"notes/image-generation.html#summary-2606.32039"},"2607.00402":{"status":"ready","url":"notes/image-generation.html#summary-2607.00402"},"2607.00766":{"status":"ready","url":"notes/image-generation.html#summary-2607.00766"},"2607.01147":{"status":"ready","url":"notes/image-generation.html#summary-2607.01147"},"2607.01383":{"status":"ready","url":"notes/image-generation.html#summary-2607.01383"},"2607.01499":{"status":"ready","url":"notes/image-generation.html#summary-2607.01499"},"2607.01709":{"status":"ready","url":"notes/image-generation.html#summary-2607.01709"},"2607.02290":{"status":"ready","url":"notes/image-generation.html#summary-2607.02290"},"2607.02291":{"status":"ready","url":"notes/image-generation.html#summary-2607.02291"},"2607.02375":{"status":"ready","url":"notes/image-generation.html#summary-2607.02375"},"2607.02421":{"status":"ready","url":"notes/image-generation.html#summary-2607.02421"},"2607.02582":{"status":"ready","url":"notes/image-generation.html#summary-2607.02582"},"2607.02718":{"status":"ready","url":"notes/image-generation.html#summary-2607.02718"},"2607.03046":{"status":"ready","url":"notes/image-generation.html#summary-2607.03046"},"2607.03180":{"status":"ready","url":"notes/image-generation.html#summary-2607.03180"},"2607.03752":{"status":"ready","url":"notes/image-generation.html#summary-2607.03752"},"2607.03862":{"status":"ready","url":"notes/image-generation.html#summary-2607.03862"},"2607.03899":{"status":"ready","url":"notes/image-generation.html#summary-2607.03899"},"2607.04691":{"status":"ready","url":"notes/image-generation.html#summary-2607.04691"},"2607.04923":{"status":"ready","url":"notes/image-generation.html#summary-2607.04923"},"2607.05382":{"status":"ready","url":"notes/image-generation.html#summary-2607.05382"},"2607.05568":{"status":"ready","url":"notes/image-generation.html#summary-2607.05568"},"2607.05605":{"status":"ready","url":"notes/image-generation.html#summary-2607.05605"},"2607.06120":{"status":"ready","url":"notes/image-generation.html#summary-2607.06120"},"2607.06136":{"status":"pending"},"2607.06440":{"status":"ready","url":"notes/image-generation.html#summary-2607.06440"},"2607.06553":{"status":"ready","url":"notes/image-generation.html#summary-2607.06553"},"2607.07051":{"status":"ready","url":"notes/image-generation.html#summary-2607.07051"},"2607.07117":{"status":"ready","url":"notes/image-generation.html#summary-2607.07117"},"2607.07173":{"status":"ready","url":"notes/image-generation.html#summary-2607.07173"},"2607.08201":{"status":"ready","url":"notes/image-generation.html#summary-2607.08201"},"2607.08674":{"status":"ready","url":"notes/image-generation.html#summary-2607.08674"},"2607.09133":{"status":"ready","url":"notes/image-generation.html#summary-2607.09133"},"2607.09787":{"status":"ready","url":"notes/image-generation.html#summary-2607.09787"},"2607.10165":{"status":"ready","url":"notes/image-generation.html#summary-2607.10165"},"2607.10535":{"status":"ready","url":"notes/image-generation.html#summary-2607.10535"},"2607.10538":{"status":"ready","url":"notes/image-generation.html#summary-2607.10538"},"2607.10800":{"status":"ready","url":"notes/image-generation.html#summary-2607.10800"},"2607.11655":{"status":"ready","url":"notes/image-generation.html#summary-2607.11655"},"2607.11885":{"status":"ready","url":"notes/image-generation.html#summary-2607.11885"},"2607.11886":{"status":"ready","url":"notes/image-generation.html#summary-2607.11886"},"2607.12539":{"status":"ready","url":"notes/image-generation.html#summary-2607.12539"},"2607.13300":{"status":"ready","url":"notes/image-generation.html#summary-2607.13300"},"2607.13685":{"status":"ready","url":"notes/image-generation.html#summary-2607.13685"},"2607.14521":{"status":"ready","url":"notes/image-generation.html#summary-2607.14521"},"2607.14580":{"status":"ready","url":"notes/image-generation.html#summary-2607.14580"},"2607.14684":{"status":"ready","url":"notes/image-generation.html#summary-2607.14684"},"2607.14807":{"status":"ready","url":"notes/image-generation.html#summary-2607.14807"},"2607.14945":{"status":"ready","url":"notes/image-generation.html#summary-2607.14945"},"2607.14962":{"status":"ready","url":"notes/image-generation.html#summary-2607.14962"},"2607.15619":{"status":"ready","url":"notes/image-generation.html#summary-2607.15619"},"2607.15740":{"status":"ready","url":"notes/image-generation.html#summary-2607.15740"},"2607.16291":{"status":"ready","url":"notes/image-generation.html#summary-2607.16291"},"2607.16294":{"status":"ready","url":"notes/image-generation.html#summary-2607.16294"},"2607.16307":{"status":"ready","url":"notes/image-generation.html#summary-2607.16307"},"2607.16409":{"status":"ready","url":"notes/image-generation.html#summary-2607.16409"},"2607.16824":{"status":"ready","url":"notes/image-generation.html#summary-2607.16824"},"2607.16828":{"status":"ready","url":"notes/image-generation.html#summary-2607.16828"},"2607.16898":{"status":"ready","url":"notes/image-generation.html#summary-2607.16898"},"2607.17634":{"status":"ready","url":"notes/image-generation.html#summary-2607.17634"},"2607.17768":{"status":"ready","url":"notes/image-generation.html#summary-2607.17768"},"2607.17779":{"status":"ready","url":"notes/image-generation.html#summary-2607.17779"},"2607.18237":{"status":"ready","url":"notes/image-generation.html#summary-2607.18237"},"2607.18724":{"status":"ready","url":"notes/image-generation.html#summary-2607.18724"},"2607.18787":{"status":"ready","url":"notes/image-generation.html#summary-2607.18787"},"2607.19064":{"status":"ready","url":"notes/image-generation.html#summary-2607.19064"},"2607.19341":{"status":"ready","url":"notes/image-generation.html#summary-2607.19341"},"2607.20197":{"status":"ready","url":"notes/image-generation.html#summary-2607.20197"},"2607.20883":{"status":"ready","url":"notes/image-generation.html#summary-2607.20883"},"2607.21672":{"status":"ready","url":"notes/image-generation.html#summary-2607.21672"},"2607.22745":{"status":"ready","url":"notes/image-generation.html#summary-2607.22745"},"2607.22963":{"status":"ready","url":"notes/image-generation.html#summary-2607.22963"},"2607.23023":{"status":"ready","url":"notes/image-generation.html#summary-2607.23023"},"2607.23673":{"status":"ready","url":"notes/image-generation.html#summary-2607.23673"},"2607.24157":{"status":"ready","url":"notes/image-generation.html#summary-2607.24157"},"2607.24215":{"status":"ready","url":"notes/image-generation.html#summary-2607.24215"},"2607.24353":{"status":"ready","url":"notes/image-generation.html#summary-2607.24353"},"2607.25078":{"status":"ready","url":"notes/image-generation.html#summary-2607.25078"},"2607.25622":{"status":"ready","url":"notes/image-generation.html#summary-2607.25622"},"2607.25641":{"status":"ready","url":"notes/image-generation.html#summary-2607.25641"},"2607.25642":{"status":"ready","url":"notes/image-generation.html#summary-2607.25642"},"2607.26566":{"status":"ready","url":"notes/image-generation.html#summary-2607.26566"},"2607.26647":{"status":"ready","url":"notes/image-generation.html#summary-2607.26647"},"2607.26735":{"status":"ready","url":"notes/image-generation.html#summary-2607.26735"},"2607.27779":{"status":"ready","url":"notes/image-generation.html#summary-2607.27779"},"2607.27857":{"status":"ready","url":"notes/image-generation.html#summary-2607.27857"},"2607.27882":{"status":"ready","url":"notes/image-generation.html#summary-2607.27882"},"2607.28974":{"status":"ready","url":"notes/image-generation.html#summary-2607.28974"},"2607.29025":{"status":"ready","url":"notes/image-generation.html#summary-2607.29025"},"2607.29156":{"status":"ready","url":"notes/image-generation.html#summary-2607.29156"},"2607.29367":{"status":"ready","url":"notes/image-generation.html#summary-2607.29367"},"2607.29679":{"status":"ready","url":"notes/image-generation.html#summary-2607.29679"},"2608.00548":{"status":"ready","url":"notes/image-generation.html#summary-2608.00548"},"2608.00562":{"status":"ready","url":"notes/image-generation.html#summary-2608.00562"},"2608.00584":{"status":"ready","url":"notes/image-generation.html#summary-2608.00584"},"2608.00588":{"status":"ready","url":"notes/image-generation.html#summary-2608.00588"},"2608.00598":{"status":"ready","url":"notes/image-generation.html#summary-2608.00598"},"2608.00716":{"status":"ready","url":"notes/image-generation.html#summary-2608.00716"},"2608.00736":{"status":"ready","url":"notes/image-generation.html#summary-2608.00736"},"2608.01258":{"status":"ready","url":"notes/image-generation.html#summary-2608.01258"},"2608.01780":{"status":"ready","url":"notes/image-generation.html#summary-2608.01780"},"2608.01988":{"status":"ready","url":"notes/image-generation.html#summary-2608.01988"},"2608.02059":{"status":"ready","url":"notes/image-generation.html#summary-2608.02059"},"2608.02841":{"status":"ready","url":"notes/image-generation.html#summary-2608.02841"},"2608.03059":{"status":"ready","url":"notes/image-generation.html#summary-2608.03059"},"2608.03284":{"status":"ready","url":"notes/image-generation.html#summary-2608.03284"},"2608.03357":{"status":"ready","url":"notes/image-generation.html#summary-2608.03357"},"2608.04030":{"status":"ready","url":"notes/image-generation.html#summary-2608.04030"},"2608.04436":{"status":"ready","url":"notes/image-generation.html#summary-2608.04436"},"2608.04750":{"status":"ready","url":"notes/image-generation.html#summary-2608.04750"},"2608.04935":{"status":"ready","url":"notes/image-generation.html#summary-2608.04935"},"2608.05663":{"status":"ready","url":"notes/image-generation.html#summary-2608.05663"},"2608.06075":{"status":"ready","url":"notes/image-generation.html#summary-2608.06075"},"2608.06751":{"status":"ready","url":"notes/image-generation.html#summary-2608.06751"},"2608.06929":{"status":"ready","url":"notes/image-generation.html#summary-2608.06929"},"2608.07003":{"status":"ready","url":"notes/image-generation.html#summary-2608.07003"},"2608.07565":{"status":"ready","url":"notes/image-generation.html#summary-2608.07565"},"2608.07713":{"status":"ready","url":"notes/image-generation.html#summary-2608.07713"},"2608.07863":{"status":"ready","url":"notes/image-generation.html#summary-2608.07863"},"2608.07999":{"status":"ready","url":"notes/image-generation.html#summary-2608.07999"},"2608.08720":{"status":"ready","url":"notes/image-generation.html#summary-2608.08720"},"2608.09097":{"status":"ready","url":"notes/image-generation.html#summary-2608.09097"},"2608.09223":{"status":"ready","url":"notes/image-generation.html#summary-2608.09223"},"2608.09226":{"status":"ready","url":"notes/image-generation.html#summary-2608.09226"},"2608.09244":{"status":"ready","url":"notes/image-generation.html#summary-2608.09244"},"2608.09322":{"status":"ready","url":"notes/image-generation.html#summary-2608.09322"},"2608.09529":{"status":"ready","url":"notes/image-generation.html#summary-2608.09529"},"2608.09666":{"status":"ready","url":"notes/image-generation.html#summary-2608.09666"},"2608.10166":{"status":"ready","url":"notes/image-generation.html#summary-2608.10166"},"2608.10524":{"status":"ready","url":"notes/image-generation.html#summary-2608.10524"},"2608.11002":{"status":"ready","url":"notes/image-generation.html#summary-2608.11002"},"2608.11013":{"status":"ready","url":"notes/image-generation.html#summary-2608.11013"},"2608.11205":{"status":"ready","url":"notes/image-generation.html#summary-2608.11205"},"2608.11343":{"status":"ready","url":"notes/image-generation.html#summary-2608.11343"},"2608.11452":{"status":"ready","url":"notes/image-generation.html#summary-2608.11452"},"2608.11732":{"status":"ready","url":"notes/image-generation.html#summary-2608.11732"},"2608.11838":{"status":"ready","url":"notes/image-generation.html#summary-2608.11838"},"2608.11884":{"status":"ready","url":"notes/image-generation.html#summary-2608.11884"},"2608.12122":{"status":"ready","url":"notes/image-generation.html#summary-2608.12122"},"2608.12155":{"status":"ready","url":"notes/image-generation.html#summary-2608.12155"},"2608.12532":{"status":"ready","url":"notes/image-generation.html#summary-2608.12532"},"2608.12766":{"status":"ready","url":"notes/image-generation.html#summary-2608.12766"},"2608.12806":{"status":"ready","url":"notes/image-generation.html#summary-2608.12806"},"2608.12811":{"status":"ready","url":"notes/image-generation.html#summary-2608.12811"},"2608.12876":{"status":"ready","url":"notes/image-generation.html#summary-2608.12876"},"2608.13455":{"status":"ready","url":"notes/image-generation.html#summary-2608.13455"},"2608.13478":{"status":"ready","url":"notes/image-generation.html#summary-2608.13478"},"2608.13865":{"status":"ready","url":"notes/image-generation.html#summary-2608.13865"},"2608.14038":{"status":"ready","url":"notes/image-generation.html#summary-2608.14038"},"2608.14172":{"status":"ready","url":"notes/image-generation.html#summary-2608.14172"},"2608.14226":{"status":"ready","url":"notes/image-generation.html#summary-2608.14226"},"2608.14543":{"status":"ready","url":"notes/image-generation.html#summary-2608.14543"},"2608.14546":{"status":"ready","url":"notes/image-generation.html#summary-2608.14546"},"2608.14729":{"status":"ready","url":"notes/image-generation.html#summary-2608.14729"},"2608.14730":{"status":"ready","url":"notes/image-generation.html#summary-2608.14730"},"2608.14790":{"status":"ready","url":"notes/image-generation.html#summary-2608.14790"},"2608.14976":{"status":"ready","url":"notes/image-generation.html#summary-2608.14976"},"2608.15196":{"status":"ready","url":"notes/image-generation.html#summary-2608.15196"},"2608.15238":{"status":"ready","url":"notes/image-generation.html#summary-2608.15238"},"2608.15341":{"status":"ready","url":"notes/image-generation.html#summary-2608.15341"},"2608.15452":{"status":"ready","url":"notes/image-generation.html#summary-2608.15452"},"2608.15522":{"status":"ready","url":"notes/image-generation.html#summary-2608.15522"},"2608.15583":{"status":"ready","url":"notes/image-generation.html#summary-2608.15583"},"2608.15694":{"status":"ready","url":"notes/image-generation.html#summary-2608.15694"},"2608.15705":{"status":"ready","url":"notes/image-generation.html#summary-2608.15705"},"2608.16100":{"status":"ready","url":"notes/image-generation.html#summary-2608.16100"},"2608.16104":{"status":"ready","url":"notes/image-generation.html#summary-2608.16104"},"2608.16284":{"status":"ready","url":"notes/image-generation.html#summary-2608.16284"},"2608.16646":{"status":"ready","url":"notes/image-generation.html#summary-2608.16646"},"2608.16721":{"status":"ready","url":"notes/image-generation.html#summary-2608.16721"},"2608.16765":{"status":"ready","url":"notes/image-generation.html#summary-2608.16765"},"2608.16812":{"status":"ready","url":"notes/image-generation.html#summary-2608.16812"},"2608.16887":{"status":"ready","url":"notes/image-generation.html#summary-2608.16887"},"2608.17067":{"status":"ready","url":"notes/image-generation.html#summary-2608.17067"},"2608.17203":{"status":"ready","url":"notes/image-generation.html#summary-2608.17203"},"2608.17286":{"status":"ready","url":"notes/image-generation.html#summary-2608.17286"},"2608.17747":{"status":"ready","url":"notes/image-generation.html#summary-2608.17747"},"2608.17883":{"status":"ready","url":"notes/image-generation.html#summary-2608.17883"},"2608.17995":{"status":"ready","url":"notes/image-generation.html#summary-2608.17995"},"2608.18040":{"status":"ready","url":"notes/image-generation.html#summary-2608.18040"},"2608.18063":{"status":"ready","url":"notes/image-generation.html#summary-2608.18063"},"2608.18076":{"status":"ready","url":"notes/image-generation.html#summary-2608.18076"},"2608.18968":{"status":"ready","url":"notes/image-generation.html#summary-2608.18968"},"2608.19000":{"status":"ready","url":"notes/image-generation.html#summary-2608.19000"},"2608.19637":{"status":"ready","url":"notes/image-generation.html#summary-2608.19637"},"2608.20161":{"status":"ready","url":"notes/image-generation.html#summary-2608.20161"},"2608.20334":{"status":"ready","url":"notes/image-generation.html#summary-2608.20334"},"2608.20336":{"status":"ready","url":"notes/image-generation.html#summary-2608.20336"},"2608.21229":{"status":"ready","url":"notes/image-generation.html#summary-2608.21229"},"2608.21713":{"status":"ready","url":"notes/image-generation.html#summary-2608.21713"},"2608.21748":{"status":"ready","url":"notes/image-generation.html#summary-2608.21748"},"2608.21776":{"status":"ready","url":"notes/image-generation.html#summary-2608.21776"},"2608.22521":{"status":"ready","url":"notes/image-generation.html#summary-2608.22521"},"2608.22619":{"status":"ready","url":"notes/image-generation.html#summary-2608.22619"},"2608.22780":{"status":"ready","url":"notes/image-generation.html#summary-2608.22780"},"2608.23024":{"status":"ready","url":"notes/image-generation.html#summary-2608.23024"},"2608.23140":{"status":"ready","url":"notes/image-generation.html#summary-2608.23140"},"2608.23999":{"status":"ready","url":"notes/image-generation.html#summary-2608.23999"},"2608.24119":{"status":"ready","url":"notes/image-generation.html#summary-2608.24119"},"2608.24563":{"status":"ready","url":"notes/image-generation.html#summary-2608.24563"},"2608.25192":{"status":"ready","url":"notes/image-generation.html#summary-2608.25192"},"2608.25360":{"status":"ready","url":"notes/image-generation.html#summary-2608.25360"},"2608.25380":{"status":"ready","url":"notes/image-generation.html#summary-2608.25380"},"2608.25386":{"status":"ready","url":"notes/image-generation.html#summary-2608.25386"},"2608.25648":{"status":"ready","url":"notes/image-generation.html#summary-2608.25648"},"2608.26624":{"status":"ready","url":"notes/image-generation.html#summary-2608.26624"},"2608.26956":{"status":"ready","url":"notes/image-generation.html#summary-2608.26956"},"2608.26980":{"status":"ready","url":"notes/image-generation.html#summary-2608.26980"},"2608.26993":{"status":"ready","url":"notes/image-generation.html#summary-2608.26993"}},"topic":"Image Generation","version":1}</script>
+  <script type="application/json" id="summary-catalog">{"papers":{"2601.03499":{"status":"ready","url":"notes/image-generation.html#summary-2601.03499"},"2601.08303":{"status":"ready","url":"notes/image-generation.html#summary-2601.08303"},"2601.09238":{"status":"pending"},"2601.12401":{"status":"ready","url":"notes/image-generation.html#summary-2601.12401"},"2601.14232":{"status":"ready","url":"notes/image-generation.html#summary-2601.14232"},"2601.18585":{"status":"ready","url":"notes/image-generation.html#summary-2601.18585"},"2601.19115":{"status":"ready","url":"notes/image-generation.html#summary-2601.19115"},"2602.00122":{"status":"ready","url":"notes/image-generation.html#summary-2602.00122"},"2602.03448":{"status":"ready","url":"notes/image-generation.html#summary-2602.03448"},"2602.03811":{"status":"ready","url":"notes/image-generation.html#summary-2602.03811"},"2602.06806":{"status":"ready","url":"notes/image-generation.html#summary-2602.06806"},"2602.06886":{"status":"ready","url":"notes/image-generation.html#summary-2602.06886"},"2602.10179":{"status":"ready","url":"notes/image-generation.html#summary-2602.10179"},"2602.11658":{"status":"ready","url":"notes/image-generation.html#summary-2602.11658"},"2602.12155":{"status":"ready","url":"notes/image-generation.html#summary-2602.12155"},"2602.13344":{"status":"pending"},"2602.14679":{"status":"ready","url":"notes/image-generation.html#summary-2602.14679"},"2602.17901":{"status":"ready","url":"notes/image-generation.html#summary-2602.17901"},"2602.19946":{"status":"ready","url":"notes/image-generation.html#summary-2602.19946"},"2602.20839":{"status":"ready","url":"notes/image-generation.html#summary-2602.20839"},"2602.21956":{"status":"ready","url":"notes/image-generation.html#summary-2602.21956"},"2602.23783":{"status":"ready","url":"notes/image-generation.html#summary-2602.23783"},"2603.00133":{"status":"pending"},"2603.00233":{"status":"ready","url":"notes/image-generation.html#summary-2603.00233"},"2603.01544":{"status":"ready","url":"notes/image-generation.html#summary-2603.01544"},"2603.02172":{"status":"ready","url":"notes/image-generation.html#summary-2603.02172"},"2603.05010":{"status":"ready","url":"notes/image-generation.html#summary-2603.05010"},"2603.06453":{"status":"ready","url":"notes/image-generation.html#summary-2603.06453"},"2603.07236":{"status":"ready","url":"notes/image-generation.html#summary-2603.07236"},"2603.08090":{"status":"ready","url":"notes/image-generation.html#summary-2603.08090"},"2603.08652":{"status":"ready","url":"notes/image-generation.html#summary-2603.08652"},"2603.09242":{"status":"ready","url":"notes/image-generation.html#summary-2603.09242"},"2603.10604":{"status":"ready","url":"notes/image-generation.html#summary-2603.10604"},"2603.11593":{"status":"pending"},"2603.11734":{"status":"ready","url":"notes/image-generation.html#summary-2603.11734"},"2603.12506":{"status":"ready","url":"notes/image-generation.html#summary-2603.12506"},"2603.12575":{"status":"ready","url":"notes/image-generation.html#summary-2603.12575"},"2603.12893":{"status":"ready","url":"notes/image-generation.html#summary-2603.12893"},"2603.15525":{"status":"ready","url":"notes/image-generation.html#summary-2603.15525"},"2603.16551":{"status":"ready","url":"notes/image-generation.html#summary-2603.16551"},"2603.17343":{"status":"ready","url":"notes/image-generation.html#summary-2603.17343"},"2603.19122":{"status":"ready","url":"notes/image-generation.html#summary-2603.19122"},"2603.22972":{"status":"ready","url":"notes/image-generation.html#summary-2603.22972"},"2603.23086":{"status":"ready","url":"notes/image-generation.html#summary-2603.23086"},"2603.23115":{"status":"ready","url":"notes/image-generation.html#summary-2603.23115"},"2603.23924":{"status":"ready","url":"notes/image-generation.html#summary-2603.23924"},"2603.27790":{"status":"ready","url":"notes/image-generation.html#summary-2603.27790"},"2603.27959":{"status":"ready","url":"notes/image-generation.html#summary-2603.27959"},"2604.00933":{"status":"ready","url":"notes/image-generation.html#summary-2604.00933"},"2604.03156":{"status":"ready","url":"notes/image-generation.html#summary-2604.03156"},"2604.06757":{"status":"ready","url":"notes/image-generation.html#summary-2604.06757"},"2604.07230":{"status":"ready","url":"notes/image-generation.html#summary-2604.07230"},"2604.09168":{"status":"ready","url":"notes/image-generation.html#summary-2604.09168"},"2604.13030":{"status":"ready","url":"notes/image-generation.html#summary-2604.13030"},"2604.15917":{"status":"ready","url":"notes/image-generation.html#summary-2604.15917"},"2604.15967":{"status":"ready","url":"notes/image-generation.html#summary-2604.15967"},"2604.17565":{"status":"ready","url":"notes/image-generation.html#summary-2604.17565"},"2604.19632":{"status":"ready","url":"notes/image-generation.html#summary-2604.19632"},"2604.20329":{"status":"ready","url":"notes/image-generation.html#summary-2604.20329"},"2604.24023":{"status":"ready","url":"notes/image-generation.html#summary-2604.24023"},"2604.24197":{"status":"ready","url":"notes/image-generation.html#summary-2604.24197"},"2604.27122":{"status":"ready","url":"notes/image-generation.html#summary-2604.27122"},"2604.28185":{"status":"ready","url":"notes/image-generation.html#summary-2604.28185"},"2605.02439":{"status":"ready","url":"notes/image-generation.html#summary-2605.02439"},"2605.05627":{"status":"ready","url":"notes/image-generation.html#summary-2605.05627"},"2605.06421":{"status":"ready","url":"notes/image-generation.html#summary-2605.06421"},"2605.07496":{"status":"ready","url":"notes/image-generation.html#summary-2605.07496"},"2605.09233":{"status":"ready","url":"notes/image-generation.html#summary-2605.09233"},"2605.10898":{"status":"ready","url":"notes/image-generation.html#summary-2605.10898"},"2605.16399":{"status":"ready","url":"notes/image-generation.html#summary-2605.16399"},"2605.18267":{"status":"ready","url":"notes/image-generation.html#summary-2605.18267"},"2605.20807":{"status":"ready","url":"notes/image-generation.html#summary-2605.20807"},"2605.28091":{"status":"pending"},"2605.29471":{"status":"ready","url":"notes/image-generation.html#summary-2605.29471"},"2605.30437":{"status":"ready","url":"notes/image-generation.html#summary-2605.30437"},"2606.00094":{"status":"ready","url":"notes/image-generation.html#summary-2606.00094"},"2606.01651":{"status":"ready","url":"notes/image-generation.html#summary-2606.01651"},"2606.01803":{"status":"ready","url":"notes/image-generation.html#summary-2606.01803"},"2606.01858":{"status":"ready","url":"notes/image-generation.html#summary-2606.01858"},"2606.01985":{"status":"ready","url":"notes/image-generation.html#summary-2606.01985"},"2606.02090":{"status":"ready","url":"notes/image-generation.html#summary-2606.02090"},"2606.03243":{"status":"ready","url":"notes/image-generation.html#summary-2606.03243"},"2606.03715":{"status":"ready","url":"notes/image-generation.html#summary-2606.03715"},"2606.04264":{"status":"ready","url":"notes/image-generation.html#summary-2606.04264"},"2606.04299":{"status":"ready","url":"notes/image-generation.html#summary-2606.04299"},"2606.04409":{"status":"ready","url":"notes/image-generation.html#summary-2606.04409"},"2606.04457":{"status":"ready","url":"notes/image-generation.html#summary-2606.04457"},"2606.05031":{"status":"ready","url":"notes/image-generation.html#summary-2606.05031"},"2606.05290":{"status":"ready","url":"notes/image-generation.html#summary-2606.05290"},"2606.05478":{"status":"ready","url":"notes/image-generation.html#summary-2606.05478"},"2606.05703":{"status":"ready","url":"notes/image-generation.html#summary-2606.05703"},"2606.05816":{"status":"ready","url":"notes/image-generation.html#summary-2606.05816"},"2606.05829":{"status":"ready","url":"notes/image-generation.html#summary-2606.05829"},"2606.05950":{"status":"ready","url":"notes/image-generation.html#summary-2606.05950"},"2606.06113":{"status":"ready","url":"notes/image-generation.html#summary-2606.06113"},"2606.06228":{"status":"ready","url":"notes/image-generation.html#summary-2606.06228"},"2606.06813":{"status":"ready","url":"notes/image-generation.html#summary-2606.06813"},"2606.06875":{"status":"ready","url":"notes/image-generation.html#summary-2606.06875"},"2606.06918":{"status":"ready","url":"notes/image-generation.html#summary-2606.06918"},"2606.07036":{"status":"ready","url":"notes/image-generation.html#summary-2606.07036"},"2606.07053":{"status":"ready","url":"notes/image-generation.html#summary-2606.07053"},"2606.07079":{"status":"ready","url":"notes/image-generation.html#summary-2606.07079"},"2606.07638":{"status":"ready","url":"notes/image-generation.html#summary-2606.07638"},"2606.07660":{"status":"ready","url":"notes/image-generation.html#summary-2606.07660"},"2606.08016":{"status":"ready","url":"notes/image-generation.html#summary-2606.08016"},"2606.08492":{"status":"ready","url":"notes/image-generation.html#summary-2606.08492"},"2606.08634":{"status":"ready","url":"notes/image-generation.html#summary-2606.08634"},"2606.08841":{"status":"ready","url":"notes/image-generation.html#summary-2606.08841"},"2606.08847":{"status":"ready","url":"notes/image-generation.html#summary-2606.08847"},"2606.08864":{"status":"ready","url":"notes/image-generation.html#summary-2606.08864"},"2606.09156":{"status":"ready","url":"notes/image-generation.html#summary-2606.09156"},"2606.09171":{"status":"ready","url":"notes/image-generation.html#summary-2606.09171"},"2606.10309":{"status":"ready","url":"notes/image-generation.html#summary-2606.10309"},"2606.10492":{"status":"ready","url":"notes/image-generation.html#summary-2606.10492"},"2606.10653":{"status":"ready","url":"notes/image-generation.html#summary-2606.10653"},"2606.11289":{"status":"pending"},"2606.11602":{"status":"pending"},"2606.11751":{"status":"ready","url":"notes/image-generation.html#summary-2606.11751"},"2606.12575":{"status":"ready","url":"notes/image-generation.html#summary-2606.12575"},"2606.12671":{"status":"ready","url":"notes/image-generation.html#summary-2606.12671"},"2606.12977":{"status":"ready","url":"notes/image-generation.html#summary-2606.12977"},"2606.13247":{"status":"ready","url":"notes/image-generation.html#summary-2606.13247"},"2606.13303":{"status":"ready","url":"notes/image-generation.html#summary-2606.13303"},"2606.13427":{"status":"ready","url":"notes/image-generation.html#summary-2606.13427"},"2606.13898":{"status":"ready","url":"notes/image-generation.html#summary-2606.13898"},"2606.14042":{"status":"ready","url":"notes/image-generation.html#summary-2606.14042"},"2606.14125":{"status":"ready","url":"notes/image-generation.html#summary-2606.14125"},"2606.14351":{"status":"ready","url":"notes/image-generation.html#summary-2606.14351"},"2606.14727":{"status":"ready","url":"notes/image-generation.html#summary-2606.14727"},"2606.14787":{"status":"ready","url":"notes/image-generation.html#summary-2606.14787"},"2606.15104":{"status":"ready","url":"notes/image-generation.html#summary-2606.15104"},"2606.15188":{"status":"ready","url":"notes/image-generation.html#summary-2606.15188"},"2606.15570":{"status":"ready","url":"notes/image-generation.html#summary-2606.15570"},"2606.15867":{"status":"ready","url":"notes/image-generation.html#summary-2606.15867"},"2606.15982":{"status":"ready","url":"notes/image-generation.html#summary-2606.15982"},"2606.16103":{"status":"ready","url":"notes/image-generation.html#summary-2606.16103"},"2606.16457":{"status":"ready","url":"notes/image-generation.html#summary-2606.16457"},"2606.16767":{"status":"ready","url":"notes/image-generation.html#summary-2606.16767"},"2606.16799":{"status":"ready","url":"notes/image-generation.html#summary-2606.16799"},"2606.17619":{"status":"ready","url":"notes/image-generation.html#summary-2606.17619"},"2606.17979":{"status":"ready","url":"notes/image-generation.html#summary-2606.17979"},"2606.18555":{"status":"ready","url":"notes/image-generation.html#summary-2606.18555"},"2606.18906":{"status":"ready","url":"notes/image-generation.html#summary-2606.18906"},"2606.19103":{"status":"ready","url":"notes/image-generation.html#summary-2606.19103"},"2606.19259":{"status":"ready","url":"notes/image-generation.html#summary-2606.19259"},"2606.19531":{"status":"ready","url":"notes/image-generation.html#summary-2606.19531"},"2606.19718":{"status":"ready","url":"notes/image-generation.html#summary-2606.19718"},"2606.19944":{"status":"ready","url":"notes/image-generation.html#summary-2606.19944"},"2606.20100":{"status":"ready","url":"notes/image-generation.html#summary-2606.20100"},"2606.20155":{"status":"ready","url":"notes/image-generation.html#summary-2606.20155"},"2606.20241":{"status":"ready","url":"notes/image-generation.html#summary-2606.20241"},"2606.20488":{"status":"ready","url":"notes/image-generation.html#summary-2606.20488"},"2606.20543":{"status":"ready","url":"notes/image-generation.html#summary-2606.20543"},"2606.20764":{"status":"ready","url":"notes/image-generation.html#summary-2606.20764"},"2606.20924":{"status":"ready","url":"notes/image-generation.html#summary-2606.20924"},"2606.20991":{"status":"ready","url":"notes/image-generation.html#summary-2606.20991"},"2606.21030":{"status":"ready","url":"notes/image-generation.html#summary-2606.21030"},"2606.21113":{"status":"ready","url":"notes/image-generation.html#summary-2606.21113"},"2606.21304":{"status":"ready","url":"notes/image-generation.html#summary-2606.21304"},"2606.21498":{"status":"ready","url":"notes/image-generation.html#summary-2606.21498"},"2606.22477":{"status":"ready","url":"notes/image-generation.html#summary-2606.22477"},"2606.22568":{"status":"ready","url":"notes/image-generation.html#summary-2606.22568"},"2606.23221":{"status":"ready","url":"notes/image-generation.html#summary-2606.23221"},"2606.23270":{"status":"ready","url":"notes/image-generation.html#summary-2606.23270"},"2606.23626":{"status":"ready","url":"notes/image-generation.html#summary-2606.23626"},"2606.23669":{"status":"ready","url":"notes/image-generation.html#summary-2606.23669"},"2606.23679":{"status":"ready","url":"notes/image-generation.html#summary-2606.23679"},"2606.24057":{"status":"ready","url":"notes/image-generation.html#summary-2606.24057"},"2606.24081":{"status":"ready","url":"notes/image-generation.html#summary-2606.24081"},"2606.24313":{"status":"ready","url":"notes/image-generation.html#summary-2606.24313"},"2606.24369":{"status":"pending"},"2606.24548":{"status":"ready","url":"notes/image-generation.html#summary-2606.24548"},"2606.24817":{"status":"ready","url":"notes/image-generation.html#summary-2606.24817"},"2606.24844":{"status":"ready","url":"notes/image-generation.html#summary-2606.24844"},"2606.24849":{"status":"ready","url":"notes/image-generation.html#summary-2606.24849"},"2606.25297":{"status":"ready","url":"notes/image-generation.html#summary-2606.25297"},"2606.25375":{"status":"ready","url":"notes/image-generation.html#summary-2606.25375"},"2606.25548":{"status":"ready","url":"notes/image-generation.html#summary-2606.25548"},"2606.26016":{"status":"ready","url":"notes/image-generation.html#summary-2606.26016"},"2606.26171":{"status":"ready","url":"notes/image-generation.html#summary-2606.26171"},"2606.26551":{"status":"ready","url":"notes/image-generation.html#summary-2606.26551"},"2606.26552":{"status":"ready","url":"notes/image-generation.html#summary-2606.26552"},"2606.26738":{"status":"ready","url":"notes/image-generation.html#summary-2606.26738"},"2606.26872":{"status":"ready","url":"notes/image-generation.html#summary-2606.26872"},"2606.26907":{"status":"ready","url":"notes/image-generation.html#summary-2606.26907"},"2606.26947":{"status":"ready","url":"notes/image-generation.html#summary-2606.26947"},"2606.27089":{"status":"ready","url":"notes/image-generation.html#summary-2606.27089"},"2606.27147":{"status":"ready","url":"notes/image-generation.html#summary-2606.27147"},"2606.27339":{"status":"ready","url":"notes/image-generation.html#summary-2606.27339"},"2606.27637":{"status":"ready","url":"notes/image-generation.html#summary-2606.27637"},"2606.27678":{"status":"ready","url":"notes/image-generation.html#summary-2606.27678"},"2606.27829":{"status":"ready","url":"notes/image-generation.html#summary-2606.27829"},"2606.27935":{"status":"ready","url":"notes/image-generation.html#summary-2606.27935"},"2606.27978":{"status":"ready","url":"notes/image-generation.html#summary-2606.27978"},"2606.28398":{"status":"ready","url":"notes/image-generation.html#summary-2606.28398"},"2606.28406":{"status":"ready","url":"notes/image-generation.html#summary-2606.28406"},"2606.28421":{"status":"ready","url":"notes/image-generation.html#summary-2606.28421"},"2606.28510":{"status":"ready","url":"notes/image-generation.html#summary-2606.28510"},"2606.28643":{"status":"ready","url":"notes/image-generation.html#summary-2606.28643"},"2606.29013":{"status":"ready","url":"notes/image-generation.html#summary-2606.29013"},"2606.29282":{"status":"ready","url":"notes/image-generation.html#summary-2606.29282"},"2606.29473":{"status":"ready","url":"notes/image-generation.html#summary-2606.29473"},"2606.29814":{"status":"ready","url":"notes/image-generation.html#summary-2606.29814"},"2606.30054":{"status":"ready","url":"notes/image-generation.html#summary-2606.30054"},"2606.30262":{"status":"ready","url":"notes/image-generation.html#summary-2606.30262"},"2606.30458":{"status":"ready","url":"notes/image-generation.html#summary-2606.30458"},"2606.30608":{"status":"ready","url":"notes/image-generation.html#summary-2606.30608"},"2606.31018":{"status":"ready","url":"notes/image-generation.html#summary-2606.31018"},"2606.31029":{"status":"ready","url":"notes/image-generation.html#summary-2606.31029"},"2606.31082":{"status":"ready","url":"notes/image-generation.html#summary-2606.31082"},"2606.31147":{"status":"ready","url":"notes/image-generation.html#summary-2606.31147"},"2606.31537":{"status":"ready","url":"notes/image-generation.html#summary-2606.31537"},"2606.31683":{"status":"ready","url":"notes/image-generation.html#summary-2606.31683"},"2606.31924":{"status":"ready","url":"notes/image-generation.html#summary-2606.31924"},"2606.32039":{"status":"ready","url":"notes/image-generation.html#summary-2606.32039"},"2607.00402":{"status":"ready","url":"notes/image-generation.html#summary-2607.00402"},"2607.00766":{"status":"ready","url":"notes/image-generation.html#summary-2607.00766"},"2607.01147":{"status":"ready","url":"notes/image-generation.html#summary-2607.01147"},"2607.01383":{"status":"ready","url":"notes/image-generation.html#summary-2607.01383"},"2607.01499":{"status":"ready","url":"notes/image-generation.html#summary-2607.01499"},"2607.01709":{"status":"ready","url":"notes/image-generation.html#summary-2607.01709"},"2607.02290":{"status":"ready","url":"notes/image-generation.html#summary-2607.02290"},"2607.02291":{"status":"ready","url":"notes/image-generation.html#summary-2607.02291"},"2607.02375":{"status":"ready","url":"notes/image-generation.html#summary-2607.02375"},"2607.02421":{"status":"ready","url":"notes/image-generation.html#summary-2607.02421"},"2607.02582":{"status":"ready","url":"notes/image-generation.html#summary-2607.02582"},"2607.02718":{"status":"ready","url":"notes/image-generation.html#summary-2607.02718"},"2607.03046":{"status":"ready","url":"notes/image-generation.html#summary-2607.03046"},"2607.03180":{"status":"ready","url":"notes/image-generation.html#summary-2607.03180"},"2607.03752":{"status":"ready","url":"notes/image-generation.html#summary-2607.03752"},"2607.03862":{"status":"ready","url":"notes/image-generation.html#summary-2607.03862"},"2607.03899":{"status":"ready","url":"notes/image-generation.html#summary-2607.03899"},"2607.04691":{"status":"ready","url":"notes/image-generation.html#summary-2607.04691"},"2607.04923":{"status":"ready","url":"notes/image-generation.html#summary-2607.04923"},"2607.05382":{"status":"ready","url":"notes/image-generation.html#summary-2607.05382"},"2607.05568":{"status":"ready","url":"notes/image-generation.html#summary-2607.05568"},"2607.05605":{"status":"ready","url":"notes/image-generation.html#summary-2607.05605"},"2607.06120":{"status":"ready","url":"notes/image-generation.html#summary-2607.06120"},"2607.06136":{"status":"pending"},"2607.06440":{"status":"ready","url":"notes/image-generation.html#summary-2607.06440"},"2607.06553":{"status":"ready","url":"notes/image-generation.html#summary-2607.06553"},"2607.07051":{"status":"ready","url":"notes/image-generation.html#summary-2607.07051"},"2607.07117":{"status":"ready","url":"notes/image-generation.html#summary-2607.07117"},"2607.07173":{"status":"ready","url":"notes/image-generation.html#summary-2607.07173"},"2607.08201":{"status":"ready","url":"notes/image-generation.html#summary-2607.08201"},"2607.08674":{"status":"ready","url":"notes/image-generation.html#summary-2607.08674"},"2607.09133":{"status":"ready","url":"notes/image-generation.html#summary-2607.09133"},"2607.09787":{"status":"ready","url":"notes/image-generation.html#summary-2607.09787"},"2607.10165":{"status":"ready","url":"notes/image-generation.html#summary-2607.10165"},"2607.10535":{"status":"ready","url":"notes/image-generation.html#summary-2607.10535"},"2607.10538":{"status":"ready","url":"notes/image-generation.html#summary-2607.10538"},"2607.10800":{"status":"ready","url":"notes/image-generation.html#summary-2607.10800"},"2607.11655":{"status":"ready","url":"notes/image-generation.html#summary-2607.11655"},"2607.11885":{"status":"ready","url":"notes/image-generation.html#summary-2607.11885"},"2607.11886":{"status":"ready","url":"notes/image-generation.html#summary-2607.11886"},"2607.12539":{"status":"ready","url":"notes/image-generation.html#summary-2607.12539"},"2607.13300":{"status":"ready","url":"notes/image-generation.html#summary-2607.13300"},"2607.13685":{"status":"ready","url":"notes/image-generation.html#summary-2607.13685"},"2607.14521":{"status":"ready","url":"notes/image-generation.html#summary-2607.14521"},"2607.14580":{"status":"ready","url":"notes/image-generation.html#summary-2607.14580"},"2607.14684":{"status":"ready","url":"notes/image-generation.html#summary-2607.14684"},"2607.14807":{"status":"ready","url":"notes/image-generation.html#summary-2607.14807"},"2607.14945":{"status":"ready","url":"notes/image-generation.html#summary-2607.14945"},"2607.14962":{"status":"ready","url":"notes/image-generation.html#summary-2607.14962"},"2607.15619":{"status":"ready","url":"notes/image-generation.html#summary-2607.15619"},"2607.15740":{"status":"ready","url":"notes/image-generation.html#summary-2607.15740"},"2607.16291":{"status":"ready","url":"notes/image-generation.html#summary-2607.16291"},"2607.16294":{"status":"ready","url":"notes/image-generation.html#summary-2607.16294"},"2607.16307":{"status":"ready","url":"notes/image-generation.html#summary-2607.16307"},"2607.16409":{"status":"ready","url":"notes/image-generation.html#summary-2607.16409"},"2607.16824":{"status":"ready","url":"notes/image-generation.html#summary-2607.16824"},"2607.16828":{"status":"ready","url":"notes/image-generation.html#summary-2607.16828"},"2607.16898":{"status":"ready","url":"notes/image-generation.html#summary-2607.16898"},"2607.17634":{"status":"ready","url":"notes/image-generation.html#summary-2607.17634"},"2607.17768":{"status":"ready","url":"notes/image-generation.html#summary-2607.17768"},"2607.17779":{"status":"ready","url":"notes/image-generation.html#summary-2607.17779"},"2607.18237":{"status":"ready","url":"notes/image-generation.html#summary-2607.18237"},"2607.18724":{"status":"ready","url":"notes/image-generation.html#summary-2607.18724"},"2607.18787":{"status":"ready","url":"notes/image-generation.html#summary-2607.18787"},"2607.19064":{"status":"ready","url":"notes/image-generation.html#summary-2607.19064"},"2607.19341":{"status":"ready","url":"notes/image-generation.html#summary-2607.19341"},"2607.20197":{"status":"ready","url":"notes/image-generation.html#summary-2607.20197"},"2607.20883":{"status":"ready","url":"notes/image-generation.html#summary-2607.20883"},"2607.21672":{"status":"ready","url":"notes/image-generation.html#summary-2607.21672"},"2607.22745":{"status":"ready","url":"notes/image-generation.html#summary-2607.22745"},"2607.22963":{"status":"ready","url":"notes/image-generation.html#summary-2607.22963"},"2607.23023":{"status":"ready","url":"notes/image-generation.html#summary-2607.23023"},"2607.23673":{"status":"ready","url":"notes/image-generation.html#summary-2607.23673"},"2607.24157":{"status":"ready","url":"notes/image-generation.html#summary-2607.24157"},"2607.24215":{"status":"ready","url":"notes/image-generation.html#summary-2607.24215"},"2607.24353":{"status":"ready","url":"notes/image-generation.html#summary-2607.24353"},"2607.24766":{"status":"ready","url":"notes/image-generation.html#summary-2607.24766"},"2607.25078":{"status":"ready","url":"notes/image-generation.html#summary-2607.25078"},"2607.25622":{"status":"ready","url":"notes/image-generation.html#summary-2607.25622"},"2607.25641":{"status":"ready","url":"notes/image-generation.html#summary-2607.25641"},"2607.25642":{"status":"ready","url":"notes/image-generation.html#summary-2607.25642"},"2607.26566":{"status":"ready","url":"notes/image-generation.html#summary-2607.26566"},"2607.26647":{"status":"ready","url":"notes/image-generation.html#summary-2607.26647"},"2607.26735":{"status":"ready","url":"notes/image-generation.html#summary-2607.26735"},"2607.27779":{"status":"ready","url":"notes/image-generation.html#summary-2607.27779"},"2607.27857":{"status":"ready","url":"notes/image-generation.html#summary-2607.27857"},"2607.27882":{"status":"ready","url":"notes/image-generation.html#summary-2607.27882"},"2607.28974":{"status":"ready","url":"notes/image-generation.html#summary-2607.28974"},"2607.29025":{"status":"ready","url":"notes/image-generation.html#summary-2607.29025"},"2607.29156":{"status":"ready","url":"notes/image-generation.html#summary-2607.29156"},"2607.29367":{"status":"ready","url":"notes/image-generation.html#summary-2607.29367"},"2607.29679":{"status":"ready","url":"notes/image-generation.html#summary-2607.29679"},"2608.00548":{"status":"ready","url":"notes/image-generation.html#summary-2608.00548"},"2608.00562":{"status":"ready","url":"notes/image-generation.html#summary-2608.00562"},"2608.00584":{"status":"ready","url":"notes/image-generation.html#summary-2608.00584"},"2608.00588":{"status":"ready","url":"notes/image-generation.html#summary-2608.00588"},"2608.00598":{"status":"ready","url":"notes/image-generation.html#summary-2608.00598"},"2608.00716":{"status":"ready","url":"notes/image-generation.html#summary-2608.00716"},"2608.00736":{"status":"ready","url":"notes/image-generation.html#summary-2608.00736"},"2608.01258":{"status":"ready","url":"notes/image-generation.html#summary-2608.01258"},"2608.01780":{"status":"ready","url":"notes/image-generation.html#summary-2608.01780"},"2608.01988":{"status":"ready","url":"notes/image-generation.html#summary-2608.01988"},"2608.02059":{"status":"ready","url":"notes/image-generation.html#summary-2608.02059"},"2608.02841":{"status":"ready","url":"notes/image-generation.html#summary-2608.02841"},"2608.03059":{"status":"ready","url":"notes/image-generation.html#summary-2608.03059"},"2608.03284":{"status":"ready","url":"notes/image-generation.html#summary-2608.03284"},"2608.03357":{"status":"ready","url":"notes/image-generation.html#summary-2608.03357"},"2608.04030":{"status":"ready","url":"notes/image-generation.html#summary-2608.04030"},"2608.04436":{"status":"ready","url":"notes/image-generation.html#summary-2608.04436"},"2608.04750":{"status":"ready","url":"notes/image-generation.html#summary-2608.04750"},"2608.04935":{"status":"ready","url":"notes/image-generation.html#summary-2608.04935"},"2608.05663":{"status":"ready","url":"notes/image-generation.html#summary-2608.05663"},"2608.06075":{"status":"ready","url":"notes/image-generation.html#summary-2608.06075"},"2608.06751":{"status":"ready","url":"notes/image-generation.html#summary-2608.06751"},"2608.06929":{"status":"ready","url":"notes/image-generation.html#summary-2608.06929"},"2608.07003":{"status":"ready","url":"notes/image-generation.html#summary-2608.07003"},"2608.07565":{"status":"ready","url":"notes/image-generation.html#summary-2608.07565"},"2608.07713":{"status":"ready","url":"notes/image-generation.html#summary-2608.07713"},"2608.07863":{"status":"ready","url":"notes/image-generation.html#summary-2608.07863"},"2608.07999":{"status":"ready","url":"notes/image-generation.html#summary-2608.07999"},"2608.08720":{"status":"ready","url":"notes/image-generation.html#summary-2608.08720"},"2608.09097":{"status":"ready","url":"notes/image-generation.html#summary-2608.09097"},"2608.09223":{"status":"ready","url":"notes/image-generation.html#summary-2608.09223"},"2608.09226":{"status":"ready","url":"notes/image-generation.html#summary-2608.09226"},"2608.09244":{"status":"ready","url":"notes/image-generation.html#summary-2608.09244"},"2608.09322":{"status":"ready","url":"notes/image-generation.html#summary-2608.09322"},"2608.09529":{"status":"ready","url":"notes/image-generation.html#summary-2608.09529"},"2608.09666":{"status":"ready","url":"notes/image-generation.html#summary-2608.09666"},"2608.10166":{"status":"ready","url":"notes/image-generation.html#summary-2608.10166"},"2608.10524":{"status":"ready","url":"notes/image-generation.html#summary-2608.10524"},"2608.11002":{"status":"ready","url":"notes/image-generation.html#summary-2608.11002"},"2608.11013":{"status":"ready","url":"notes/image-generation.html#summary-2608.11013"},"2608.11205":{"status":"ready","url":"notes/image-generation.html#summary-2608.11205"},"2608.11343":{"status":"ready","url":"notes/image-generation.html#summary-2608.11343"},"2608.11452":{"status":"ready","url":"notes/image-generation.html#summary-2608.11452"},"2608.11732":{"status":"ready","url":"notes/image-generation.html#summary-2608.11732"},"2608.11838":{"status":"ready","url":"notes/image-generation.html#summary-2608.11838"},"2608.11884":{"status":"ready","url":"notes/image-generation.html#summary-2608.11884"},"2608.12122":{"status":"ready","url":"notes/image-generation.html#summary-2608.12122"},"2608.12155":{"status":"ready","url":"notes/image-generation.html#summary-2608.12155"},"2608.12532":{"status":"ready","url":"notes/image-generation.html#summary-2608.12532"},"2608.12766":{"status":"ready","url":"notes/image-generation.html#summary-2608.12766"},"2608.12806":{"status":"ready","url":"notes/image-generation.html#summary-2608.12806"},"2608.12811":{"status":"ready","url":"notes/image-generation.html#summary-2608.12811"},"2608.12876":{"status":"ready","url":"notes/image-generation.html#summary-2608.12876"},"2608.13455":{"status":"ready","url":"notes/image-generation.html#summary-2608.13455"},"2608.13478":{"status":"ready","url":"notes/image-generation.html#summary-2608.13478"},"2608.13865":{"status":"ready","url":"notes/image-generation.html#summary-2608.13865"},"2608.14038":{"status":"ready","url":"notes/image-generation.html#summary-2608.14038"},"2608.14172":{"status":"ready","url":"notes/image-generation.html#summary-2608.14172"},"2608.14226":{"status":"ready","url":"notes/image-generation.html#summary-2608.14226"},"2608.14543":{"status":"ready","url":"notes/image-generation.html#summary-2608.14543"},"2608.14546":{"status":"ready","url":"notes/image-generation.html#summary-2608.14546"},"2608.14729":{"status":"ready","url":"notes/image-generation.html#summary-2608.14729"},"2608.14730":{"status":"ready","url":"notes/image-generation.html#summary-2608.14730"},"2608.14790":{"status":"ready","url":"notes/image-generation.html#summary-2608.14790"},"2608.14976":{"status":"ready","url":"notes/image-generation.html#summary-2608.14976"},"2608.15196":{"status":"ready","url":"notes/image-generation.html#summary-2608.15196"},"2608.15238":{"status":"ready","url":"notes/image-generation.html#summary-2608.15238"},"2608.15341":{"status":"ready","url":"notes/image-generation.html#summary-2608.15341"},"2608.15452":{"status":"ready","url":"notes/image-generation.html#summary-2608.15452"},"2608.15522":{"status":"ready","url":"notes/image-generation.html#summary-2608.15522"},"2608.15583":{"status":"ready","url":"notes/image-generation.html#summary-2608.15583"},"2608.15694":{"status":"ready","url":"notes/image-generation.html#summary-2608.15694"},"2608.15705":{"status":"ready","url":"notes/image-generation.html#summary-2608.15705"},"2608.16100":{"status":"ready","url":"notes/image-generation.html#summary-2608.16100"},"2608.16104":{"status":"ready","url":"notes/image-generation.html#summary-2608.16104"},"2608.16284":{"status":"ready","url":"notes/image-generation.html#summary-2608.16284"},"2608.16646":{"status":"ready","url":"notes/image-generation.html#summary-2608.16646"},"2608.16721":{"status":"ready","url":"notes/image-generation.html#summary-2608.16721"},"2608.16765":{"status":"ready","url":"notes/image-generation.html#summary-2608.16765"},"2608.16812":{"status":"ready","url":"notes/image-generation.html#summary-2608.16812"},"2608.16887":{"status":"ready","url":"notes/image-generation.html#summary-2608.16887"},"2608.17067":{"status":"ready","url":"notes/image-generation.html#summary-2608.17067"},"2608.17203":{"status":"ready","url":"notes/image-generation.html#summary-2608.17203"},"2608.17286":{"status":"ready","url":"notes/image-generation.html#summary-2608.17286"},"2608.17747":{"status":"ready","url":"notes/image-generation.html#summary-2608.17747"},"2608.17883":{"status":"ready","url":"notes/image-generation.html#summary-2608.17883"},"2608.17995":{"status":"ready","url":"notes/image-generation.html#summary-2608.17995"},"2608.18040":{"status":"ready","url":"notes/image-generation.html#summary-2608.18040"},"2608.18063":{"status":"ready","url":"notes/image-generation.html#summary-2608.18063"},"2608.18076":{"status":"ready","url":"notes/image-generation.html#summary-2608.18076"},"2608.18968":{"status":"ready","url":"notes/image-generation.html#summary-2608.18968"},"2608.19000":{"status":"ready","url":"notes/image-generation.html#summary-2608.19000"},"2608.19637":{"status":"ready","url":"notes/image-generation.html#summary-2608.19637"},"2608.20161":{"status":"ready","url":"notes/image-generation.html#summary-2608.20161"},"2608.20334":{"status":"ready","url":"notes/image-generation.html#summary-2608.20334"},"2608.20336":{"status":"ready","url":"notes/image-generation.html#summary-2608.20336"},"2608.21229":{"status":"ready","url":"notes/image-generation.html#summary-2608.21229"},"2608.21713":{"status":"ready","url":"notes/image-generation.html#summary-2608.21713"},"2608.21748":{"status":"ready","url":"notes/image-generation.html#summary-2608.21748"},"2608.21776":{"status":"ready","url":"notes/image-generation.html#summary-2608.21776"},"2608.22521":{"status":"ready","url":"notes/image-generation.html#summary-2608.22521"},"2608.22619":{"status":"ready","url":"notes/image-generation.html#summary-2608.22619"},"2608.22780":{"status":"ready","url":"notes/image-generation.html#summary-2608.22780"},"2608.23024":{"status":"ready","url":"notes/image-generation.html#summary-2608.23024"},"2608.23140":{"status":"ready","url":"notes/image-generation.html#summary-2608.23140"},"2608.23999":{"status":"ready","url":"notes/image-generation.html#summary-2608.23999"},"2608.24119":{"status":"ready","url":"notes/image-generation.html#summary-2608.24119"},"2608.24563":{"status":"ready","url":"notes/image-generation.html#summary-2608.24563"},"2608.25192":{"status":"ready","url":"notes/image-generation.html#summary-2608.25192"},"2608.25360":{"status":"ready","url":"notes/image-generation.html#summary-2608.25360"},"2608.25380":{"status":"ready","url":"notes/image-generation.html#summary-2608.25380"},"2608.25386":{"status":"ready","url":"notes/image-generation.html#summary-2608.25386"},"2608.25648":{"status":"ready","url":"notes/image-generation.html#summary-2608.25648"},"2608.26624":{"status":"ready","url":"notes/image-generation.html#summary-2608.26624"},"2608.26956":{"status":"ready","url":"notes/image-generation.html#summary-2608.26956"},"2608.26980":{"status":"ready","url":"notes/image-generation.html#summary-2608.26980"},"2608.26993":{"status":"ready","url":"notes/image-generation.html#summary-2608.26993"}},"topic":"Image Generation","version":1}</script>
 </body>
 </html>
