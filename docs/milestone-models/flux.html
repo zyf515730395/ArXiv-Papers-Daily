@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="FLUX 官方模型版本时间线与技术对比。">
+  <title>FLUX · Milestone Models</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add("js");
+      const storageKey = "arxiv-theme";
+      let theme = null;
+      try { theme = window.localStorage.getItem(storageKey); } catch (error) { /* unavailable */ }
+      if (theme !== "light" && theme !== "dark") {
+        theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.dataset.theme = theme;
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/css/site.css">
+  <script src="../assets/js/sidebar.js" defer></script>
+</head>
+<body>
+  <button class="sidebar-toggle" type="button" aria-controls="navigation-shell" aria-expanded="false">
+    <span aria-hidden="true">&#9776;</span> Browse models
+  </button>
+  <button class="theme-toggle" type="button" aria-label="Switch color theme" aria-pressed="false">
+    <span data-theme-icon aria-hidden="true"></span>
+  </button>
+  <div class="sidebar-scrim" data-sidebar-close></div>
+<div class="navigation-shell" id="navigation-shell">
+  <aside class="primary-sidebar" aria-label="Main sections">
+    <a class="primary-brand" href="../index.html" aria-label="Arxiv Papers Daily home">APD</a>
+    <nav class="primary-navigation" aria-label="Knowledge sections">
+      <a class="primary-nav-item" href="../index.html">
+        <span aria-hidden="true">P</span>
+        <strong>论文阅读</strong>
+      </a>
+      <a class="primary-nav-item is-active" href="flux.html" aria-current="page">
+        <span aria-hidden="true">M</span>
+        <strong>Milestone Models</strong>
+      </a>
+    </nav>
+  </aside>
+  <aside class="paper-sidebar" id="paper-sidebar" aria-label="Milestone model families">
+    <div class="sidebar-brand">
+      <a href="flux.html">Milestone Models</a>
+      <span>按论文主题与官方模型系列浏览</span>
+    </div>
+    <nav class="archive-nav milestone-nav">
+      <details class="nav-theme" open>
+        <summary><span>Image Generation</span></summary>
+        <ul class="milestone-family-list">
+          <li><a class="milestone-family-link is-active" href="flux.html" aria-current="page"><span>FLUX</span><span class="nav-count">跟踪中</span></a></li>
+          <li><span class="milestone-family-link is-planned" aria-disabled="true"><span>Qwen-Image</span><span class="nav-count">规划中</span></span></li>
+          <li><span class="milestone-family-link is-planned" aria-disabled="true"><span>Seedream</span><span class="nav-count">规划中</span></span></li>
+          <li><span class="milestone-family-link is-planned" aria-disabled="true"><span>Z-Image</span><span class="nav-count">规划中</span></span></li>
+        </ul>
+      </details>
+      <details class="nav-theme">
+        <summary><span>Video Generation</span></summary>
+        <ul class="milestone-family-list">
+          <li><span class="milestone-family-link is-planned" aria-disabled="true"><span>Wan</span><span class="nav-count">规划中</span></span></li>
+        </ul>
+      </details>
+      <details class="nav-theme">
+        <summary><span>3D Generation</span></summary>
+        <ul class="milestone-family-list">
+          <li><span class="milestone-family-link is-planned" aria-disabled="true"><span>Hunyuan3D</span><span class="nav-count">规划中</span></span></li>
+        </ul>
+      </details>
+      <details class="nav-theme">
+        <summary><span>Neural Rendering</span></summary>
+        <ul class="milestone-family-list">
+          <li><span class="milestone-family-link is-planned" aria-disabled="true"><span>VGGT</span><span class="nav-count">规划中</span></span></li>
+        </ul>
+      </details>
+    </nav>
+  </aside>
+</div>
+  <main class="page-content milestone-page" id="top">
+    <header class="milestone-hero">
+      <div>
+        <p>Image Generation · Black Forest Labs</p>
+        <h1>FLUX</h1>
+        <span>官方模型版本演进与核心技术对比</span>
+      </div>
+      <div class="milestone-hero-meta">
+        <ul class="status-legend" aria-label="发布状态图例"><li><span class="release-status status-released">已发布</span><span>已发布</span></li><li><span class="release-status status-early-access">Early Access</span><span>Early Access</span></li><li><span class="release-status status-announced">已宣布</span><span>已宣布</span></li></ul>
+        <p>Updated 2026-08-30</p>
+      </div>
+    </header>
+    <div class="milestone-workspace">
+<section class="milestone-panel timeline-panel" aria-labelledby="timeline-heading">
+  <div class="milestone-panel-heading">
+    <div><p>ROADMAP</p><h2 id="timeline-heading">官方版本时间线</h2></div>
+    <span>可横向拖动</span>
+  </div>
+  <div class="milestone-timeline-viewport" data-drag-scroll tabindex="0" aria-label="FLUX 官方版本时间线，使用左右方向键或拖动浏览">
+    <ol class="milestone-timeline">
+      <li class="timeline-release status-released">
+        <span class="timeline-dot" aria-hidden="true"></span>
+        <time datetime="2024-08-01">2024-08-01</time>
+        <h3>FLUX.1</h3>
+        <span class="release-status status-released">已发布</span>
+        <ul><li>FLUX.1 [pro]</li><li>FLUX.1 [dev]</li><li>FLUX.1 [schnell]</li></ul>
+      </li>
+      <li class="timeline-release status-released">
+        <span class="timeline-dot" aria-hidden="true"></span>
+        <time datetime="2024-10-02">2024-10-02</time>
+        <h3>FLUX1.1 [pro]</h3>
+        <span class="release-status status-released">已发布</span>
+        <ul><li>FLUX1.1 [pro]</li></ul>
+      </li>
+      <li class="timeline-release status-released">
+        <span class="timeline-dot" aria-hidden="true"></span>
+        <time datetime="2024-11-06">2024-11-06</time>
+        <h3>FLUX1.1 [pro] Ultra</h3>
+        <span class="release-status status-released">已发布</span>
+        <ul><li>FLUX1.1 [pro] Ultra</li><li>Raw mode</li></ul>
+      </li>
+      <li class="timeline-release status-released">
+        <span class="timeline-dot" aria-hidden="true"></span>
+        <time datetime="2024-11-21">2024-11-21</time>
+        <h3>FLUX.1 Tools</h3>
+        <span class="release-status status-released">已发布</span>
+        <ul><li>FLUX.1 Fill</li><li>FLUX.1 Depth</li><li>FLUX.1 Canny</li><li>FLUX.1 Redux</li></ul>
+      </li>
+      <li class="timeline-release status-released">
+        <span class="timeline-dot" aria-hidden="true"></span>
+        <time datetime="2025-05-29">2025-05-29</time>
+        <h3>FLUX.1 Kontext</h3>
+        <span class="release-status status-released">已发布</span>
+        <ul><li>FLUX.1 Kontext [max]</li><li>FLUX.1 Kontext [pro]</li><li>FLUX.1 Kontext [dev]</li></ul>
+      </li>
+      <li class="timeline-release status-released">
+        <span class="timeline-dot" aria-hidden="true"></span>
+        <time datetime="2025-07-31">2025-07-31</time>
+        <h3>FLUX.1 Krea</h3>
+        <span class="release-status status-released">已发布</span>
+        <ul><li>FLUX.1 Krea [dev]</li></ul>
+      </li>
+      <li class="timeline-release status-released">
+        <span class="timeline-dot" aria-hidden="true"></span>
+        <time datetime="2025-11-25">2025-11-25</time>
+        <h3>FLUX.2</h3>
+        <span class="release-status status-released">已发布</span>
+        <ul><li>FLUX.2 [pro]</li><li>FLUX.2 [flex]</li><li>FLUX.2 [dev]</li></ul>
+      </li>
+      <li class="timeline-release status-released">
+        <span class="timeline-dot" aria-hidden="true"></span>
+        <time datetime="2025-12-16">2025-12-16</time>
+        <h3>FLUX.2 [max]</h3>
+        <span class="release-status status-released">已发布</span>
+        <ul><li>FLUX.2 [max]</li></ul>
+      </li>
+      <li class="timeline-release status-released">
+        <span class="timeline-dot" aria-hidden="true"></span>
+        <time datetime="2026-01-15">2026-01-15</time>
+        <h3>FLUX.2 [klein]</h3>
+        <span class="release-status status-released">已发布</span>
+        <ul><li>FLUX.2 [klein] 4B</li><li>FLUX.2 [klein] 9B</li><li>FLUX.2 [klein] Base</li></ul>
+      </li>
+      <li class="timeline-release status-early-access">
+        <span class="timeline-dot" aria-hidden="true"></span>
+        <time datetime="2026-07-23">2026-07-23</time>
+        <h3>FLUX 3</h3>
+        <span class="release-status status-early-access">Early Access</span>
+        <ul><li>FLUX 3 Video · Early Access</li><li>FLUX 3 Image · Announced</li><li>FLUX 3 Action · Announced</li><li>FLUX 3 Dev · Announced</li></ul>
+      </li>
+    </ol>
+  </div>
+</section>
+<section class="milestone-panel comparison-panel" aria-labelledby="comparison-heading">
+  <div class="milestone-panel-heading">
+    <div><p>COMPARISON</p><h2 id="comparison-heading">大版本技术对比</h2></div>
+    <span>内容来自本地 Markdown 精读</span>
+  </div>
+  <div class="milestone-table-scroll">
+    <table class="milestone-comparison-table">
+      <thead><tr><th scope="col">对比项</th>
+        <th scope="col" class="milestone-version-heading">
+          <time datetime="2024-08-01">2024-08-01 — 2024-11-21</time>
+          <strong>FLUX.1</strong>
+          <span class="release-status status-released">已发布</span>
+          <span class="milestone-release-count">4 个官方发布节点</span>
+          <div class="milestone-source-links"><a href="https://bfl.ai/blog/24-08-01-bfl" target="_blank" rel="noopener">官方资料 1</a> · <a href="https://github.com/black-forest-labs/flux" target="_blank" rel="noopener">官方资料 2</a></div>
+          <span class="milestone-note-pending">待精读</span>
+        </th>
+        <th scope="col" class="milestone-version-heading">
+          <time datetime="2025-05-29">2025-05-29</time>
+          <strong>FLUX.1 Kontext</strong>
+          <span class="release-status status-released">已发布</span>
+          <span class="milestone-release-count">1 个官方发布节点</span>
+          <div class="milestone-source-links"><a href="https://arxiv.org/abs/2506.15742" target="_blank" rel="noopener">官方资料 1</a> · <a href="https://bfl.ai/models/flux-kontext" target="_blank" rel="noopener">官方资料 2</a></div>
+          <span class="milestone-note-pending">待精读</span>
+        </th>
+        <th scope="col" class="milestone-version-heading">
+          <time datetime="2025-07-31">2025-07-31</time>
+          <strong>FLUX.1 Krea</strong>
+          <span class="release-status status-released">已发布</span>
+          <span class="milestone-release-count">1 个官方发布节点</span>
+          <div class="milestone-source-links"><a href="https://bfl.ai/blog/flux-1-krea-dev" target="_blank" rel="noopener">官方资料 1</a> · <a href="https://github.com/black-forest-labs/flux" target="_blank" rel="noopener">官方资料 2</a></div>
+          <span class="milestone-note-pending">待精读</span>
+        </th>
+        <th scope="col" class="milestone-version-heading">
+          <time datetime="2025-11-25">2025-11-25 — 2025-12-16</time>
+          <strong>FLUX.2</strong>
+          <span class="release-status status-released">已发布</span>
+          <span class="milestone-release-count">2 个官方发布节点</span>
+          <div class="milestone-source-links"><a href="https://bfl.ai/models/flux-2" target="_blank" rel="noopener">官方资料 1</a> · <a href="https://github.com/black-forest-labs/flux2" target="_blank" rel="noopener">官方资料 2</a></div>
+          <span class="milestone-note-pending">待精读</span>
+        </th>
+        <th scope="col" class="milestone-version-heading">
+          <time datetime="2026-01-15">2026-01-15</time>
+          <strong>FLUX.2 [klein]</strong>
+          <span class="release-status status-released">已发布</span>
+          <span class="milestone-release-count">1 个官方发布节点</span>
+          <div class="milestone-source-links"><a href="https://bfl.ai/blog/flux2-klein-towards-interactive-visual-intelligence" target="_blank" rel="noopener">官方资料 1</a> · <a href="https://github.com/black-forest-labs/flux2" target="_blank" rel="noopener">官方资料 2</a></div>
+          <span class="milestone-note-pending">待精读</span>
+        </th>
+        <th scope="col" class="milestone-version-heading">
+          <time datetime="2026-07-23">2026-07-23</time>
+          <strong>FLUX 3</strong>
+          <span class="release-status status-early-access">Early Access</span>
+          <span class="milestone-release-count">1 个官方发布节点</span>
+          <div class="milestone-source-links"><a href="https://bfl.ai/blog/flux-3" target="_blank" rel="noopener">官方资料 1</a> · <a href="https://bfl.ai/models/flux-3" target="_blank" rel="noopener">官方资料 2</a></div>
+          <span class="milestone-note-pending">待精读</span>
+        </th>
+      </tr></thead>
+      <tbody>
+        <tr><th scope="row">版本</th>
+          <td><section class="milestone-minor-release"><header><strong>FLUX.1</strong></header><span class="milestone-value is-pending">待精读</span></section><section class="milestone-minor-release"><header><strong>FLUX1.1 [pro]</strong></header><span class="milestone-value is-pending">待精读</span></section><section class="milestone-minor-release"><header><strong>FLUX1.1 [pro] Ultra</strong></header><span class="milestone-value is-pending">待精读</span></section><section class="milestone-minor-release"><header><strong>FLUX.1 Tools</strong></header><span class="milestone-value is-pending">待精读</span></section></td>
+          <td><section class="milestone-minor-release"><header><strong>FLUX.1 Kontext</strong></header><span class="milestone-value is-pending">待精读</span></section></td>
+          <td><section class="milestone-minor-release"><header><strong>FLUX.1 Krea</strong></header><span class="milestone-value is-pending">待精读</span></section></td>
+          <td><section class="milestone-minor-release"><header><strong>FLUX.2</strong></header><span class="milestone-value is-pending">待精读</span></section><section class="milestone-minor-release"><header><strong>FLUX.2 [max]</strong></header><span class="milestone-value is-pending">待精读</span></section></td>
+          <td><section class="milestone-minor-release"><header><strong>FLUX.2 [klein]</strong></header><span class="milestone-value is-pending">待精读</span></section></td>
+          <td><section class="milestone-minor-release"><header><strong>FLUX 3</strong></header><span class="milestone-value is-pending">待精读</span></section></td>
+        </tr>
+        <tr><th scope="row">训练数据</th>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+        </tr>
+        <tr><th scope="row">VAE 结构</th>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+        </tr>
+        <tr><th scope="row">Text Encoder</th>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+        </tr>
+        <tr><th scope="row">生成主体网络</th>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+        </tr>
+        <tr><th scope="row">训练 Trick</th>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+        </tr>
+        <tr><th scope="row">新提出的创新点</th>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+        </tr>
+        <tr><th scope="row">局限性</th>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+          <td><span class="milestone-value is-pending">待精读</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+    </div>
+    <footer>仅收录官方发布 · 未公开的信息明确标记为“未披露”</footer>
+  </main>
+</body>
+</html>

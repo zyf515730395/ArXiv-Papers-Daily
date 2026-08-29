@@ -9,6 +9,12 @@ from pathlib import Path
 import re
 import unicodedata
 
+from milestone_catalog import (
+    first_ready_family,
+    load_milestone_catalog,
+    render_primary_sidebar,
+)
+
 
 ENTRY_PATTERN = re.compile(
     r"^\|\*\*(?P<date>[^*]+)\*\*\|\*\*(?P<title>.*?)\*\*\|"
@@ -19,6 +25,7 @@ SITE_TITLE = "Arxiv Papers Daily"
 RECENT_YEAR_COUNT = 3
 NOTES_DIRECTORY_NAME = "notes"
 SHOW_BOOK_NOTES_NAV = False
+DEFAULT_MILESTONE_CATALOG = Path(__file__).with_name("milestone_models.yaml")
 
 
 def slugify(value: str) -> str:
@@ -156,30 +163,18 @@ def filter_recent_archive(
 
 
 def render_sidebar(
-    themes: OrderedDict, show_book_notes: bool = SHOW_BOOK_NOTES_NAV
+    themes: OrderedDict,
+    milestone_catalog: dict,
+    show_book_notes: bool = SHOW_BOOK_NOTES_NAV,
 ) -> str:
+    milestone_family = first_ready_family(milestone_catalog)
     output = [
         '<div class="navigation-shell" id="navigation-shell">',
-        '  <aside class="primary-sidebar" aria-label="Main sections">',
-        '    <a class="primary-brand" href="#top" aria-label="Arxiv Papers Daily home">APD</a>',
-        '    <nav class="primary-navigation" aria-label="Knowledge sections">',
-        '      <a class="primary-nav-item is-active" href="#top" aria-current="page">',
-        '        <span aria-hidden="true">P</span>',
-        '        <strong>论文阅读</strong>',
-        '      </a>',
-        *(
-            [
-                '      <span class="primary-nav-item is-disabled" aria-disabled="true">',
-                '        <span aria-hidden="true">B</span>',
-                '        <strong>读书笔记</strong>',
-                '        <small>即将上线</small>',
-                '      </span>',
-            ]
-            if show_book_notes
-            else []
+        *render_primary_sidebar(
+            "papers",
+            "#top",
+            f"milestone-models/{milestone_family['slug']}.html",
         ),
-        '    </nav>',
-        '  </aside>',
         '  <aside class="paper-sidebar" id="paper-sidebar" aria-label="Paper archive">',
         '    <div class="sidebar-brand">',
         '      <a href="#top">论文阅读</a>',
@@ -421,8 +416,10 @@ def generate_site(
     json_path: str | Path,
     output_path: str | Path,
     candidate_path: str | Path | None = None,
+    milestone_catalog_path: str | Path = DEFAULT_MILESTONE_CATALOG,
 ) -> None:
     data = json.loads(Path(json_path).read_text(encoding="utf-8"))
+    milestone_catalog = load_milestone_catalog(milestone_catalog_path)
     all_categories, _ = build_archive(data)
     today = datetime.date.today()
     categories, themes = filter_recent_archive(all_categories, today.year)
@@ -466,7 +463,7 @@ def generate_site(
     <span data-theme-icon aria-hidden="true"></span>
   </button>
   <div class="sidebar-scrim" data-sidebar-close></div>
-{render_sidebar(themes)}
+{render_sidebar(themes, milestone_catalog)}
   <main class="page-content" id="top">
     <header class="hero">
       <h1>{SITE_TITLE}</h1>

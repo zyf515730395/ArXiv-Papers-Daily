@@ -237,3 +237,44 @@ summaryDialog?.addEventListener("close", () => {
   summaryTrigger?.focus();
   summaryTrigger = null;
 });
+
+document.querySelectorAll("[data-drag-scroll]").forEach((viewport) => {
+  let pointerId = null;
+  let startX = 0;
+  let startScrollLeft = 0;
+
+  function finishDrag() {
+    if (pointerId !== null && viewport.hasPointerCapture?.(pointerId)) {
+      viewport.releasePointerCapture(pointerId);
+    }
+    pointerId = null;
+    viewport.classList.remove("is-dragging");
+  }
+
+  viewport.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || event.target.closest("a, button")) return;
+    pointerId = event.pointerId;
+    startX = event.clientX;
+    startScrollLeft = viewport.scrollLeft;
+    viewport.setPointerCapture?.(pointerId);
+    viewport.classList.add("is-dragging");
+  });
+
+  viewport.addEventListener("pointermove", (event) => {
+    if (event.pointerId !== pointerId) return;
+    viewport.scrollLeft = startScrollLeft - (event.clientX - startX);
+  });
+
+  viewport.addEventListener("pointerup", finishDrag);
+  viewport.addEventListener("pointercancel", finishDrag);
+
+  viewport.addEventListener("keydown", (event) => {
+    const amount = Math.max(220, viewport.clientWidth * .6);
+    if (event.key === "ArrowRight") viewport.scrollBy({ left: amount, behavior: "smooth" });
+    else if (event.key === "ArrowLeft") viewport.scrollBy({ left: -amount, behavior: "smooth" });
+    else if (event.key === "Home") viewport.scrollTo({ left: 0, behavior: "smooth" });
+    else if (event.key === "End") viewport.scrollTo({ left: viewport.scrollWidth, behavior: "smooth" });
+    else return;
+    event.preventDefault();
+  });
+});

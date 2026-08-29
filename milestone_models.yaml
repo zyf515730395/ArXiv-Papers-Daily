@@ -1,0 +1,205 @@
+version: 1
+topics:
+  - name: Image Generation
+    families:
+      - slug: flux
+        name: FLUX
+        organization: Black Forest Labs
+        page_status: ready
+        comparison_groups:
+          - slug: flux-1
+            name: FLUX.1
+            baseline_release: flux-1
+          - slug: flux-kontext
+            name: FLUX.1 Kontext
+            baseline_release: flux-1-kontext
+          - slug: flux-krea
+            name: FLUX.1 Krea
+            baseline_release: flux-1-krea
+          - slug: flux-2
+            name: FLUX.2
+            baseline_release: flux-2
+          - slug: flux-klein
+            name: FLUX.2 [klein]
+            baseline_release: flux-2-klein
+          - slug: flux-3
+            name: FLUX 3
+            baseline_release: flux-3
+        releases:
+          - slug: flux-1
+            name: FLUX.1
+            release_date: 2024-08-01
+            status: released
+            comparison_group: flux-1
+            note_id: 2408.01XXX
+            variants:
+              - FLUX.1 [pro]
+              - FLUX.1 [dev]
+              - FLUX.1 [schnell]
+            sources:
+              - type: official_blog
+                url: https://bfl.ai/blog/24-08-01-bfl
+              - type: official_repository
+                url: https://github.com/black-forest-labs/flux
+          - slug: flux-1-1-pro
+            name: FLUX1.1 [pro]
+            release_date: 2024-10-02
+            status: released
+            comparison_group: flux-1
+            note_id: 2410.02XXX
+            variants:
+              - FLUX1.1 [pro]
+            sources:
+              - type: official_blog
+                url: https://bfl.ai/blog/24-10-02-flux
+          - slug: flux-1-1-pro-ultra
+            name: FLUX1.1 [pro] Ultra
+            release_date: 2024-11-06
+            status: released
+            comparison_group: flux-1
+            note_id: 2411.06XXX
+            variants:
+              - FLUX1.1 [pro] Ultra
+              - Raw mode
+            sources:
+              - type: official_blog
+                url: https://bfl.ai/blog/24-11-06-ultra
+          - slug: flux-1-tools
+            name: FLUX.1 Tools
+            release_date: 2024-11-21
+            status: released
+            comparison_group: flux-1
+            note_id: 2411.21XXX
+            variants:
+              - FLUX.1 Fill
+              - FLUX.1 Depth
+              - FLUX.1 Canny
+              - FLUX.1 Redux
+            sources:
+              - type: official_blog
+                url: https://bfl.ai/blog/24-11-21-tools
+              - type: official_repository
+                url: https://github.com/black-forest-labs/flux
+          - slug: flux-1-kontext
+            name: FLUX.1 Kontext
+            release_date: 2025-05-29
+            status: released
+            comparison_group: flux-kontext
+            note_id: "2506.15742"
+            variants:
+              - FLUX.1 Kontext [max]
+              - FLUX.1 Kontext [pro]
+              - FLUX.1 Kontext [dev]
+            sources:
+              - type: arxiv
+                url: https://arxiv.org/abs/2506.15742
+              - type: official_model_page
+                url: https://bfl.ai/models/flux-kontext
+          - slug: flux-1-krea
+            name: FLUX.1 Krea
+            release_date: 2025-07-31
+            status: released
+            comparison_group: flux-krea
+            note_id: 2507.31XXX
+            variants:
+              - FLUX.1 Krea [dev]
+            sources:
+              - type: official_blog
+                url: https://bfl.ai/blog/flux-1-krea-dev
+              - type: official_repository
+                url: https://github.com/black-forest-labs/flux
+          - slug: flux-2
+            name: FLUX.2
+            release_date: 2025-11-25
+            status: released
+            comparison_group: flux-2
+            note_id: 2511.25XXX
+            variants:
+              - FLUX.2 [pro]
+              - FLUX.2 [flex]
+              - FLUX.2 [dev]
+            sources:
+              - type: official_model_page
+                url: https://bfl.ai/models/flux-2
+              - type: official_repository
+                url: https://github.com/black-forest-labs/flux2
+          - slug: flux-2-max
+            name: FLUX.2 [max]
+            release_date: 2025-12-16
+            status: released
+            comparison_group: flux-2
+            note_id: 2512.16XXX
+            variants:
+              - FLUX.2 [max]
+            sources:
+              - type: official_model_page
+                url: https://bfl.ai/models/flux-2-max
+              - type: official_release_notes
+                url: https://docs.bfl.ai/release-notes
+          - slug: flux-2-klein
+            name: FLUX.2 [klein]
+            release_date: 2026-01-15
+            status: released
+            comparison_group: flux-klein
+            note_id: 2601.15XXX
+            variants:
+              - FLUX.2 [klein] 4B
+              - FLUX.2 [klein] 9B
+              - FLUX.2 [klein] Base
+            sources:
+              - type: official_blog
+                url: https://bfl.ai/blog/flux2-klein-towards-interactive-visual-intelligence
+              - type: official_repository
+                url: https://github.com/black-forest-labs/flux2
+          - slug: flux-3
+            name: FLUX 3
+            release_date: 2026-07-23
+            status: early-access
+            comparison_group: flux-3
+            note_id: 2607.23XXX
+            variants:
+              - FLUX 3 Video · Early Access
+              - FLUX 3 Image · Announced
+              - FLUX 3 Action · Announced
+              - FLUX 3 Dev · Announced
+            sources:
+              - type: official_blog
+                url: https://bfl.ai/blog/flux-3
+              - type: official_model_page
+                url: https://bfl.ai/models/flux-3
+      - slug: qwen-image
+        name: Qwen-Image
+        organization: Alibaba Cloud
+        page_status: planned
+        releases: []
+      - slug: seedream
+        name: Seedream
+        organization: ByteDance
+        page_status: planned
+        releases: []
+      - slug: z-image
+        name: Z-Image
+        organization: Tongyi-MAI
+        page_status: planned
+        releases: []
+  - name: Video Generation
+    families:
+      - slug: wan
+        name: Wan
+        organization: Alibaba Cloud
+        page_status: planned
+        releases: []
+  - name: 3D Generation
+    families:
+      - slug: hunyuan3d
+        name: Hunyuan3D
+        organization: Tencent Hunyuan
+        page_status: planned
+        releases: []
+  - name: Neural Rendering
+    families:
+      - slug: vggt
+        name: VGGT
+        organization: Meta AI
+        page_status: planned
+        releases: []

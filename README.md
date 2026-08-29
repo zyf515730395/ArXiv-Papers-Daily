@@ -2,6 +2,11 @@
 
 A focused daily archive of computer vision papers from arXiv.
 
+The site also includes **Milestone Models**, a curated view of official model
+families. Its tracked catalog defines release events and sources, while local
+Markdown deep readings supply the public comparison table. The first complete
+family is FLUX; the other initial families are listed as planned.
+
 [Arxiv Papers Daily](https://zyf515730395.github.io/arxiv-papers-daily/)
 
 ## Topics

@@ -350,6 +350,176 @@ footer { padding: 2rem clamp(1rem, 5vw, 5rem); color: var(--muted); font-size: .
   outline-offset: 3px;
 }
 
+.milestone-family-list { list-style: none; margin: .2rem 0 .6rem; padding: 0; }
+.milestone-family-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .65rem;
+  margin: .16rem 0;
+  border-radius: .45rem;
+  padding: .45rem .55rem;
+  color: var(--subtle-text);
+  font-size: .82rem;
+  text-decoration: none;
+}
+.milestone-family-link:hover, .milestone-family-link.is-active { background: var(--emphasis-soft); }
+.milestone-family-link.is-active { color: var(--text); font-weight: 750; }
+.milestone-family-link.is-planned { color: var(--muted-strong); cursor: not-allowed; }
+
+.milestone-page { min-height: 100vh; }
+.milestone-hero {
+  display: flex;
+  min-height: 12rem;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--hero-bg);
+  padding: 2.2rem clamp(1.25rem, 4vw, 4rem);
+}
+.milestone-hero > div:first-child > p,
+.milestone-panel-heading p {
+  margin: 0 0 .45rem;
+  color: var(--muted);
+  font-size: .67rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.milestone-hero h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 5vw, 4.2rem);
+  letter-spacing: -.055em;
+  line-height: .95;
+}
+.milestone-hero > div:first-child > span { display: block; margin-top: .7rem; color: var(--muted); font-size: .82rem; }
+.milestone-hero-meta { display: grid; justify-items: end; gap: .8rem; }
+.milestone-hero-meta > p { margin: 0; color: var(--muted); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; }
+.status-legend { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .65rem; margin: 0; padding: 0; list-style: none; }
+.status-legend li { display: flex; align-items: center; gap: .35rem; color: var(--muted); font-size: .67rem; }
+.release-status {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: .15rem .45rem;
+  color: var(--subtle-text);
+  background: var(--panel);
+  font-size: .61rem;
+  font-weight: 750;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+.release-status.status-released { border-color: var(--emphasis); color: var(--text); }
+.release-status.status-early-access { border-style: dashed; }
+.release-status.status-announced { opacity: .72; }
+
+.milestone-workspace { display: grid; gap: 1.5rem; padding: 1.5rem clamp(1rem, 3vw, 3rem) 3rem; }
+.milestone-panel { min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: .85rem; background: var(--panel); }
+.milestone-panel-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--line);
+  padding: 1.1rem 1.25rem;
+}
+.milestone-panel-heading h2 { margin: 0; font-size: 1.12rem; letter-spacing: -.015em; }
+.milestone-panel-heading > span { color: var(--muted); font-size: .68rem; white-space: nowrap; }
+
+.milestone-timeline-viewport {
+  overflow-x: auto;
+  padding: 1.65rem 1.4rem 1.25rem;
+  cursor: grab;
+  scrollbar-width: thin;
+  touch-action: pan-x pan-y;
+}
+.milestone-timeline-viewport.is-dragging { cursor: grabbing; user-select: none; }
+.milestone-timeline {
+  position: relative;
+  display: flex;
+  min-width: max-content;
+  margin: 0;
+  padding: 0 1.2rem;
+  list-style: none;
+}
+.milestone-timeline::before {
+  content: "";
+  position: absolute;
+  top: .45rem;
+  left: 1.2rem;
+  right: 1.2rem;
+  height: 1px;
+  background: var(--line);
+}
+.timeline-release { position: relative; width: 15.5rem; padding: 1.45rem 2rem 0 0; }
+.timeline-release:last-child { padding-right: 0; }
+.timeline-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: .9rem;
+  height: .9rem;
+  border: 2px solid var(--emphasis);
+  border-radius: 50%;
+  background: var(--panel);
+}
+.timeline-release.status-released .timeline-dot { background: var(--emphasis); }
+.timeline-release.status-early-access .timeline-dot { border-style: dashed; }
+.timeline-release.status-announced .timeline-dot { border-color: var(--muted); }
+.timeline-release time { color: var(--muted); font-size: .65rem; font-variant-numeric: tabular-nums; }
+.timeline-release h3 { margin: .25rem 0 .5rem; font-size: 1rem; line-height: 1.2; }
+.timeline-release > ul, .milestone-version-heading > ul {
+  margin: .65rem 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  font-size: .69rem;
+}
+.timeline-release > ul li + li, .milestone-version-heading > ul li + li { margin-top: .16rem; }
+
+.milestone-table-scroll { overflow: auto; max-height: min(70vh, 52rem); scrollbar-width: thin; }
+.milestone-comparison-table { min-width: 100%; border-collapse: separate; border-spacing: 0; font-size: .76rem; }
+.milestone-comparison-table th, .milestone-comparison-table td {
+  min-width: 18rem;
+  border-right: 1px solid var(--row-line);
+  border-bottom: 1px solid var(--row-line);
+  padding: 1rem;
+  vertical-align: top;
+  text-align: left;
+}
+.milestone-comparison-table thead th { position: sticky; top: 0; z-index: 3; background: var(--panel); }
+.milestone-comparison-table th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  min-width: 9.5rem;
+  width: 9.5rem;
+  background: var(--panel-raised);
+  color: var(--subtle-text);
+  font-size: .71rem;
+}
+.milestone-comparison-table thead th:first-child { z-index: 4; }
+.milestone-comparison-table tr:last-child th, .milestone-comparison-table tr:last-child td { border-bottom: 0; }
+.milestone-comparison-table th:last-child, .milestone-comparison-table td:last-child { border-right: 0; }
+.milestone-comparison-table tbody tr:hover td { background: var(--row-hover); }
+.milestone-version-heading time { display: block; color: var(--muted); font-size: .63rem; font-weight: 500; }
+.milestone-version-heading strong { display: block; margin: .2rem 0 .45rem; color: var(--text); font-size: .94rem; }
+.milestone-release-count { display: block; margin-top: .45rem; color: var(--muted); font-size: .65rem; font-weight: 500; }
+.milestone-source-links { margin-top: .7rem; color: var(--muted); font-size: .65rem; font-weight: 500; }
+.milestone-source-links a, .milestone-note-link { text-underline-offset: .16em; }
+.milestone-note-link, .milestone-note-pending { display: inline-block; margin-top: .55rem; font-size: .68rem; font-weight: 700; }
+.milestone-note-pending, .milestone-value.is-pending, .milestone-value.is-undisclosed { color: var(--muted-strong); }
+.milestone-comparison-table td p, .milestone-comparison-table td ul, .milestone-comparison-table td ol { margin: 0; }
+.milestone-comparison-table td ul, .milestone-comparison-table td ol { padding-left: 1.1rem; }
+.milestone-comparison-table td li + li { margin-top: .35rem; }
+.milestone-minor-release + .milestone-minor-release { margin-top: .85rem; border-top: 1px solid var(--row-line); padding-top: .85rem; }
+.milestone-minor-release header { display: flex; align-items: baseline; justify-content: space-between; gap: .8rem; margin-bottom: .35rem; }
+.milestone-minor-release header strong { color: var(--text); font-size: .74rem; }
+.milestone-minor-release header a { color: var(--muted); font-size: .64rem; }
+
 .sidebar-toggle, .sidebar-scrim { display: none; }
 .theme-toggle {
   position: fixed;
@@ -411,6 +581,7 @@ footer { padding: 2rem clamp(1rem, 5vw, 5rem); color: var(--muted); font-size: .
     padding-bottom: 2rem;
   }
   .hero-stats { margin-top: .45rem; }
+  .milestone-hero { min-height: 0; padding-top: 4.75rem; }
 }
 
 @media (max-width: 560px) {
@@ -423,6 +594,13 @@ footer { padding: 2rem clamp(1rem, 5vw, 5rem); color: var(--muted); font-size: .
   .topic-header > span { display: block; margin-top: .45rem; }
   .hero-stats { gap: 1.5rem; }
   .paper-table th:nth-child(3), .paper-table td:nth-child(3) { display: none; }
+  .milestone-hero { display: grid; gap: 1.35rem; }
+  .milestone-hero-meta { justify-items: start; }
+  .status-legend { justify-content: flex-start; }
+  .milestone-panel-heading { align-items: start; }
+  .milestone-panel-heading > span { white-space: normal; text-align: right; }
+  .milestone-comparison-table th, .milestone-comparison-table td { min-width: 15.5rem; }
+  .milestone-comparison-table th:first-child { min-width: 7.8rem; width: 7.8rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

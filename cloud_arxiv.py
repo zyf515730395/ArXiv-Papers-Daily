@@ -225,6 +225,7 @@ def collect(config_path: str | Path) -> dict[str, int]:
     archive_path = config["json_gitpage_path"]
     html_path = config["html_gitpage_path"]
     ledger_path = config["candidate_ledger_path"]
+    milestone_catalog_path = config["milestone_catalog_path"]
     topics = list(config["queries"])
     records, failed_topics = fetch_all_topics(
         config["queries"], int(config["max_results"])
@@ -236,7 +237,7 @@ def collect(config_path: str | Path) -> dict[str, int]:
     )
     atomic_write_json(archive_path, next_archive, pretty=False)
     atomic_write_json(ledger_path, next_ledger)
-    generate_site(archive_path, html_path, ledger_path)
+    generate_site(archive_path, html_path, ledger_path, milestone_catalog_path)
     result = {
         "collected": len(records),
         "new_candidates": added,
