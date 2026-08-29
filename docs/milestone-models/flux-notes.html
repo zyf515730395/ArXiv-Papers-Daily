@@ -13,7 +13,527 @@
       <h1>FLUX · 文章精读</h1>
     </header>
     <div class="summary-topic-list">
-    <p class="muted">暂无已完成的文章精读。</p>
+    <article class="summary-article summary-topic-entry" id="milestone-flux-1">
+<h1>[2408.01XXX] FLUX · FLUX.1</h1>
+<h2>一句话结论</h2>
+<p>FLUX.1 是由 Black Forest Labs 发布的基于 12B 参数的文本到图像生成模型套件，采用混合多模态与并行扩散 Transformer 架构及 Flow Matching 方法，包含 [pro]、[dev] 和 [schnell] 三个变体。</p>
+<h2>解决的问题</h2>
+<p>现有扩散模型在图像细节、提示词遵循、风格多样性和场景复杂性方面存在不足，同时需要提升硬件效率和生成速度，FLUX.1 旨在定义图像合成领域的新的最先进标准。</p>
+<h2>创新点</h2>
+<ul>
+<li>基于 Flow Matching 的生成方法，包含扩散作为特例</li>
+<li>混合多模态与并行扩散 Transformer 块架构</li>
+<li>引入旋转位置嵌入和并行注意力层</li>
+<li>针对输出多样性的微调策略</li>
+<li>指导蒸馏技术用于 [dev] 变体</li>
+<li>支持多种分辨率和纵横比生成</li>
+</ul>
+<h2>文章精读</h2>
+<h3>版本</h3>
+<ul>
+<li><strong>FLUX.1 [pro]</strong>：提供最佳性能图像生成，通过 API 访问，支持企业定制解决方案</li>
+<li><strong>FLUX.1 [dev]</strong>：开放权重的指导蒸馏模型，适用于非商业应用，比同尺寸标准模型更高效</li>
+<li><strong>FLUX.1 [schnell]</strong>：专为本地开发和个人使用设计的最快模型，采用 Apache2.0 许可</li>
+</ul>
+<h3>训练数据</h3>
+<p>未披露</p>
+<h3>VAE 结构</h3>
+<p>未披露</p>
+<h3>Text Encoder</h3>
+<p>未披露</p>
+<h3>生成主体网络</h3>
+<p>12B 参数的混合多模态与并行扩散 Transformer 块架构，基于 Flow Matching 训练</p>
+<h3>训练 Trick</h3>
+<ul>
+<li>flow matching</li>
+<li>guidance-distillation</li>
+<li>finetuned to preserve output diversity</li>
+<li>rotary positional embeddings</li>
+<li>parallel attention layers</li>
+</ul>
+<h3>新提出的创新点</h3>
+<ul>
+<li>Flow Matching 作为包含扩散模型的通用方法</li>
+<li>混合多模态与并行扩散 Transformer 块架构</li>
+<li>指导蒸馏模型实现效率与质量平衡</li>
+<li>微调以保留预训练的全部输出多样性</li>
+</ul>
+<h3>局限性</h3>
+<ul>
+<li>FLUX.1 [dev] 仅限非商业应用</li>
+<li>FLUX.1 [pro] 需通过 API 或企业联系访问</li>
+<li>文本到视频模型尚未发布</li>
+<li>商业使用需许可及用量追踪</li>
+</ul>
+<h2>资料来源</h2>
+<ul>
+<li><a href="https://bfl.ai/blog/24-08-01-bfl" rel="nofollow">official_blog</a></li>
+<li><a href="https://github.com/black-forest-labs/flux" rel="nofollow">official_repository</a></li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="milestone-flux-1-1-pro">
+<h1>[2410.02XXX] FLUX · FLUX1.1 [pro]</h1>
+<h2>一句话结论</h2>
+<p>Black Forest Labs 于 2024 年 10 月 2 日发布 FLUX1.1 [pro]，作为 FLUX.1 架构下最先进的模型，其在保持与 FLUX.1 [pro] 相同输出质量的前提下实现了推理速度提升，并在图像生成基准测试中取得了最高 Elo 分数。</p>
+<h2>解决的问题</h2>
+<p>官方资料未明确阐述 FLUX1.1 [pro] 旨在解决的具体技术痛点或前代模型存在的特定缺陷，仅指出其目标是提供比前代更快的生成速度和更优的图像质量、提示遵循度及多样性。</p>
+<h2>创新点</h2>
+<ul>
+<li>在保持与 FLUX.1 [pro] 相同输出质量的同时，实现了六倍于前代 FLUX.1 [pro] 的生成速度提升。</li>
+<li>在 Artificial Analysis 图像竞技场基准测试中超越所有其他模型，获得最高整体 Elo 分数。</li>
+<li>原生支持快速超高分辨率生成，即将在 API 中提供 2k 分辨率生成能力。</li>
+<li>通过 BFL API 提供模型选择、图像分辨率和内容审核的高级定制选项。</li>
+<li>提供具有竞争力的定价策略，FLUX1.1 [pro] 定价为 4 cts/img，低于 FLUX.1 [pro] 的 5 cts/img。</li>
+</ul>
+<h2>文章精读</h2>
+<h3>版本</h3>
+<ul>
+<li><strong>FLUX1.1 [pro]</strong>：相比 FLUX.1 [pro]，在保持相同输出质量的前提下实现六倍生成速度提升，并在基准测试中取得更高 Elo 分数。</li>
+</ul>
+<h3>训练数据</h3>
+<p>未披露</p>
+<h3>VAE 结构</h3>
+<p>未披露</p>
+<h3>Text Encoder</h3>
+<p>未披露</p>
+<h3>生成主体网络</h3>
+<p>未披露</p>
+<h3>训练 Trick</h3>
+<ul>
+<li>未披露</li>
+</ul>
+<h3>新提出的创新点</h3>
+<ul>
+<li>未披露</li>
+</ul>
+<h3>局限性</h3>
+<ul>
+<li>未披露</li>
+</ul>
+<h2>资料来源</h2>
+<ul>
+<li><a href="https://bfl.ai/blog/24-10-02-flux" rel="nofollow">official_blog</a></li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="milestone-flux-1-1-pro-ultra">
+<h1>[2411.06XXX] FLUX · FLUX1.1 [pro] Ultra</h1>
+<h2>一句话结论</h2>
+<p>Black Forest Labs 于 2024 年 11 月 6 日发布 FLUX1.1 [pro] Ultra，作为 FLUX.1 架构下的高分辨率变体，该模型在保持 10 秒生成速度和提示遵循度的同时，将图像分辨率提升至 4MP（为标准模式的 4 倍），并新增专注于自然摄影美学的 Raw Mode。</p>
+<h2>解决的问题</h2>
+<p>现有高分辨率模型通常在生成高分图像时会出现显著的推理速度下降，而 FLUX1.1 [pro] Ultra 旨在解决这一性能瓶颈，同时提供比同类高分辨率方案快 2.5 倍以上的生成速度。</p>
+<h2>创新点</h2>
+<ul>
+<li>支持高达 4MP 的超高分辨率图像生成，是标准 FLUX1.1 [pro] 分辨率的 4 倍。</li>
+<li>在高分辨率模式下维持了仅 10 秒的样本生成时间，性能优于同类高分辨率模型。</li>
+<li>新增 Raw Mode 模式，通过调整生成美学以捕捉 candid photography 的真实感，减少合成感并提升自然摄影的多样性。</li>
+</ul>
+<h2>文章精读</h2>
+<h3>版本</h3>
+<ul>
+<li><strong>FLUX1.1 [pro] Ultra</strong>：相比标准 FLUX1.1 [pro]，分辨率提升至 4MP，并新增 Raw Mode 模式以增强自然摄影的真实感。</li>
+</ul>
+<h3>训练数据</h3>
+<p>未披露</p>
+<h3>VAE 结构</h3>
+<p>未披露</p>
+<h3>Text Encoder</h3>
+<p>未披露</p>
+<h3>生成主体网络</h3>
+<p>未披露</p>
+<h3>训练 Trick</h3>
+<ul>
+<li>未披露</li>
+</ul>
+<h3>新提出的创新点</h3>
+<ul>
+<li>在保持标准模型推理速度（10 秒）的同时实现 4 倍分辨率提升。</li>
+<li>引入 Raw Mode 以专门优化 candid photography 和自然摄影的视觉风格。</li>
+</ul>
+<h3>局限性</h3>
+<ul>
+<li>未披露具体的训练数据细节、模型架构参数及 VAE 结构。</li>
+<li>未披露是否提供开源权重或自托管选项。</li>
+<li>仅通过 API 访问，未披露具体的部署限制或硬件要求。</li>
+</ul>
+<h2>资料来源</h2>
+<ul>
+<li><a href="https://bfl.ai/blog/24-11-06-ultra" rel="nofollow">official_blog</a></li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="milestone-flux-1-tools">
+<h1>[2411.21XXX] FLUX · FLUX.1 Tools</h1>
+<h2>一句话结论</h2>
+<p>FLUX.1 Tools 是 Black Forest Labs 于 2024 年 11 月 1 日发布的 FLUX.1 架构大代际下的工具模型套件，旨在通过 FLUX.1 Fill、FLUX.1 Depth、FLUX.1 Canny 和 FLUX.1 Redux 四个变体为基于文本的图像生成提供结构引导、局部重绘及图像变体控制能力，同时明确宣布 FLUX.1 Depth 和 FLUX.1 Canny 已废弃。</p>
+<h2>解决的问题</h2>
+<p>基础文本到图像模型（FLUX.1）缺乏对图像局部区域的精确编辑能力、基于深度或边缘的结构化控制手段，以及在不改变原图风格下的图像变体生成能力，导致用户在修改现有图像或进行复杂重绘时难以保持结构一致性和语义连贯性。</p>
+<h2>创新点</h2>
+<ul>
+<li>FLUX.1 Fill 实现了超越现有工具（如 Ideogram 2.0）的先进局部重绘（inpainting）和扩展（outpainting）能力，支持基于文本描述和二进制掩码的无缝编辑。</li>
+<li>FLUX.1 Redux 作为适配器，允许用户通过输入图像和文本提示混合并重新创建图像，实现了高质量的图像变体和风格迁移。</li>
+<li>FLUX.1 Depth 和 FLUX.1 Canny 提供了基于深度图或 Canny 边缘的结构化引导，使用户能在保持原始图像核心构图的同时进行文本导向的编辑。</li>
+<li>所有工具模型均提供 [pro] 和 [dev] 两个版本，其中 [dev] 版本采用指导蒸馏（guidance-distilled）技术，在保持性能的同时提高了推理效率。</li>
+<li>建立了完整的开源生态支持，包括 Hugging Face 上的全量权重、LoRA 适配器以及 GitHub 上的推理代码，并支持通过合作伙伴平台访问。</li>
+</ul>
+<h2>文章精读</h2>
+<h3>版本</h3>
+<ul>
+<li><strong>FLUX.1 Fill</strong>：专注于图像局部重绘和扩展，支持基于文本和掩码的编辑，且未受废弃影响。</li>
+<li><strong>FLUX.1 Depth</strong>：提供基于深度图的结构引导以维持构图，但已被官方宣布废弃并停止维护。</li>
+<li><strong>FLUX.1 Canny</strong>：提供基于 Canny 边缘的结构引导以维持构图，但已被官方宣布废弃并停止维护。</li>
+<li><strong>FLUX.1 Redux</strong>：作为适配器实现图像变体和重风格化，支持结合图像与文本提示生成，未受废弃影响。</li>
+</ul>
+<h3>训练数据</h3>
+<p>未披露</p>
+<h3>VAE 结构</h3>
+<p>未披露</p>
+<h3>Text Encoder</h3>
+<p>未披露</p>
+<h3>生成主体网络</h3>
+<p>未披露</p>
+<h3>训练 Trick</h3>
+<ul>
+<li>guidance-distilled</li>
+</ul>
+<h3>新提出的创新点</h3>
+<ul>
+<li>将 FLUX.1 架构扩展为包含多种控制条件（掩码、深度、边缘、图像变体）的工具集，而非单一生成模型。</li>
+<li>通过 [pro] 和 [dev] 双版本策略，在商业 API 和开源社区之间平衡性能与效率，利用蒸馏技术优化 [dev] 版本。</li>
+<li>FLUX.1 Redux 引入了图像作为条件输入的直接变体生成机制，增强了工作流的灵活性。</li>
+</ul>
+<h3>局限性</h3>
+<ul>
+<li>FLUX.1 Depth 和 FLUX.1 Canny 已被官方明确废弃，不再提供 API 支持或维护。</li>
+<li>FLUX.1 Fill、FLUX.1 Depth、FLUX.1 Canny 和 FLUX.1 Redux 的 [dev] 版本受限于 FLUX.1-dev 非商业许可协议，商业使用需另行授权。</li>
+<li>FLUX.1 Redux 的 [pro] 版本支持需依赖 FLUX1.1 [pro] Ultra 模型，且仅通过 BFL API 提供。</li>
+<li>官方资料未披露具体的训练数据规模、清洗流程及标注细节。</li>
+</ul>
+<h2>资料来源</h2>
+<ul>
+<li><a href="https://bfl.ai/blog/24-11-21-tools" rel="nofollow">official_blog</a></li>
+<li><a href="https://github.com/black-forest-labs/flux" rel="nofollow">official_repository</a></li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="milestone-flux-1-kontext">
+<h1>[2506.15742] FLUX · FLUX.1 Kontext</h1>
+<h2>一句话结论</h2>
+<p>FLUX.1 Kontext 是 Black Forest Labs 发布的一套统一架构的生成式流匹配模型，通过简单的序列拼接方法将文本和图像输入结合，实现了局部编辑、全局编辑、角色/风格参考及文本编辑等任务，显著提升了多轮迭代工作流中的对象与角色一致性，并引入了 KontextBench 基准进行验证。</p>
+<h2>解决的问题</h2>
+<p>现有编辑模型在多轮迭代中常出现角色一致性和稳定性下降的问题，且传统图像处理管道缺乏对语义上下文的深层理解，难以在保持细粒度细节的同时响应自然语言指令进行忠实准确的图像编辑。</p>
+<h2>创新点</h2>
+<ul>
+<li>采用简单的序列拼接方法（sequence concatenation approach）在单一统一架构中同时处理局部编辑和生成式上下文任务。</li>
+<li>引入 KontextBench 基准，包含 1026 个图像 - 提示词对，覆盖局部编辑、全局编辑、角色参考、风格参考和文本编辑五个任务类别。</li>
+<li>实现了显著更快的生成速度，支持交互式应用和快速原型设计工作流，同时保持与当前最先进系统的竞争力。</li>
+<li>在保持周围上下文完整的同时进行局部修改，并能在多轮迭代中有效提取视觉概念并在新环境中进行忠实再现。</li>
+<li>支持在图像内操纵文本（Typography），使更改能无缝融入周围内容。</li>
+</ul>
+<h2>文章精读</h2>
+<h3>版本</h3>
+<ul>
+<li><strong>FLUX.1 Kontext [max]</strong>：提供最高性能和高速度，在提示遵循度、排版生成和编辑一致性方面达到顶级水平且无速度妥协。</li>
+<li><strong>FLUX.1 Kontext [pro]</strong>：作为快速迭代图像编辑的先驱，提供 FLUX.1 质量的统一模型，支持精确的区域编辑或完整场景转换，以突破性的速度处理文本和图像输入。</li>
+<li><strong>FLUX.1 Kontext [dev]</strong>：是一个拥有 120 亿参数的开源权重模型，具备专有级别的图像编辑性能，可在消费级硬件上运行。</li>
+</ul>
+<h3>训练数据</h3>
+<p>未披露</p>
+<h3>VAE 结构</h3>
+<p>未披露</p>
+<h3>Text Encoder</h3>
+<p>未披露</p>
+<h3>生成主体网络</h3>
+<p>生成式流匹配模型（generative flow matching model），使用简单的序列拼接方法整合文本和图像输入流。</p>
+<h3>训练 Trick</h3>
+<ul>
+<li>未披露</li>
+</ul>
+<h3>新提出的创新点</h3>
+<ul>
+<li>将图像生成和编辑统一在单一架构中，无需微调即可通过简单指令进行修改。</li>
+<li>通过流匹配（flow matching）方法在潜在空间（latent space）中实现上下文感知的图像生成和编辑。</li>
+<li>在多轮迭代中显著改善了对象和角色的保留能力，解决了现有模型的一致性退化问题。</li>
+</ul>
+<h3>局限性</h3>
+<ul>
+<li>官方资料未披露具体的训练数据规模、清洗细节及标注方法。</li>
+<li>未披露 VAE、Text Encoder 的具体结构及名称。</li>
+<li>未披露具体的训练技巧（如 loss 函数、采样策略等）。</li>
+</ul>
+<h2>资料来源</h2>
+<ul>
+<li><a href="https://arxiv.org/abs/2506.15742" rel="nofollow">arxiv</a></li>
+<li><a href="https://bfl.ai/models/flux-kontext" rel="nofollow">official_model_page</a></li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="milestone-flux-1-krea">
+<h1>[2507.31XXX] FLUX · FLUX.1 Krea</h1>
+<h2>一句话结论</h2>
+<p>FLUX.1 Krea [dev] 是 Black Forest Labs 与 Krea AI 联合开发的开源文生图模型，旨在通过独特的审美风格克服传统生成模型中常见的过度饱和纹理和'AI 感'问题，在保持与 FLUX.1 [dev] 架构生态兼容的同时，提供超越以往开源模型且媲美闭源 FLUX1.1 [pro] 的人机偏好表现。</p>
+<h2>解决的问题</h2>
+<p>现有的文生图生成模型普遍存在纹理过度饱和（oversaturated textures）的问题，导致生成的图像缺乏自然感和多样性，呈现出一种千篇一律的'AI 外观'（AI look），难以满足用户对真实感和视觉多样性的需求。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出'有观点的'（Opinionated）模型设计理念，主动引导生成具有独特审美且不过度饱和的图像。</li>
+<li>通过联合开发模式，为下游应用（如 Krea）提供高度灵活且可定制的基础模型，实现了基础模型与应用实验室的协同创新。</li>
+<li>在保持架构兼容性的前提下，显著提升了图像的真实感（photorealism）和视觉多样性，解决了开源模型在美学上的同质化痛点。</li>
+</ul>
+<h2>文章精读</h2>
+<h3>版本</h3>
+<ul>
+<li><strong>FLUX.1 Krea [dev]</strong>：作为与 Krea AI 联合开发的变体，专注于克服'AI 外观'问题，提供具有独特审美和卓越真实感的文生图能力，区别于标准 FLUX.1 [dev] 的通用生成特性。</li>
+</ul>
+<h3>训练数据</h3>
+<p>未披露</p>
+<h3>VAE 结构</h3>
+<p>未披露</p>
+<h3>Text Encoder</h3>
+<p>未披露</p>
+<h3>生成主体网络</h3>
+<p>未披露</p>
+<h3>训练 Trick</h3>
+<ul>
+<li>未披露</li>
+</ul>
+<h3>新提出的创新点</h3>
+<ul>
+<li>引入'有观点的'（Opinionated）概念，使模型在生成过程中主动偏好特定的美学风格以对抗过度饱和。</li>
+<li>通过基础模型与应用方（Krea AI）的深度协作，验证了针对下游微调（down-stream finetuning）的专用基础模型开发路径的有效性。</li>
+</ul>
+<h3>局限性</h3>
+<ul>
+<li>未披露具体的训练数据规模、清洗与标注细节。</li>
+<li>未披露 VAE、Text Encoder 及生成主干网络的具体结构参数。</li>
+<li>未披露具体的训练技巧（如 Loss 函数、蒸馏策略等）。</li>
+<li>作为开源权重版本，其商业使用需通过 BFL Licensing Portal 获取许可，且官方资料未明确说明是否完全免版税用于商业。</li>
+</ul>
+<h2>资料来源</h2>
+<ul>
+<li><a href="https://bfl.ai/blog/flux-1-krea-dev" rel="nofollow">official_blog</a></li>
+<li><a href="https://github.com/black-forest-labs/flux" rel="nofollow">official_repository</a></li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="milestone-flux-2">
+<h1>[2511.25XXX] FLUX · FLUX.2</h1>
+<h2>一句话结论</h2>
+<p>FLUX.2 是 Black Forest Labs 发布的下一代视觉智能模型，通过引入多参考控制、高精度文本渲染、空间推理增强及流匹配（flow matching）架构，实现了从 4B 到 32B 参数的多版本矩阵，旨在弥合生成内容与真实摄影在细节、物理逻辑和身份一致性上的差距。</p>
+<h2>解决的问题</h2>
+<p>现有模型在复杂场景下的身份一致性、多参考图像控制、真实物理逻辑（如光影、材质）以及复杂排版文本的生成能力上存在不足，难以满足生产级工作流对高精度和可控性的需求。</p>
+<h2>创新点</h2>
+<ul>
+<li>支持同时参考多达 10 张图像的多参考控制（Multi-Reference Control），实现最佳的身份一致性和场景融合。</li>
+<li>显著提升图像细节与真实感，在织物纹理、建筑元素及物理光照方面大幅缩小与真实摄影的差距。</li>
+<li>实现可靠的复杂文本渲染，支持品牌色通过十六进制代码精确匹配及可读的 UI 排版和图形生成。</li>
+<li>增强空间推理能力，确保复杂场景中物体定位、物理效果和透视关系的准确性。</li>
+<li>引入流匹配（flow matching）架构，结合蒸馏技术，在保持前沿性能的同时优化推理速度。</li>
+<li>构建包含 4B、9B 及 32B 参数的多版本模型家族，覆盖从实时边缘部署到无延迟专业生成的全场景需求。</li>
+</ul>
+<h2>文章精读</h2>
+<h3>版本</h3>
+<ul>
+<li><strong>FLUX.2 [pro]</strong>：提供生产级的高质量图像生成与编辑，兼顾最高质量与最大速度，适用于专业工作流。</li>
+<li><strong>FLUX.2 [flex]</strong>：专注于极致精度，特别优化了文本可读性、小细节保留及完整的创意控制能力。</li>
+<li><strong>FLUX.2 [dev]</strong>：32B 参数版本，提供开放权重（Open Weights）和前沿性能，需高性能硬件支持，适合定制部署。</li>
+</ul>
+<h3>训练数据</h3>
+<p>未披露</p>
+<h3>VAE 结构</h3>
+<p>FLUX.2 自编码器（autoencoder）结构较 FLUX.1 有显著改进，支持最高 4MP 分辨率输出，采用 Apache-2.0 许可开源。</p>
+<h3>Text Encoder</h3>
+<p>未披露</p>
+<h3>生成主体网络</h3>
+<p>生成主体为 Transformer 架构，具体为 32B 参数的流匹配 Transformer 模型（flow matching transformer），支持文本到图像生成及多参考图像编辑。</p>
+<h3>训练 Trick</h3>
+<ul>
+<li>蒸馏</li>
+<li>flow matching</li>
+<li>未披露</li>
+</ul>
+<h3>新提出的创新点</h3>
+<ul>
+<li>将多参考图像控制（Multi-Reference Control）作为核心功能直接集成并大规模应用。</li>
+<li>通过流匹配（flow matching）替代传统扩散过程，提升生成效率与质量平衡。</li>
+<li>构建从 4B 到 32B 的完整模型家族，针对不同硬件和延迟需求提供差异化方案。</li>
+<li>引入基于 JSON 的控制系统和提示词上采样（prompt upsampling）技术以增强推理灵活性。</li>
+<li>显著增强世界知识（World Knowledge）基础，使模型更 grounded 于现实世界的逻辑、光照和空间关系。</li>
+</ul>
+<h3>局限性</h3>
+<ul>
+<li>FLUX.2 [dev] 版本需要大量显存（H100 等效 GPU），未量化版本难以在消费级硬件上直接运行。</li>
+<li>FLUX.2 [dev] 仅开放非商业许可（FLUX Non-Commercial License），商业使用受限。</li>
+<li>FLUX.2 [klein] 9B 版本使用非商业许可，而 4B 版本使用 Apache-2.0 许可，许可策略存在差异。</li>
+<li>FLUX.2 [dev] 的推理脚本需要 considerable amount of VRAM，且官方推荐配合远程文本编码器或量化版本才能在消费级硬件（如 RTX 4090）上运行。</li>
+</ul>
+<h2>资料来源</h2>
+<ul>
+<li><a href="https://bfl.ai/models/flux-2" rel="nofollow">official_model_page</a></li>
+<li><a href="https://github.com/black-forest-labs/flux2" rel="nofollow">official_repository</a></li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="milestone-flux-2-max">
+<h1>[2512.16XXX] FLUX · FLUX.2 [max]</h1>
+<h2>一句话结论</h2>
+<p>FLUX.2 [max] 是 FLUX.2 架构大代际中定位最高性能的专业级变体，专为提供市场就绪的产品摄影、一致的字符一致性、精确的空间推理、高质量的文字渲染以及基于实时网络信息的接地式生成（grounded generation）而设计，在编辑一致性和风格遵循能力上达到系列峰值。</p>
+<h2>解决的问题</h2>
+<p>现有生成模型在专业工作流中面临产品摄影的一致性不足、字符跨场景特征保持困难、空间关系理解偏差、复杂文本渲染错误以及缺乏实时信息整合能力等挑战，限制了其在高端商业场景的直接应用。</p>
+<h2>创新点</h2>
+<ul>
+<li>支持接地式生成（grounded generation），能够直接整合实时网络信息以生成反映当前事件、趋势或天气的图像。</li>
+<li>实现无与伦比的字符一致性（Character Consistency），在复杂编辑和多参考场景下精准保持面部特征、比例、表情及视觉身份。</li>
+<li>提供精确的空间推理（Spatial Reasoning）能力，确保复杂场景中的物体布局与几何关系准确无误。</li>
+<li>具备卓越的文字渲染（Text Rendering）能力，支持在图像中生成清晰、排版正确且风格统一的文本内容。</li>
+<li>支持高精度的重纹理化（Retexturing），在改变表面材质时完美保留物体的形状、几何结构和光照条件。</li>
+<li>作为 FLUX.2 系列中编辑一致性（editing consistency）最强的变体，提供最高级别的专业级输出质量。</li>
+</ul>
+<h2>文章精读</h2>
+<h3>版本</h3>
+<ul>
+<li><strong>FLUX.2 [max]</strong>：定位最高性能，具备最强的编辑一致性、提示遵循能力、风格表现力以及实时网络信息整合（接地式生成）能力。</li>
+</ul>
+<h3>训练数据</h3>
+<p>未披露</p>
+<h3>VAE 结构</h3>
+<p>未披露</p>
+<h3>Text Encoder</h3>
+<p>未披露</p>
+<h3>生成主体网络</h3>
+<p>未披露</p>
+<h3>训练 Trick</h3>
+<ul>
+<li>未披露</li>
+</ul>
+<h3>新提出的创新点</h3>
+<ul>
+<li>引入接地式生成（grounded generation）机制，允许模型利用实时网络上下文进行内容生成。</li>
+<li>在 FLUX.2 架构下显著强化了跨场景的字符一致性保持能力。</li>
+<li>优化了空间推理与复杂文本渲染的协同处理能力。</li>
+</ul>
+<h3>局限性</h3>
+<ul>
+<li>官方资料未披露具体的训练数据规模、清洗细节及模型架构参数。</li>
+<li>未披露 VAE、Text Encoder 及 Backbone 的具体技术实现细节。</li>
+<li>未披露具体的训练技巧（如蒸馏策略、Loss 函数设计等）。</li>
+<li>作为 API 服务模型，其权重未公开，无法进行本地自部署或自定义微调（除非通过企业定制服务）。</li>
+</ul>
+<h2>资料来源</h2>
+<ul>
+<li><a href="https://bfl.ai/models/flux-2-max" rel="nofollow">official_model_page</a></li>
+<li><a href="https://docs.bfl.ai/release-notes" rel="nofollow">official_release_notes</a></li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="milestone-flux-2-klein">
+<h1>[2601.15XXX] FLUX · FLUX.2 [klein]</h1>
+<h2>一句话结论</h2>
+<p>FLUX.2 [klein] 是 Black Forest Labs 发布的面向实时交互视觉智能的紧凑模型家族，通过统一的架构实现了文本生成、单参考及多参考图像编辑的端到端推理，在消费级硬件（如 13GB VRAM）上即可达到亚秒级生成速度，同时保持与大型模型相当的生成质量与多样性。</p>
+<h2>解决的问题</h2>
+<p>现有视觉生成模型在追求高质量的同时往往面临推理延迟高、显存占用大以及难以在消费级硬件上实时运行的问题，无法满足 AI 代理对实时视觉生成和快速迭代的需求，且缺乏在统一架构下高效处理多参考图像编辑的能力。</p>
+<h2>创新点</h2>
+<ul>
+<li>实现了文本生成、图像编辑（单参考与多参考）的统一架构，无需切换模型即可端到端处理多种任务。</li>
+<li>通过极致的模型压缩与蒸馏技术，将推理步数压缩至 4 步，在消费级 GPU 上实现亚秒级（&lt;0.5s）生成。</li>
+<li>在保持紧凑体积的同时，显著提升了多参考图像编辑（Multi-reference generation）的复杂构图与概念融合能力。</li>
+<li>提供了完整的量化方案（FP8 与 NVFP4），大幅降低显存占用并提升推理速度，适配更广泛的硬件环境。</li>
+<li>Base 变体保留了完整的训练信号（Undistilled），为研究、微调（Fine-tuning）和 LoRA 训练提供了最大灵活性。</li>
+</ul>
+<h2>文章精读</h2>
+<h3>版本</h3>
+<ul>
+<li><strong>FLUX.2 [klein] 4B</strong>：完全开源（Apache 2.0），专为消费级 GPU 和边缘部署设计，在速度、可访问性和性价比上最优。</li>
+<li><strong>FLUX.2 [klein] 9B</strong>：旗舰小模型，在质量与延迟的帕累托前沿上表现最佳，支持多参考编辑，但需遵循 FLUX NCL 许可。</li>
+<li><strong>FLUX.2 [klein] Base</strong>：未蒸馏的基础模型，保留完整训练信号以支持微调和高输出多样性，牺牲了部分推理速度。</li>
+</ul>
+<h3>训练数据</h3>
+<p>未披露</p>
+<h3>VAE 结构</h3>
+<p>FLUX.2 autoencoder（相比 FLUX.1 有显著改进，Apache 2.0 开源）</p>
+<h3>Text Encoder</h3>
+<p>9B 变体使用 8B Qwen3 text embedder；4B 变体未披露具体名称</p>
+<h3>生成主体网络</h3>
+<p>基于 Flow Matching 的 Transformer 架构（DiT），统一处理生成与编辑任务；未披露具体层数与注意力机制细节</p>
+<h3>训练 Trick</h3>
+<ul>
+<li>Step-distillation（蒸馏至 4 步推理）</li>
+<li>Guidance-distillation（引导蒸馏）</li>
+<li>Flow matching 训练目标</li>
+<li>KV Caching（用于 9B KV 变体加速）</li>
+</ul>
+<h3>新提出的创新点</h3>
+<ul>
+<li>将多参考图像编辑能力集成到紧凑模型中，打破了以往仅大模型具备此能力的限制。</li>
+<li>提出“交互式视觉智能”愿景，强调模型在实时循环迭代中的能力而非单次生成质量。</li>
+<li>通过 KV 缓存技术（9B KV 变体）在保持质量的同时进一步压缩推理延迟。</li>
+<li>提供 FP8 和 NVFP4 量化版本，将推理速度提升 1.6 至 2.7 倍，显存占用降低 40% 至 55%。</li>
+</ul>
+<h3>局限性</h3>
+<ul>
+<li>Base 变体未进行蒸馏，推理约需 50 步，延迟高于 4-step 蒸馏变体。</li>
+<li>9B 系列模型受限于 FLUX Non-Commercial License（NCL），商业使用需另行协商。</li>
+<li>多参考图像编辑功能在 Base 变体中同样可用，但推理速度较慢。</li>
+<li>官方资料未披露具体的训练数据集构成、清洗流程及标注细节。</li>
+</ul>
+<h2>资料来源</h2>
+<ul>
+<li><a href="https://bfl.ai/blog/flux2-klein-towards-interactive-visual-intelligence" rel="nofollow">official_blog</a></li>
+<li><a href="https://github.com/black-forest-labs/flux2" rel="nofollow">official_repository</a></li>
+</ul>
+    </article>
+    <article class="summary-article summary-topic-entry" id="milestone-flux-3">
+<h1>[2607.23XXX] FLUX · FLUX 3</h1>
+<h2>一句话结论</h2>
+<p>FLUX 3 是 Black Forest Labs 发布的新一代多模态基础模型，基于 Self-Flow 架构统一学习图像、视频和音频，旨在构建感知、预测与行动于一体的视觉智能，目前已以 Early Access 形式提供视频生成能力，并计划逐步开放图像、动作预测及开源权重。</p>
+<h2>解决的问题</h2>
+<p>单一模态无法提供对现实世界的完整描述，图像仅捕捉特定时刻的空间结构，视频恢复时间维度但缺乏因果声学联系，音频揭示机械现象与声学间的因果关系，语言则连接感知与目标，因此需要统一架构来利用多模态间的相互约束（如声音匹配冲击、运动遵循质量守恒）以学习更准确的底层现实表征。</p>
+<h2>创新点</h2>
+<ul>
+<li>提出 Self-Flow 方法，在统一架构内高效对齐多模态生成与理解，同时训练视频、图像和音频。</li>
+<li>实现原生多模态混合生成，支持从纯文本或输入参考（图像、视频）出发，联合生成包含音频的视频。</li>
+<li>具备强大的动作预测能力，既可直接集成于模型中，也可作为动力学感知基础供机器人微调。</li>
+<li>支持长达 20 秒的单次生成视频，包含多语言对话、音效及环境氛围，并支持关键帧控制与代理式长序列编排。</li>
+<li>引入 Draft 模式，以较低成本快速生成 HD 预览，确认方向后可增强为全分辨率 FHD 结果。</li>
+<li>在复杂提示处理、高精度文本渲染及多语言支持方面显著优于早期版本及竞品。</li>
+</ul>
+<h2>文章精读</h2>
+<h3>版本</h3>
+<ul>
+<li><strong>FLUX 3 Video · Early Access</strong>：当前唯一可用版本，提供视频与音频联合生成、多模态输入参考及代理式长序列编排能力，处于早期访问阶段。</li>
+<li><strong>FLUX 3 Image · Announced</strong>：专注于图像合成与编辑，支持多种风格、宽高比及高分辨率，预计在未来几周内开放早期访问。</li>
+<li><strong>FLUX 3 Action · Announced</strong>：通过选定合作伙伴（如 mimic robotics）提供动作预测功能，利用预训练视频骨干进行动力学感知的机器人控制，尚未公开独立访问。</li>
+<li><strong>FLUX 3 Dev · Announced</strong>：提供多模态骨干网络的开源权重访问，供内容创作和动作预测研究使用，即将发布。</li>
+</ul>
+<h3>训练数据</h3>
+<p>未披露</p>
+<h3>VAE 结构</h3>
+<p>未披露</p>
+<h3>Text Encoder</h3>
+<p>未披露</p>
+<h3>生成主体网络</h3>
+<p>基于 Self-Flow 架构的统一多模态流匹配模型（Multimodal Flow Model），同时处理图像、视频和音频数据流，支持从文本、图像或视频输入生成多模态输出。</p>
+<h3>训练 Trick</h3>
+<ul>
+<li>Self-Flow</li>
+<li>Flow Matching</li>
+<li>Distillation (Draft mode)</li>
+</ul>
+<h3>新提出的创新点</h3>
+<ul>
+<li>将感知、模拟和执行统一在同一模型中以支持物理 AI 和内容创作。</li>
+<li>利用多模态间的相互约束（如声音匹配冲击、运动遵循质量）来增强对底层现实的理解。</li>
+<li>通过 Draft 模式实现低成本快速迭代与高质量最终渲染的分离。</li>
+<li>支持跨模态的代理式编排（Agentic chaining），将独立片段连接为多镜头长序列。</li>
+<li>原生支持视频与音频的联合生成，确保声音与物理事件及多语言对话的同步。</li>
+</ul>
+<h3>局限性</h3>
+<ul>
+<li>目前仅处于 Early Access 阶段，官方明确表示评估结果为初步的，预期在早期访问期间会有进一步改进。</li>
+<li>视频生成单次最长仅支持 20 秒，长序列需通过代理式编排多个片段实现。</li>
+<li>FLUX 3 Image、Action 及 Dev 版本尚未完全开放，部分能力仅限特定合作伙伴或未来发布。</li>
+<li>Draft 模式仅支持 HD 分辨率，全分辨率 FHD 需额外增强步骤。</li>
+<li>未公开具体的训练数据规模、清洗细节及 VAE/Text Encoder 等底层架构参数。</li>
+</ul>
+<h2>资料来源</h2>
+<ul>
+<li><a href="https://bfl.ai/blog/flux-3" rel="nofollow">official_blog</a></li>
+<li><a href="https://bfl.ai/models/flux-3" rel="nofollow">official_model_page</a></li>
+</ul>
+    </article>
     </div>
   </main>
 </body>

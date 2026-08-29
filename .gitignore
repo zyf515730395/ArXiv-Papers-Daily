@@ -9,6 +9,7 @@ tests/
 /candidate_ledger.py
 /daily_arxiv.py
 /historical_backfill.py
+/milestone_reader.py
 /paper_summarizer.py
 /requirements-local.txt
 /ops/

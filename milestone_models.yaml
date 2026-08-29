@@ -60,7 +60,6 @@ topics:
             note_id: 2411.06XXX
             variants:
               - FLUX1.1 [pro] Ultra
-              - Raw mode
             sources:
               - type: official_blog
                 url: https://bfl.ai/blog/24-11-06-ultra
