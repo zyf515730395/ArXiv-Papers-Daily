@@ -8,6 +8,13 @@ from pathlib import Path
 import requests
 import time
 
+from candidate_ledger import (
+    apply_curation_decisions,
+    atomic_write_json as atomic_write_candidate_json,
+    load_candidate_ledger,
+    load_curation_decisions,
+    merge_collected_candidates,
+)
 from historical_backfill import HistoricalBatch, select_historical_batch
 from paper_summarizer import (
     PaperCandidate,
@@ -162,7 +169,12 @@ def get_official_code_url(paper_id: str) -> str | None:
 
 
 def get_daily_papers(
-    topic, query="slam", max_results=2, client=None, paper_records=None
+    topic,
+    query="slam",
+    max_results=2,
+    client=None,
+    paper_records=None,
+    include_code=True,
 ):
     """
     @param topic: str
@@ -196,24 +208,26 @@ def get_daily_papers(
         else:
             paper_key = paper_id[0:ver_pos]
         paper_url = arxiv_url + 'abs/' + paper_key
+        repo_url = get_official_code_url(paper_id) if include_code else None
+        if repo_url is not None:
+            archive_row = "|**{}**|**{}**|{} et.al.|[{}]({})|**[link]({})**|\n".format(
+                   update_time,paper_title,paper_first_author,paper_key,paper_url,repo_url)
+        else:
+            archive_row = "|**{}**|**{}**|{} et.al.|[{}]({})|null|\n".format(
+                   update_time,paper_title,paper_first_author,paper_key,paper_url)
+        content[paper_key] = archive_row
         if paper_records is not None:
             paper_records.append({
                 "id": paper_key,
                 "title": paper_title,
                 "abstract": result.summary,
+                "authors": f"{paper_first_author} et.al.",
+                "updated": update_time.isoformat(),
                 "paper_url": paper_url.replace("http://", "https://"),
                 "pdf_url": result.pdf_url.replace("http://", "https://"),
                 "topic": topic,
+                "archive_row": archive_row,
             })
-
-
-        repo_url = get_official_code_url(paper_id)
-        if repo_url is not None:
-            content[paper_key] = "|**{}**|**{}**|{} et.al.|[{}]({})|**[link]({})**|\n".format(
-                   update_time,paper_title,paper_first_author,paper_key,paper_url,repo_url)
-        else:
-            content[paper_key] = "|**{}**|**{}**|{} et.al.|[{}]({})|null|\n".format(
-                   update_time,paper_title,paper_first_author,paper_key,paper_url)
 
     return {topic:content}
 
@@ -307,6 +321,43 @@ def new_summary_candidates(existing_archive, paper_records):
         else:
             merged[record["id"]].topics.append(record["topic"])
     return list(merged.values())
+
+
+def fetch_all_topics(keywords, max_results, include_code=True):
+    """Fetch every configured topic while preserving partial successful results."""
+    data_collector = []
+    paper_records = []
+    arxiv_client = make_arxiv_client(min(max(max_results, 1), 100))
+    failed_topics = []
+    for topic, keyword in keywords.items():
+        logging.info("Keyword: %s", topic)
+        try:
+            data = get_daily_papers(
+                topic,
+                query=keyword,
+                max_results=max_results,
+                client=arxiv_client,
+                paper_records=paper_records,
+                include_code=include_code,
+            )
+        except ArxivRetryExhausted as error:
+            logging.error("Skipping topic after retries: %s", error)
+            failed_topics.append((topic, error))
+            continue
+        data_collector.append(data)
+        print("\n")
+
+    if failed_topics and not data_collector:
+        failed_names = ", ".join(topic for topic, _ in failed_topics)
+        raise RuntimeError(
+            f"All arXiv topics failed after retries: {failed_names}"
+        ) from failed_topics[-1][1]
+    if failed_topics:
+        logging.warning(
+            "Completed with stale data preserved for failed topics: %s",
+            ", ".join(topic for topic, _ in failed_topics),
+        )
+    return data_collector, paper_records, failed_topics
 
 
 def env_flag(name, default=False):
@@ -467,6 +518,7 @@ def run_historical_backfill(
     budget_minutes=None,
     base_url="http://127.0.0.1:8000/v1",
     model_override=None,
+    publish=True,
 ):
     """Process ordered historical batches, optionally stopping at a deadline."""
     deadline = (
@@ -539,7 +591,8 @@ def run_historical_backfill(
             continue
 
     final_state = load_state(notes_root)
-    publish_summaries(notes_root, final_state, publish_root, topics)
+    if publish:
+        publish_summaries(notes_root, final_state, publish_root, topics)
     remaining = select_historical_batch(
         archive,
         final_state,
@@ -563,15 +616,62 @@ def run_historical_backfill(
 
 
 def demo(**config):
-    data_collector = []
-
     keywords = config['kv']
     max_results = config['max_results']
     json_file = config['json_gitpage_path']
     html_file = config['html_gitpage_path']
+    candidate_file = config.get('candidate_ledger_path')
+    candidate_storage_file = candidate_file or './data/arxiv-candidates.json'
+
+    def generate_current_site():
+        if candidate_file:
+            generate_site(json_file, html_file, candidate_file)
+        else:
+            generate_site(json_file, html_file)
 
     summaries_only = config.get('summaries_only', False)
     backfill_history = config.get('backfill_history', False)
+    collect_only = config.get('collect_only', False)
+    curation_path = config.get('apply_curation')
+    publish_only = config.get('publish_only', False)
+    new_only = config.get('new_only', False)
+    no_publish = config.get('no_publish', False)
+
+    exclusive_modes = sum(
+        bool(value)
+        for value in (collect_only, curation_path, publish_only, summaries_only)
+    )
+    if exclusive_modes > 1:
+        raise ValueError(
+            "--collect-only, --apply-curation, --publish-only and "
+            "--summaries-only are mutually exclusive"
+        )
+    if new_only and not summaries_only:
+        raise ValueError("--new-only requires --summaries-only")
+    if no_publish and not summaries_only:
+        raise ValueError("--no-publish requires --summaries-only")
+
+    if collect_only:
+        logging.info("Cloud candidate collection begin")
+        _, paper_records, failed_topics = fetch_all_topics(
+            keywords, max_results, include_code=False
+        )
+        archive = load_archive(json_file)
+        ledger = load_candidate_ledger(candidate_storage_file)
+        next_archive, next_ledger, added = merge_collected_candidates(
+            archive, ledger, paper_records, list(keywords)
+        )
+        atomic_write_candidate_json(json_file, next_archive, pretty=False)
+        atomic_write_candidate_json(candidate_storage_file, next_ledger)
+        generate_current_site()
+        stats = {
+            "collected": len(paper_records),
+            "new_candidates": added,
+            "failed_topics": len(failed_topics),
+        }
+        logging.info("Cloud candidate collection result = %s", stats)
+        return stats
+
     automatic_backfill = (
         not summaries_only and env_flag("SUMMARY_BACKFILL_ENABLED")
     )
@@ -579,6 +679,8 @@ def demo(**config):
     summary_enabled = (
         summaries_only
         or backfill_enabled
+        or bool(curation_path)
+        or publish_only
         or env_flag("SUMMARY_ENABLED")
     )
     backfill_limit = (
@@ -603,6 +705,44 @@ def demo(**config):
         notes_root = Path(os.getenv("PAPER_NOTES_ROOT", "/mnt/g/share/papers"))
         summary_state = load_state(notes_root)
 
+    if curation_path:
+        archive = load_archive(json_file)
+        ledger = load_candidate_ledger(candidate_storage_file)
+        decisions = load_curation_decisions(curation_path)
+        next_archive, next_ledger, stats = apply_curation_decisions(
+            archive,
+            ledger,
+            decisions,
+            list(keywords),
+            notes_root,
+        )
+        atomic_write_candidate_json(json_file, next_archive, pretty=False)
+        atomic_write_candidate_json(candidate_storage_file, next_ledger)
+        publish_summaries(
+            notes_root,
+            load_state(notes_root),
+            publish_root,
+            list(keywords),
+        )
+        generate_current_site()
+        logging.info("Curation result = %s", stats)
+        return stats
+
+    if publish_only:
+        catalog = publish_summaries(
+            notes_root,
+            summary_state,
+            publish_root,
+            list(keywords),
+        )
+        generate_current_site()
+        stats = {
+            "published_topics": len(catalog.get("topics", {})),
+            "pending": count_summary_work(load_state(notes_root)),
+        }
+        logging.info("Summary publication result = %s", stats)
+        return stats
+
     if summaries_only:
         if backfill_enabled:
             archive = load_archive(json_file)
@@ -618,6 +758,7 @@ def demo(**config):
                 backfill_budget_minutes,
                 os.getenv("VLLM_BASE_URL", "http://127.0.0.1:8000/v1"),
                 os.getenv("VLLM_MODEL") or None,
+                publish=not no_publish,
             )
         else:
             stats = process_summary_queue(
@@ -626,11 +767,15 @@ def demo(**config):
                 os.getenv("VLLM_BASE_URL", "http://127.0.0.1:8000/v1"),
                 os.getenv("VLLM_MODEL") or None,
                 list(keywords),
+                include_new=True,
+                include_historical=not new_only,
+                publish=not no_publish,
             )
         logging.info("Summary queue result = %s", stats)
-        generate_site(json_file, html_file)
+        if not no_publish:
+            generate_current_site()
         logging.info("Summary-only update finished")
-        return
+        return stats
 
     b_update = config['update_paper_links']
     logging.info(f'Update Paper Link = {b_update}')
@@ -638,34 +783,9 @@ def demo(**config):
     existing_archive = load_archive(json_file) if summary_enabled else {}
     if config['update_paper_links'] == False:
         logging.info(f"GET daily papers begin")
-        arxiv_client = make_arxiv_client(min(max(max_results, 1), 100))
-        failed_topics = []
-        for topic, keyword in keywords.items():
-            logging.info(f"Keyword: {topic}")
-            try:
-                data = get_daily_papers(
-                    topic,
-                    query=keyword,
-                    max_results=max_results,
-                    client=arxiv_client,
-                    paper_records=paper_records,
-                )
-            except ArxivRetryExhausted as error:
-                logging.error("Skipping topic after retries: %s", error)
-                failed_topics.append((topic, error))
-                continue
-            data_collector.append(data)
-            print("\n")
-        if failed_topics and not data_collector:
-            failed_names = ", ".join(topic for topic, _ in failed_topics)
-            raise RuntimeError(
-                f"All arXiv topics failed after retries: {failed_names}"
-            ) from failed_topics[-1][1]
-        if failed_topics:
-            logging.warning(
-                "Completed with stale data preserved for failed topics: %s",
-                ", ".join(topic for topic, _ in failed_topics),
-            )
+        data_collector, paper_records, _ = fetch_all_topics(
+            keywords, max_results, include_code=True
+        )
         logging.info(f"GET daily papers end")
 
     if config['update_paper_links']:
@@ -716,8 +836,9 @@ def demo(**config):
                     include_historical=False,
                 )
             logging.info("Summary queue result = %s", stats)
-    generate_site(json_file, html_file)
+    generate_current_site()
     logging.info("Update GitPage finished")
+    return {"updated": True}
 
 
 if __name__ == "__main__":
@@ -730,6 +851,18 @@ if __name__ == "__main__":
                         help='process the persisted summary queue only')
     parser.add_argument('--backfill-history', default=False, action="store_true",
                         help='enqueue the next ordered historical summary batch')
+    parser.add_argument('--collect-only', default=False, action="store_true",
+                        help='collect candidates and publish the archive without summaries')
+    parser.add_argument('--apply-curation', type=str,
+                        help='apply local accept/reject decisions from JSON')
+    parser.add_argument('--new-only', default=False, action="store_true",
+                        help='process only non-historical pending summaries')
+    parser.add_argument('--no-publish', default=False, action="store_true",
+                        help='update external summary state without changing docs')
+    parser.add_argument('--publish-only', default=False, action="store_true",
+                        help='render external summaries without running inference')
+    parser.add_argument('--result-json', type=str,
+                        help='write machine-readable command results to this path')
     args = parser.parse_args()
     config = load_config(args.config_path)
     config = {
@@ -737,5 +870,12 @@ if __name__ == "__main__":
         'update_paper_links': args.update_paper_links,
         'summaries_only': args.summaries_only,
         'backfill_history': args.backfill_history,
+        'collect_only': args.collect_only,
+        'apply_curation': args.apply_curation,
+        'new_only': args.new_only,
+        'no_publish': args.no_publish,
+        'publish_only': args.publish_only,
     }
-    demo(**config)
+    result = demo(**config)
+    if args.result_json:
+        atomic_write_candidate_json(args.result_json, result or {})

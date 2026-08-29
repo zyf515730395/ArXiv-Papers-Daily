@@ -268,7 +268,10 @@ def load_summary_catalog(output_path: str | Path) -> dict[str, dict]:
 
 
 def render_table(
-    rows: list[dict], topic: str, summary_catalog: dict[str, dict]
+    rows: list[dict],
+    topic: str,
+    summary_catalog: dict[str, dict],
+    candidate_statuses: dict[str, str] | None = None,
 ) -> str:
     output = [
         '<div class="table-scroll">',
@@ -277,6 +280,7 @@ def render_table(
         '    <tbody>',
     ]
     topic_summaries = summary_catalog.get(topic, {})
+    candidate_statuses = candidate_statuses or {}
     for row in rows:
         paper_url = html.escape(row["paper_url"], quote=True)
         summary = topic_summaries.get(row["id"], {})
@@ -291,6 +295,8 @@ def render_table(
                 f'data-summary-url="{summary_url}" data-summary-id="{summary_id}" '
                 'aria-haspopup="dialog">查看要点</a>'
             )
+        elif candidate_statuses.get(row["id"]) in {"pending", "accepted"}:
+            summary_cell = '<span class="summary-pending">待生成</span>'
         output.append(
             "      <tr>"
             f'<td class="paper-id"><a href="{paper_url}" target="_blank" rel="noopener">'
@@ -305,7 +311,11 @@ def render_table(
     return "\n".join(output)
 
 
-def render_content(categories: list[dict], summary_catalog: dict[str, dict]) -> str:
+def render_content(
+    categories: list[dict],
+    summary_catalog: dict[str, dict],
+    candidate_statuses: dict[str, str] | None = None,
+) -> str:
     output = []
     for category in categories:
         eyebrow = category["theme"]
@@ -379,7 +389,14 @@ def render_content(categories: list[dict], summary_catalog: dict[str, dict]) -> 
                         f'          <summary><span>{week_label(week_start)}</span>'
                         f'<span>{len(rows)} papers</span></summary>'
                     )
-                    output.append(render_table(rows, category["topic"], summary_catalog))
+                    output.append(
+                        render_table(
+                            rows,
+                            category["topic"],
+                            summary_catalog,
+                            candidate_statuses,
+                        )
+                    )
                     output.append("        </details>")
                 output.append("      </section>")
             output.extend(["    </div>", "  </section>"])
@@ -387,12 +404,30 @@ def render_content(categories: list[dict], summary_catalog: dict[str, dict]) -> 
     return "\n".join(output)
 
 
-def generate_site(json_path: str | Path, output_path: str | Path) -> None:
+def load_candidate_statuses(candidate_path: str | Path | None) -> dict[str, str]:
+    if candidate_path is None or not Path(candidate_path).is_file():
+        return {}
+    payload = json.loads(Path(candidate_path).read_text(encoding="utf-8"))
+    if payload.get("version") != 1 or not isinstance(payload.get("papers"), dict):
+        raise ValueError(f"Invalid candidate ledger schema: {candidate_path}")
+    return {
+        paper_id: entry.get("status")
+        for paper_id, entry in payload["papers"].items()
+        if isinstance(entry, dict) and entry.get("status") in {"pending", "accepted"}
+    }
+
+
+def generate_site(
+    json_path: str | Path,
+    output_path: str | Path,
+    candidate_path: str | Path | None = None,
+) -> None:
     data = json.loads(Path(json_path).read_text(encoding="utf-8"))
     all_categories, _ = build_archive(data)
     today = datetime.date.today()
     categories, themes = filter_recent_archive(all_categories, today.year)
     summary_catalog = load_summary_catalog(output_path)
+    candidate_statuses = load_candidate_statuses(candidate_path)
     updated = today.isoformat()
     total_papers = sum(category["count"] for category in categories)
     years = {
@@ -442,7 +477,7 @@ def generate_site(json_path: str | Path, output_path: str | Path) -> None:
       </div>
       <p class="updated">Updated {updated}</p>
     </header>
-{render_content(categories, summary_catalog)}
+{render_content(categories, summary_catalog, candidate_statuses)}
     <footer>Generated from arXiv metadata · Source: <a href="https://github.com/zyf515730395/arxiv-papers-daily">{SITE_TITLE}</a></footer>
   </main>
   <dialog class="summary-dialog" id="summary-dialog" aria-labelledby="summary-dialog-title">

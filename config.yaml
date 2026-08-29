@@ -3,6 +3,7 @@ max_results: 10
 # file paths
 json_gitpage_path: './docs/arxiv-papers-daily-web.json'
 html_gitpage_path: './docs/index.html'
+candidate_ledger_path: './data/arxiv-candidates.json'
 
 # keywords to search
 keywords:
