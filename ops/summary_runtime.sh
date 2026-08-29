@@ -15,6 +15,17 @@ LOCK_PATH=/run/user/$(id -u)/arxiv-paper-summary.lock
 RESULT_DIR=/run/user/$(id -u)/arxiv-paper-summary
 STARTED_MODEL=0
 
+configure_git_transport() {
+  local proxy_url proxy_endpoint
+  proxy_url=${HTTPS_PROXY:-${https_proxy:-}}
+  if [[ -z "$proxy_url" ]] || ! command -v nc >/dev/null 2>&1; then
+    return
+  fi
+  proxy_endpoint=${proxy_url#*://}
+  proxy_endpoint=${proxy_endpoint%%/*}
+  export GIT_SSH_COMMAND="ssh -o ConnectTimeout=20 -o ServerAliveInterval=10 -o ServerAliveCountMax=3 -o ProxyCommand='nc -X connect -x $proxy_endpoint %h %p'"
+}
+
 mkdir -p "$RESULT_DIR"
 exec 9>"$LOCK_PATH"
 if ! flock -n 9; then
@@ -23,6 +34,7 @@ if ! flock -n 9; then
 fi
 
 cd "$REPOSITORY"
+configure_git_transport
 
 stop_model() {
   if [[ "$STARTED_MODEL" == "1" ]]; then
