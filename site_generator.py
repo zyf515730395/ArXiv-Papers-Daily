@@ -17,6 +17,7 @@ ENTRY_PATTERN = re.compile(
 )
 SITE_TITLE = "Arxiv Papers Daily"
 RECENT_YEAR_COUNT = 3
+NOTES_DIRECTORY_NAME = "notes"
 SHOW_BOOK_NOTES_NAV = False
 
 
@@ -239,8 +240,37 @@ def render_sidebar(
     return "\n".join(output)
 
 
+def load_summary_catalog(output_path: str | Path) -> dict[str, dict]:
+    notes_directory = Path(output_path).parent / NOTES_DIRECTORY_NAME
+    if not notes_directory.is_dir():
+        return {}
+
+    catalog = {}
+    manifest_pattern = re.compile(
+        r'<script type="application/json" id="summary-catalog">(.*?)</script>',
+        re.DOTALL,
+    )
+    for summary_path in sorted(notes_directory.glob("*.html")):
+        document = summary_path.read_text(encoding="utf-8")
+        match = manifest_pattern.search(document)
+        if match is None:
+            continue
+        try:
+            manifest = json.loads(match.group(1))
+        except json.JSONDecodeError as error:
+            raise ValueError(f"Invalid summary manifest: {summary_path}") from error
+        topic = manifest.get("topic")
+        papers = manifest.get("papers")
+        if not isinstance(topic, str) or not isinstance(papers, dict):
+            raise ValueError(f"Invalid summary manifest schema: {summary_path}")
+        catalog[topic] = papers
+    return catalog
+
+
 def render_table(
     rows: list[dict],
+    topic: str,
+    summary_catalog: dict[str, dict],
     candidate_statuses: dict[str, str] | None = None,
 ) -> str:
     output = [
@@ -249,11 +279,23 @@ def render_table(
         '    <thead><tr><th>Arxiv ID</th><th>Paper</th><th>Authors</th><th>Summary</th></tr></thead>',
         '    <tbody>',
     ]
+    topic_summaries = summary_catalog.get(topic, {})
     candidate_statuses = candidate_statuses or {}
     for row in rows:
         paper_url = html.escape(row["paper_url"], quote=True)
+        summary = topic_summaries.get(row["id"], {})
         summary_cell = '<span class="muted">—</span>'
-        if candidate_statuses.get(row["id"]) in {"pending", "accepted"}:
+        if summary.get("status") == "pending":
+            summary_cell = '<span class="summary-pending">待生成</span>'
+        elif summary.get("status") == "ready" and summary.get("url"):
+            summary_url = html.escape(summary["url"], quote=True)
+            summary_id = html.escape(f"summary-{row['id']}", quote=True)
+            summary_cell = (
+                f'<a class="summary-link" href="{summary_url}" '
+                f'data-summary-url="{summary_url}" data-summary-id="{summary_id}" '
+                'aria-haspopup="dialog">查看要点</a>'
+            )
+        elif candidate_statuses.get(row["id"]) in {"pending", "accepted"}:
             summary_cell = '<span class="summary-pending">待生成</span>'
         output.append(
             "      <tr>"
@@ -271,6 +313,7 @@ def render_table(
 
 def render_content(
     categories: list[dict],
+    summary_catalog: dict[str, dict],
     candidate_statuses: dict[str, str] | None = None,
 ) -> str:
     output = []
@@ -349,6 +392,8 @@ def render_content(
                     output.append(
                         render_table(
                             rows,
+                            category["topic"],
+                            summary_catalog,
                             candidate_statuses,
                         )
                     )
@@ -381,6 +426,7 @@ def generate_site(
     all_categories, _ = build_archive(data)
     today = datetime.date.today()
     categories, themes = filter_recent_archive(all_categories, today.year)
+    summary_catalog = load_summary_catalog(output_path)
     candidate_statuses = load_candidate_statuses(candidate_path)
     updated = today.isoformat()
     total_papers = sum(category["count"] for category in categories)
@@ -431,9 +477,20 @@ def generate_site(
       </div>
       <p class="updated">Updated {updated}</p>
     </header>
-{render_content(categories, candidate_statuses)}
+{render_content(categories, summary_catalog, candidate_statuses)}
     <footer>Generated from arXiv metadata · Source: <a href="https://github.com/zyf515730395/arxiv-papers-daily">{SITE_TITLE}</a></footer>
   </main>
+  <dialog class="summary-dialog" id="summary-dialog" aria-labelledby="summary-dialog-title">
+    <div class="summary-dialog-shell">
+      <header class="summary-dialog-header">
+        <h2 id="summary-dialog-title">论文要点</h2>
+        <button type="button" class="summary-dialog-close" data-summary-close aria-label="关闭">×</button>
+      </header>
+      <div class="summary-dialog-content" data-summary-content>
+        <p class="muted">正在加载…</p>
+      </div>
+    </div>
+  </dialog>
 </body>
 </html>
 """
