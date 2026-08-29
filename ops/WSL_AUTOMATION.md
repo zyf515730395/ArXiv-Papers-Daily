@@ -111,7 +111,10 @@ the cloud candidate commit.
 The PDF is downloaded into memory and parsed with PyMuPDF. No PDF, arXiv HTML,
 extracted text, or cache directory is persisted. A paper shared by multiple
 topics is inferred once and its Markdown is written to each selected topic
-directory.
+directory. Weekend history uses the title and date already stored in the
+archive together with the canonical PDF URL, so it does not wait on the
+`export.arxiv.org` metadata API. Its abstract field is empty when no prior local
+state exists; the model then summarizes from the extracted Introduction.
 
 ## Manual commands and verification
 

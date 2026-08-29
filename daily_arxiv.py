@@ -413,6 +413,30 @@ def historical_summary_candidates(batch: HistoricalBatch, summary_state, client)
     if not missing_ids:
         return candidates, set()
 
+    archive_by_id = {paper.paper_id: paper for paper in batch.papers}
+
+    def archive_fallback(paper_id):
+        archive_paper = archive_by_id[paper_id]
+        return PaperCandidate(
+            paper_id=paper_id,
+            title=archive_paper.title,
+            abstract="",
+            paper_url=f"https://arxiv.org/abs/{paper_id}",
+            pdf_url=f"https://arxiv.org/pdf/{paper_id}.pdf",
+            topics=[batch.topic],
+            source="historical",
+            archive_month=batch.month,
+            archive_date=archive_paper.updated,
+        )
+
+    if not env_flag("SUMMARY_HISTORY_METADATA_LOOKUP", True):
+        logging.info(
+            "Using archive metadata and direct PDF URLs for %d historical papers",
+            len(missing_ids),
+        )
+        candidates.extend(archive_fallback(paper_id) for paper_id in missing_ids)
+        return candidates, set()
+
     search = arxiv.Search(id_list=missing_ids, max_results=len(missing_ids))
     try:
         results = fetch_arxiv_results(
@@ -422,23 +446,27 @@ def historical_summary_candidates(batch: HistoricalBatch, summary_state, client)
         )
     except (ArxivRetryExhausted, arxiv.ArxivError, requests.RequestException) as error:
         logging.error(
-            "Historical metadata unavailable for %s/%s: %s",
+            "Historical metadata unavailable for %s/%s; using archive fallback: %s",
             batch.month,
             batch.topic,
             error,
         )
-        return candidates, set(missing_ids)
+        candidates.extend(archive_fallback(paper_id) for paper_id in missing_ids)
+        return candidates, set()
 
     results_by_id = {}
     for result in results:
         paper_id = result.get_short_id().split("v", 1)[0]
         results_by_id[paper_id] = result
 
-    archive_by_id = {paper.paper_id: paper for paper in batch.papers}
     for paper_id in missing_ids:
         result = results_by_id.get(paper_id)
         if result is None:
-            logging.warning("Historical arXiv metadata missing for %s", paper_id)
+            logging.warning(
+                "Historical arXiv metadata missing for %s; using archive fallback",
+                paper_id,
+            )
+            candidates.append(archive_fallback(paper_id))
             continue
         archive_paper = archive_by_id[paper_id]
         pdf_url = result.pdf_url or f"https://arxiv.org/pdf/{paper_id}.pdf"

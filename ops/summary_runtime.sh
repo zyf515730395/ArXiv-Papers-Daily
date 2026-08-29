@@ -138,6 +138,7 @@ while true; do
   PAPER_NOTES_ROOT="$NOTES_ROOT" SUMMARY_ENABLED=1 \
     SUMMARY_BACKFILL_LIMIT=10 \
     SUMMARY_BACKFILL_TIME_BUDGET_MINUTES="$BUDGET_MINUTES" \
+    SUMMARY_HISTORY_METADATA_LOOKUP=0 \
     VLLM_BASE_URL="$VLLM_BASE_URL" \
     "$VENV_PATH/bin/python" daily_arxiv.py \
       --summaries-only --backfill-history --no-publish \
