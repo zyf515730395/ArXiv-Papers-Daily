@@ -476,7 +476,7 @@ def generate_site(
       <p class="updated">Updated {updated}</p>
     </header>
 {render_content(categories, summary_catalog, candidate_statuses)}
-    <footer>Generated from arXiv metadata · Source: <a href="https://github.com/zyf515730395/arxiv-papers-daily">{SITE_TITLE}</a></footer>
+    <footer>Generated from arXiv metadata · Source: <a href="https://github.com/zyf515730395/TOGOS">{SITE_TITLE}</a></footer>
   </main>
   <dialog class="summary-dialog" id="summary-dialog" aria-labelledby="summary-dialog-title">
     <div class="summary-dialog-shell">

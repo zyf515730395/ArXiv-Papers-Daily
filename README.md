@@ -2,7 +2,7 @@
 
 ## Deployment
 
-[TOGOS](https://zyf515730395.github.io/ArXiv-Papers-Daily/)
+[TOGOS](https://zyf515730395.github.io/TOGOS/)
 
 ## Topics
 
