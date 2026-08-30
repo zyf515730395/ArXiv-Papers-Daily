@@ -1,8 +1,5 @@
 # TOGOS
 
-## Deployment
-
-[TOGOS](https://zyf515730395.github.io/TOGOS/)
 
 ## Topics
 
