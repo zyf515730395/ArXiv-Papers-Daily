@@ -181,13 +181,20 @@ Article titles join the existing title-only global search. Body text, tags, summ
       "assets": ["assets/stable-slug/diagram.png"]
     }
   },
-  "managed_files": ["stable-slug.html", "assets/stable-slug/diagram.png"]
+  "managed_files": [
+    "index.html",
+    "kind/learning-note.html",
+    "kind/book-note.html",
+    "tag/diffusion.html",
+    "stable-slug.html",
+    "assets/stable-slug/diagram.png"
+  ]
 }
 ```
 
-Every manifest path is validated as a normalized relative POSIX path under `docs/writings/`. An invalid, duplicate, absolute, or traversing path is a global fatal error. Cleanup computes `previous managed_files - next managed_files` and may remove only that validated difference.
+`managed_files` contains every generated page and copied asset except `manifest.json` itself. Every manifest path is validated as a normalized relative POSIX path under `docs/writings/`. An invalid, duplicate, absolute, or traversing path is a global fatal error. Cleanup computes `previous managed_files - next managed_files` and may remove only that validated difference. Files not named by either manifest are outside the publisher's ownership and remain untouched.
 
-The complete desired `docs/writings/` tree is prepared in a sibling temporary directory. Retained last known-good files are copied only when listed by the validated prior manifest. Promotion uses a backup-and-rename transaction inside the resolved output root; if promotion fails, the previous directory is restored. Temporary and backup paths are removed only after their resolved locations are confirmed inside the configured output root.
+The complete desired set of managed `docs/writings/` files is prepared in a sibling temporary directory. Retained last known-good files are copied only when listed by the validated prior manifest. Promotion backs up and replaces only validated managed paths inside the resolved output root, then removes only the validated stale difference. If promotion fails, every changed managed path is restored. Temporary and backup paths are removed only after their resolved locations are confirmed inside the configured output root.
 
 ## Per-article fault tolerance
 
