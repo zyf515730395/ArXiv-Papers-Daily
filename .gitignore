@@ -4,6 +4,7 @@ __pycache__/
 *.egg-info/
 .idea/
 .vscode/
+.worktrees/
 tests/
 
 # Local-only paper review, summarization, and WSL runtime.
