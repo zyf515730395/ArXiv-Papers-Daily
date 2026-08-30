@@ -18,7 +18,7 @@ from .catalog import (
     load_milestone_catalog,
     render_milestone_navigation,
 )
-from ..shared.rendering import atomic_write_text, render_note_content
+from shared.rendering import atomic_write_text, render_note_content
 
 
 DEEP_READING_FIELDS = (
@@ -327,7 +327,7 @@ def render_family_page(
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="{html.escape(family['name'])} 官方模型版本时间线与技术对比。">
-  <title>{html.escape(family['name'])} · Milestone Models</title>
+  <title>{html.escape(family['name'])} · 经典模型</title>
 {_theme_bootstrap()}
   <link rel="stylesheet" href="../assets/css/site.css">
   <script src="../assets/js/sidebar.js" defer></script>

@@ -229,22 +229,22 @@ def render_primary_sidebar(
 ) -> list[str]:
     """Render the shared left-most navigation for archive and model pages."""
     items = [
-        ("papers", "P", "论文阅读", archive_href),
-        ("milestones", "M", "Milestone Models", milestone_href),
+        ("papers", "论文阅读", archive_href),
+        ("milestones", "经典模型", milestone_href),
     ]
     output = [
         '  <aside class="primary-sidebar" aria-label="Main sections">',
         f'    <a class="primary-brand" href="{html.escape(archive_href, quote=True)}" '
-        'aria-label="Arxiv Papers Daily home">APD</a>',
+        'aria-label="TOGOS 首页">TOGOS</a>',
+        '    <p class="primary-navigation-label">内容</p>',
         '    <nav class="primary-navigation" aria-label="Knowledge sections">',
     ]
-    for key, icon, label, href in items:
+    for key, label, href in items:
         active_class = " is-active" if key == active_section else ""
         current = ' aria-current="page"' if key == active_section else ""
         output.extend([
             f'      <a class="primary-nav-item{active_class}" '
             f'href="{html.escape(href, quote=True)}"{current}>',
-            f'        <span aria-hidden="true">{icon}</span>',
             f'        <strong>{html.escape(label)}</strong>',
             '      </a>',
         ])
@@ -268,7 +268,7 @@ def render_milestone_navigation(
     output.extend([
         '  <aside class="paper-sidebar" id="paper-sidebar" aria-label="Milestone model families">',
         '    <div class="sidebar-brand">',
-        '      <a href="flux.html">Milestone Models</a>',
+        '      <a href="flux.html">经典模型</a>',
         '      <span>按论文主题与官方模型系列浏览</span>',
         '    </div>',
         '    <nav class="archive-nav milestone-nav">',

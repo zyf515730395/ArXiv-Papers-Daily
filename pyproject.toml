@@ -3,9 +3,9 @@ requires = ["setuptools>=69"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "arxiv-papers-daily"
+name = "togos"
 version = "0.1.0"
-description = "Static archive and milestone model site generators"
+description = "TOGOS knowledge site generators"
 requires-python = ">=3.12"
 dependencies = [
   "arxiv>=4.0.0,<5.0.0",

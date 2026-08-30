@@ -9,7 +9,7 @@ from pathlib import Path
 import re
 import unicodedata
 
-from ..milestones.catalog import (
+from milestones.catalog import (
     first_ready_family,
     load_milestone_catalog,
     render_primary_sidebar,
@@ -21,7 +21,7 @@ ENTRY_PATTERN = re.compile(
     r"(?P<authors>.*?)\|\[(?P<pdf_label>[^]]+)]\((?P<pdf_url>[^)]+)\)\|"
     r"(?P<code>.*?)\|$"
 )
-SITE_TITLE = "Arxiv Papers Daily"
+SITE_TITLE = "TOGOS"
 RECENT_YEAR_COUNT = 3
 NOTES_DIRECTORY_NAME = "notes"
 SHOW_BOOK_NOTES_NAV = False

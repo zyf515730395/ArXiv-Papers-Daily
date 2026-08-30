@@ -1,6 +1,6 @@
 # Collect candidates, publish the default Summary state, and deploy every day.
 
-name: Run Arxiv Papers Daily
+name: Run TOGOS Daily
 
 on:
   workflow_dispatch:
@@ -38,17 +38,17 @@ jobs:
         run: python -m pip install -e .
 
       - name: Collect candidates and generate the site
-        run: python -m arxiv_papers_daily.papers.collector
+        run: python -m papers.collector
 
       - name: Commit candidate pages
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/arxiv-candidates.json
-          git add docs/arxiv-papers-daily-web.json docs/index.html
+          git add docs/togos-papers.json docs/index.html
           if git diff --cached --quiet; then
             echo "No candidate updates"
           else
-            git commit -m "Github Action Collect Arxiv Candidates"
+            git commit -m "GitHub Action Collect TOGOS Papers"
             git push origin main
           fi
