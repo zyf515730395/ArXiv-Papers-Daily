@@ -4,7 +4,7 @@ max_results: 10
 json_gitpage_path: './docs/arxiv-papers-daily-web.json'
 html_gitpage_path: './docs/index.html'
 candidate_ledger_path: './data/arxiv-candidates.json'
-milestone_catalog_path: './milestone_models.yaml'
+milestone_catalog_path: './config/milestone_models.yaml'
 
 # keywords to search
 keywords:

@@ -12,13 +12,13 @@ import bleach
 import markdown
 import yaml
 
-from milestone_catalog import (
+from .catalog import (
     find_family,
     iter_families,
     load_milestone_catalog,
     render_milestone_navigation,
 )
-from paper_summarizer import atomic_write_text, render_note_content
+from ..shared.rendering import atomic_write_text, render_note_content
 
 
 DEEP_READING_FIELDS = (

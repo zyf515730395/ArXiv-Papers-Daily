@@ -9,7 +9,7 @@ from pathlib import Path
 import re
 import unicodedata
 
-from milestone_catalog import (
+from ..milestones.catalog import (
     first_ready_family,
     load_milestone_catalog,
     render_primary_sidebar,
@@ -25,7 +25,8 @@ SITE_TITLE = "Arxiv Papers Daily"
 RECENT_YEAR_COUNT = 3
 NOTES_DIRECTORY_NAME = "notes"
 SHOW_BOOK_NOTES_NAV = False
-DEFAULT_MILESTONE_CATALOG = Path(__file__).with_name("milestone_models.yaml")
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+DEFAULT_MILESTONE_CATALOG = PROJECT_ROOT / "config" / "milestone_models.yaml"
 
 
 def slugify(value: str) -> str:

@@ -35,10 +35,10 @@ jobs:
           cache: pip
 
       - name: Install dependencies
-        run: python -m pip install -r requirements.txt
+        run: python -m pip install -e .
 
       - name: Collect candidates and generate the site
-        run: python cloud_arxiv.py
+        run: python -m arxiv_papers_daily.papers.collector
 
       - name: Commit candidate pages
         run: |

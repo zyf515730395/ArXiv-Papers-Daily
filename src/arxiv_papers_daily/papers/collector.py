@@ -12,12 +12,12 @@ import arxiv
 import requests
 import yaml
 
-from cloud_candidate_ledger import (
+from .candidate_ledger import (
     atomic_write_json,
     load_candidate_ledger,
     merge_collected_candidates,
 )
-from site_generator import generate_site
+from .site import generate_site
 
 
 logging.basicConfig(
@@ -249,7 +249,7 @@ def collect(config_path: str | Path) -> dict[str, int]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", default="config.yaml")
+    parser.add_argument("--config", default="config/site.yaml")
     args = parser.parse_args()
     collect(args.config)
 
