@@ -24,6 +24,7 @@ FRONT_MATTER_PATTERN = re.compile(r"\A---[ \t]*\r?\n(.*?)\r?\n---[ \t]*\r?\n", r
 REQUIRED_FIELDS = {"title", "slug", "published_at", "kind", "public", "summary", "tags", "source"}
 SUPPORTED_KINDS = {"learning-note", "book-note"}
 SUPPORTED_SOURCES = {"original", "notion", "wechat-reading"}
+SUPPORTED_ASSET_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".avif"}
 MANIFEST_VERSION = 1
 
 
@@ -232,19 +233,47 @@ def _manifest_article(slug: Any, value: Any, output_root: Path) -> ManifestArtic
     title = _manifest_string(value["title"], "article title")
     published_at = _manifest_date(value["published_at"], "article published_at")
     kind = _manifest_string(value["kind"], "article kind")
+    if kind not in SUPPORTED_KINDS:
+        raise WritingCatalogError("Manifest article kind is not supported")
     summary = _manifest_string(value["summary"], "article summary")
+    if "\n" in summary or "\r" in summary or "<" in summary or ">" in summary:
+        raise WritingCatalogError("Manifest article summary must be one-line plain text")
     tags_value = value["tags"]
-    if not isinstance(tags_value, list) or any(not isinstance(tag, str) for tag in tags_value):
-        raise WritingCatalogError("Manifest article tags must be a list of strings")
+    if (
+        not isinstance(tags_value, list)
+        or not tags_value
+        or any(
+            not isinstance(tag, str) or not SLUG_PATTERN.fullmatch(tag)
+            for tag in tags_value
+        )
+    ):
+        raise WritingCatalogError(
+            "Manifest article tags must be non-empty lowercase kebab-case strings"
+        )
     if len(tags_value) != len(set(tags_value)):
         raise WritingCatalogError("Manifest article tags must be unique")
     page = validate_managed_path(value["page"], output_root).as_posix()
+    expected_source = f"content/writings/{slug}/index.md"
+    if source != expected_source:
+        raise WritingCatalogError("Manifest article source does not match its slug")
+    if page != f"{slug}.html":
+        raise WritingCatalogError("Manifest article page does not match its slug")
     assets_value = value["assets"]
     if not isinstance(assets_value, list):
         raise WritingCatalogError("Manifest article assets must be a list")
     assets = tuple(validate_managed_path(asset, output_root).as_posix() for asset in assets_value)
     if len(assets) != len(set(assets)):
         raise WritingCatalogError("Manifest article assets must be unique")
+    for asset in assets:
+        path = PurePosixPath(asset)
+        if (
+            len(path.parts) < 3
+            or path.parts[:2] != ("assets", slug)
+            or path.suffix.lower() not in SUPPORTED_ASSET_EXTENSIONS
+        ):
+            raise WritingCatalogError(
+                "Manifest article asset must be a supported file owned by its slug"
+            )
     return ManifestArticle(source, title, published_at, kind, summary, tuple(tags_value), page, assets)
 
 

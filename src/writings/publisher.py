@@ -368,12 +368,10 @@ def prepare_writings_publication(
             issues.append(safe_issue)
             if bundle is None:
                 continue
-            if issue.code == "not_public":
-                skipped.add(bundle)
-            elif bundle in previous.articles:
+            if bundle in previous.articles:
                 records[bundle] = _retain_article(bundle, previous, output, staging)
                 retained.append(bundle)
-            else:
+            elif SLUG_PATTERN.fullmatch(bundle):
                 skipped.add(bundle)
 
         for article in catalog.articles:
