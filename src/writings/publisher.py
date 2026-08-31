@@ -363,7 +363,11 @@ def prepare_writings_publication(
         issues: list[WritingIssue] = []
 
         for issue in catalog.issues:
-            bundle = _issue_bundle(issue, entries)
+            bundle = (
+                None
+                if issue.code == "invalid_bundle"
+                else _issue_bundle(issue, entries)
+            )
             safe_issue = _safe_issue(issue, bundle)
             issues.append(safe_issue)
             if bundle is None:
