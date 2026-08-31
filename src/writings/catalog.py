@@ -6,7 +6,7 @@ from datetime import date
 import json
 from pathlib import Path, PurePosixPath, PureWindowsPath
 import re
-from typing import Any, Mapping
+from typing import Any
 
 import yaml
 
@@ -43,7 +43,7 @@ def _required_string(value: Any, field: str) -> str:
     return value.strip()
 
 
-def _parse_front_matter(content: str, bundle_name: str) -> tuple[dict[str, Any], str]:
+def _parse_front_matter(content: str) -> tuple[dict[str, Any], str]:
     match = FRONT_MATTER_PATTERN.match(content)
     if match is None:
         raise _BundleValidationError("missing_front_matter", "index.md must begin with YAML front matter")
@@ -89,8 +89,11 @@ def _validate_article(metadata: dict[str, Any], body: str, bundle_root: Path) ->
         raise _BundleValidationError("invalid_kind", "kind is not supported")
     if metadata["public"] is not True:
         raise _BundleValidationError("not_public", "public must be the YAML boolean true")
-    summary = _required_string(metadata["summary"], "summary")
-    if "\n" in summary or "\r" in summary or "<" in summary or ">" in summary:
+    summary_value = metadata["summary"]
+    if isinstance(summary_value, str) and ("\n" in summary_value or "\r" in summary_value):
+        raise _BundleValidationError("invalid_summary", "summary must be one-line plain text")
+    summary = _required_string(summary_value, "summary")
+    if "<" in summary or ">" in summary:
         raise _BundleValidationError("invalid_summary", "summary must be one-line plain text")
 
     tags_value = metadata["tags"]
@@ -123,6 +126,8 @@ def _validate_article(metadata: dict[str, Any], body: str, bundle_root: Path) ->
 
 
 def _issue_source(source_root: Path, path: Path) -> str:
+    if not source_root.is_absolute():
+        return path.as_posix()
     try:
         return path.relative_to(Path.cwd()).as_posix()
     except ValueError:
@@ -155,7 +160,7 @@ def discover_writings(source_root: Path, previous: WritingManifest) -> CatalogRe
             issues.append(WritingIssue(source, "missing_index", "bundle must contain index.md"))
             continue
         try:
-            article = _validate_article(*_parse_front_matter(index_path.read_text(encoding="utf-8"), entry.name), entry)
+            article = _validate_article(*_parse_front_matter(index_path.read_text(encoding="utf-8")), entry)
         except (OSError, UnicodeError) as error:
             issues.append(WritingIssue(source, "unreadable_index", "unable to read bundle index"))
         except _BundleValidationError as error:
