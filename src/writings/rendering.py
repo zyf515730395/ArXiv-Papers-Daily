@@ -27,7 +27,6 @@ from .models import AssetCopy, ManifestArticle, RenderedArticle, TocEntry, Writi
 
 
 PROTECTED_PREFIX = "TOGOSPROTECTEDTOKEN"
-BODY_H1_PATTERN = re.compile(r"^\s{0,3}#\s+", re.MULTILINE)
 FENCE_OPEN_PATTERN = re.compile(r"^ {0,3}(?P<fence>`{3,}|~{3,})[^\r\n]*(?:\r?\n|$)", re.MULTILINE)
 INLINE_CODE_PATTERN = re.compile(r"(?<!`)(?P<fence>`+)(?!`)(?P<body>.*?)(?<!`)(?P=fence)(?!`)", re.DOTALL)
 CODE_CLASS_PATTERN = re.compile(r"^language-[A-Za-z0-9_+.-]+$")
@@ -105,6 +104,16 @@ class _RemoveHeadingIds(Treeprocessor):
         for element in root.iter():
             if element.tag in {"h2", "h3"}:
                 element.attrib.pop("id", None)
+
+
+class _RejectBodyH1(Treeprocessor):
+    """Reject every H1 recognized by the Markdown block parser."""
+
+    def run(self, root: Element) -> None:
+        if any(element.tag == "h1" for element in root.iter()):
+            raise WritingRenderError(
+                "body_h1", "Article body must not contain an H1 heading"
+            )
 
 
 def _protect_matches(text: str, pattern: re.Pattern[str], protected: list[str]) -> str:
@@ -270,8 +279,6 @@ def _convert_math(text: str) -> tuple[str, dict[str, _MathReplacement]]:
 def _prepare_markdown(body: str) -> tuple[str, dict[str, _MathReplacement]]:
     if PROTECTED_PREFIX in body:
         raise WritingRenderError("invalid_markdown", "Markdown contains a reserved token")
-    if BODY_H1_PATTERN.search(body):
-        raise WritingRenderError("body_h1", "Article body must not contain an H1 heading")
     code_tokens: list[str] = []
     protected = _protect_fenced_code(body, code_tokens)
     protected = _protect_raw_html_code(protected, code_tokens)
@@ -543,6 +550,7 @@ def render_article(
         ],
         output_format="html5",
     )
+    renderer.treeprocessors.register(_RejectBodyH1(renderer), "reject_body_h1", 7)
     renderer.treeprocessors.register(_RemoveHeadingIds(renderer), "force_heading_slugs", 6)
     author_html = renderer.convert(prepared)
     toc = _flatten_toc(renderer.toc_tokens, math_tokens)
