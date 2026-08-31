@@ -13,6 +13,13 @@ from .models import (
     WritingArticle,
     WritingIssue,
     WritingManifest,
+    PreparedPublication,
+    WritingBuildResult,
+)
+from .publisher import (
+    WritingPublishError,
+    commit_writings_and_search,
+    prepare_writings_publication,
 )
 
 __all__ = [
@@ -22,8 +29,13 @@ __all__ = [
     "WritingCatalogError",
     "WritingIssue",
     "WritingManifest",
+    "PreparedPublication",
+    "WritingBuildResult",
+    "WritingPublishError",
+    "commit_writings_and_search",
     "discover_writings",
     "load_manifest",
     "serialize_manifest",
     "validate_managed_path",
+    "prepare_writings_publication",
 ]

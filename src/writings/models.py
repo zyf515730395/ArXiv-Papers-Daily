@@ -8,6 +8,8 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Literal, Mapping
 
+from shared.search_index import SearchDocument
+
 
 @dataclass(frozen=True, slots=True)
 class WritingArticle:
@@ -87,3 +89,22 @@ class WritingManifest:
 class CatalogResult:
     articles: tuple[WritingArticle, ...]
     issues: tuple[WritingIssue, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class WritingBuildResult:
+    published: tuple[str, ...]
+    retained: tuple[str, ...]
+    skipped: tuple[str, ...]
+    removed: tuple[str, ...]
+    issues: tuple[WritingIssue, ...]
+    search_documents: tuple[SearchDocument, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class PreparedPublication:
+    staging_root: Path
+    output_root: Path
+    previous_manifest: WritingManifest
+    next_manifest: WritingManifest
+    result: WritingBuildResult

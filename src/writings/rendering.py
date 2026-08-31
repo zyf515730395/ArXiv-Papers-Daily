@@ -505,6 +505,8 @@ class _ArticleHtmlNormalizer(HTMLParser):
         self.output.append(f"<{tag}{attributes}{ending}")
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag == "table":
+            self.output.append('<div class="writing-table-scroll">')
         self._start(tag, attrs, False)
 
     def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
@@ -512,6 +514,8 @@ class _ArticleHtmlNormalizer(HTMLParser):
 
     def handle_endtag(self, tag: str) -> None:
         self.output.append(f"</{tag}>")
+        if tag == "table":
+            self.output.append("</div>")
 
     def handle_data(self, data: str) -> None:
         for token, replacement in self.math_tokens.items():
@@ -590,9 +594,9 @@ def _article_toc_navigation(toc: tuple[TocEntry, ...], back_href: str) -> str:
             if not children_open:
                 lines.append('          <ul class="writing-toc-children">')
                 children_open = True
-            lines.append(f"            <li>{link}</li>")
+            lines.append(f'            <li class="writing-toc-h3">{link}</li>')
         else:
-            lines.append(f'      <a class="writing-toc-orphan" href="#{escape(item.anchor, quote=True)}">{escape(item.label)}</a>')
+            lines.append(f'      <a class="writing-toc-orphan writing-toc-h3" href="#{escape(item.anchor, quote=True)}">{escape(item.label)}</a>')
     if children_open:
         lines.append("          </ul>")
     if item_open:
@@ -673,9 +677,14 @@ def _index_navigation(
         href = _writings_relative_link(output_file, output_root, target)
         return f'      <a class="context-filter{active}" href="{escape(href, quote=True)}"{current}>{escape(label)}</a>'
 
-    lines = [link("index.html", f"全部文章 ({len(records)})", None)]
+    lines = [
+        '<p class="writing-filter-heading">范围</p>',
+        link("index.html", f"全部文章 ({len(records)})", None),
+        '<p class="writing-filter-heading">类型</p>',
+    ]
     for kind in ("learning-note", "book-note"):
         lines.append(link(f"kind/{kind}.html", f"{KIND_LABELS[kind]} ({kind_counts[kind]})", ("kind", kind)))
+    lines.append('<p class="writing-filter-heading">标签</p>')
     for tag in sorted(tag_counts):
         lines.append(link(f"tag/{tag}.html", f"{tag} ({tag_counts[tag]})", ("tag", tag)))
     return "\n".join(lines)
@@ -699,19 +708,26 @@ def render_writings_index(
                 f'<a href="{escape(_writings_relative_link(output_file, output_root, f"tag/{tag}.html"), quote=True)}">#{escape(tag)}</a>'
                 for tag in record.tags
             )
-            rows.append(f"""      <article class="writing-row">
-        <p class="writing-row-meta"><time datetime="{escape(record.published_at, quote=True)}">{escape(record.published_at)}</time> · <a href="{escape(kind_href, quote=True)}">{escape(KIND_LABELS[record.kind])}</a></p>
-        <h2><a href="{escape(article_href, quote=True)}">{escape(record.title)}</a></h2>
-        <p>{escape(record.summary)}</p>
-        <p class="writing-row-tags">{tags}</p>
+            rows.append(f"""      <article class="writing-entry">
+        <p class="writing-meta"><time datetime="{escape(record.published_at, quote=True)}">{escape(record.published_at)}</time><a href="{escape(kind_href, quote=True)}">{escape(KIND_LABELS[record.kind])}</a></p>
+        <div class="writing-entry-content">
+          <h2><a href="{escape(article_href, quote=True)}">{escape(record.title)}</a></h2>
+          <p>{escape(record.summary)}</p>
+          <p class="writing-tags">{tags}</p>
+        </div>
       </article>""")
         stream = "\n".join(rows)
     else:
         stream = '      <p class="empty-section-copy">公开的学习笔记和读书笔记会在这里汇集。</p>'
-    main_content = f"""    <section class="writings-stream" aria-labelledby="writings-title">
+    main_content = f"""    <section aria-labelledby="writings-title">
+      <header class="writings-hero">
 {render_section_intro("writings")}
-      <h1 id="writings-title">文章</h1>
+        <h1 id="writings-title">文章</h1>
+        <p>{len(selected)} 篇公开记录 · 按发布日期倒序</p>
+      </header>
+      <div class="writing-stream">
 {stream}
+      </div>
     </section>
 """
     return render_site_page(
