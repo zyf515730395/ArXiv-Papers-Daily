@@ -31,6 +31,26 @@ class WritingIssue:
 
 
 @dataclass(frozen=True, slots=True)
+class TocEntry:
+    level: Literal[2, 3]
+    anchor: str
+    label: str
+
+
+@dataclass(frozen=True, slots=True)
+class AssetCopy:
+    source: Path
+    destination: str
+
+
+@dataclass(frozen=True, slots=True)
+class RenderedArticle:
+    html: str
+    toc: tuple[TocEntry, ...]
+    assets: tuple[AssetCopy, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class ManifestArticle:
     source: str
     title: str
