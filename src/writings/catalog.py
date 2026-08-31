@@ -126,7 +126,13 @@ def _validate_article(metadata: dict[str, Any], body: str, bundle_root: Path) ->
 
 
 def _issue_source(source_root: Path, path: Path) -> str:
-    if not source_root.is_absolute():
+    safe_relative_root = (
+        not source_root.is_absolute()
+        and not source_root.drive
+        and bool(source_root.parts)
+        and all(part not in {".", ".."} for part in source_root.parts)
+    )
+    if safe_relative_root:
         return path.as_posix()
     try:
         return path.relative_to(Path.cwd()).as_posix()
