@@ -38,6 +38,17 @@ class _BundleValidationError(ValueError):
         self.code = code
 
 
+def _is_link(path: Path) -> bool:
+    """Return true for symlinks and Windows directory junctions."""
+    try:
+        if path.is_symlink():
+            return True
+        is_junction = getattr(path, "is_junction", None)
+        return bool(is_junction and is_junction())
+    except OSError:
+        return True
+
+
 def _required_string(value: Any, field: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise _BundleValidationError("invalid_" + field, f"{field} must be a non-empty string")
@@ -155,14 +166,32 @@ def discover_writings(source_root: Path, previous: WritingManifest) -> CatalogRe
     except OSError as error:
         raise WritingCatalogError("Unable to read writings source root") from error
     for entry in entries:
-        if entry.name == "AGENTS.md" and entry.is_file():
+        if entry.name == "AGENTS.md" and entry.is_file() and not _is_link(entry):
             continue
         issue_path = entry / "index.md" if entry.is_dir() else entry
         source = _issue_source(root, issue_path)
+        if _is_link(entry):
+            issues.append(
+                WritingIssue(
+                    source,
+                    "symlink_bundle",
+                    "bundle directories must not be symbolic links",
+                )
+            )
+            continue
         if not entry.is_dir():
             issues.append(WritingIssue(source, "invalid_bundle", "source root entries must be bundle directories"))
             continue
         index_path = entry / "index.md"
+        if _is_link(index_path):
+            issues.append(
+                WritingIssue(
+                    source,
+                    "symlink_index",
+                    "bundle index.md must not be a symbolic link",
+                )
+            )
+            continue
         if not index_path.is_file():
             issues.append(WritingIssue(source, "missing_index", "bundle must contain index.md"))
             continue

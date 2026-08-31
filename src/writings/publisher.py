@@ -55,18 +55,32 @@ def _resolved(path: str | Path) -> Path:
         raise WritingPublishError("Unable to resolve a writings publication path") from error
 
 
+def _lexical_absolute(path: str | Path) -> Path:
+    try:
+        return Path(os.path.abspath(os.fspath(path)))
+    except (OSError, TypeError, ValueError) as error:
+        raise WritingPublishError("Unable to normalize a writings publication path") from error
+
+
 def _validate_layout(
     source_root: str | Path, output_root: str | Path, report_path: str | Path
 ) -> tuple[Path, Path, Path, Path]:
-    source = _resolved(source_root)
     output = _resolved(output_root)
     report = _resolved(report_path)
     if output.name != "writings" or output.parent.name != "docs":
         raise WritingPublishError("Writings output must be project-local docs/writings")
     project_root = output.parent.parent
-    expected_source = _resolved(project_root / "content" / "writings")
+    expected_source = project_root / "content" / "writings"
+    source_path = _lexical_absolute(source_root)
+    source = _resolved(source_path)
+    if (
+        source_path != expected_source
+        or source != expected_source
+        or _resolved(expected_source) != expected_source
+    ):
+        raise WritingPublishError("Writings source must be project-local content/writings")
     build_root = _resolved(project_root / "build")
-    if source != expected_source or not source.is_dir():
+    if not source.is_dir():
         raise WritingPublishError("Writings source must be project-local content/writings")
     if report != _resolved(project_root / "build" / "reports" / "writings.json"):
         raise WritingPublishError("Writings report must be build/reports/writings.json")
