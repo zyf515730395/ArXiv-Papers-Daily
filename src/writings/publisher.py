@@ -460,6 +460,12 @@ def prepare_writings_publication(
         raise WritingPublishError("Unable to prepare writings publication") from error
 
 
+def abort_writings_publication(prepared: PreparedPublication) -> None:
+    """Discard a validated preparation without changing public output."""
+    _, site_root = _validate_output_layout(prepared.output_root)
+    _safe_remove_tree(prepared.staging_root, site_root)
+
+
 def _validated_managed_files(manifest: WritingManifest, output_root: Path) -> tuple[str, ...]:
     validated = tuple(
         validate_managed_path(path, output_root).as_posix()

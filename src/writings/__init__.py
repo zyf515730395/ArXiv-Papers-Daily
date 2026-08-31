@@ -18,6 +18,7 @@ from .models import (
 )
 from .publisher import (
     WritingPublishError,
+    abort_writings_publication,
     commit_writings_and_search,
     prepare_writings_publication,
 )
@@ -32,6 +33,7 @@ __all__ = [
     "PreparedPublication",
     "WritingBuildResult",
     "WritingPublishError",
+    "abort_writings_publication",
     "commit_writings_and_search",
     "discover_writings",
     "load_manifest",
