@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import Counter
+from dataclasses import dataclass
 from datetime import date
 from html import escape, unescape
 from html.parser import HTMLParser
@@ -12,7 +13,7 @@ import re
 from typing import Callable, Mapping
 from urllib.parse import urlsplit
 import unicodedata
-from xml.etree.ElementTree import Element
+from xml.etree.ElementTree import Element, ParseError, fromstring, register_namespace, tostring
 
 import bleach
 from latex2mathml.converter import convert as convert_latex
@@ -37,6 +38,21 @@ ALLOWED_TAGS = {
     "pre", "code", "table", "thead", "tbody", "tfoot", "tr", "th", "td",
     "a", "img", "hr", "br", "em", "strong",
 }
+MATHML_NAMESPACE = "http://www.w3.org/1998/Math/MathML"
+MATHML_ELEMENTS = {
+    "math", "menclose", "mfrac", "mi", "mn", "mo", "mover", "mpadded",
+    "mphantom", "mroot", "mrow", "mspace", "msqrt", "mstyle", "msub",
+    "msubsup", "msup", "mtable", "mtd", "mtext", "mtr", "munder",
+    "munderover",
+}
+MATHML_ATTRIBUTES = {
+    "accent", "border-color", "columnalign", "columnlines", "columnspacing",
+    "depth", "display", "displaystyle", "fence", "form", "height", "largeop",
+    "linebreak", "linethickness", "lspace", "mathbackground", "mathcolor",
+    "mathsize", "mathvariant", "maxsize", "minsize", "movablelimits", "notation",
+    "rowlines", "rowspacing", "rspace", "scriptlevel", "separator", "stretchy",
+    "voffset", "width",
+}
 
 
 class WritingRenderError(ValueError):
@@ -45,6 +61,41 @@ class WritingRenderError(ValueError):
     def __init__(self, code: str, message: str) -> None:
         super().__init__(message)
         self.code = code
+
+
+@dataclass(frozen=True, slots=True)
+class _MathReplacement:
+    html: str
+    label: str
+
+
+def _invalid_math(error: Exception | None = None) -> WritingRenderError:
+    public_error = WritingRenderError("invalid_math", "Invalid LaTeX expression")
+    if error is not None:
+        public_error.__cause__ = error
+    return public_error
+
+
+def _validated_mathml(value: str, expected_display: str) -> str:
+    try:
+        root = fromstring(value)
+    except (ParseError, ValueError, TypeError) as error:
+        raise _invalid_math(error)
+    expected_root = f"{{{MATHML_NAMESPACE}}}math"
+    if root.tag != expected_root or root.attrib != {"display": expected_display}:
+        raise _invalid_math()
+    namespace_prefix = f"{{{MATHML_NAMESPACE}}}"
+    for element in root.iter():
+        if not isinstance(element.tag, str) or not element.tag.startswith(namespace_prefix):
+            raise _invalid_math()
+        local_name = element.tag[len(namespace_prefix):]
+        if local_name not in MATHML_ELEMENTS:
+            raise _invalid_math()
+        for attribute in element.attrib:
+            if "}" in attribute or attribute not in MATHML_ATTRIBUTES:
+                raise _invalid_math()
+    register_namespace("", MATHML_NAMESPACE)
+    return tostring(root, encoding="unicode", short_empty_elements=True)
 
 
 class _RemoveHeadingIds(Treeprocessor):
@@ -63,6 +114,72 @@ def _protect_matches(text: str, pattern: re.Pattern[str], protected: list[str]) 
         return token
 
     return pattern.sub(replace, text)
+
+
+class _RawCodeSpanFinder(HTMLParser):
+    def __init__(self, source: str) -> None:
+        super().__init__(convert_charrefs=False)
+        self.source = source
+        self.line_offsets = [0]
+        self.line_offsets.extend(match.end() for match in re.finditer(r"\n", source))
+        self.active_start: int | None = None
+        self.stack: list[str] = []
+        self.spans: list[tuple[int, int]] = []
+
+    def _position(self) -> int:
+        line, column = self.getpos()
+        return self.line_offsets[line - 1] + column
+
+    def _tag_end(self) -> int:
+        closing = self.source.find(">", self._position())
+        return len(self.source) if closing < 0 else closing + 1
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag not in {"code", "pre"}:
+            return
+        if self.active_start is None:
+            self.active_start = self._position()
+        self.stack.append(tag)
+
+    def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag in {"code", "pre"} and self.active_start is None:
+            self.spans.append((self._position(), self._tag_end()))
+
+    def handle_endtag(self, tag: str) -> None:
+        if self.active_start is None or tag not in self.stack:
+            return
+        matching_index = len(self.stack) - 1 - self.stack[::-1].index(tag)
+        del self.stack[matching_index:]
+        if not self.stack:
+            self.spans.append((self.active_start, self._tag_end()))
+            self.active_start = None
+
+    def close(self) -> None:
+        super().close()
+        if self.active_start is not None:
+            self.spans.append((self.active_start, len(self.source)))
+            self.active_start = None
+            self.stack.clear()
+
+
+def _protect_raw_html_code(text: str, protected: list[str]) -> str:
+    finder = _RawCodeSpanFinder(text)
+    finder.feed(text)
+    finder.close()
+    if not finder.spans:
+        return text
+    output: list[str] = []
+    cursor = 0
+    for start, end in finder.spans:
+        if start < cursor:
+            continue
+        output.append(text[cursor:start])
+        token = f"{PROTECTED_PREFIX}CODE{len(protected)}END"
+        protected.append(text[start:end])
+        output.append(token)
+        cursor = end
+    output.append(text[cursor:])
+    return "".join(output)
 
 
 def _protect_fenced_code(text: str, protected: list[str]) -> str:
@@ -116,8 +233,8 @@ def _find_math_close(text: str, start: int, delimiter: str) -> int:
     return -1
 
 
-def _convert_math(text: str) -> tuple[str, dict[str, str]]:
-    math_tokens: dict[str, str] = {}
+def _convert_math(text: str) -> tuple[str, dict[str, _MathReplacement]]:
+    math_tokens: dict[str, _MathReplacement] = {}
     output: list[str] = []
     cursor = 0
     while cursor < len(text):
@@ -135,23 +252,29 @@ def _convert_math(text: str) -> tuple[str, dict[str, str]]:
         if not expression.strip():
             raise WritingRenderError("invalid_math", "Invalid LaTeX expression")
         try:
-            mathml = convert_latex(expression.strip(), display="block" if display else "inline")
+            display_mode = "block" if display else "inline"
+            mathml = _validated_mathml(
+                convert_latex(expression.strip(), display=display_mode), display_mode
+            )
         except Exception as error:
-            raise WritingRenderError("invalid_math", "Invalid LaTeX expression") from error
+            if isinstance(error, WritingRenderError):
+                raise error
+            raise _invalid_math(error)
         token = f"{PROTECTED_PREFIX}MATH{len(math_tokens)}END"
-        math_tokens[token] = mathml
+        math_tokens[token] = _MathReplacement(mathml, expression.strip())
         output.append(token)
         cursor = close + len(delimiter)
     return "".join(output), math_tokens
 
 
-def _prepare_markdown(body: str) -> tuple[str, dict[str, str]]:
+def _prepare_markdown(body: str) -> tuple[str, dict[str, _MathReplacement]]:
     if PROTECTED_PREFIX in body:
         raise WritingRenderError("invalid_markdown", "Markdown contains a reserved token")
     if BODY_H1_PATTERN.search(body):
         raise WritingRenderError("body_h1", "Article body must not contain an H1 heading")
     code_tokens: list[str] = []
     protected = _protect_fenced_code(body, code_tokens)
+    protected = _protect_raw_html_code(protected, code_tokens)
     protected = _protect_matches(protected, INLINE_CODE_PATTERN, code_tokens)
     protected, math_tokens = _convert_math(protected)
     for index, original in enumerate(code_tokens):
@@ -159,10 +282,19 @@ def _prepare_markdown(body: str) -> tuple[str, dict[str, str]]:
     return protected, math_tokens
 
 
-def _slugifier() -> Callable[[str, str], str]:
+def _replace_math_labels(value: str, math_tokens: Mapping[str, _MathReplacement]) -> str:
+    for token, replacement in math_tokens.items():
+        value = value.replace(token, replacement.label)
+    return value
+
+
+def _slugifier(
+    math_tokens: Mapping[str, _MathReplacement],
+) -> Callable[[str, str], str]:
     counts: Counter[str] = Counter()
 
     def slugify(value: str, separator: str) -> str:
+        value = _replace_math_labels(value, math_tokens)
         normalized = unicodedata.normalize("NFKC", value)
         ascii_value = unicodedata.normalize("NFKD", normalized).encode("ascii", "ignore").decode("ascii")
         base = re.sub(r"[^a-z0-9]+", separator, ascii_value.lower()).strip(separator) or "section"
@@ -172,11 +304,16 @@ def _slugifier() -> Callable[[str, str], str]:
     return slugify
 
 
-def _plain_heading_label(value: str) -> str:
-    return unescape(re.sub(r"<[^>]+>", "", value)).strip()
+def _plain_heading_label(
+    value: str, math_tokens: Mapping[str, _MathReplacement]
+) -> str:
+    label = unescape(re.sub(r"<[^>]+>", "", value)).strip()
+    return _replace_math_labels(label, math_tokens)
 
 
-def _flatten_toc(tokens: list[dict[str, object]]) -> tuple[TocEntry, ...]:
+def _flatten_toc(
+    tokens: list[dict[str, object]], math_tokens: Mapping[str, _MathReplacement]
+) -> tuple[TocEntry, ...]:
     entries: list[TocEntry] = []
 
     def visit(items: list[dict[str, object]]) -> None:
@@ -187,7 +324,7 @@ def _flatten_toc(tokens: list[dict[str, object]]) -> tuple[TocEntry, ...]:
                     TocEntry(
                         level=level,  # type: ignore[arg-type]
                         anchor=str(item["id"]),
-                        label=_plain_heading_label(str(item["name"])),
+                        label=_plain_heading_label(str(item["name"]), math_tokens),
                     )
                 )
             children = item.get("children")
@@ -248,8 +385,11 @@ def _validate_asset(article: WritingArticle, value: str) -> tuple[Path, str]:
     ):
         raise WritingRenderError("invalid_asset", "Image path must stay below the article assets directory")
     bundle_root = article.bundle_root.resolve()
+    assets_root = (bundle_root / "assets").resolve()
+    if not assets_root.is_relative_to(bundle_root):
+        raise WritingRenderError("invalid_asset", "Article assets directory escapes its bundle")
     source = (bundle_root / Path(*path.parts)).resolve()
-    if not source.is_relative_to(bundle_root):
+    if not source.is_relative_to(assets_root):
         raise WritingRenderError("invalid_asset", "Image path must stay below the article assets directory")
     if source.suffix.lower() not in ALLOWED_IMAGE_EXTENSIONS:
         raise WritingRenderError("unsupported_asset", "Image extension is not supported")
@@ -259,17 +399,70 @@ def _validate_asset(article: WritingArticle, value: str) -> tuple[Path, str]:
     return source, f"assets/{article.slug}/{under_assets}"
 
 
+class _MathTokenContextGuard(HTMLParser):
+    def __init__(self, math_tokens: Mapping[str, _MathReplacement]) -> None:
+        super().__init__(convert_charrefs=False)
+        self.tokens = tuple(math_tokens)
+
+    def _reject_if_token(self, value: str) -> None:
+        lowered = value.lower()
+        if any(token.lower() in lowered for token in self.tokens):
+            raise WritingRenderError(
+                "invalid_markdown", "Math expressions are only allowed in document text"
+            )
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        self._reject_if_token(self.get_starttag_text())
+
+    def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        self._reject_if_token(self.get_starttag_text())
+
+    def handle_comment(self, data: str) -> None:
+        self._reject_if_token(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        self._reject_if_token(tag)
+
+    def handle_decl(self, decl: str) -> None:
+        self._reject_if_token(decl)
+
+    def handle_pi(self, data: str) -> None:
+        self._reject_if_token(data)
+
+
+def _reject_non_text_math_tokens(
+    author_html: str, math_tokens: Mapping[str, _MathReplacement]
+) -> None:
+    guard = _MathTokenContextGuard(math_tokens)
+    guard.feed(author_html)
+    guard.close()
+
+
 class _ArticleHtmlNormalizer(HTMLParser):
-    def __init__(self, article: WritingArticle, heading_tokens: Mapping[str, str]) -> None:
+    def __init__(
+        self,
+        article: WritingArticle,
+        heading_tokens: Mapping[str, str],
+        math_tokens: Mapping[str, _MathReplacement],
+    ) -> None:
         super().__init__(convert_charrefs=False)
         self.article = article
         self.heading_tokens = heading_tokens
+        self.math_tokens = math_tokens
         self.output: list[str] = []
         self.assets: list[AssetCopy] = []
         self.asset_destinations: set[str] = set()
 
     def _start(self, tag: str, attrs: list[tuple[str, str | None]], self_closing: bool) -> None:
         normalized = [(name, value or "") for name, value in attrs]
+        if any(
+            token in value
+            for _, value in normalized
+            for token in self.math_tokens
+        ):
+            raise WritingRenderError(
+                "invalid_markdown", "Math expressions are only allowed in document text"
+            )
         if tag in {"h2", "h3"}:
             values = dict(normalized)
             heading_token = values.pop("title", "")
@@ -321,6 +514,8 @@ class _ArticleHtmlNormalizer(HTMLParser):
         self.output.append(f"</{tag}>")
 
     def handle_data(self, data: str) -> None:
+        for token, replacement in self.math_tokens.items():
+            data = data.replace(token, replacement.html)
         self.output.append(data)
 
     def handle_entityref(self, name: str) -> None:
@@ -337,13 +532,18 @@ def render_article(
     del output_file, output_root  # Reserved for the public renderer contract and future link policies.
     prepared, math_tokens = _prepare_markdown(article.body)
     renderer = markdown.Markdown(
-        extensions=["extra", "sane_lists", TocExtension(slugify=_slugifier(), toc_depth="2-3")],
+        extensions=[
+            "extra",
+            "sane_lists",
+            TocExtension(slugify=_slugifier(math_tokens), toc_depth="2-3"),
+        ],
         output_format="html5",
     )
     renderer.treeprocessors.register(_RemoveHeadingIds(renderer), "force_heading_slugs", 6)
     author_html = renderer.convert(prepared)
-    toc = _flatten_toc(renderer.toc_tokens)
+    toc = _flatten_toc(renderer.toc_tokens, math_tokens)
     author_html, heading_tokens = _protect_heading_ids(author_html, toc)
+    _reject_non_text_math_tokens(author_html, math_tokens)
     sanitized = bleach.clean(
         author_html,
         tags=ALLOWED_TAGS,
@@ -352,12 +552,12 @@ def render_article(
         strip=True,
         strip_comments=True,
     )
-    normalizer = _ArticleHtmlNormalizer(article, heading_tokens)
+    normalizer = _ArticleHtmlNormalizer(article, heading_tokens, math_tokens)
     normalizer.feed(sanitized)
     normalizer.close()
     rendered_html = "".join(normalizer.output)
-    for token, mathml in math_tokens.items():
-        rendered_html = rendered_html.replace(token, mathml)
+    if any(token in rendered_html for token in math_tokens):
+        raise WritingRenderError("invalid_markdown", "Unable to restore math expression")
     return RenderedArticle(rendered_html, toc, tuple(normalizer.assets))
 
 
