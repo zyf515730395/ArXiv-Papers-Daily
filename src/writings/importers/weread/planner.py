@@ -28,6 +28,12 @@ _ARTICLE_FIELDS = {
 _REDACTION_KEY = b"weread-plan-v1"
 
 
+class _SlugRegistry(set[str]):
+    def __init__(self) -> None:
+        super().__init__()
+        self.next_suffix: dict[str, int] = {}
+
+
 class _StrictLoader(yaml.SafeLoader):
     pass
 
@@ -143,14 +149,18 @@ def _slug_base(title: str) -> str:
 
 def _suggest_slug(title: str, source_ref: str, used: set[str]) -> str:
     base = _slug_base(title) or f"book-{source_ref.split(':', 1)[1][:8]}"
-    candidate = base
-    suffix = source_ref.split(":", 1)[1][:8]
-    if candidate in used:
-        candidate = f"{base}-{suffix}"
-    counter = 1
+    if base not in used:
+        used.add(base)
+        return base
+    next_suffix = getattr(used, "next_suffix", None)
+    if next_suffix is None:
+        next_suffix = {}
+    counter = next_suffix.get(base, 1)
+    candidate = f"{base}-{counter}"
     while candidate in used:
-        candidate = f"{base}-{suffix}-{counter}"
         counter += 1
+        candidate = f"{base}-{counter}"
+    next_suffix[base] = counter + 1
     used.add(candidate)
     return candidate
 
@@ -158,7 +168,7 @@ def _suggest_slug(title: str, source_ref: str, used: set[str]) -> str:
 def inspect_export(inventory: ExportInventory) -> WeReadPlan:
     """Inspect independent candidates; malformed candidates are intentionally omitted."""
     parsed: list[tuple[BookNotes, str]] = []
-    for source_ref in sorted(inventory.markdown_paths):
+    for source_ref in inventory.markdown_paths:
         record = inventory.files[source_ref]
         try:
             book = parse_book_notes(record)
@@ -175,7 +185,7 @@ def inspect_export(inventory: ExportInventory) -> WeReadPlan:
         for book, identity in parsed
         if (strong_counts if identity.startswith("book:") else weak_counts)[identity] == 1
     ]
-    used: set[str] = set()
+    used: set[str] = _SlugRegistry()
     books = tuple(
         WeReadArticlePlan(
             source_ref=redacted,
@@ -188,7 +198,7 @@ def inspect_export(inventory: ExportInventory) -> WeReadPlan:
             summary=None,
             tags=("reading",),
         )
-        for book, _, redacted in sorted(candidates, key=lambda item: item[2])
+        for book, _, redacted in candidates
     )
     return WeReadPlan(1, "wechat-reading-export", inventory.fingerprint, books)
 

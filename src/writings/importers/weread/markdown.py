@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import re
-from pathlib import PurePosixPath
 from typing import Any
 import unicodedata
 
@@ -33,7 +32,6 @@ _SECTION_ALIASES = {
     "本书评论": "reviews",
     "点评": "reviews",
 }
-_COMMENT = re.compile(r"<!--[\s\S]*?-->")
 _WEREAD_URL = re.compile(r"https?://(?:[\w.-]*\.)?(?:weread|wereadapp)\.qq\.com/[^\s)>]*", re.IGNORECASE)
 _HEADING = re.compile(r"^(#{1,6})[ \t]+(.+?)[ \t]*#*[ \t]*$")
 _ITEM = re.compile(r"^[ \t]*(?:[-*+])[ \t]+(.+?)\s*$")
@@ -64,8 +62,7 @@ def _error(code: str, message: str) -> WeReadImportError:
 def _clean(value: object) -> str:
     if not isinstance(value, (str, int, float)) or isinstance(value, bool):
         return ""
-    text = _COMMENT.sub("", str(value))
-    text = _WEREAD_URL.sub("", text)
+    text = _WEREAD_URL.sub("", str(value))
     text = "".join(" " if unicodedata.category(char).startswith("C") else char for char in text)
     return " ".join(unicodedata.normalize("NFKC", text).split())
 
@@ -100,6 +97,25 @@ def _front_matter(text: str) -> tuple[dict[str, Any], str]:
     if not isinstance(decoded, dict) or any(not isinstance(key, str) for key in decoded):
         raise _error("invalid_metadata", "front matter must be a mapping")
     return decoded, "".join(lines[closing + 1 :])
+
+
+def _strip_html_comments(text: str) -> str:
+    """Remove complete or dangling comments before Markdown is split into lines."""
+    parts: list[str] = []
+    position = 0
+    while (start := text.find("<!--", position)) >= 0:
+        parts.append(text[position:start])
+        end = text.find("-->", start + 4)
+        comment_end = len(text) if end < 0 else end + 3
+        parts.append(
+            "".join(
+                char if char in "\r\n" else " "
+                for char in text[start:comment_end]
+            )
+        )
+        position = comment_end
+    parts.append(text[position:])
+    return "".join(parts)
 
 
 def _first(metadata: dict[str, Any], keys: tuple[str, ...]) -> str | None:
@@ -140,7 +156,7 @@ def parse_book_notes(record: ExportFile) -> BookNotes:
         text = raw.decode("utf-8-sig")
     except UnicodeDecodeError as error:
         raise _error("invalid_utf8", "Markdown candidate is not valid UTF-8") from error
-    metadata, body = _front_matter(text)
+    metadata, body = _front_matter(_strip_html_comments(text))
     lines = body.splitlines()
     callouts = _callouts(lines)
     front_title = _first(metadata, _TITLE_KEYS)
