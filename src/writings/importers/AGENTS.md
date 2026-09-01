@@ -6,6 +6,7 @@
 - `planner.py` owns import-plan validation, serialization, candidate discovery, and plan persistence only.
 - `notion.py` owns argument parsing and compact user-facing summaries only; it must not contain archive or plan rules.
 - `models.py` owns immutable importer contracts and safe importer errors only.
+- `durability.py` owns testable file/tree flush and durable filesystem boundary primitives only; transaction journals and recovery policy remain in `promoter.py`.
 - Later modules own their named responsibilities: `notion_markdown.py` conversion, `state.py` private state, and `promoter.py` guarded bundle promotion.
 
 ## Paths and privacy
