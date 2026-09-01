@@ -11,7 +11,10 @@ from typing import Literal, Mapping
 import unicodedata
 
 
-_NOTION_ID = re.compile(r"(?i)\b[0-9a-f]{32}\b")
+_NOTION_ID = re.compile(
+    r"(?i)(?<![0-9a-f])(?:[0-9a-f]{32}|"
+    r"[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})(?![0-9a-f])"
+)
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 _WINDOWS_DEVICES = {"con", "prn", "aux", "nul", "clock$"} | {f"com{number}" for number in range(1, 10)} | {f"lpt{number}" for number in range(1, 10)}
 _REPARSE_POINT = 0x0400
@@ -113,11 +116,39 @@ class ExportInventory:
     markdown_paths: tuple[str, ...]
     csv_paths: tuple[str, ...]
     fingerprint: str
+    portable_files: Mapping[str, str | None] = field(
+        init=False, repr=False, compare=False
+    )
 
     def __post_init__(self) -> None:
-        object.__setattr__(self, "files", MappingProxyType(dict(self.files)))
+        exact = dict(self.files)
+        portable: dict[str, str | None] = {}
+        for name in exact:
+            key = portable_collision_key(name)
+            if key in portable and portable[key] != name:
+                portable[key] = None
+            else:
+                portable[key] = name
+        object.__setattr__(self, "files", MappingProxyType(exact))
+        object.__setattr__(self, "portable_files", MappingProxyType(portable))
         object.__setattr__(self, "markdown_paths", tuple(self.markdown_paths))
         object.__setattr__(self, "csv_paths", tuple(self.csv_paths))
+
+
+@dataclass(frozen=True, slots=True)
+class SelectedRouteIndex:
+    exact: Mapping[str, str]
+    portable: Mapping[str, str | None]
+    identities: Mapping[str, str | None]
+    slugs: frozenset[str]
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "exact", MappingProxyType(dict(self.exact)))
+        object.__setattr__(self, "portable", MappingProxyType(dict(self.portable)))
+        object.__setattr__(
+            self, "identities", MappingProxyType(dict(self.identities))
+        )
+        object.__setattr__(self, "slugs", frozenset(self.slugs))
 
 
 @dataclass(frozen=True, slots=True)

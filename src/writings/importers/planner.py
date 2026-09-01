@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import deque
 from dataclasses import asdict
 from datetime import date
 import hashlib
@@ -11,7 +12,7 @@ import os
 from pathlib import Path, PurePosixPath
 import re
 import shutil
-from typing import Any
+from typing import AbstractSet, Any
 import unicodedata
 from urllib.parse import urlsplit
 
@@ -37,16 +38,20 @@ from .models import (
     ImportRunResult,
     ImportState,
     NotionImportError,
+    SelectedRouteIndex,
     portable_collision_key,
     private_import_path,
     validate_portable_relative_path,
 )
-from .notion_markdown import convert_notion_page
-from .state import source_key
+from .notion_markdown import build_selected_route_index, convert_notion_page
+from .state import source_key, unique_source_keys
 
 
 _FINGERPRINT = re.compile(r"^sha256:[0-9a-f]{64}$")
-_NOTION_ID = re.compile(r"(?i)\b[0-9a-f]{32}\b")
+_NOTION_ID = re.compile(
+    r"(?i)(?<![0-9a-f])(?:[0-9a-f]{32}|"
+    r"[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})(?![0-9a-f])"
+)
 _ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 _H1 = re.compile(r"\A[ \t]*#[ \t]+(.+?)[ \t]*(?:#+[ \t]*)?(?:\r?\n|\Z)")
 _ARTICLE_FIELDS = {
@@ -278,6 +283,7 @@ def inspect_export(
     state: ImportState | None = None,
 ) -> ImportPlan:
     """Discover candidates while preserving only exact or strong state identity."""
+    unique_source_keys(list(inventory.markdown_paths))
     previous_by_ref = {item.source_ref: item for item in previous.articles} if previous else {}
     previous_by_key: dict[str, list[ImportArticlePlan]] = {}
     if previous:
@@ -504,7 +510,7 @@ def _remove_blocked_site(page: Path, site_root: Path, slug: str) -> None:
 
 
 class _PreviewLinkParser(HTMLParser):
-    def __init__(self, selected_slugs: set[str]) -> None:
+    def __init__(self, selected_slugs: AbstractSet[str]) -> None:
         super().__init__(convert_charrefs=False)
         self.selected_slugs = selected_slugs
         self.dependencies: set[str] = set()
@@ -528,7 +534,9 @@ class _PreviewLinkParser(HTMLParser):
             self.dependencies.add(path.stem)
 
 
-def _preview_dependencies(html: str, selected_slugs: set[str]) -> frozenset[str]:
+def _preview_dependencies(
+    html: str, selected_slugs: AbstractSet[str]
+) -> frozenset[str]:
     parser = _PreviewLinkParser(selected_slugs)
     parser.feed(html)
     parser.close()
@@ -538,7 +546,7 @@ def _preview_dependencies(html: str, selected_slugs: set[str]) -> frozenset[str]
 def _render_preview_candidate(
     article_plan: ImportArticlePlan,
     inventory: ExportInventory,
-    selected_routes: dict[str, str],
+    selected_routes: SelectedRouteIndex,
     bundles_root: Path,
     site_root: Path,
 ) -> tuple[ImportCandidateResult, frozenset[str]]:
@@ -566,7 +574,7 @@ def _render_preview_candidate(
         for source, target in asset_targets:
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(source, target)
-        dependencies = _preview_dependencies(rendered.html, set(selected_routes.values()))
+        dependencies = _preview_dependencies(rendered.html, selected_routes.slugs)
     except (NotionImportError, WritingCatalogError, WritingRenderError, OSError) as error:
         if isinstance(error, NotionImportError) and error.code == "preview_failed":
             raise
@@ -606,29 +614,34 @@ def _propagate_blocked_dependencies(
     bundles_root: Path,
     site_root: Path,
 ) -> None:
-    ready_slugs = {
-        candidate.slug
-        for candidate in candidates
-        if candidate.status == "ready" and candidate.slug is not None
+    index_by_slug = {
+        candidate.slug: index
+        for index, candidate in enumerate(candidates)
+        if candidate.slug is not None
     }
-    while True:
-        blocked_indexes = [
-            index
-            for index, candidate in enumerate(candidates)
-            if candidate.status == "ready"
-            and candidate.slug is not None
-            and not dependencies.get(candidate.slug, frozenset()).issubset(ready_slugs)
-        ]
-        if not blocked_indexes:
-            return
-        for index in blocked_indexes:
+    dependents: dict[str, list[str]] = {slug: [] for slug in index_by_slug}
+    for slug in index_by_slug:
+        for target in dependencies.get(slug, frozenset()):
+            if target in dependents:
+                dependents[target].append(slug)
+    status = {
+        slug: candidates[index].status for slug, index in index_by_slug.items()
+    }
+    unavailable = deque(
+        sorted(slug for slug, value in status.items() if value != "ready")
+    )
+    while unavailable:
+        target = unavailable.popleft()
+        for slug in sorted(dependents[target]):
+            if status[slug] != "ready":
+                continue
+            index = index_by_slug[slug]
             candidate = candidates[index]
-            assert candidate.slug is not None
             _remove_blocked_bundle(candidate.bundle_root, bundles_root)
             _remove_blocked_site(
-                site_root / "writings" / f"{candidate.slug}.html",
+                site_root / "writings" / f"{slug}.html",
                 site_root,
-                candidate.slug,
+                slug,
             )
             candidates[index] = ImportCandidateResult(
                 candidate.source_ref,
@@ -646,7 +659,8 @@ def _propagate_blocked_dependencies(
                 None,
                 None,
             )
-            ready_slugs.remove(candidate.slug)
+            status[slug] = "blocked"
+            unavailable.append(slug)
 
 
 def prepare_import_candidates(
@@ -656,9 +670,13 @@ def prepare_import_candidates(
     site_root: Path,
 ) -> ImportRunResult:
     """Rebuild and validate selected candidates in one empty private workspace."""
-    selected_routes = {
-        article.source_ref: article.slug for article in plan.articles if article.include
-    }
+    selected_routes = build_selected_route_index(
+        {
+            article.source_ref: article.slug
+            for article in plan.articles
+            if article.include
+        }
+    )
     candidates: list[ImportCandidateResult] = []
     dependencies: dict[str, frozenset[str]] = {}
     for article in plan.articles:
@@ -721,6 +739,7 @@ def preview_import(
         raise NotionImportError(
             "invalid_plan", "export fingerprint does not match the import plan"
         )
+    unique_source_keys(list(inventory.markdown_paths))
     preview = _preview_path(preview_root)
     report = _report_path(report_path)
     _reset_preview(preview)

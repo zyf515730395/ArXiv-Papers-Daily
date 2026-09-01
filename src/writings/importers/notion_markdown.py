@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+from html import unescape as html_unescape
 from html.parser import HTMLParser
 import os
 from pathlib import Path, PurePosixPath, PureWindowsPath
@@ -23,16 +24,24 @@ from .models import (
     ImportArticlePlan,
     ImportIssue,
     NotionImportError,
+    SelectedRouteIndex,
     portable_collision_key,
     private_import_path,
     validate_portable_relative_path,
 )
+from .state import source_key
 
 
 _LEADING_H1 = re.compile(
     r"\A[ \t]*#[ \t]+(.+?)[ \t]*(?:#+[ \t]*)?(?:\n|\Z)"
 )
 _MARKDOWN_REFERENCE = re.compile(r"(!?)\[([^\]\n]*)\]\(([^)\n]+)\)")
+_MARKDOWN_AUTOLINK = re.compile(
+    r"<((?:(?:https?|mailto):|//)[^<>\s]+)>", re.IGNORECASE
+)
+_MARKDOWN_LINK_DEFINITION = re.compile(
+    r"(?m)^([ \t]{0,3}\[[^\]\n]+\]:[ \t]*)(\S+)([^\n]*)$"
+)
 _INLINE_CODE = re.compile(r"(?<!`)(`+)([^\n]*?)(?<!`)\1(?!`)")
 _ASIDE = re.compile(r"<aside(?:[ \t][^>]*)?>(.*?)</aside[ \t]*>", re.IGNORECASE | re.DOTALL)
 _ASIDE_TAG = re.compile(r"</?aside\b", re.IGNORECASE)
@@ -45,6 +54,11 @@ _VOID_INLINE_TAGS = {"br"}
 _UNSAFE_HREF_VALUE = re.compile(r"[\x00-\x20\x7f\\]")
 _UNSAFE_TITLE_VALUE = re.compile(r"[\x00-\x1f\x7f]")
 _REPARSE_POINT = 0x0400
+_STREAM_CHUNK_BYTES = 1024 * 1024
+_NOTION_HOSTS = ("notion.so", "notion.site")
+_NOTION_URL_ID = re.compile(
+    r"(?i)(?<![0-9a-f])(?:[0-9a-f]{32}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?![0-9a-f])"
+)
 
 
 def _fail(code: str, message: str) -> NotionImportError:
@@ -183,6 +197,29 @@ class _SafeAsideParser(HTMLParser):
         self.safe = False
 
 
+class _AuthorLinkParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.targets: list[str] = []
+
+    def _record(self, attrs: list[tuple[str, str | None]]) -> None:
+        for name, value in attrs:
+            if name in {"href", "src"}:
+                if value is None:
+                    raise _fail(
+                        "unsupported_link_scheme", "HTML link target is malformed"
+                    )
+                self.targets.append(value)
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        self._record(attrs)
+
+    def handle_startendtag(
+        self, tag: str, attrs: list[tuple[str, str | None]]
+    ) -> None:
+        self._record(attrs)
+
+
 def _convert_asides(text: str) -> str:
     def convert(match: re.Match[str]) -> str:
         inner = match.group(1).strip()
@@ -255,10 +292,10 @@ def _inventory_name(inventory: ExportInventory, reference: str) -> str | None:
     if reference in inventory.files:
         return reference
     key = portable_collision_key(reference)
-    matches = [name for name in inventory.files if portable_collision_key(name) == key]
-    if len(matches) > 1:
+    match = inventory.portable_files.get(key)
+    if key in inventory.portable_files and match is None:
         raise _fail("ambiguous_source_path", "local reference is ambiguous")
-    return matches[0] if matches else None
+    return match
 
 
 def _safe_fragment(fragment: str) -> str:
@@ -267,7 +304,7 @@ def _safe_fragment(fragment: str) -> str:
     return fragment
 
 
-def _read_inventory_file(record: ExportFile, inventory: ExportInventory) -> bytes:
+def _verified_record_source(record: ExportFile, inventory: ExportInventory) -> Path:
     source = record.source_path
     try:
         root = inventory.root.resolve()
@@ -280,13 +317,179 @@ def _read_inventory_file(record: ExportFile, inventory: ExportInventory) -> byte
         or not source.is_file()
     ):
         raise _fail("unsafe_source_path", "local export file is not a safe regular file")
+    return source
+
+
+def _stream_inventory_file(
+    record: ExportFile, inventory: ExportInventory
+):
+    source = _verified_record_source(record, inventory)
+    size = 0
+    digest = hashlib.sha256()
     try:
-        data = source.read_bytes()
+        with source.open("rb") as stream:
+            while chunk := stream.read(_STREAM_CHUNK_BYTES):
+                size += len(chunk)
+                if size > record.size:
+                    raise _fail("changed_source", "local export file changed after inventory")
+                digest.update(chunk)
+                yield chunk
     except OSError as error:
         raise _fail("unreadable_source", "unable to read local export file") from error
-    if len(data) != record.size or hashlib.sha256(data).hexdigest() != record.sha256:
+    if size != record.size or digest.hexdigest() != record.sha256:
         raise _fail("changed_source", "local export file changed after inventory")
-    return data
+
+
+def _read_inventory_file(record: ExportFile, inventory: ExportInventory) -> bytes:
+    return b"".join(_stream_inventory_file(record, inventory))
+
+
+def _hash_inventory_file(record: ExportFile, inventory: ExportInventory) -> str:
+    for _ in _stream_inventory_file(record, inventory):
+        pass
+    return record.sha256
+
+
+def _copy_inventory_file(
+    record: ExportFile, inventory: ExportInventory, destination: Path
+) -> None:
+    with destination.open("xb") as writer:
+        for chunk in _stream_inventory_file(record, inventory):
+            writer.write(chunk)
+
+
+def build_selected_route_index(
+    selected_routes: Mapping[str, str],
+) -> SelectedRouteIndex:
+    """Build exact, portable, and private-identity routes once per run."""
+    exact = dict(selected_routes)
+    portable: dict[str, str | None] = {}
+    identities: dict[str, str | None] = {}
+    for source_ref, slug in exact.items():
+        portable_key = portable_collision_key(source_ref)
+        if portable_key in portable and portable[portable_key] != slug:
+            portable[portable_key] = None
+        else:
+            portable[portable_key] = slug
+        identity = source_key(source_ref)
+        if identity in identities and identities[identity] != slug:
+            identities[identity] = None
+        else:
+            identities[identity] = slug
+    return SelectedRouteIndex(exact, portable, identities, frozenset(exact.values()))
+
+
+def _is_notion_host(hostname: str | None) -> bool:
+    host = (hostname or "").lower().rstrip(".")
+    return any(host == suffix or host.endswith("." + suffix) for suffix in _NOTION_HOSTS)
+
+
+def _notion_url_destination(split, routes: SelectedRouteIndex) -> tuple[str, str]:
+    try:
+        decoded = _decode_component(split.path + ("?" + split.query if split.query else ""))
+    except NotionImportError as error:
+        raise _fail("unresolved_page_link", "private Notion link is malformed") from error
+    identities = {
+        match.group(0).replace("-", "").lower()
+        for match in _NOTION_URL_ID.finditer(decoded)
+    }
+    if len(identities) != 1:
+        raise _fail(
+            "unresolved_page_link",
+            "private Notion link cannot be resolved unambiguously",
+        )
+    route = routes.identities.get("notion:" + next(iter(identities)))
+    if route is None:
+        raise _fail(
+            "unresolved_page_link", "private Notion link targets an unselected page"
+        )
+    try:
+        decoded_fragment = _decode_component(split.fragment)
+    except NotionImportError as error:
+        raise _fail("unresolved_page_link", "private Notion fragment is malformed") from error
+    if _NOTION_URL_ID.search(decoded_fragment):
+        raise _fail(
+            "unresolved_page_link", "private Notion link contains an unsafe identity"
+        )
+    fragment = _safe_fragment(split.fragment)
+    suffix = f"#{fragment}" if fragment else ""
+    return route, f"{route}.html{suffix}"
+
+
+def _notion_url_route(
+    split, label: str, routes: SelectedRouteIndex
+) -> str:
+    route, destination = _notion_url_destination(split, routes)
+    if _NOTION_URL_ID.search(label):
+        raise _fail(
+            "unresolved_page_link", "private Notion link contains an unsafe identity"
+        )
+    return f"[{label or route}]({destination})"
+
+
+def _external_target(raw_target: str):
+    """Return one validated external split, or None for a local reference."""
+    looks_external = bool(
+        raw_target.startswith("//")
+        or re.match(r"^[A-Za-z][A-Za-z0-9+.-]*:", raw_target)
+    )
+    if not looks_external:
+        return None
+    if _UNSAFE_HREF_VALUE.search(raw_target):
+        raise _fail("unsupported_link_scheme", "web link is malformed")
+    try:
+        split = urlsplit(raw_target)
+        split.port
+        hostname = split.hostname
+    except ValueError as error:
+        raise _fail("unsupported_link_scheme", "web link is malformed") from error
+    scheme = split.scheme.lower()
+    if "%" in split.netloc:
+        raise _fail("unsupported_link_scheme", "web link is malformed")
+    if scheme:
+        if scheme not in {"http", "https", "mailto"}:
+            raise _fail("unsupported_link_scheme", "link scheme is not supported")
+        if scheme in {"http", "https"} and (not split.netloc or not hostname):
+            raise _fail("unsupported_link_scheme", "web link is malformed")
+        if scheme == "mailto" and (split.netloc or not split.path):
+            raise _fail("unsupported_link_scheme", "mail link is malformed")
+    elif not raw_target.startswith("//") or not split.netloc or not hostname:
+        raise _fail("unsupported_link_scheme", "web link is malformed")
+    return split
+
+
+def _validate_author_html_links(text: str) -> None:
+    parser = _AuthorLinkParser()
+    try:
+        parser.feed(text)
+        parser.close()
+    except (AssertionError, ValueError) as error:
+        raise _fail("unsupported_link_scheme", "HTML link target is malformed") from error
+    for raw_target in parser.targets:
+        if raw_target != raw_target.strip() or _UNSAFE_HREF_VALUE.search(raw_target):
+            raise _fail("unsupported_link_scheme", "HTML link target is malformed")
+        external = _external_target(raw_target)
+        if external is not None and _is_notion_host(external.hostname):
+            raise _fail(
+                "unresolved_page_link", "private Notion HTML link is unsupported"
+            )
+
+
+def _reject_residual_notion_urls(text: str) -> None:
+    """Fail closed if raw Markdown/HTML still contains a private Notion URL."""
+    decoded = html_unescape(unquote(text, errors="replace")).replace("\\", "/")
+    for match in re.finditer(
+        r"(?i)(?:(?:https?):)?//[^\s<>\"')]+", decoded
+    ):
+        try:
+            split = urlsplit(match.group(0))
+            hostname = split.hostname
+        except ValueError:
+            continue
+        if _is_notion_host(hostname):
+            raise _fail(
+                "unresolved_page_link", "private Notion link remains unresolved"
+            )
 
 
 def _sanitize_asset_name(source_ref: str) -> str:
@@ -363,7 +566,8 @@ def _write_bundle(
     destination_root: str | Path,
     plan: ImportArticlePlan,
     index_text: str,
-    assets: Mapping[str, bytes],
+    assets: Mapping[str, ExportFile],
+    inventory: ExportInventory,
 ) -> Path:
     try:
         destination = private_import_path(destination_root)
@@ -380,10 +584,12 @@ def _write_bundle(
         if assets:
             assets_root = bundle_root / "assets"
             assets_root.mkdir()
-            for name, data in sorted(assets.items()):
-                (assets_root / name).write_bytes(data)
-    except OSError as error:
+            for name, record in sorted(assets.items()):
+                _copy_inventory_file(record, inventory, assets_root / name)
+    except (OSError, NotionImportError) as error:
         _rollback_partial_bundle(destination, bundle_root)
+        if isinstance(error, NotionImportError):
+            raise
         raise _fail("write_failed", "unable to write converted preview bundle") from error
     return bundle_root
 
@@ -391,7 +597,7 @@ def _write_bundle(
 def convert_notion_page(
     plan_article: ImportArticlePlan,
     inventory: ExportInventory,
-    selected_routes: Mapping[str, str],
+    selected_routes: SelectedRouteIndex | Mapping[str, str],
     destination_root: str | Path,
 ) -> ConvertedBundle:
     """Convert one explicitly selected Notion page into a private writing bundle."""
@@ -420,22 +626,31 @@ def convert_notion_page(
             )
         )
 
-    asset_data: dict[str, bytes] = {}
+    routes = (
+        selected_routes
+        if isinstance(selected_routes, SelectedRouteIndex)
+        else build_selected_route_index(selected_routes)
+    )
+    asset_sources: dict[str, ExportFile] = {}
     content_names: dict[str, str] = {}
     name_hashes: dict[str, str] = {}
-    route_keys = {portable_collision_key(key): value for key, value in selected_routes.items()}
+    verified_assets: dict[str, str] = {}
 
     def rewrite(match: re.Match[str]) -> str:
         image = bool(match.group(1))
         label = match.group(2)
         raw_target = match.group(3).strip()
-        split = urlsplit(raw_target)
-        if image and (split.scheme or split.netloc):
+        external = _external_target(raw_target)
+        if image and external is not None:
             raise _fail("remote_image", "remote images are not supported")
-        if not image and (split.scheme in {"http", "https", "mailto"} or split.netloc):
+        if not image and external is not None:
+            if _is_notion_host(external.hostname):
+                return _notion_url_route(external, label, routes)
             return match.group(0)
-        if split.scheme:
-            raise _fail("unsupported_link_scheme", "link scheme is not supported")
+        try:
+            split = urlsplit(raw_target)
+        except ValueError as error:
+            raise _fail("unsafe_source_path", "local reference is malformed") from error
         if split.query:
             raise _fail("unsafe_source_path", "local references may not contain queries")
         if not split.path:
@@ -449,8 +664,11 @@ def convert_notion_page(
                 raise _fail("missing_image", "local image is missing from export")
             if PurePosixPath(inventory_ref).suffix.lower() not in SUPPORTED_ASSET_EXTENSIONS:
                 raise _fail("unsupported_image", "local image extension is not supported")
-            data = _read_inventory_file(inventory.files[inventory_ref], inventory)
-            digest = hashlib.sha256(data).hexdigest()
+            record = inventory.files[inventory_ref]
+            digest = verified_assets.get(inventory_ref)
+            if digest is None:
+                digest = _hash_inventory_file(record, inventory)
+                verified_assets[inventory_ref] = digest
             destination_name = content_names.get(digest)
             if destination_name is None:
                 destination_name = _sanitize_asset_name(inventory_ref)
@@ -463,15 +681,15 @@ def convert_notion_page(
                         raise _fail("asset_collision", "local images have an unsafe name collision")
                 content_names[digest] = destination_name
                 name_hashes[destination_name] = digest
-                asset_data[destination_name] = data
+                asset_sources[destination_name] = record
             return f"![{label}](assets/{destination_name})"
         if inventory_ref is None or PurePosixPath(inventory_ref).suffix.lower() != ".md":
             if inventory_ref is not None:
                 raise _fail("unsupported_attachment", "local attachments are not supported")
             raise _fail("unresolved_page_link", "local page link cannot be resolved")
-        route = selected_routes.get(inventory_ref) or route_keys.get(
-            portable_collision_key(inventory_ref)
-        )
+        route = routes.exact.get(inventory_ref)
+        if route is None:
+            route = routes.portable.get(portable_collision_key(inventory_ref))
         if route is None:
             raise _fail("unresolved_page_link", "local page link targets an unselected page")
         fragment = _safe_fragment(split.fragment)
@@ -479,9 +697,33 @@ def convert_notion_page(
         return f"[{label}]({route}.html{suffix})"
 
     body = _MARKDOWN_REFERENCE.sub(rewrite, body)
+
+    def rewrite_autolink(match: re.Match[str]) -> str:
+        raw_target = match.group(1)
+        external = _external_target(raw_target)
+        if external is None:
+            return match.group(0)
+        if _is_notion_host(external.hostname):
+            return _notion_url_route(external, "", routes)
+        return match.group(0)
+
+    def rewrite_definition(match: re.Match[str]) -> str:
+        raw_target = match.group(2)
+        external = _external_target(raw_target)
+        if external is None:
+            return match.group(0)
+        if _is_notion_host(external.hostname):
+            _, destination = _notion_url_destination(external, routes)
+            return match.group(1) + destination + match.group(3)
+        return match.group(0)
+
+    body = _MARKDOWN_AUTOLINK.sub(rewrite_autolink, body)
+    body = _MARKDOWN_LINK_DEFINITION.sub(rewrite_definition, body)
+    _validate_author_html_links(body)
     body = _restore_code(body, protected)
+    _reject_residual_notion_urls(body)
     index_text = _front_matter(plan_article) + body
     bundle_root = _write_bundle(
-        destination_root, plan_article, index_text, asset_data
+        destination_root, plan_article, index_text, asset_sources, inventory
     )
     return ConvertedBundle(bundle_root, tuple(issues))

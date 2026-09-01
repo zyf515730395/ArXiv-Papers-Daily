@@ -238,12 +238,27 @@ def source_key(source_ref: str) -> str:
     return "path:" + digest
 
 
+def unique_source_keys(source_refs: tuple[str, ...] | list[str]) -> dict[str, str]:
+    """Require one current export page per private source identity."""
+    owners: dict[str, str] = {}
+    for source_ref in source_refs:
+        key = source_key(source_ref)
+        if key in owners:
+            raise NotionImportError(
+                "ambiguous_identity",
+                "current export source identity is not globally unique",
+            )
+        owners[key] = source_ref
+    return owners
+
+
 def fingerprint_bundle(bundle_root: str | Path) -> str:
     """Hash a regular-file bundle by portable path and bytes."""
     root = Path(bundle_root)
     if not root.exists() or _is_link_or_reparse(root) or not root.is_dir():
         raise _invalid_state("bundle root is unsafe")
     records: list[tuple[str, int, bytes]] = []
+    empty_directories: list[str] = []
     collision_keys: set[str] = set()
 
     def walk_error(error: OSError) -> None:
@@ -254,6 +269,12 @@ def fingerprint_bundle(bundle_root: str | Path) -> str:
             root, topdown=True, onerror=walk_error, followlinks=False
         ):
             current_path = Path(current)
+            if current_path != root and not directories and not files:
+                empty_directories.append(
+                    validate_portable_relative_path(
+                        current_path.relative_to(root).as_posix()
+                    ).as_posix()
+                )
             for name in directories:
                 directory = current_path / name
                 if _is_link_or_reparse(directory) or not directory.is_dir():
@@ -275,8 +296,26 @@ def fingerprint_bundle(bundle_root: str | Path) -> str:
                 if collision in collision_keys:
                     raise _invalid_state("bundle contains ambiguous paths")
                 collision_keys.add(collision)
-                data = path.read_bytes()
-                records.append((normalized, len(data), hashlib.sha256(data).digest()))
+                digest = hashlib.sha256()
+                size = 0
+                with path.open("rb") as handle:
+                    while chunk := handle.read(1024 * 1024):
+                        size += len(chunk)
+                        digest.update(chunk)
+                after = path.stat(follow_symlinks=False)
+                if size != details.st_size or (
+                    details.st_dev,
+                    details.st_ino,
+                    details.st_size,
+                    details.st_mtime_ns,
+                ) != (
+                    after.st_dev,
+                    after.st_ino,
+                    after.st_size,
+                    after.st_mtime_ns,
+                ):
+                    raise _invalid_state("bundle changed while being fingerprinted")
+                records.append((normalized, size, digest.digest()))
     except NotionImportError:
         raise
     except (OSError, ValueError) as error:
@@ -288,4 +327,8 @@ def fingerprint_bundle(bundle_root: str | Path) -> str:
         hasher.update(str(size).encode("ascii"))
         hasher.update(b"\0")
         hasher.update(digest)
+    for relative in sorted(empty_directories):
+        hasher.update(b"\0empty-directory\0")
+        hasher.update(relative.encode("utf-8"))
+        hasher.update(b"\0")
     return "sha256:" + hasher.hexdigest()

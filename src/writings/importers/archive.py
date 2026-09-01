@@ -117,40 +117,55 @@ def _directory_inventory(source: Path, limits: ImportLimits) -> ExportInventory:
     total = 0
     count = 0
 
-    def walk(current: Path, prefix: PurePosixPath | None = None) -> None:
-        nonlocal count, total
-        try:
-            children = sorted(current.iterdir(), key=lambda child: child.name.casefold())
-        except OSError as error:
-            raise _fail("unable to read export directory") from error
-        for child in children:
-            count += 1
-            if count > limits.max_members:
-                raise _fail("archive exceeds configured safety limits")
-            if _is_link_or_reparse(child):
-                raise _fail("export directory contains a link or reparse point")
-            relative = _validated_member((prefix / child.name).as_posix() if prefix else child.name)
-            if child.is_dir():
-                walk(child, relative)
-                continue
+    pending: list[tuple[Path, PurePosixPath | None]] = [(source, None)]
+    try:
+        while pending:
+            current, prefix = pending.pop()
             try:
-                details = child.lstat()
+                children = sorted(
+                    current.iterdir(), key=lambda child: child.name.casefold()
+                )
             except OSError as error:
-                raise _fail("unable to inspect export entry") from error
-            if not stat.S_ISREG(details.st_mode):
-                raise _fail("export directory contains a special file")
-            total = _validate_limits(count, details.st_size, total, limits)
-            key = portable_collision_key(relative)
-            if key in seen:
-                raise _fail("export contains ambiguous member paths")
-            seen.add(key)
-            entries.append((relative, child))
-
-    walk(source)
+                raise _fail("unable to read export directory") from error
+            nested: list[tuple[Path, PurePosixPath]] = []
+            for child in children:
+                count += 1
+                if count > limits.max_members:
+                    raise _fail("archive exceeds configured safety limits")
+                if _is_link_or_reparse(child):
+                    raise _fail("export directory contains a link or reparse point")
+                relative = _validated_member(
+                    (prefix / child.name).as_posix() if prefix else child.name
+                )
+                if child.is_dir():
+                    nested.append((child, relative))
+                    continue
+                try:
+                    details = child.lstat()
+                except OSError as error:
+                    raise _fail("unable to inspect export entry") from error
+                if not stat.S_ISREG(details.st_mode):
+                    raise _fail("export directory contains a special file")
+                total = _validate_limits(count, details.st_size, total, limits)
+                key = portable_collision_key(relative)
+                if key in seen:
+                    raise _fail("export contains ambiguous member paths")
+                seen.add(key)
+                entries.append((relative, child))
+            pending.extend(reversed(nested))
+    except NotionImportError:
+        raise
+    except (OSError, RuntimeError, RecursionError, TypeError, ValueError) as error:
+        raise _fail("unable to inventory export directory") from error
     keys = sorted(seen)
     if any(next_key.startswith(key + "/") for key, next_key in zip(keys, keys[1:])):
         raise _fail("export contains file and descendant path conflict")
-    return _inventory(source.resolve(), entries, limits)
+    try:
+        return _inventory(source.resolve(), entries, limits)
+    except NotionImportError:
+        raise
+    except (OSError, RuntimeError, RecursionError, TypeError, ValueError) as error:
+        raise _fail("unable to inventory export directory") from error
 
 
 def _remove_owned_run(extraction: Path, runs: Path) -> None:
