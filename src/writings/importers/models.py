@@ -367,9 +367,17 @@ class ImportRunResult:
         return MappingProxyType(values)
 
 
+def _identity_import_result(result: ImportRunResult) -> ImportRunResult:
+    return result
+
+
 @dataclass(frozen=True, slots=True)
 class PreparedApplyContract:
     namespace: ImportNamespace
     export_fingerprint: str
     source_refs: tuple[str, ...]
     prepare: Callable[[Path, Path], ImportRunResult]
+    project_result: Callable[[ImportRunResult], ImportRunResult] = (
+        _identity_import_result
+    )
+    serialize_report: Callable[[ImportRunResult], str] | None = None

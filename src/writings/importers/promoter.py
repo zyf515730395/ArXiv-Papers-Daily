@@ -119,6 +119,30 @@ def _exact_path(
     return lexical
 
 
+def validate_exact_report_path(
+    namespace: ImportNamespace, report_path: str | Path
+) -> Path:
+    """Validate the canonical report and its complete chain without mutation."""
+    project = Path(PROJECT_ROOT)
+    report = _exact_path(
+        report_path,
+        project / "build" / "reports" / namespace.report_name,
+        "unsafe_report",
+        namespace,
+    )
+    chain = (project, project / "build", report.parent)
+    if any(
+        os.path.lexists(component) and not component.is_dir()
+        for component in chain
+    ) or (os.path.lexists(report) and not report.is_file()):
+        raise _namespace_global(
+            namespace,
+            "unsafe_report",
+            "import report path has an invalid filesystem type",
+        )
+    return report
+
+
 def validate_exact_namespace_paths(
     namespace: ImportNamespace,
     content_root: str | Path,
@@ -145,12 +169,7 @@ def validate_exact_namespace_paths(
         "unsafe_root",
         namespace,
     )
-    report = _exact_path(
-        report_path,
-        project / "build" / "reports" / namespace.report_name,
-        "unsafe_report",
-        namespace,
-    )
+    report = validate_exact_report_path(namespace, report_path)
     try:
         supported = all(
             (
@@ -1370,13 +1389,115 @@ def _candidate_delta(
     ]
 
 
+def _project_result(
+    contract: PreparedApplyContract, result: ImportRunResult
+) -> ImportRunResult:
+    try:
+        projected = contract.project_result(result)
+    except Exception as error:
+        raise _namespace_global(
+            contract.namespace,
+            "promotion_failed",
+            "import result projection failed",
+        ) from error
+    if not isinstance(projected, ImportRunResult) or len(projected.candidates) != len(
+        result.candidates
+    ):
+        raise _namespace_global(
+            contract.namespace,
+            "promotion_failed",
+            "import result projection changed transaction structure",
+        )
+    if projected.dependencies != result.dependencies:
+        raise _namespace_global(
+            contract.namespace,
+            "promotion_failed",
+            "import result projection changed transaction dependencies",
+        )
+    for original, public in zip(result.candidates, projected.candidates):
+        if (
+            public.slug != original.slug
+            or public.status != original.status
+            or public.bundle_root != original.bundle_root
+            or public.source_fingerprint != original.source_fingerprint
+            or public.written_fingerprint != original.written_fingerprint
+            or len(public.issues) != len(original.issues)
+            or any(
+                projected_issue.code != original_issue.code
+                or projected_issue.message != original_issue.message
+                for original_issue, projected_issue in zip(
+                    original.issues, public.issues
+                )
+            )
+        ):
+            raise _namespace_global(
+                contract.namespace,
+                "promotion_failed",
+                "import result projection changed transaction outcomes",
+            )
+    return projected
+
+
+def _report_bytes(
+    contract: PreparedApplyContract, projected: ImportRunResult
+) -> bytes:
+    serializer = contract.serialize_report or serialize_import_report
+    try:
+        report = serializer(projected)
+    except Exception as error:
+        raise _namespace_global(
+            contract.namespace, "promotion_failed", "import report serialization failed"
+        ) from error
+    if not isinstance(report, str):
+        raise _namespace_global(
+            contract.namespace, "promotion_failed", "import report is invalid"
+        )
+    return report.encode("utf-8")
+
+
+def _recovery_report_bytes(
+    contract: PreparedApplyContract, result: ImportRunResult
+) -> bytes:
+    projected = _project_result(contract, result)
+    candidates = tuple(
+        _result(
+            candidate,
+            "blocked",
+            issue=ImportIssue(
+                candidate.source_ref,
+                "promotion_failed",
+                "Interrupted import did not durably complete",
+            ),
+        )
+        if candidate.status in {"ready", "applied"}
+        else candidate
+        for candidate in projected.candidates
+    )
+    return _report_bytes(
+        contract, ImportRunResult(candidates, projected.dependencies)
+    )
+
+
 def _materialize_recovery_report(
     baseline_report: bytes | None,
+    baseline_recovery_report: bytes | None,
     result_records: list[dict[str, object]],
     rollback_slugs: set[str],
 ) -> bytes | None:
     if baseline_report is None:
         return None
+    if baseline_recovery_report is not None:
+        for record in reversed(result_records):
+            if "report" in record:
+                report = _unblob(record["report"])
+                if report is None:
+                    raise _global(
+                        "recovery_required", "transaction report cannot be rebuilt"
+                    )
+                return report
+        return baseline_recovery_report
+    if not result_records and not rollback_slugs:
+        return baseline_report
     try:
         payload = json.loads(baseline_report.decode("utf-8"))
         if (
@@ -1486,6 +1607,7 @@ def _parse_transaction(
 ) -> tuple[
     dict[str, object],
     bytes | None,
+    bytes | None,
     _TreeIdentity | None,
     list[tuple[int, list[_RecoveryPromotion]]],
     list[tuple[int, list[_RecoveryPromotion]]],
@@ -1556,6 +1678,7 @@ def _parse_transaction(
     stage_intent_payloads: dict[int, list[object]] = {}
     prepared: list[tuple[int, list[_RecoveryPromotion]]] = []
     baseline: bytes | None = None
+    baseline_recovery_report: bytes | None = None
     workspace_identity: _TreeIdentity | None = None
     rolled_back: set[int] = set()
     results: list[dict[str, object]] = []
@@ -1583,7 +1706,10 @@ def _parse_transaction(
                 raise _global("recovery_required", "transaction workspace is invalid")
         elif kind == "baseline":
             if (
-                set(record) != {"kind", "report"}
+                set(record) not in (
+                    {"kind", "report"},
+                    {"kind", "report", "recovery_report"},
+                )
                 or baseline is not None
                 or prepared
                 or results
@@ -1594,6 +1720,12 @@ def _parse_transaction(
             baseline = _unblob(record["report"])
             if baseline is None:
                 raise _global("recovery_required", "transaction baseline is invalid")
+            if "recovery_report" in record:
+                baseline_recovery_report = _unblob(record["recovery_report"])
+                if baseline_recovery_report is None:
+                    raise _global(
+                        "recovery_required", "transaction baseline is invalid"
+                    )
         elif kind == "stage_intent":
             if set(record) != {"kind", "group", "items"}:
                 raise _global("recovery_required", "transaction stage intent is invalid")
@@ -1651,7 +1783,12 @@ def _parse_transaction(
                 raise _global("recovery_required", "transaction rollback record is invalid")
             rolled_back.add(group)  # type: ignore[arg-type]
         elif kind == "result":
-            if set(record) != {"kind", "group", "candidates"}:
+            if set(record) not in (
+                {"kind", "group", "candidates"},
+                {"kind", "group", "report"},
+            ):
+                raise _global("recovery_required", "transaction result record is invalid")
+            if "report" in record and _unblob(record["report"]) is None:
                 raise _global("recovery_required", "transaction result record is invalid")
             results.append(record)
         elif kind == "commit_intent":
@@ -1694,6 +1831,7 @@ def _parse_transaction(
     return (
         header,
         baseline,
+        baseline_recovery_report,
         workspace_identity,
         stage_intents,
         prepared,
@@ -1934,6 +2072,7 @@ def _recover_transaction(
     (
         header,
         baseline_report,
+        baseline_recovery_report,
         workspace_identity,
         stage_intents,
         prepared,
@@ -2099,6 +2238,7 @@ def _recover_transaction(
         }
         recovered_report = _materialize_recovery_report(
             baseline_report if baseline_report is not None else report_before,
+            baseline_recovery_report,
             result_records,
             rollback_slugs,
         )
@@ -2542,11 +2682,21 @@ def _run_durable_import(
                 metadata[checked.slug] = details
         dependencies = dict(prepared.dependencies)
         _propagate_apply_unavailable(results, dependencies)
-        baseline_report = serialize_import_report(
-            ImportRunResult(tuple(results))
-        ).encode("utf-8")
+        baseline_result = _project_result(
+            contract, ImportRunResult(tuple(results), prepared.dependencies)
+        )
+        baseline_report = _report_bytes(contract, baseline_result)
         durable_supported = journal.append(
-            {"kind": "baseline", "report": _blob(baseline_report)},
+            {
+                "kind": "baseline",
+                "report": _blob(baseline_report),
+                "recovery_report": _blob(
+                    _recovery_report_bytes(
+                        contract,
+                        ImportRunResult(tuple(results), prepared.dependencies),
+                    )
+                ),
+            },
             "journal:baseline",
         ) and durable_supported
 
@@ -2613,7 +2763,12 @@ def _run_durable_import(
                 {
                     "kind": "result",
                     "group": group_number,
-                    "candidates": _candidate_delta(group_indexes, results),
+                    "report": _blob(
+                        _recovery_report_bytes(
+                            contract,
+                            ImportRunResult(tuple(results), prepared.dependencies),
+                        )
+                    ),
                 },
                 "journal:result",
             ) and durable_supported
@@ -2624,8 +2779,10 @@ def _run_durable_import(
             if next_state != state
             else state_before
         )
-        final_result = ImportRunResult(tuple(results), prepared.dependencies)
-        report_after = serialize_import_report(final_result).encode("utf-8")
+        final_result = _project_result(
+            contract, ImportRunResult(tuple(results), prepared.dependencies)
+        )
+        report_after = _report_bytes(contract, final_result)
         durable_supported = journal.append(
             {
                 "kind": "commit_intent",

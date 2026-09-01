@@ -95,10 +95,39 @@ def _candidate_exit(result) -> int:
 
 
 def _failure(command: str, error: WeReadImportError) -> int:
-    if error.code in {"model_unavailable", "model_timeout", "model_http"}:
+    if error.code.startswith("model_") or error.code in {
+        "invalid_model",
+        "invalid_model_url",
+        "invalid_model_request",
+        "invalid_summary",
+        "copyright_guard",
+    }:
         action = "Start or configure the local WSL model service, then rerun preview."
-    elif error.code in {"invalid_plan", "review_changed", "missing_preview"}:
+    elif error.code in {
+        "invalid_plan",
+        "review_changed",
+        "missing_preview",
+        "cache_changed",
+        "cache_read_failed",
+        "invalid_cache_key",
+    }:
         action = "Rerun inspect or preview as requested, then try again."
+    elif error.code in {
+        "preview_assets_unavailable",
+        "preview_stage_failed",
+        "preview_render_failed",
+        "preview_write_failed",
+        "preview_swap_failed",
+        "review_state_write_failed",
+        "report_write_failed",
+        "bundle_write_failed",
+        "bundle_verify_failed",
+        "cache_write_failed",
+        "local_io_failed",
+    }:
+        action = "Check private build storage and local site files, then retry."
+    elif error.code == "bundle_invalid":
+        action = "Fix the private plan or model output, then rerun preview."
     else:
         action = "Check the safe local export and private plan, then retry."
     print(f"WeChat Reading {command} failed: {error.message}. {action}", file=sys.stderr)
@@ -166,7 +195,7 @@ def run(argv: Sequence[str] | None = None) -> int:
     except OSError:
         return _failure(
             command,
-            WeReadImportError("unreadable_source", "unable to read safe local input"),
+            WeReadImportError("local_io_failed", "local private I/O failed safely"),
         )
 
 

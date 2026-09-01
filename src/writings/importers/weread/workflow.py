@@ -31,12 +31,13 @@ from ..models import (
     ImportCandidateResult,
     ImportIssue,
     ImportRunResult,
+    NotionImportError,
     PreparedApplyContract,
     WeReadImportError,
     canonical_private_root,
     private_import_path,
 )
-from ..promoter import apply_prepared_import
+from ..promoter import apply_prepared_import, validate_exact_report_path
 from ..state import fingerprint_bundle
 from .cache import SummaryCache
 from .client import LoopbackChatClient
@@ -160,11 +161,18 @@ def _copy_preview_shell(site_root: Path) -> None:
         source = docs / relative
         if not source.is_file():
             raise WeReadImportError(
-                "preview_failed", "local preview site assets are unavailable"
+                "preview_assets_unavailable",
+                "local preview site assets are unavailable",
             )
         target = site_root / relative
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source, target)
+        try:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, target)
+        except OSError:
+            raise WeReadImportError(
+                "preview_assets_unavailable",
+                "local preview site assets cannot be copied",
+            ) from None
 
 
 def _preview_index(result: ImportRunResult, site_root: Path) -> str:
@@ -224,16 +232,18 @@ def _replace_preview(stage: Path, preview: Path) -> None:
         durable_remove_tree(backup, "weread-preview-backup-remove")
 
 
-def _write_private_file(path: Path, data: bytes, label: str) -> None:
+def _write_private_file(
+    path: Path, data: bytes, label: str, *, code: str, message: str
+) -> None:
     try:
         supported = durable_atomic_write(path, data, label)
     except OSError:
         raise WeReadImportError(
-            "preview_failed", "unable to write private preview metadata"
+            code, message
         ) from None
     if not supported:
         raise WeReadImportError(
-            "preview_failed", "private preview durability is unavailable"
+            code, message
         )
 
 
@@ -245,10 +255,13 @@ def preview_import(
 ) -> ImportRunResult:
     """Rebuild one private preview while isolating known per-book failures."""
     plan_fingerprint, books = _validated_inputs(inventory, plan)
+    report = validate_exact_report_path(
+        WEREAD_NAMESPACE,
+        Path(PROJECT_ROOT) / "build" / "reports" / WEREAD_NAMESPACE.report_name,
+    )
     LoopbackChatClient(model_config.base_url)
     private_root = canonical_private_root(WEREAD_NAMESPACE)
     preview = private_import_path(private_root / "preview", WEREAD_NAMESPACE)
-    report = Path(PROJECT_ROOT) / "build" / "reports" / WEREAD_NAMESPACE.report_name
     reviewed_path = private_import_path(
         private_root / "reviewed.json", WEREAD_NAMESPACE
     )
@@ -261,8 +274,13 @@ def preview_import(
     results: list[ImportCandidateResult] = []
     cache = SummaryCache()
     try:
-        bundles_root.mkdir(parents=True)
-        site_root.mkdir()
+        try:
+            bundles_root.mkdir(parents=True)
+            site_root.mkdir()
+        except OSError:
+            raise WeReadImportError(
+                "preview_stage_failed", "unable to create the private preview stage"
+            ) from None
         _copy_preview_shell(site_root)
         for article_plan in plan.books:
             if not article_plan.include:
@@ -273,23 +291,58 @@ def preview_import(
             try:
                 summary = summarize_book(book, model_config, cache, refresh=refresh)
                 key = cache.key_for(book, model_config.model)
-                cache_bytes = cache.path_for(key).read_bytes()
-                article = render_public_bundle(article_plan, book, summary, bundle)
-                written_fingerprint = fingerprint_bundle(bundle)
+                try:
+                    cache_bytes = cache.path_for(key).read_bytes()
+                except OSError:
+                    raise WeReadImportError(
+                        "cache_read_failed",
+                        "unable to bind the reviewed private summary cache",
+                    ) from None
+                try:
+                    article = render_public_bundle(
+                        article_plan, book, summary, bundle
+                    )
+                except OSError:
+                    raise WeReadImportError(
+                        "bundle_write_failed",
+                        "unable to write the generated article bundle",
+                    ) from None
+                except (WritingCatalogError, ValueError):
+                    raise WeReadImportError(
+                        "bundle_invalid",
+                        "generated article failed strict validation",
+                    ) from None
+                try:
+                    written_fingerprint = fingerprint_bundle(bundle)
+                except (NotionImportError, OSError):
+                    raise WeReadImportError(
+                        "bundle_verify_failed",
+                        "generated article bundle cannot be verified",
+                    ) from None
                 output_file = site_root / "writings" / f"{article_plan.slug}.html"
-                output_file.parent.mkdir(parents=True, exist_ok=True)
-                rendered = render_article(
-                    article, output_file=output_file, output_root=site_root
-                )
-                atomic_write_text(
-                    output_file,
-                    render_article_page(
+                try:
+                    rendered = render_article(
+                        article, output_file=output_file, output_root=site_root
+                    )
+                    page = render_article_page(
                         article,
                         rendered,
                         output_file=output_file,
                         output_root=site_root,
-                    ),
-                )
+                    )
+                except (WritingCatalogError, ValueError, OSError):
+                    raise WeReadImportError(
+                        "preview_render_failed",
+                        "generated article preview cannot be rendered",
+                    ) from None
+                try:
+                    output_file.parent.mkdir(parents=True, exist_ok=True)
+                    atomic_write_text(output_file, page)
+                except OSError:
+                    raise WeReadImportError(
+                        "preview_write_failed",
+                        "generated article preview cannot be written",
+                    ) from None
                 candidate = _candidate(
                     article_plan,
                     "ready",
@@ -314,21 +367,26 @@ def preview_import(
                     "blocked",
                     issue=_issue(article_plan.source_ref, error.code, error.message),
                 )
-            except (WritingCatalogError, ValueError, OSError):
-                shutil.rmtree(bundle, ignore_errors=True)
-                candidate = _candidate(
-                    article_plan,
-                    "blocked",
-                    issue=_issue(
-                        article_plan.source_ref,
-                        "invalid_bundle",
-                        "generated article failed strict validation",
-                    ),
-                )
             results.append(candidate)
         result = ImportRunResult(tuple(results))
-        atomic_write_text(site_root / "index.html", _preview_index(result, site_root))
-        _replace_preview(stage, preview)
+        try:
+            index = _preview_index(result, site_root)
+        except (WritingCatalogError, ValueError, OSError):
+            raise WeReadImportError(
+                "preview_render_failed", "private preview index cannot be rendered"
+            ) from None
+        try:
+            atomic_write_text(site_root / "index.html", index)
+        except OSError:
+            raise WeReadImportError(
+                "preview_write_failed", "private preview index cannot be written"
+            ) from None
+        try:
+            _replace_preview(stage, preview)
+        except OSError:
+            raise WeReadImportError(
+                "preview_swap_failed", "private preview cannot be committed"
+            ) from None
         result = ImportRunResult(
             tuple(
                 replace(
@@ -349,11 +407,19 @@ def preview_import(
             "model": model_config.model,
             "candidates": reviewed,
         }
-        _write_private_file(reviewed_path, _canonical_json(review), "weread-review-state")
+        _write_private_file(
+            reviewed_path,
+            _canonical_json(review),
+            "weread-review-state",
+            code="review_state_write_failed",
+            message="unable to write private review state",
+        )
         _write_private_file(
             report,
             serialize_import_report(result).encode("utf-8"),
             "weread-preview-report",
+            code="report_write_failed",
+            message="unable to write private import report",
         )
         return result
     except BaseException:
@@ -444,6 +510,16 @@ def _review_changed(plan: WeReadArticlePlan) -> ImportCandidateResult:
     )
 
 
+def _blocked_phase(
+    plan: WeReadArticlePlan, code: str, message: str
+) -> ImportCandidateResult:
+    return _candidate(
+        plan,
+        "blocked",
+        issue=_issue(plan.source_ref, code, message),
+    )
+
+
 def apply_import(
     inventory: ExportInventory,
     plan: WeReadPlan,
@@ -488,57 +564,123 @@ def apply_import(
                 key = cache.key_for(book, model)
                 cache_path = cache.path_for(key)
                 cache_bytes = cache_path.read_bytes()
-                if (
-                    key.digest != record.get("cache_key")
-                    or _sha256(cache_bytes) != record.get("cache_fingerprint")
-                    or book.source_fingerprint != record.get("source_fingerprint")
-                ):
-                    raise ValueError("review binding changed")
-                summary = cache.load(key)
-                if summary is None:
-                    raise ValueError("review cache is invalid")
-                render_public_bundle(article_plan, book, summary, bundle)
-                written = fingerprint_bundle(bundle)
-                if written != record.get("written_fingerprint"):
-                    raise ValueError("reviewed bundle changed")
+            except (OSError, ValueError, WeReadImportError):
+                shutil.rmtree(bundle, ignore_errors=True)
                 candidates.append(
-                    _candidate(
+                    _blocked_phase(
                         internal_plan,
-                        "ready",
-                        bundle_root=bundle,
-                        source_fingerprint=book.source_fingerprint,
-                        written_fingerprint=written,
+                        "cache_read_failed",
+                        "reviewed private summary cache cannot be read",
                     )
                 )
-            except (OSError, ValueError, WritingCatalogError, WeReadImportError):
+                continue
+            if (
+                key.digest != record.get("cache_key")
+                or _sha256(cache_bytes) != record.get("cache_fingerprint")
+                or book.source_fingerprint != record.get("source_fingerprint")
+            ):
+                candidates.append(
+                    _blocked_phase(
+                        internal_plan,
+                        "cache_changed",
+                        "reviewed private summary cache changed; run preview again",
+                    )
+                )
+                continue
+            summary = cache.load(key)
+            if summary is None:
+                candidates.append(
+                    _blocked_phase(
+                        internal_plan,
+                        "cache_changed",
+                        "reviewed private summary cache changed; run preview again",
+                    )
+                )
+                continue
+            try:
+                render_public_bundle(article_plan, book, summary, bundle)
+            except OSError:
+                shutil.rmtree(bundle, ignore_errors=True)
+                candidates.append(
+                    _blocked_phase(
+                        internal_plan,
+                        "bundle_write_failed",
+                        "reviewed article bundle cannot be written",
+                    )
+                )
+                continue
+            except (ValueError, WritingCatalogError):
+                shutil.rmtree(bundle, ignore_errors=True)
+                candidates.append(
+                    _blocked_phase(
+                        internal_plan,
+                        "bundle_invalid",
+                        "reviewed article bundle failed strict validation",
+                    )
+                )
+                continue
+            try:
+                written = fingerprint_bundle(bundle)
+            except (NotionImportError, OSError):
+                shutil.rmtree(bundle, ignore_errors=True)
+                candidates.append(
+                    _blocked_phase(
+                        internal_plan,
+                        "bundle_verify_failed",
+                        "reviewed article bundle cannot be verified",
+                    )
+                )
+                continue
+            if written != record.get("written_fingerprint"):
                 shutil.rmtree(bundle, ignore_errors=True)
                 candidates.append(_review_changed(internal_plan))
+                continue
+            candidates.append(
+                _candidate(
+                    internal_plan,
+                    "ready",
+                    bundle_root=bundle,
+                    source_fingerprint=book.source_fingerprint,
+                    written_fingerprint=written,
+                )
+            )
         return ImportRunResult(tuple(candidates))
+
+    def project_result(result: ImportRunResult) -> ImportRunResult:
+        return ImportRunResult(
+            tuple(
+                replace(
+                    candidate,
+                    source_ref=internal_to_public.get(
+                        candidate.source_ref, candidate.source_ref
+                    ),
+                    issues=tuple(
+                        replace(
+                            issue,
+                            source=internal_to_public.get(issue.source, issue.source),
+                        )
+                        for issue in candidate.issues
+                    ),
+                )
+                for candidate in result.candidates
+            ),
+            result.dependencies,
+        )
 
     contract = PreparedApplyContract(
         WEREAD_NAMESPACE,
         inventory.fingerprint,
         tuple(internal_to_public),
         prepare,
+        project_result=project_result,
+        serialize_report=serialize_import_report,
     )
-    result = apply_prepared_import(
+    return apply_prepared_import(
         contract,
         Path(PROJECT_ROOT) / "content" / "writings",
         private_root / "state.json",
         private_root,
         Path(PROJECT_ROOT) / "build" / "reports" / WEREAD_NAMESPACE.report_name,
-    )
-    return ImportRunResult(
-        tuple(
-            replace(
-                candidate,
-                source_ref=internal_to_public.get(
-                    candidate.source_ref, candidate.source_ref
-                ),
-            )
-            for candidate in result.candidates
-        ),
-        result.dependencies,
     )
 
 
