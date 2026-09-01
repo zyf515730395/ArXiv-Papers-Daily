@@ -12,7 +12,12 @@ from .cache import SummaryCache
 from .client import LoopbackChatClient
 from .models import BookNotes, SummaryConfig, SummaryResult
 from .privacy import guard_summary
-from .prompts import build_map_chunks, map_messages, reduce_messages
+from .prompts import (
+    build_map_chunks,
+    build_reduce_batches,
+    map_messages,
+    reduce_messages,
+)
 
 
 _SUMMARY_FIELDS = {"one_sentence", "key_ideas", "reflections", "questions"}
@@ -124,13 +129,27 @@ def summarize_book(
         mapped_result = parse_summary(raw, highlights, thoughts=thoughts)
         guard_summary(book, mapped_result)
         mapped.append(mapped_result)
-    if len(mapped) == 1:
-        result = mapped[0]
-    else:
-        raw = client.complete(
-            reduce_messages(tuple(mapped)), model=config.model, timeout=config.timeout
-        )
-        result = parse_summary(raw, highlights, thoughts=thoughts)
-        guard_summary(book, result)
+    level = tuple(mapped)
+    while len(level) > 1:
+        reduced: list[SummaryResult] = []
+        reduced_count = 0
+        for batch in build_reduce_batches(level):
+            if len(batch) == 1:
+                reduced.append(batch[0])
+                continue
+            raw = client.complete(
+                reduce_messages(batch), model=config.model, timeout=config.timeout
+            )
+            reduced_result = parse_summary(raw, highlights, thoughts=thoughts)
+            guard_summary(book, reduced_result)
+            reduced.append(reduced_result)
+            reduced_count += len(batch) - 1
+        if reduced_count == 0:
+            raise WeReadImportError(
+                "summary_payload_too_large",
+                "structured summaries cannot fit a bounded reduction request",
+            )
+        level = tuple(reduced)
+    result = level[0]
     cache.store(key, result, book)
     return result

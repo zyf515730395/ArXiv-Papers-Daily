@@ -11,8 +11,13 @@ from urllib.parse import SplitResult, urlsplit
 
 from writings.importers.models import WeReadImportError
 
+from .prompts import MAX_MESSAGE_CHARS, message_character_count
+
 
 MAX_RESPONSE_BYTES = 4 * 1024 * 1024
+# Hard UTF-8 cap for the complete OpenAI-compatible request body. The messages
+# array is independently capped by MAX_MESSAGE_CHARS before any connection.
+MAX_REQUEST_BYTES = 100_000
 _LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1"}
 
 
@@ -90,6 +95,11 @@ class LoopbackChatClient:
             normalized_messages.append(
                 {"role": message["role"], "content": message["content"]}
             )
+        if message_character_count(normalized_messages) > MAX_MESSAGE_CHARS:
+            raise WeReadImportError(
+                "model_request_too_large",
+                "local model request exceeds the message boundary",
+            )
         payload = json.dumps(
             {
                 "model": model,
@@ -100,6 +110,11 @@ class LoopbackChatClient:
             ensure_ascii=False,
             separators=(",", ":"),
         ).encode("utf-8")
+        if len(payload) > MAX_REQUEST_BYTES:
+            raise WeReadImportError(
+                "model_request_too_large",
+                "local model request exceeds the byte boundary",
+            )
         connection = http.client.HTTPConnection(
             self._host, self._port, timeout=float(timeout)
         )
