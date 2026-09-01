@@ -198,21 +198,24 @@ def serialize_import_plan(plan: ImportPlan) -> str:
     return yaml.dump(payload, Dumper=_PlanDumper, allow_unicode=True, sort_keys=False, default_flow_style=False)
 
 
-def _detected_title(source_path: Path, source_ref: str) -> str:
+def _detected_title(source_path: Path, source_ref: str) -> tuple[str, bool]:
     try:
         text = source_path.read_text(encoding="utf-8-sig")
     except UnicodeError:
         text = ""
+        readable = False
     except OSError as error:
         raise NotionImportError("unsafe_archive", "unable to read Markdown candidate") from error
+    else:
+        readable = True
     match = _H1.match(text)
     if match:
         value = unicodedata.normalize("NFKC", match.group(1)).strip().rstrip("#").strip()
         if value:
-            return value
+            return value, readable
     filename = unicodedata.normalize("NFKC", PurePosixPath(source_ref).stem)
     filename = _NOTION_ID.sub("", filename).strip(" -_\t")
-    return " ".join(filename.split()) or "Untitled"
+    return " ".join(filename.split()) or "Untitled", readable
 
 
 def _slug_base(title: str) -> str:
@@ -240,7 +243,7 @@ def inspect_export(inventory: ExportInventory, previous: ImportPlan | None = Non
     used: set[str] = {item.slug for item in previous_by_ref.values() if item.source_ref in inventory.markdown_paths}
     articles: list[ImportArticlePlan] = []
     for source_ref in inventory.markdown_paths:
-        detected_title = _detected_title(inventory.files[source_ref].source_path, source_ref)
+        detected_title, readable = _detected_title(inventory.files[source_ref].source_path, source_ref)
         old = previous_by_ref.get(source_ref)
         if old is None:
             item = ImportArticlePlan(
@@ -259,7 +262,7 @@ def inspect_export(inventory: ExportInventory, previous: ImportPlan | None = Non
             item = ImportArticlePlan(
                 source_ref=source_ref,
                 detected_title=detected_title,
-                include=old.include,
+                include=old.include if readable else False,
                 slug=slug,
                 title=old.title,
                 published_at=old.published_at,

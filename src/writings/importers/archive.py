@@ -180,8 +180,7 @@ def _zip_entries(archive: zipfile.ZipFile, limits: ImportLimits) -> list[tuple[z
         file_keys.add(key)
         total = _validate_limits(len(records) + 1, info.file_size, total, limits)
         records.append((info, relative))
-    keys = sorted(file_keys)
-    if any(next_key.startswith(key + "/") for key, next_key in zip(keys, keys[1:])):
+    if any("/".join(key.split("/")[:index]) in file_keys for key in file_keys for index in range(1, len(key.split("/")))):
         raise _fail("archive contains file and descendant path conflict")
     return records
 
@@ -223,8 +222,9 @@ def _extract_zip(source: Path, work_root: Path, limits: ImportLimits) -> tuple[P
     with archive:
         _validate_raw_zip_names(source, archive)
         records = _zip_entries(archive, limits)
-        runs = work_root / "runs"
+        runs = private_import_path(work_root / "runs")
         runs.mkdir(parents=True, exist_ok=True)
+        runs = private_import_path(runs)
         extraction = Path(tempfile.mkdtemp(prefix="run-", dir=runs)).resolve()
         if not extraction.is_relative_to(runs.resolve()):
             raise _fail("temporary extraction path is unsafe")

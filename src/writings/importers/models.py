@@ -45,8 +45,9 @@ def validate_portable_relative_path(value: object) -> PurePosixPath:
     if posix.is_absolute() or windows.is_absolute() or windows.drive or posix == PurePosixPath(".") or posix.as_posix() != value:
         raise ValueError("path must be a normalized relative POSIX path")
     for part in posix.parts:
-        stem = part.split(".", 1)[0].casefold()
-        if part in {"", ".", ".."} or part != part.rstrip(". ") or ":" in part or any(char in '<>"|?*' for char in part) or stem in _WINDOWS_DEVICES:
+        normalized = unicodedata.normalize("NFKC", part)
+        stem = normalized.split(".", 1)[0].casefold()
+        if normalized in {"", ".", ".."} or normalized != normalized.rstrip(". ") or ":" in normalized or any(unicodedata.category(char).startswith("C") for char in normalized) or any(char in '<>"|?*' for char in normalized) or stem in _WINDOWS_DEVICES:
             raise ValueError("path contains a Windows-unsafe component")
     return posix
 
