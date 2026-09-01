@@ -41,6 +41,7 @@ from ..promoter import apply_prepared_import, validate_exact_report_path
 from ..state import fingerprint_bundle
 from .cache import SummaryCache
 from .client import LoopbackChatClient
+from .feedback import remediation_for
 from .markdown import parse_book_notes
 from .models import BookNotes, SummaryConfig, WeReadArticlePlan, WeReadPlan
 from .planner import inspect_export, serialize_plan
@@ -192,7 +193,8 @@ def _preview_index(result: ImportRunResult, site_root: Path) -> str:
                 if candidate.issues
                 else "Book is blocked."
             )
-            feedback = f"{safe_message} Fix the source or local model, then run preview again."
+            code = candidate.issues[0].code if candidate.issues else "import_failed"
+            feedback = f"{safe_message.rstrip('.')}. {remediation_for(code)}"
         rows.append(
             "      <li>"
             + label

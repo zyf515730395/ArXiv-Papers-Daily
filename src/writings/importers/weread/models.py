@@ -135,8 +135,17 @@ class SummaryConfig:
     timeout: float = 30.0
 
     def __post_init__(self) -> None:
-        if not isinstance(self.model, str) or not self.model.strip():
-            raise ValueError("model must be non-empty")
+        if (
+            not isinstance(self.model, str)
+            or not self.model
+            or self.model != self.model.strip()
+            or len(self.model) > 200
+            or any(
+                unicodedata.category(character).startswith("C")
+                for character in self.model
+            )
+        ):
+            raise ValueError("model must be trimmed plain text of at most 200 characters")
         if not isinstance(self.base_url, str) or not self.base_url:
             raise ValueError("base URL must be non-empty")
         if not isinstance(self.timeout, (int, float)) or not 0 < self.timeout <= 300:

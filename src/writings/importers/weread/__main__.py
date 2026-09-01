@@ -17,6 +17,7 @@ from ..models import (
     canonical_private_root,
     private_import_path,
 )
+from .feedback import remediation_for
 from .models import SummaryConfig
 from .planner import inspect_export, load_plan, write_plan
 from .workflow import apply_import, preview_import
@@ -95,42 +96,9 @@ def _candidate_exit(result) -> int:
 
 
 def _failure(command: str, error: WeReadImportError) -> int:
-    if error.code.startswith("model_") or error.code in {
-        "invalid_model",
-        "invalid_model_url",
-        "invalid_model_request",
-        "invalid_summary",
-        "copyright_guard",
-    }:
-        action = "Start or configure the local WSL model service, then rerun preview."
-    elif error.code in {
-        "invalid_plan",
-        "review_changed",
-        "missing_preview",
-        "cache_changed",
-        "cache_read_failed",
-        "invalid_cache_key",
-    }:
-        action = "Rerun inspect or preview as requested, then try again."
-    elif error.code in {
-        "preview_assets_unavailable",
-        "preview_stage_failed",
-        "preview_render_failed",
-        "preview_write_failed",
-        "preview_swap_failed",
-        "review_state_write_failed",
-        "report_write_failed",
-        "bundle_write_failed",
-        "bundle_verify_failed",
-        "cache_write_failed",
-        "local_io_failed",
-    }:
-        action = "Check private build storage and local site files, then retry."
-    elif error.code == "bundle_invalid":
-        action = "Fix the private plan or model output, then rerun preview."
-    else:
-        action = "Check the safe local export and private plan, then retry."
-    print(f"WeChat Reading {command} failed: {error.message}. {action}", file=sys.stderr)
+    action = remediation_for(error.code)
+    message = error.message.rstrip(".")
+    print(f"WeChat Reading {command} failed: {message}. {action}", file=sys.stderr)
     return 2
 
 
