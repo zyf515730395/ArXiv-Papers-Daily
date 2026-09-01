@@ -35,12 +35,14 @@ from .models import (
     ImportIssue,
     ImportPlan,
     ImportRunResult,
+    ImportState,
     NotionImportError,
     portable_collision_key,
     private_import_path,
     validate_portable_relative_path,
 )
 from .notion_markdown import convert_notion_page
+from .state import source_key
 
 
 _FINGERPRINT = re.compile(r"^sha256:[0-9a-f]{64}$")
@@ -270,14 +272,53 @@ def _suggest_slug(title: str, source_ref: str, used: set[str]) -> str:
     return candidate
 
 
-def inspect_export(inventory: ExportInventory, previous: ImportPlan | None = None) -> ImportPlan:
-    """Discover markdown candidates while preserving reviews for exact source matches."""
+def inspect_export(
+    inventory: ExportInventory,
+    previous: ImportPlan | None = None,
+    state: ImportState | None = None,
+) -> ImportPlan:
+    """Discover candidates while preserving only exact or strong state identity."""
     previous_by_ref = {item.source_ref: item for item in previous.articles} if previous else {}
-    used: set[str] = {item.slug for item in previous_by_ref.values() if item.source_ref in inventory.markdown_paths}
+    previous_by_key: dict[str, list[ImportArticlePlan]] = {}
+    if previous:
+        for item in previous.articles:
+            previous_by_key.setdefault(source_key(item.source_ref), []).append(item)
+    current_by_key: dict[str, list[str]] = {}
+    for source_ref in inventory.markdown_paths:
+        current_by_key.setdefault(source_key(source_ref), []).append(source_ref)
+    renamed_by_ref: dict[str, ImportArticlePlan] = {}
+    if state:
+        for source_ref in inventory.markdown_paths:
+            if source_ref in previous_by_ref:
+                continue
+            key = source_key(source_ref)
+            if not key.startswith("notion:") or key not in state.sources:
+                continue
+            matches = previous_by_key.get(key, [])
+            if not matches:
+                continue
+            if len(matches) != 1 or len(current_by_key.get(key, [])) != 1:
+                raise NotionImportError(
+                    "ambiguous_identity",
+                    "renamed source identity cannot be matched unambiguously",
+                )
+            old = matches[0]
+            if old.slug != state.sources[key].slug:
+                raise NotionImportError(
+                    "ambiguous_identity", "private state and reviewed plan disagree"
+                )
+            renamed_by_ref[source_ref] = old
+    used: set[str] = {
+        item.slug
+        for item in previous_by_ref.values()
+        if item.source_ref in inventory.markdown_paths
+    } | {item.slug for item in renamed_by_ref.values()}
+    if state:
+        used.update(entry.slug for entry in state.sources.values())
     articles: list[ImportArticlePlan] = []
     for source_ref in inventory.markdown_paths:
         detected_title, readable = _detected_title(inventory.files[source_ref].source_path, source_ref)
-        old = previous_by_ref.get(source_ref)
+        old = previous_by_ref.get(source_ref) or renamed_by_ref.get(source_ref)
         if old is None:
             item = ImportArticlePlan(
                 source_ref=source_ref,
@@ -610,6 +651,43 @@ def _propagate_blocked_dependencies(
             ready_slugs.remove(candidate.slug)
 
 
+def prepare_import_candidates(
+    inventory: ExportInventory,
+    plan: ImportPlan,
+    bundles_root: Path,
+    site_root: Path,
+) -> ImportRunResult:
+    """Rebuild and validate selected candidates in one empty private workspace."""
+    selected_routes = {
+        article.source_ref: article.slug for article in plan.articles if article.include
+    }
+    candidates: list[ImportCandidateResult] = []
+    dependencies: dict[str, frozenset[str]] = {}
+    for article in plan.articles:
+        if not article.include:
+            candidates.append(
+                ImportCandidateResult(
+                    article.source_ref,
+                    article.slug,
+                    "ignored",
+                    (),
+                    None,
+                    None,
+                    None,
+                )
+            )
+            continue
+        candidate, candidate_dependencies = _render_preview_candidate(
+            article, inventory, selected_routes, bundles_root, site_root
+        )
+        candidates.append(candidate)
+        dependencies[article.slug] = candidate_dependencies
+    _propagate_blocked_dependencies(
+        candidates, dependencies, bundles_root, site_root
+    )
+    return ImportRunResult(tuple(candidates))
+
+
 def serialize_import_report(result: ImportRunResult) -> str:
     """Serialize a deterministic private report without paths, bodies, or IDs."""
     payload = {
@@ -653,34 +731,9 @@ def preview_import(
     bundles_root.mkdir()
     site_root.mkdir()
     _copy_preview_shell(site_root)
-    selected_routes = {
-        article.source_ref: article.slug for article in plan.articles if article.include
-    }
-    candidates: list[ImportCandidateResult] = []
-    dependencies: dict[str, frozenset[str]] = {}
-    for article in plan.articles:
-        if not article.include:
-            candidates.append(
-                ImportCandidateResult(
-                    article.source_ref,
-                    article.slug,
-                    "ignored",
-                    (),
-                    None,
-                    None,
-                    None,
-                )
-            )
-            continue
-        candidate, candidate_dependencies = _render_preview_candidate(
-            article, inventory, selected_routes, bundles_root, site_root
-        )
-        candidates.append(candidate)
-        dependencies[article.slug] = candidate_dependencies
-    _propagate_blocked_dependencies(
-        candidates, dependencies, bundles_root, site_root
+    result = prepare_import_candidates(
+        inventory, plan, bundles_root, site_root
     )
-    result = ImportRunResult(tuple(candidates))
     try:
         atomic_write_text(report, serialize_import_report(result))
     except OSError as error:

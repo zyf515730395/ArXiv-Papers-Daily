@@ -142,6 +142,23 @@ class ImportPlan:
 
 
 @dataclass(frozen=True, slots=True)
+class ImportStateEntry:
+    source_key: str
+    slug: str
+    source_fingerprint: str
+    written_fingerprint: str
+
+
+@dataclass(frozen=True, slots=True)
+class ImportState:
+    version: int
+    sources: Mapping[str, ImportStateEntry]
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "sources", MappingProxyType(dict(self.sources)))
+
+
+@dataclass(frozen=True, slots=True)
 class ImportIssue:
     source: str
     code: str

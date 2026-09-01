@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 import sys
 from typing import Sequence
@@ -16,6 +17,8 @@ from .planner import (
     preview_import,
     write_import_plan,
 )
+from .promoter import apply_import
+from .state import load_import_state
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -27,6 +30,9 @@ def build_parser() -> argparse.ArgumentParser:
     preview = commands.add_parser("preview", help="build a private local writings preview")
     preview.add_argument("export", metavar="EXPORT")
     preview.add_argument("plan", metavar="PLAN")
+    apply = commands.add_parser("apply", help="apply guarded writings bundles")
+    apply.add_argument("export", metavar="EXPORT")
+    apply.add_argument("plan", metavar="PLAN")
     return parser
 
 
@@ -57,8 +63,10 @@ def run(argv: Sequence[str] | None = None) -> int:
             root = _build_root(args.plan)
             plan_path = Path(args.plan)
             previous = load_import_plan(plan_path) if plan_path.exists() else None
+            state_path = Path(PROJECT_ROOT) / "build" / "notion-import" / "state.json"
+            state = load_import_state(state_path) if os.path.lexists(state_path) else None
             with open_export(args.export, root) as inventory:
-                plan = inspect_export(inventory, previous)
+                plan = inspect_export(inventory, previous, state)
             write_import_plan(plan_path, plan)
         elif args.command == "preview":
             root = _build_root(args.plan)
@@ -69,23 +77,39 @@ def run(argv: Sequence[str] | None = None) -> int:
                 result = preview_import(
                     inventory, plan, canonical_preview_root(), report_path
                 )
+        elif args.command == "apply":
+            root = _build_root(args.plan)
+            plan_path = Path(args.plan)
+            plan = load_import_plan(plan_path)
+            with open_export(args.export, root) as inventory:
+                result = apply_import(
+                    inventory,
+                    plan,
+                    Path(PROJECT_ROOT) / "content" / "writings",
+                    Path(PROJECT_ROOT) / "build" / "notion-import" / "state.json",
+                    Path(PROJECT_ROOT) / "build" / "notion-import",
+                    Path(PROJECT_ROOT) / "build" / "reports" / "notion-import.json",
+                )
         else:
             raise NotionImportError("invalid_plan", "unsupported import command")
     except NotionImportError as error:
         print(f"Notion {command} failed: {error.message}", file=sys.stderr)
-        return 2
+        return 3 if error.code in {"recovery_required", "recovery_failed"} else 2
     except OSError:
         print(f"Notion {command} failed: unable to read local import input", file=sys.stderr)
         return 2
-    if args.command == "preview":
+    if args.command in {"preview", "apply"}:
         counts = result.counts()
         summary = "; ".join(
             f"{status} {count}" for status, count in counts.items() if count
         )
-        print(
-            f"Preview: {summary}; preview: {_display_plan(canonical_preview_root())}; "
-            "report: build/reports/notion-import.json"
-        )
+        if args.command == "preview":
+            print(
+                f"Preview: {summary}; preview: {_display_plan(canonical_preview_root())}; "
+                "report: build/reports/notion-import.json"
+            )
+        else:
+            print(f"Apply: {summary}; report: build/reports/notion-import.json")
         return 0
     selected = sum(item.include for item in plan.articles)
     print(f"Discovered {len(plan.articles)} Markdown pages; selected {selected}; plan: {_display_plan(plan_path)}")
