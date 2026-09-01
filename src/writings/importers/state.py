@@ -258,7 +258,6 @@ def fingerprint_bundle(bundle_root: str | Path) -> str:
     if not root.exists() or _is_link_or_reparse(root) or not root.is_dir():
         raise _invalid_state("bundle root is unsafe")
     records: list[tuple[str, int, bytes]] = []
-    empty_directories: list[str] = []
     collision_keys: set[str] = set()
 
     def walk_error(error: OSError) -> None:
@@ -269,12 +268,6 @@ def fingerprint_bundle(bundle_root: str | Path) -> str:
             root, topdown=True, onerror=walk_error, followlinks=False
         ):
             current_path = Path(current)
-            if current_path != root and not directories and not files:
-                empty_directories.append(
-                    validate_portable_relative_path(
-                        current_path.relative_to(root).as_posix()
-                    ).as_posix()
-                )
             for name in directories:
                 directory = current_path / name
                 if _is_link_or_reparse(directory) or not directory.is_dir():
@@ -327,8 +320,4 @@ def fingerprint_bundle(bundle_root: str | Path) -> str:
         hasher.update(str(size).encode("ascii"))
         hasher.update(b"\0")
         hasher.update(digest)
-    for relative in sorted(empty_directories):
-        hasher.update(b"\0empty-directory\0")
-        hasher.update(relative.encode("utf-8"))
-        hasher.update(b"\0")
     return "sha256:" + hasher.hexdigest()

@@ -1427,6 +1427,7 @@ def _parse_transaction(
     bytes | None,
     _TreeIdentity | None,
     list[tuple[int, list[_RecoveryPromotion]]],
+    list[tuple[int, list[_RecoveryPromotion]]],
     set[int],
     list[dict[str, object]],
     dict[str, object] | None,
@@ -1490,6 +1491,8 @@ def _parse_transaction(
         raise _global("recovery_required", "stale lock and journal identities disagree")
     _unblob(header["state_before"])
     _unblob(header["report_before"])
+    stage_intents: list[tuple[int, list[_RecoveryPromotion]]] = []
+    stage_intent_payloads: dict[int, list[object]] = {}
     prepared: list[tuple[int, list[_RecoveryPromotion]]] = []
     baseline: bytes | None = None
     workspace_identity: _TreeIdentity | None = None
@@ -1530,6 +1533,30 @@ def _parse_transaction(
             baseline = _unblob(record["report"])
             if baseline is None:
                 raise _global("recovery_required", "transaction baseline is invalid")
+        elif kind == "stage_intent":
+            if set(record) != {"kind", "group", "items"}:
+                raise _global("recovery_required", "transaction stage intent is invalid")
+            group = record["group"]
+            items = record["items"]
+            if (
+                type(group) is not int
+                or group < 0
+                or group in stage_intent_payloads
+                or group in seen_groups
+                or not isinstance(items, list)
+                or not items
+            ):
+                raise _global("recovery_required", "transaction stage intent is invalid")
+            stage_intent_payloads[group] = list(items)
+            stage_intents.append(
+                (
+                    group,
+                    [
+                        _recovery_promotion(item, content_root, transaction_id)
+                        for item in items
+                    ],
+                )
+            )
         elif kind == "prepared":
             if set(record) != {"kind", "group", "items"}:
                 raise _global("recovery_required", "transaction group record is invalid")
@@ -1543,6 +1570,8 @@ def _parse_transaction(
                 or not items
             ):
                 raise _global("recovery_required", "transaction group record is invalid")
+            if group in stage_intent_payloads and items != stage_intent_payloads[group]:
+                raise _global("recovery_required", "transaction group record is invalid")
             seen_groups.add(group)
             prepared.append(
                 (
@@ -1554,9 +1583,12 @@ def _parse_transaction(
                 )
             )
         elif kind == "rolled_back":
-            if set(record) != {"kind", "group"} or record.get("group") not in seen_groups:
+            group = record.get("group")
+            if set(record) != {"kind", "group"} or (
+                group not in seen_groups and group not in stage_intent_payloads
+            ):
                 raise _global("recovery_required", "transaction rollback record is invalid")
-            rolled_back.add(record["group"])  # type: ignore[arg-type]
+            rolled_back.add(group)  # type: ignore[arg-type]
         elif kind == "result":
             if set(record) != {"kind", "group", "candidates"}:
                 raise _global("recovery_required", "transaction result record is invalid")
@@ -1592,10 +1624,17 @@ def _parse_transaction(
             raise _global("recovery_required", "transaction journal record is invalid")
     if committed and intent is None:
         raise _global("recovery_required", "committed journal has no commit intent")
+    prepared_groups = {group for group, _ in prepared}
+    if committed and any(
+        group not in prepared_groups and group not in rolled_back
+        for group, _ in stage_intents
+    ):
+        raise _global("recovery_required", "committed journal has incomplete staging")
     return (
         header,
         baseline,
         workspace_identity,
+        stage_intents,
         prepared,
         rolled_back,
         results,
@@ -1647,6 +1686,115 @@ def _rollback_is_observed(
         return True
     except (OSError, RuntimeError, NotionImportError):
         return False
+
+
+def _reconcile_stage_intents(
+    stage_intents: list[tuple[int, list[_RecoveryPromotion]]],
+    prepared: list[tuple[int, list[_RecoveryPromotion]]],
+    workspace: Path,
+    workspace_token: str,
+    content_root: Path,
+    transaction_id: str,
+) -> bool:
+    """Validate stage locations and remove only intent-authorized public residue."""
+    prepared_groups = {group for group, _ in prepared}
+    bundles = workspace / "bundles"
+    for group, items in stage_intents:
+        if group in prepared_groups and any(
+            os.path.lexists(bundles / item.slug) for item in items
+        ):
+            raise _global(
+                "recovery_required", "prepared writing stage has a private duplicate"
+            )
+    pending = [
+        item
+        for group, items in stage_intents
+        if group not in prepared_groups
+        for item in items
+    ]
+    if not pending:
+        return True
+    supported = True
+    for item in pending:
+        if item.old_fingerprint is None:
+            if os.path.lexists(item.target):
+                raise _global(
+                    "recovery_required", "unprepared writing target changed"
+                )
+        else:
+            assert item.old_identity is not None
+            if not _tree_matches(
+                item.target,
+                content_root,
+                item.old_fingerprint,
+                item.old_identity,
+            ):
+                raise _global(
+                    "recovery_required", "unprepared writing target changed"
+                )
+        if item.backup is not None:
+            backup_trash = _owned_trash_path(
+                item.backup, content_root, transaction_id
+            )
+            if os.path.lexists(item.backup) or os.path.lexists(backup_trash):
+                raise _global(
+                    "recovery_required", "unprepared writing backup is impossible"
+                )
+
+        private = bundles / item.slug
+        stage_trash = _owned_trash_path(
+            item.stage, content_root, transaction_id
+        )
+        private_exists = os.path.lexists(private)
+        stage_exists = os.path.lexists(item.stage)
+        trash_exists = os.path.lexists(stage_trash)
+        if sum((private_exists, stage_exists, trash_exists)) > 1:
+            raise _global(
+                "recovery_required", "unprepared writing stage is duplicated"
+            )
+        if private_exists:
+            if (
+                not _workspace_owner_matches(workspace, workspace_token)
+                or _is_link_or_reparse(bundles)
+                or not bundles.is_dir()
+                or not _tree_matches(
+                    private,
+                    bundles,
+                    item.new_fingerprint,
+                    item.stage_identity,
+                )
+            ):
+                raise _global(
+                    "recovery_required", "private writing stage cannot be proven"
+                )
+        elif stage_exists and not _tree_matches(
+            item.stage,
+            content_root,
+            item.new_fingerprint,
+            item.stage_identity,
+        ):
+            raise _global(
+                "recovery_required", "public writing stage cannot be proven"
+            )
+        elif trash_exists and not _tree_matches(
+            stage_trash,
+            content_root,
+            item.new_fingerprint,
+            item.stage_identity,
+        ):
+            raise _global(
+                "recovery_required", "public writing stage trash cannot be proven"
+            )
+        if stage_exists or trash_exists:
+            supported = _remove_owned_tree(
+                item.stage,
+                content_root,
+                item.new_fingerprint,
+                item.stage_identity,
+                "public:unprepared-stage-remove",
+                transaction_id,
+            ) and supported
+    return supported
 
 
 def _pending_from_prior_process(
@@ -1714,6 +1862,7 @@ def _recover_transaction(
         header,
         baseline_report,
         workspace_identity,
+        stage_intents,
         prepared,
         rolled_back,
         result_records,
@@ -1755,6 +1904,11 @@ def _recover_transaction(
     restart_observed = not isinstance(header_process, str) or (
         header_process != _PROCESS_IDENTITY
     )
+    if committed and not restart_observed:
+        raise _global(
+            "recovery_required",
+            "committed import must be verified by a different process",
+        )
     cleanup_evidence = tuple(
         item
         for item in cleanup_evidence
@@ -1763,6 +1917,14 @@ def _recover_transaction(
         or os.path.lexists(
             _owned_trash_path(item.path, content_root, item.transaction_id)
         )
+    )
+    stage_recovery_supported = _reconcile_stage_intents(
+        stage_intents,
+        prepared,
+        workspace,
+        workspace_token,
+        content_root,
+        transaction_id,
     )
 
     if committed:
@@ -1774,7 +1936,7 @@ def _recover_transaction(
             state_after,
             report_after,
         )
-        recovery_supported = True
+        recovery_supported = stage_recovery_supported
 
         if already_rolled_back and not _rollback_is_observed(
             already_rolled_back, content_root, transaction_id
@@ -1859,6 +2021,8 @@ def _recover_transaction(
         report_before = _unblob(header["report_before"])
         rollback_slugs = {
             item.slug for _, items in prepared for item in items
+        } | {
+            item.slug for _, items in stage_intents for item in items
         }
         recovered_report = _materialize_recovery_report(
             baseline_report if baseline_report is not None else report_before,
@@ -1879,7 +2043,7 @@ def _recover_transaction(
             and _file_bytes(state_path) == state_before
             and _file_bytes(report_path) == recovered_report
         )
-        recovery_supported = True
+        recovery_supported = stage_recovery_supported
         if not rollback_observed:
             _preflight_rollback(all_items, content_root, transaction_id)
             for item in reversed(all_items):
@@ -1914,7 +2078,7 @@ def _recover_transaction(
     return _RecoveryOutcome(transaction_id, cleanup_evidence)
 
 
-def _copy_durable_stage(
+def _plan_durable_stage(
     candidate: ImportCandidateResult,
     content_root: Path,
     transaction_id: str,
@@ -1923,48 +2087,55 @@ def _copy_durable_stage(
     old_fingerprint: str | None,
     old_identity: _TreeIdentity | None,
     backup: Path | None,
-) -> _DurablePromotion:
+) -> tuple[_DurablePromotion, bool]:
     assert candidate.slug is not None and candidate.bundle_root is not None
     stage = _unique_transaction_sibling(
         content_root, _STAGE_PREFIX, transaction_id, candidate.slug
     )
     try:
-        shutil.copytree(candidate.bundle_root, stage, symlinks=False)
-        if fingerprint_bundle(stage) != new_fingerprint:
-            raise OSError("staged bundle changed while copying")
-        identity = _tree_identity(stage)
-    except BaseException as error:
-        if os.path.lexists(stage):
-            try:
-                observed = fingerprint_bundle(stage)
-                identity = _tree_identity(stage)
-                _remove_owned_tree(
-                    stage,
-                    content_root,
-                    observed,
-                    identity,
-                    "public:stage-remove",
-                    transaction_id,
-                )
-            except BaseException as cleanup_error:
-                raise _global(
-                    "recovery_failed", "unable to prove failed stage cleanup"
-                ) from cleanup_error
-        if not isinstance(error, Exception):
-            raise
+        supported = durability.make_tree_durable(candidate.bundle_root, "stage")
+        identity = _tree_identity(candidate.bundle_root)
+        if (
+            fingerprint_bundle(candidate.bundle_root) != new_fingerprint
+            or _tree_identity(candidate.bundle_root) != identity
+        ):
+            raise OSError("private staged bundle changed before journaling")
+    except (OSError, RuntimeError, NotionImportError) as error:
         raise _global("promotion_failed", "unable to stage writing bundle") from error
-    return _DurablePromotion(
-        candidate,
-        source_key(candidate.source_ref),
-        content_root / candidate.slug,
-        stage,
-        backup,
-        source_fingerprint,
-        new_fingerprint,
-        old_fingerprint,
-        identity,
-        old_identity,
+    return (
+        _DurablePromotion(
+            candidate,
+            source_key(candidate.source_ref),
+            content_root / candidate.slug,
+            stage,
+            backup,
+            source_fingerprint,
+            new_fingerprint,
+            old_fingerprint,
+            identity,
+            old_identity,
+        ),
+        supported,
     )
+
+
+def _move_durable_stage(item: _DurablePromotion, content_root: Path) -> bool:
+    assert item.candidate.bundle_root is not None
+    source = item.candidate.bundle_root
+    try:
+        supported = durability.durable_rename_noreplace_across_parents(
+            source, item.stage, "public:stage-move"
+        )
+    except (OSError, RuntimeError) as error:
+        raise _global("promotion_failed", "unable to move writing stage") from error
+    if os.path.lexists(source) or not _tree_matches(
+        item.stage,
+        content_root,
+        item.new_fingerprint,
+        item.stage_identity,
+    ):
+        raise _global("recovery_failed", "moved writing stage cannot be proven")
+    return supported
 
 
 _DurableMetadata = tuple[
@@ -2055,6 +2226,7 @@ def _promote_durable_group(
 ) -> tuple[list[ImportCandidateResult], list[_DurablePromotion], bool]:
     """Durably promote one SCC, rolling back only identity-proven transaction trees."""
     items: list[_DurablePromotion] = []
+    intent_written = False
     prepared = False
     supported = True
     try:
@@ -2075,18 +2247,18 @@ def _promote_durable_group(
         for candidate in candidates:
             assert candidate.slug is not None
             source_fp, new_fp, old_fp, old_identity = metadata[candidate.slug]
-            items.append(
-                _copy_durable_stage(
-                    candidate,
-                    content_root,
-                    transaction_id,
-                    source_fp,
-                    new_fp,
-                    old_fp,
-                    old_identity,
-                    backup_paths[candidate.slug],
-                )
+            item, item_supported = _plan_durable_stage(
+                candidate,
+                content_root,
+                transaction_id,
+                source_fp,
+                new_fp,
+                old_fp,
+                old_identity,
+                backup_paths[candidate.slug],
             )
+            items.append(item)
+            supported = item_supported and supported
         for item in items:
             if item.old_fingerprint is None:
                 if os.path.lexists(item.target):
@@ -2104,6 +2276,19 @@ def _promote_durable_group(
                     raise _global(
                         "promotion_failed", "writing target changed after preflight"
                     )
+        durability._BOUNDARY_HOOK("journal:stage-intent:before")
+        supported = journal.append(
+            {
+                "kind": "stage_intent",
+                "group": group_number,
+                "items": [_promotion_payload(item) for item in items],
+            },
+            "journal:stage-intent",
+        ) and supported
+        intent_written = True
+        for item in items:
+            supported = _move_durable_stage(item, content_root) and supported
+        durability._BOUNDARY_HOOK("journal:prepared:before")
         supported = journal.append(
             {
                 "kind": "prepared",
@@ -2113,8 +2298,6 @@ def _promote_durable_group(
             "journal:prepared",
         ) and supported
         prepared = True
-        for item in items:
-            supported = durability.make_tree_durable(item.stage, "stage") and supported
         for item in items:
             if item.old_fingerprint is not None:
                 assert item.backup is not None and item.old_identity is not None
@@ -2152,9 +2335,13 @@ def _promote_durable_group(
                     {"kind": "rolled_back", "group": group_number},
                     "journal:rolled-back",
                 ) and supported
-            else:
+            elif intent_written:
                 supported = _discard_durable_stages(
                     items, content_root, transaction_id
+                ) and supported
+                supported = journal.append(
+                    {"kind": "rolled_back", "group": group_number},
+                    "journal:rolled-back",
                 ) and supported
         except BaseException as cleanup_error:
             raise _global(
@@ -2229,6 +2416,7 @@ def apply_import(
         )
         if recovered is not None:
             lock.mark_idle()
+        _detect_residue(content, cleanup_evidence)
 
         transaction_id = secrets.token_hex(16)
         workspace_token = secrets.token_hex(32)
@@ -2245,7 +2433,6 @@ def apply_import(
         lock.activate(transaction_id)
         transaction_active = True
 
-        _detect_residue(content, cleanup_evidence)
         state = (
             load_import_state(state_file)
             if os.path.lexists(state_file)

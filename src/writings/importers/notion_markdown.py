@@ -37,10 +37,10 @@ _LEADING_H1 = re.compile(
 )
 _MARKDOWN_REFERENCE = re.compile(r"(!?)\[([^\]\n]*)\]\(([^)\n]+)\)")
 _MARKDOWN_AUTOLINK = re.compile(
-    r"<((?:(?:https?|mailto):|//)[^<>\s]+)>", re.IGNORECASE
+    r"<((?:[A-Za-z][A-Za-z0-9+.-]*:|//)[^<>\s]+)>", re.IGNORECASE
 )
 _MARKDOWN_LINK_DEFINITION = re.compile(
-    r"(?m)^([ \t]{0,3}\[[^\]\n]+\]:[ \t]*)(\S+)([^\n]*)$"
+    r"(?m)^([ \t]{0,3}\[[^\]\n]+\]:[ \t]*)(<[^<>\n]*>|\S+)([^\n]*)$"
 )
 _INLINE_CODE = re.compile(r"(?<!`)(`+)([^\n]*?)(?<!`)\1(?!`)")
 _ASIDE = re.compile(r"<aside(?:[ \t][^>]*)?>(.*?)</aside[ \t]*>", re.IGNORECASE | re.DOTALL)
@@ -458,6 +458,14 @@ def _external_target(raw_target: str):
     return split
 
 
+def _angle_external_target(raw_target: str):
+    """Validate an angle-wrapped Markdown destination through the same gate."""
+    candidate = raw_target
+    if len(raw_target) >= 2 and raw_target.startswith("<") and raw_target.endswith(">"):
+        candidate = raw_target[1:-1]
+    return _external_target(candidate)
+
+
 def _validate_author_html_links(text: str) -> None:
     parser = _AuthorLinkParser()
     try:
@@ -640,7 +648,7 @@ def convert_notion_page(
         image = bool(match.group(1))
         label = match.group(2)
         raw_target = match.group(3).strip()
-        external = _external_target(raw_target)
+        external = _angle_external_target(raw_target)
         if image and external is not None:
             raise _fail("remote_image", "remote images are not supported")
         if not image and external is not None:
@@ -709,7 +717,7 @@ def convert_notion_page(
 
     def rewrite_definition(match: re.Match[str]) -> str:
         raw_target = match.group(2)
-        external = _external_target(raw_target)
+        external = _angle_external_target(raw_target)
         if external is None:
             return match.group(0)
         if _is_notion_host(external.hostname):
@@ -717,8 +725,8 @@ def convert_notion_page(
             return match.group(1) + destination + match.group(3)
         return match.group(0)
 
-    body = _MARKDOWN_AUTOLINK.sub(rewrite_autolink, body)
     body = _MARKDOWN_LINK_DEFINITION.sub(rewrite_definition, body)
+    body = _MARKDOWN_AUTOLINK.sub(rewrite_autolink, body)
     _validate_author_html_links(body)
     body = _restore_code(body, protected)
     _reject_residual_notion_urls(body)

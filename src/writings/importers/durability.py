@@ -233,6 +233,27 @@ def durable_rename_noreplace(
     return flush_directory(target_path.parent, f"{label}:parent")
 
 
+def durable_rename_noreplace_across_parents(
+    source: str | Path,
+    target: str | Path,
+    label: str,
+) -> bool:
+    """Atomically move without replacement and flush both directory entries."""
+    source_path = Path(source)
+    target_path = Path(target)
+    if source_path.parent == target_path.parent:
+        return durable_rename_noreplace(source_path, target_path, label)
+    _rename_noreplace(source_path, target_path)
+    _boundary(label)
+    source_supported = flush_directory(
+        source_path.parent, f"{label}:source-parent"
+    )
+    target_supported = flush_directory(
+        target_path.parent, f"{label}:target-parent"
+    )
+    return source_supported and target_supported
+
+
 def durable_atomic_write(
     path: str | Path,
     data: bytes,
