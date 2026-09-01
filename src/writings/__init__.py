@@ -6,6 +6,7 @@ from .catalog import (
     load_manifest,
     serialize_manifest,
     validate_managed_path,
+    validate_writing_bundle,
 )
 from .models import (
     CatalogResult,
@@ -39,5 +40,6 @@ __all__ = [
     "load_manifest",
     "serialize_manifest",
     "validate_managed_path",
+    "validate_writing_bundle",
     "prepare_writings_publication",
 ]
