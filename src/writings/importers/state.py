@@ -21,6 +21,7 @@ from .models import (
     ImportNamespace,
     NotionImportError,
     WeReadImportError,
+    _private_root_components,
     portable_collision_key,
     validate_portable_relative_path,
 )
@@ -66,7 +67,7 @@ def _private_state_path(
         ) from error
     if not relative.parts or any(part in {"", ".", ".."} for part in relative.parts):
         raise _invalid_state("state path is unsafe", namespace)
-    for component in (project, project / "build", root):
+    for component in _private_root_components(project, namespace):
         if os.path.lexists(component) and _is_link_or_reparse(component):
             raise _invalid_state(
                 "state path contains a link or reparse point", namespace

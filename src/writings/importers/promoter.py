@@ -85,6 +85,11 @@ def _namespace_global(
     return error_type(code, message)
 
 
+def _prepared_boundary_error(error: NotionImportError) -> WeReadImportError:
+    message = error.message.replace("Notion", "writing import")
+    return WeReadImportError(error.code, message)
+
+
 def _exact_path(
     value: str | Path,
     expected: Path,
@@ -2726,8 +2731,13 @@ def apply_prepared_import(
     paths = validate_exact_namespace_paths(
         contract.namespace, content_root, state_path, work_root, report_path
     )
-    unique_source_keys(contract.source_refs)
-    return _run_durable_import(contract, paths)
+    try:
+        unique_source_keys(contract.source_refs)
+        return _run_durable_import(contract, paths)
+    except NotionImportError as error:
+        if contract.namespace == NOTION_NAMESPACE:
+            raise
+        raise _prepared_boundary_error(error) from error
 
 
 def apply_import(

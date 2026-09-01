@@ -21,7 +21,12 @@ _REPARSE_POINT = 0x0400
 _WEREAD_BOOK_ID = re.compile(
     r"(?i)\b(?:book(?:[_ -]?id)?\s*[:=]?\s*)?[0-9]{6,}\b"
 )
-_SOURCE_FILENAME = re.compile(r"(?i)(?<![\w.-])[^\s\\/]+\.md(?![\w.-])")
+_ABSOLUTE_PATH = re.compile(
+    r"(?i)(?:[a-z]:[\\/]|\\\\|//|/)[^:;,\r\n]*"
+)
+_SOURCE_FILENAME = re.compile(
+    r"(?i)(?<!\S)[^\\/:;,\r\n]*?\.md(?=$|[\s\x00-\x1f:;,])"
+)
 
 
 def _safe_error_message(message: str) -> str:
@@ -33,8 +38,8 @@ def _safe_error_message(message: str) -> str:
 
 def _safe_weread_error_message(message: str) -> str:
     """Keep WeRead failures free from book and local source identities."""
-    value = _WEREAD_BOOK_ID.sub("[book-id]", str(message))
-    value = re.sub(r"(?i)(?:[a-z]:[\\/]|//|/)[^\s:;]+", "[path]", value)
+    value = _ABSOLUTE_PATH.sub("[path]", str(message))
+    value = _WEREAD_BOOK_ID.sub("[book-id]", value)
     value = _SOURCE_FILENAME.sub("[source-file]", value)
     value = "".join(" " if unicodedata.category(char).startswith("C") else char for char in value)
     return " ".join(value.split()) or "import failed"
@@ -120,11 +125,19 @@ def _namespace_error(
     return error_type(code, message)
 
 
+def _private_root_components(
+    project: Path, namespace: ImportNamespace
+) -> tuple[Path, ...]:
+    build = project / "build"
+    root = build / namespace.name
+    return (*project.parents[::-1], project, build, root)
+
+
 def canonical_private_root(namespace: ImportNamespace) -> Path:
     project = Path(PROJECT_ROOT)
     build = project / "build"
     root = build / namespace.name
-    for component in (*project.parents[::-1], project, build, root):
+    for component in _private_root_components(project, namespace):
         if os.path.lexists(component) and _is_link_or_reparse(component):
             raise _namespace_error(
                 namespace,
