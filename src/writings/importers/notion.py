@@ -8,7 +8,7 @@ import sys
 from typing import Sequence
 
 from .archive import open_export
-from .models import NotionImportError
+from .models import NotionImportError, canonical_import_root, private_import_path
 from .planner import inspect_export, load_import_plan, redact_source_ref, write_import_plan
 
 
@@ -22,11 +22,11 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def _build_root(plan: str | Path) -> Path:
-    target = Path(plan).resolve()
-    for ancestor in (target.parent, *target.parents):
-        if ancestor.name == "notion-import" and ancestor.parent.name == "build":
-            return ancestor
-    raise NotionImportError("invalid_plan", "import plan must be below build/notion-import")
+    try:
+        private_import_path(plan)
+        return canonical_import_root()
+    except NotionImportError as error:
+        raise NotionImportError("invalid_plan", "import plan must be below build/notion-import") from error
 
 
 def _display_plan(path: str | Path) -> str:
@@ -52,6 +52,9 @@ def run(argv: Sequence[str] | None = None) -> int:
         write_import_plan(plan_path, plan)
     except NotionImportError as error:
         print(f"Notion inspect failed: {error.message}", file=sys.stderr)
+        return 2
+    except OSError:
+        print("Notion inspect failed: unable to inspect local export", file=sys.stderr)
         return 2
     selected = sum(item.include for item in plan.articles)
     print(f"Discovered {len(plan.articles)} Markdown pages; selected {selected}; plan: {_display_plan(plan_path)}")

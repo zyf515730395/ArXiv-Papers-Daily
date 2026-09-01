@@ -3,13 +3,18 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path, PurePosixPath
+import os
+from pathlib import Path, PurePosixPath, PureWindowsPath
 import re
 from types import MappingProxyType
 from typing import Literal, Mapping
+import unicodedata
 
 
 _NOTION_ID = re.compile(r"(?i)\b[0-9a-f]{32}\b")
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+_WINDOWS_DEVICES = {"con", "prn", "aux", "nul", "clock$"} | {f"com{number}" for number in range(1, 10)} | {f"lpt{number}" for number in range(1, 10)}
+_REPARSE_POINT = 0x0400
 
 
 def _safe_error_message(message: str) -> str:
@@ -17,6 +22,72 @@ def _safe_error_message(message: str) -> str:
     value = _NOTION_ID.sub("[notion-id]", str(message))
     value = re.sub(r"(?i)(?:[a-z]:[\\/]|//|/)[^\s:;]+", "[path]", value)
     return " ".join(value.split()) or "import failed"
+
+
+def _is_link_or_reparse(path: Path) -> bool:
+    try:
+        details = path.lstat()
+        junction = getattr(path, "is_junction", None)
+        return path.is_symlink() or bool(junction and junction()) or bool(getattr(details, "st_file_attributes", 0) & _REPARSE_POINT)
+    except OSError:
+        return True
+
+
+def portable_collision_key(path: PurePosixPath | str) -> str:
+    return "/".join(unicodedata.normalize("NFKC", part).casefold().rstrip(". ") for part in PurePosixPath(path).parts)
+
+
+def validate_portable_relative_path(value: object) -> PurePosixPath:
+    if not isinstance(value, str) or not value or "\\" in value or any(unicodedata.category(char).startswith("C") for char in value):
+        raise ValueError("path must be a non-empty portable POSIX path")
+    posix = PurePosixPath(value)
+    windows = PureWindowsPath(value)
+    if posix.is_absolute() or windows.is_absolute() or windows.drive or posix == PurePosixPath(".") or posix.as_posix() != value:
+        raise ValueError("path must be a normalized relative POSIX path")
+    for part in posix.parts:
+        stem = part.split(".", 1)[0].casefold()
+        if part in {"", ".", ".."} or part != part.rstrip(". ") or ":" in part or any(char in '<>"|?*' for char in part) or stem in _WINDOWS_DEVICES:
+            raise ValueError("path contains a Windows-unsafe component")
+    return posix
+
+
+def canonical_import_root() -> Path:
+    project = Path(PROJECT_ROOT)
+    build = project / "build"
+    root = build / "notion-import"
+    for component in (project, build, root):
+        if component.exists() and _is_link_or_reparse(component):
+            raise NotionImportError("unsafe_archive", "private import root contains a link or reparse point")
+    try:
+        root.mkdir(parents=True, exist_ok=True)
+    except OSError as error:
+        raise NotionImportError("unsafe_archive", "unable to create private import root") from error
+    resolved_project = project.resolve()
+    resolved_root = root.resolve()
+    if not resolved_root.is_relative_to(resolved_project):
+        raise NotionImportError("unsafe_archive", "private import root escapes the project")
+    return resolved_root
+
+
+def private_import_path(value: str | Path, *, exact_root: bool = False) -> Path:
+    root = canonical_import_root()
+    raw = Path(value)
+    lexical = Path(os.path.abspath(raw))
+    try:
+        relative = lexical.relative_to(root)
+    except ValueError as error:
+        raise NotionImportError("unsafe_archive", "private import path is outside the canonical root") from error
+    if any(part in {"", ".", ".."} for part in relative.parts):
+        raise NotionImportError("unsafe_archive", "private import path is unsafe")
+    current = root
+    for part in relative.parts:
+        current = current / part
+        if current.exists() and _is_link_or_reparse(current):
+            raise NotionImportError("unsafe_archive", "private import path contains a link or reparse point")
+    resolved = lexical.resolve()
+    if not resolved.is_relative_to(root) or (exact_root and resolved != root):
+        raise NotionImportError("unsafe_archive", "private import path is outside the canonical root")
+    return resolved
 
 
 @dataclass(frozen=True, slots=True)

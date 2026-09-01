@@ -5,14 +5,14 @@ from __future__ import annotations
 from contextlib import contextmanager
 import hashlib
 import os
-from pathlib import Path, PurePosixPath, PureWindowsPath
+from pathlib import Path, PurePosixPath
 import shutil
 import stat
 import tempfile
 from typing import ContextManager, Iterator
 import zipfile
 
-from .models import ExportFile, ExportInventory, ImportLimits, NotionImportError
+from .models import ExportFile, ExportInventory, ImportLimits, NotionImportError, portable_collision_key, private_import_path, validate_portable_relative_path
 
 
 DEFAULT_LIMITS = ImportLimits()
@@ -38,22 +38,10 @@ def _is_link_or_reparse(path: Path) -> bool:
 
 
 def _validated_member(name: str) -> PurePosixPath:
-    if not isinstance(name, str) or not name or "\\" in name:
+    try:
+        return validate_portable_relative_path(name)
+    except ValueError as error:
         raise _fail("archive member path is unsafe")
-    windows = PureWindowsPath(name)
-    posix = PurePosixPath(name)
-    lowered = name.lower()
-    if (
-        posix.is_absolute()
-        or windows.is_absolute()
-        or bool(windows.drive)
-        or lowered.startswith(("//?", "//./"))
-        or posix == PurePosixPath(".")
-        or any(part in {"", ".", ".."} for part in posix.parts)
-        or posix.as_posix() != name
-    ):
-        raise _fail("archive member path is unsafe")
-    return posix
 
 
 def _validate_limits(count: int, size: int, total: int, limits: ImportLimits) -> int:
@@ -108,11 +96,7 @@ def _inventory(root: Path, entries: list[tuple[PurePosixPath, Path]], limits: Im
 
 
 def _work_root(value: str | Path) -> Path:
-    root = Path(value).resolve()
-    if root.name != "notion-import" or root.parent.name != "build":
-        raise _fail("temporary extraction root must be build/notion-import")
-    root.mkdir(parents=True, exist_ok=True)
-    return root
+    return private_import_path(value, exact_root=True)
 
 
 def _directory_inventory(source: Path, limits: ImportLimits) -> ExportInventory:
@@ -146,19 +130,36 @@ def _directory_inventory(source: Path, limits: ImportLimits) -> ExportInventory:
             if not stat.S_ISREG(details.st_mode):
                 raise _fail("export directory contains a special file")
             total = _validate_limits(count, details.st_size, total, limits)
-            key = relative.as_posix().casefold()
+            key = portable_collision_key(relative)
             if key in seen:
                 raise _fail("export contains ambiguous member paths")
             seen.add(key)
             entries.append((relative, child))
 
     walk(source)
+    keys = sorted(seen)
+    if any(next_key.startswith(key + "/") for key, next_key in zip(keys, keys[1:])):
+        raise _fail("export contains file and descendant path conflict")
     return _inventory(source.resolve(), entries, limits)
+
+
+def _remove_owned_run(extraction: Path, runs: Path) -> None:
+    resolved_runs = runs.resolve()
+    resolved = extraction.resolve()
+    if not resolved.is_relative_to(resolved_runs) or _is_link_or_reparse(resolved):
+        raise _fail("temporary extraction path is unsafe")
+    try:
+        shutil.rmtree(resolved)
+    except OSError as error:
+        raise _fail("unable to remove temporary extraction") from error
+    if resolved.exists():
+        raise _fail("unable to remove temporary extraction")
 
 
 def _zip_entries(archive: zipfile.ZipFile, limits: ImportLimits) -> list[tuple[zipfile.ZipInfo, PurePosixPath]]:
     records: list[tuple[zipfile.ZipInfo, PurePosixPath]] = []
     seen: set[str] = set()
+    file_keys: set[str] = set()
     total = 0
     if len(archive.infolist()) > limits.max_members:
         raise _fail("archive exceeds configured safety limits")
@@ -167,47 +168,51 @@ def _zip_entries(archive: zipfile.ZipFile, limits: ImportLimits) -> list[tuple[z
         relative = _validated_member(raw_name)
         mode = info.external_attr >> 16
         file_type = stat.S_IFMT(mode)
-        if info.flag_bits & 0x1 or (file_type and file_type != stat.S_IFREG):
+        allowed = {0, stat.S_IFDIR} if info.is_dir() else {0, stat.S_IFREG}
+        if info.flag_bits & 0x1 or file_type not in allowed:
             raise _fail("archive contains an unsupported member type")
-        key = relative.as_posix().casefold()
+        key = portable_collision_key(relative)
         if key in seen:
             raise _fail("archive contains ambiguous member paths")
         seen.add(key)
         if info.is_dir():
             continue
+        file_keys.add(key)
         total = _validate_limits(len(records) + 1, info.file_size, total, limits)
         records.append((info, relative))
+    keys = sorted(file_keys)
+    if any(next_key.startswith(key + "/") for key, next_key in zip(keys, keys[1:])):
+        raise _fail("archive contains file and descendant path conflict")
     return records
 
 
 def _validate_raw_zip_names(source: Path, archive: zipfile.ZipFile) -> None:
     """Validate original central-directory names before zipfile normalizes separators."""
     try:
-        payload = source.read_bytes()
-        offset = archive.start_dir
+        stream = source.open("rb")
+        stream.seek(archive.start_dir)
     except (AttributeError, OSError) as error:
         raise _fail("unable to inspect ZIP member names") from error
-    found = 0
-    while payload[offset : offset + 4] == b"PK\x01\x02":
-        if len(payload) < offset + 46:
-            raise _fail("ZIP central directory is truncated")
-        flags = int.from_bytes(payload[offset + 8 : offset + 10], "little")
-        name_size = int.from_bytes(payload[offset + 28 : offset + 30], "little")
-        extra_size = int.from_bytes(payload[offset + 30 : offset + 32], "little")
-        comment_size = int.from_bytes(payload[offset + 32 : offset + 34], "little")
-        end = offset + 46 + name_size + extra_size + comment_size
-        if end > len(payload):
-            raise _fail("ZIP central directory is truncated")
-        encoding = "utf-8" if flags & 0x800 else "cp437"
-        try:
-            raw_name = payload[offset + 46 : offset + 46 + name_size].decode(encoding)
-        except UnicodeDecodeError as error:
-            raise _fail("ZIP member name is not decodable") from error
-        _validated_member(raw_name[:-1] if raw_name.endswith("/") else raw_name)
-        found += 1
-        offset = end
-    if found != len(archive.infolist()):
-        raise _fail("ZIP central directory is malformed")
+    with stream:
+        for _ in archive.infolist():
+            header = stream.read(46)
+            if len(header) != 46 or header[:4] != b"PK\x01\x02":
+                raise _fail("ZIP central directory is malformed")
+            flags = int.from_bytes(header[8:10], "little")
+            name_size = int.from_bytes(header[28:30], "little")
+            extra_size = int.from_bytes(header[30:32], "little")
+            comment_size = int.from_bytes(header[32:34], "little")
+            if name_size > 65535 or extra_size + comment_size > 131070:
+                raise _fail("ZIP central directory is malformed")
+            name = stream.read(name_size)
+            if len(name) != name_size:
+                raise _fail("ZIP central directory is truncated")
+            stream.seek(extra_size + comment_size, 1)
+            try:
+                raw_name = name.decode("utf-8" if flags & 0x800 else "cp437")
+            except UnicodeDecodeError as error:
+                raise _fail("ZIP member name is not decodable") from error
+            _validated_member(raw_name[:-1] if raw_name.endswith("/") else raw_name)
 
 
 def _extract_zip(source: Path, work_root: Path, limits: ImportLimits) -> tuple[Path, ExportInventory]:
@@ -241,10 +246,12 @@ def _extract_zip(source: Path, work_root: Path, limits: ImportLimits) -> tuple[P
                     raise _fail("archive member size changed while reading")
                 entries.append((relative, target))
             return extraction, _inventory(extraction, entries, limits)
-        except Exception:
-            if extraction.is_relative_to(runs.resolve()):
-                shutil.rmtree(extraction, ignore_errors=True)
+        except NotionImportError:
+            _remove_owned_run(extraction, runs)
             raise
+        except (OSError, zipfile.BadZipFile, NotImplementedError, RuntimeError) as error:
+            _remove_owned_run(extraction, runs)
+            raise _fail("unable to extract ZIP export") from error
 
 
 @contextmanager
@@ -267,6 +274,4 @@ def open_export(
     try:
         yield inventory
     finally:
-        runs = (root / "runs").resolve()
-        if extraction.is_relative_to(runs):
-            shutil.rmtree(extraction, ignore_errors=True)
+        _remove_owned_run(extraction, root / "runs")

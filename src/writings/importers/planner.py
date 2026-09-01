@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import asdict
 from datetime import date
 import hashlib
-from pathlib import Path, PurePosixPath, PureWindowsPath
+from pathlib import Path, PurePosixPath
 import re
 from typing import Any
 import unicodedata
@@ -15,7 +15,7 @@ import yaml
 from shared.rendering import atomic_write_text
 from writings.catalog import SLUG_PATTERN, SUPPORTED_KINDS
 
-from .models import ExportInventory, ImportArticlePlan, ImportPlan, NotionImportError
+from .models import ExportInventory, ImportArticlePlan, ImportPlan, NotionImportError, portable_collision_key, private_import_path, validate_portable_relative_path
 
 
 _FINGERPRINT = re.compile(r"^sha256:[0-9a-f]{64}$")
@@ -40,20 +40,10 @@ def _invalid(message: str) -> NotionImportError:
 
 
 def _source_ref(value: Any) -> str:
-    if not isinstance(value, str) or not value or "\\" in value:
-        raise _invalid("source reference must be a non-empty relative POSIX path")
-    posix = PurePosixPath(value)
-    windows = PureWindowsPath(value)
-    if (
-        posix.is_absolute()
-        or windows.is_absolute()
-        or bool(windows.drive)
-        or posix == PurePosixPath(".")
-        or any(part in {"", ".", ".."} for part in posix.parts)
-        or posix.as_posix() != value
-    ):
+    try:
+        return validate_portable_relative_path(value).as_posix()
+    except ValueError as error:
         raise _invalid("source reference must be a normalized relative POSIX path")
-    return posix.as_posix()
 
 
 def _required_text(value: Any, field: str) -> str:
@@ -128,7 +118,8 @@ def _validated_plan(value: Any) -> ImportPlan:
     articles = tuple(_article(item) for item in value["articles"])
     refs = [item.source_ref for item in articles]
     slugs = [item.slug for item in articles]
-    if len(refs) != len(set(refs)) or len(slugs) != len(set(slugs)):
+    keys = [portable_collision_key(ref) for ref in refs]
+    if len(refs) != len(set(refs)) or len(keys) != len(set(keys)) or len(slugs) != len(set(slugs)):
         raise _invalid("article source references and slugs must be unique")
     if refs != sorted(refs):
         raise _invalid("articles must be ordered by source reference")
@@ -147,7 +138,7 @@ def _construct_mapping(loader: yaml.SafeLoader, node: yaml.nodes.MappingNode, de
     mapping: dict[Any, Any] = {}
     for key_node, value_node in node.value:
         key = loader.construct_object(key_node, deep=deep)
-        if key in mapping:
+        if not isinstance(key, str) or key in mapping:
             raise _invalid("plan contains duplicate YAML fields")
         mapping[key] = loader.construct_object(value_node, deep=deep)
     return mapping
@@ -168,7 +159,9 @@ def load_import_plan(path: str | Path) -> ImportPlan:
     """Load one strict, private import plan without accepting implicit YAML types."""
     try:
         payload = yaml.load(Path(path).read_text(encoding="utf-8"), Loader=_StrictPlanLoader)
-    except (OSError, UnicodeError, yaml.YAMLError, NotionImportError) as error:
+    except NotionImportError:
+        raise
+    except (OSError, UnicodeError, yaml.YAMLError, TypeError, ValueError) as error:
         raise _invalid("unable to load import plan") from error
     return _validated_plan(payload)
 
@@ -208,7 +201,9 @@ def serialize_import_plan(plan: ImportPlan) -> str:
 def _detected_title(source_path: Path, source_ref: str) -> str:
     try:
         text = source_path.read_text(encoding="utf-8-sig")
-    except (OSError, UnicodeError) as error:
+    except UnicodeError:
+        text = ""
+    except OSError as error:
         raise NotionImportError("unsafe_archive", "unable to read Markdown candidate") from error
     match = _H1.match(text)
     if match:
@@ -242,7 +237,7 @@ def _suggest_slug(title: str, source_ref: str, used: set[str]) -> str:
 def inspect_export(inventory: ExportInventory, previous: ImportPlan | None = None) -> ImportPlan:
     """Discover markdown candidates while preserving reviews for exact source matches."""
     previous_by_ref = {item.source_ref: item for item in previous.articles} if previous else {}
-    used: set[str] = set()
+    used: set[str] = {item.slug for item in previous_by_ref.values() if item.source_ref in inventory.markdown_paths}
     articles: list[ImportArticlePlan] = []
     for source_ref in inventory.markdown_paths:
         detected_title = _detected_title(inventory.files[source_ref].source_path, source_ref)
@@ -260,8 +255,7 @@ def inspect_export(inventory: ExportInventory, previous: ImportPlan | None = Non
                 tags=(),
             )
         else:
-            slug = old.slug if old.slug not in used else _suggest_slug(old.title, source_ref, used)
-            used.add(slug)
+            slug = old.slug
             item = ImportArticlePlan(
                 source_ref=source_ref,
                 detected_title=detected_title,
@@ -278,21 +272,19 @@ def inspect_export(inventory: ExportInventory, previous: ImportPlan | None = Non
 
 
 def _plan_root(path: str | Path) -> Path:
-    target = Path(path).resolve()
-    for ancestor in (target.parent, *target.parents):
-        if ancestor.name == "notion-import" and ancestor.parent.name == "build":
-            try:
-                target.relative_to(ancestor)
-            except ValueError:
-                break
-            return ancestor
-    raise _invalid("import plan must be below build/notion-import")
+    try:
+        return private_import_path(path).parent
+    except NotionImportError as error:
+        raise _invalid("import plan must be below build/notion-import") from error
 
 
 def write_import_plan(path: str | Path, plan: ImportPlan) -> None:
     """Atomically replace a plan only inside the ignored private import tree."""
-    _plan_root(path)
-    atomic_write_text(path, serialize_import_plan(plan))
+    target = private_import_path(path)
+    try:
+        atomic_write_text(target, serialize_import_plan(plan))
+    except OSError as error:
+        raise _invalid("unable to write import plan") from error
 
 
 def redact_source_ref(source_ref: str) -> str:
