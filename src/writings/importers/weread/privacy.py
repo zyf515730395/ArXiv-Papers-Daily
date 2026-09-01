@@ -19,14 +19,16 @@ def _normalized(value: str) -> str:
     return unicodedata.normalize("NFKC", value).casefold().replace("\\", "/")
 
 
-def _identifier_variants(book: BookNotes) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _identifier_variants(
+    book: BookNotes,
+) -> tuple[tuple[str, ...], tuple[str, ...], str]:
     path = PurePosixPath(book.source_ref)
     strong = {_normalized(book.source_ref), _normalized(path.name)}
     if book.book_id:
         strong.add(_normalized(book.book_id))
 
     weak: set[str] = set()
-    for part in path.parts:
+    for part in path.parts[:-1]:
         normalized_part = _normalized(part)
         stem = _normalized(PurePosixPath(part).stem)
         for value in (normalized_part, stem):
@@ -36,6 +38,7 @@ def _identifier_variants(book: BookNotes) -> tuple[tuple[str, ...], tuple[str, .
     return (
         tuple(sorted((value for value in strong if value), key=len, reverse=True)),
         tuple(sorted((value for value in weak if value), key=len, reverse=True)),
+        _normalized(path.stem),
     )
 
 
@@ -64,15 +67,26 @@ def _contains_weak(text: str, identifier: str) -> bool:
     return text[start:end] == identifier
 
 
-def guard_private_text(book: BookNotes, values: Iterable[str | None]) -> None:
-    """Reject only identifiers belonging to the current private source."""
-    strong, weak = _identifier_variants(book)
+def guard_private_text(
+    book: BookNotes,
+    values: Iterable[str | None],
+    *,
+    allow_filename_stem: bool = False,
+) -> None:
+    """Reject current private identifiers, with an explicit title/stem carve-out."""
+    strong, weak, filename_stem = _identifier_variants(book)
     for value in values:
         if not value:
             continue
         normalized = _normalized(value)
-        if any(_contains(normalized, identifier) for identifier in strong) or any(
-            _contains_weak(normalized, identifier) for identifier in weak
+        if (
+            any(_contains(normalized, identifier) for identifier in strong)
+            or any(_contains_weak(normalized, identifier) for identifier in weak)
+            or (
+                not allow_filename_stem
+                and filename_stem
+                and _contains_weak(normalized, filename_stem)
+            )
         ):
             raise WeReadImportError(
                 "private_identifier",

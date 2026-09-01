@@ -215,7 +215,8 @@ def _plan_path(path: str | Path) -> Path:
 def load_plan(path: str | Path) -> WeReadPlan:
     target = _plan_path(path)
     try:
-        raw = target.read_bytes()
+        with target.open("rb") as handle:
+            raw = handle.read(_MAX_PLAN_BYTES + 1)
         if len(raw) > _MAX_PLAN_BYTES:
             raise _invalid("plan exceeds the local safety limit")
         payload = raw.decode("utf-8", errors="strict")

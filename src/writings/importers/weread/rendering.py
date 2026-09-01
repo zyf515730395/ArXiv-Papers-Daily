@@ -70,11 +70,13 @@ def render_public_bundle(
     guard_summary(book, summary)
     guard_private_text(
         book,
+        (plan.detected_title, plan.slug, plan.title),
+        allow_filename_stem=True,
+    )
+    guard_private_text(
+        book,
         (
-            plan.detected_title,
             plan.detected_author,
-            plan.slug,
-            plan.title,
             plan.summary,
             *tags,
         ),
