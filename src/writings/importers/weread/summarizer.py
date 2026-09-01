@@ -11,6 +11,7 @@ from writings.importers.models import WeReadImportError
 from .cache import SummaryCache
 from .client import LoopbackChatClient
 from .models import BookNotes, SummaryConfig, SummaryResult
+from .privacy import guard_summary
 from .prompts import build_map_chunks, map_messages, reduce_messages
 
 
@@ -111,6 +112,7 @@ def summarize_book(
         cached = cache.load(key)
         if cached is not None:
             _guard_highlight_copy(cached, highlights)
+            guard_summary(book, cached)
             return cached
 
     client = LoopbackChatClient(config.base_url)
@@ -119,7 +121,9 @@ def summarize_book(
         raw = client.complete(
             map_messages(book, chunk), model=config.model, timeout=config.timeout
         )
-        mapped.append(parse_summary(raw, highlights, thoughts=thoughts))
+        mapped_result = parse_summary(raw, highlights, thoughts=thoughts)
+        guard_summary(book, mapped_result)
+        mapped.append(mapped_result)
     if len(mapped) == 1:
         result = mapped[0]
     else:
@@ -127,5 +131,6 @@ def summarize_book(
             reduce_messages(tuple(mapped)), model=config.model, timeout=config.timeout
         )
         result = parse_summary(raw, highlights, thoughts=thoughts)
-    cache.store(key, result)
+        guard_summary(book, result)
+    cache.store(key, result, book)
     return result

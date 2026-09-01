@@ -19,12 +19,18 @@ _HTML = re.compile(
 _PRIVATE_PATH = re.compile(
     r"(?i)(?:\b[a-z]:[\\/]|\\\\[^\\/\r\n]+[\\/]|(?<![:/\w])/(?!/)[^\s<>]+)"
 )
-_SOURCE_FILENAME = re.compile(
-    r"(?i)(?<![\w./\\@-])\.?[\w][\w .-]*?\.md(?![\w.-])"
-)
-_BOOK_ID = re.compile(
-    r"(?i)\b(?:book(?:[_ -]?id)?\s*[:=]?\s*)?[0-9]{6,}\b"
-)
+_MODEL_FILE_SUFFIXES = (".bin", ".gguf", ".safetensors")
+
+
+def _path_like_model(value: str) -> bool:
+    normalized = unicodedata.normalize("NFKC", value)
+    folded = normalized.casefold()
+    return (
+        "/" in normalized
+        or "\\" in normalized
+        or normalized in {".", "..", "~"}
+        or folded.endswith(_MODEL_FILE_SUFFIXES)
+    )
 
 
 def _summary_text(value: object, *, maximum: int) -> str:
@@ -35,8 +41,6 @@ def _summary_text(value: object, *, maximum: int) -> str:
     if (
         _HTML.search(value)
         or _PRIVATE_PATH.search(value)
-        or _SOURCE_FILENAME.search(value)
-        or _BOOK_ID.search(value)
         or any(
             (category := unicodedata.category(character)).startswith("C")
             or category in {"Zl", "Zp"}
@@ -140,6 +144,7 @@ class SummaryConfig:
             or not self.model
             or self.model != self.model.strip()
             or len(self.model) > 200
+            or _path_like_model(self.model)
             or any(
                 unicodedata.category(character).startswith("C")
                 for character in self.model
@@ -185,6 +190,8 @@ class SummaryCacheKey:
                 or any(unicodedata.category(char).startswith("C") for char in value)
             ):
                 raise ValueError("summary cache identity text is invalid")
+        if _path_like_model(self.model):
+            raise ValueError("summary cache model identity is path-like")
         inputs = {
             "source_fingerprint": self.source_fingerprint,
             "content_fingerprint": self.content_fingerprint,

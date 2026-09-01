@@ -18,6 +18,7 @@ from writings.catalog import SLUG_PATTERN
 from ..models import ExportInventory, WeReadImportError, private_import_path, WEREAD_NAMESPACE
 from .markdown import parse_book_notes
 from .models import BookNotes, WeReadArticlePlan, WeReadPlan
+from .yaml_safety import BoundedSafeLoader
 
 
 _FINGERPRINT = re.compile(r"^sha256:[0-9a-f]{64}$")
@@ -26,6 +27,7 @@ _ARTICLE_FIELDS = {
     "source_ref", "detected_title", "detected_author", "include", "slug", "title", "published_at", "summary", "tags"
 }
 _REDACTION_KEY = b"weread-plan-v1"
+_MAX_PLAN_BYTES = 8 * 1024 * 1024
 
 
 class _SlugRegistry(set[str]):
@@ -34,7 +36,7 @@ class _SlugRegistry(set[str]):
         self.next_suffix: dict[str, int] = {}
 
 
-class _StrictLoader(yaml.SafeLoader):
+class _StrictLoader(BoundedSafeLoader):
     pass
 
 
@@ -213,14 +215,26 @@ def _plan_path(path: str | Path) -> Path:
 def load_plan(path: str | Path) -> WeReadPlan:
     target = _plan_path(path)
     try:
-        payload = target.read_text(encoding="utf-8")
+        raw = target.read_bytes()
+        if len(raw) > _MAX_PLAN_BYTES:
+            raise _invalid("plan exceeds the local safety limit")
+        payload = raw.decode("utf-8", errors="strict")
         for token in yaml.scan(payload, Loader=yaml.SafeLoader):
             if isinstance(token, (yaml.tokens.AliasToken, yaml.tokens.AnchorToken, yaml.tokens.TagToken)):
                 raise _invalid("plan aliases and tags are unsupported")
         return _validated_plan(yaml.load(payload, Loader=_StrictLoader))
     except WeReadImportError:
         raise
-    except (OSError, UnicodeError, yaml.YAMLError, TypeError, ValueError) as error:
+    except (
+        OSError,
+        UnicodeError,
+        yaml.YAMLError,
+        RecursionError,
+        MemoryError,
+        OverflowError,
+        TypeError,
+        ValueError,
+    ) as error:
         raise _invalid("plan cannot be read") from error
 
 

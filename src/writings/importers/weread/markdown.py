@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import re
+import stat
 from typing import Any
 import unicodedata
 
@@ -10,10 +12,12 @@ import yaml
 
 from ..models import ExportFile, WeReadImportError
 from .models import BookNotes, NoteSection
+from .yaml_safety import BoundedSafeLoader
 
 
 _MAX_BODY_BYTES = 8 * 1024 * 1024
 _MAX_FRONT_MATTER_BYTES = 256 * 1024
+_REPARSE_POINT = 0x0400
 _TITLE_KEYS = ("title", "book", "bookName")
 _AUTHOR_KEYS = ("author", "authors", "writer")
 _BOOK_ID_KEYS = ("bookId", "book_id")
@@ -38,7 +42,7 @@ _ITEM = re.compile(r"^[ \t]*(?:[-*+])[ \t]+(.+?)\s*$")
 _CALLOUT = re.compile(r"^[ \t]*>[ \t]*([A-Za-z_][A-Za-z0-9_]*|书名|作者)[：:]\s*(.+?)\s*$")
 
 
-class _StrictLoader(yaml.SafeLoader):
+class _StrictLoader(BoundedSafeLoader):
     pass
 
 
@@ -90,7 +94,14 @@ def _front_matter(text: str) -> tuple[dict[str, Any], str]:
         decoded = yaml.load(payload, Loader=_StrictLoader)
     except WeReadImportError:
         raise
-    except (yaml.YAMLError, TypeError, ValueError) as error:
+    except (
+        yaml.YAMLError,
+        RecursionError,
+        MemoryError,
+        OverflowError,
+        TypeError,
+        ValueError,
+    ) as error:
         raise _error("invalid_metadata", "front matter is invalid") from error
     if decoded is None:
         decoded = {}
@@ -147,9 +158,37 @@ def _section_name(value: str) -> str | None:
 def parse_book_notes(record: ExportFile) -> BookNotes:
     """Normalize one inventoried Markdown record without exposing source text."""
     try:
+        before = record.source_path.stat(follow_symlinks=False)
+        junction = getattr(record.source_path, "is_junction", None)
+        if (
+            record.source_path.is_symlink()
+            or bool(junction and junction())
+            or bool(getattr(before, "st_file_attributes", 0) & _REPARSE_POINT)
+            or not stat.S_ISREG(before.st_mode)
+        ):
+            raise OSError("source identity is unsafe")
         raw = record.source_path.read_bytes()
+        after = record.source_path.stat(follow_symlinks=False)
     except OSError as error:
         raise _error("unreadable_source", "unable to read a local Markdown candidate") from error
+    identity_before = (
+        before.st_dev,
+        before.st_ino,
+        before.st_size,
+        before.st_mtime_ns,
+    )
+    identity_after = (
+        after.st_dev,
+        after.st_ino,
+        after.st_size,
+        after.st_mtime_ns,
+    )
+    if (
+        identity_before != identity_after
+        or len(raw) != record.size
+        or hashlib.sha256(raw).hexdigest() != record.sha256
+    ):
+        raise _error("source_changed", "local Markdown candidate changed after inventory")
     if len(raw) > _MAX_BODY_BYTES:
         raise _error("invalid_markdown", "Markdown candidate exceeds the local safety limit")
     try:

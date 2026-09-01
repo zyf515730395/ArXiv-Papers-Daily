@@ -10,6 +10,7 @@ from shared.rendering import atomic_write_text
 from writings import WritingArticle, validate_writing_bundle
 
 from .models import BookNotes, SummaryResult, WeReadArticlePlan
+from .privacy import guard_private_text, guard_summary
 
 
 _MARKDOWN_PLAIN = frozenset("\\`*_{}[]()#+-.!|>")
@@ -63,20 +64,31 @@ def render_public_bundle(
     bundle_root: str | Path,
 ) -> WritingArticle:
     """Write and strictly validate one synthesis-only public writing bundle."""
-    del book  # Raw normalized notes are deliberately outside the renderer boundary.
     if plan.published_at is None:
         raise ValueError("published_at is required for an included book")
     tags = _public_tags(plan.tags)
+    guard_summary(book, summary)
+    guard_private_text(
+        book,
+        (
+            plan.detected_title,
+            plan.detected_author,
+            plan.slug,
+            plan.title,
+            plan.summary,
+            *tags,
+        ),
+    )
     front_matter = "\n".join(
         (
             "---",
             f"title: {_yaml_text(plan.title)}",
-            f"slug: {plan.slug}",
+            f"slug: {_yaml_text(plan.slug)}",
             f"published_at: {plan.published_at}",
             "kind: book-note",
             "public: true",
             f"summary: {_yaml_text(plan.summary or summary.one_sentence)}",
-            f"tags: [{', '.join(tags)}]",
+            f"tags: [{', '.join(_yaml_text(tag) for tag in tags)}]",
             "source: wechat-reading",
             "---",
             "",

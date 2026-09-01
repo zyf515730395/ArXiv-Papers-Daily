@@ -17,6 +17,7 @@ from writings.importers.models import (
 )
 
 from .models import BookNotes, SummaryCacheKey, SummaryResult
+from .privacy import guard_summary
 from .prompts import PROMPT_VERSION, TRANSPORT_VERSION
 
 
@@ -153,7 +154,10 @@ class SummaryCache:
         except (TypeError, ValueError):
             return None
 
-    def store(self, key: SummaryCacheKey, result: SummaryResult) -> Path:
+    def store(
+        self, key: SummaryCacheKey, result: SummaryResult, book: BookNotes
+    ) -> Path:
+        guard_summary(book, result)
         body: dict[str, Any] = {
             "version": _CACHE_VERSION,
             "key_inputs": _key_inputs(key),

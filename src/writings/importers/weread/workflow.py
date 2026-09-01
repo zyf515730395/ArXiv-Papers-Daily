@@ -601,6 +601,12 @@ def apply_import(
                 continue
             try:
                 render_public_bundle(article_plan, book, summary, bundle)
+            except WeReadImportError as error:
+                shutil.rmtree(bundle, ignore_errors=True)
+                candidates.append(
+                    _blocked_phase(internal_plan, error.code, error.message)
+                )
+                continue
             except OSError:
                 shutil.rmtree(bundle, ignore_errors=True)
                 candidates.append(

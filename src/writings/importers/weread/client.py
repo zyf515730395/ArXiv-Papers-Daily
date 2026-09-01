@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import http.client
+import ipaddress
 import json
 import socket
 from typing import Mapping, Sequence
@@ -13,6 +14,20 @@ from writings.importers.models import WeReadImportError
 
 MAX_RESPONSE_BYTES = 4 * 1024 * 1024
 _LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1"}
+
+
+def _validate_connected_peer(connection: http.client.HTTPConnection) -> None:
+    sock = connection.sock
+    try:
+        peer = sock.getpeername() if sock is not None else None
+        host = peer[0] if isinstance(peer, tuple) and peer else None
+        address = ipaddress.ip_address(host.split("%", 1)[0]) if isinstance(host, str) else None
+    except (OSError, ValueError):
+        address = None
+    if address is None or not address.is_loopback:
+        raise WeReadImportError(
+            "model_peer_invalid", "connected model peer is not loopback"
+        )
 
 
 def _validated_base_url(base_url: str) -> SplitResult:
@@ -89,6 +104,8 @@ class LoopbackChatClient:
             self._host, self._port, timeout=float(timeout)
         )
         try:
+            connection.connect()
+            _validate_connected_peer(connection)
             connection.request(
                 "POST",
                 "/v1/chat/completions",
