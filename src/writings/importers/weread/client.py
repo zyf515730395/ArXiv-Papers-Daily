@@ -30,7 +30,7 @@ def _validated_base_url(base_url: str) -> SplitResult:
         or parsed.password is not None
         or parsed.query
         or parsed.fragment
-        or parsed.path not in {"", "/", "/v1", "/v1/"}
+        or parsed.path not in {"/v1", "/v1/"}
     ):
         raise WeReadImportError(
             "invalid_model_url", "model base URL must be literal loopback HTTP"

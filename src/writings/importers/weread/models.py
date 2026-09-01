@@ -13,7 +13,18 @@ import unicodedata
 
 ONE_SENTENCE_MAX_CHARS = 200
 SUMMARY_ITEM_MAX_CHARS = 500
-_HTML = re.compile(r"<!--|</?[A-Za-z][^>]*>")
+_HTML = re.compile(
+    r"<!--|<![^>]*>|<\?[^>]*\?>|</?[A-Za-z][^>]*>", re.IGNORECASE
+)
+_PRIVATE_PATH = re.compile(
+    r"(?i)(?:\b[a-z]:[\\/]|\\\\[^\\/\r\n]+[\\/]|(?<![:/\w])/(?!/)[^\s<>]+)"
+)
+_SOURCE_FILENAME = re.compile(
+    r"(?i)(?<!\S)[^\\/:;,\r\n]*?\.md(?=$|[\s\x00-\x1f:;,])"
+)
+_BOOK_ID = re.compile(
+    r"(?i)\b(?:book(?:[_ -]?id)?\s*[:=]?\s*)?[0-9]{6,}\b"
+)
 
 
 def _summary_text(value: object, *, maximum: int) -> str:
@@ -21,8 +32,16 @@ def _summary_text(value: object, *, maximum: int) -> str:
         raise ValueError("summary text violates length bounds")
     if value != value.strip() or "\n" in value or "\r" in value:
         raise ValueError("summary text must be one trimmed line")
-    if _HTML.search(value) or any(
-        unicodedata.category(character).startswith("C") for character in value
+    if (
+        _HTML.search(value)
+        or _PRIVATE_PATH.search(value)
+        or _SOURCE_FILENAME.search(value)
+        or _BOOK_ID.search(value)
+        or any(
+            (category := unicodedata.category(character)).startswith("C")
+            or category in {"Zl", "Zp"}
+            for character in value
+        )
     ):
         raise ValueError("summary text must be plain text")
     return value
