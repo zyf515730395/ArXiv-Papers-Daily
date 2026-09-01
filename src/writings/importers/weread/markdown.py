@@ -167,7 +167,10 @@ def parse_book_notes(record: ExportFile) -> BookNotes:
             or not stat.S_ISREG(before.st_mode)
         ):
             raise OSError("source identity is unsafe")
-        raw = record.source_path.read_bytes()
+        if before.st_size != record.size:
+            raise _error("source_changed", "local Markdown candidate changed after inventory")
+        with record.source_path.open("rb") as stream:
+            raw = stream.read(record.size + 1)
         after = record.source_path.stat(follow_symlinks=False)
     except OSError as error:
         raise _error("unreadable_source", "unable to read a local Markdown candidate") from error

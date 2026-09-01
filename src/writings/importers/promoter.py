@@ -1069,7 +1069,7 @@ class _RecoveryPromotion:
     old_fingerprint: str | None
     stage_identity: _TreeIdentity
     old_identity: _TreeIdentity | None
-    previous_slug: str | None
+    previous_slug: str | None = None
 
 
 def _previous_target(
