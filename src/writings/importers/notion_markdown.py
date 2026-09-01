@@ -41,6 +41,9 @@ _INVALID_PERCENT = re.compile(r"%(?![0-9A-Fa-f]{2})")
 _SAFE_FRAGMENT = re.compile(r"^[^\s\\#\x00-\x1f\x7f]*$")
 _FENCE_OPEN = re.compile(r"^[ \t]{0,3}(`{3,}|~{3,})[^\n]*(?:\n|\Z)")
 _SAFE_INLINE_TAGS = {"strong", "em", "code", "a", "br"}
+_VOID_INLINE_TAGS = {"br"}
+_UNSAFE_HREF_VALUE = re.compile(r"[\x00-\x20\x7f\\]")
+_UNSAFE_TITLE_VALUE = re.compile(r"[\x00-\x1f\x7f]")
 _REPARSE_POINT = 0x0400
 
 
@@ -59,16 +62,18 @@ def _is_link_or_reparse(path: Path) -> bool:
         return True
 
 
-def _token(prefix: str, index: int, text: str) -> str:
-    value = f"\ue000NOTION{prefix}{index}\ue001"
-    while value in text:
-        index += 1
-        value = f"\ue000NOTION{prefix}{index}\ue001"
-    return value
-
-
 def _protect_code(text: str) -> tuple[str, dict[str, str]]:
     protected: dict[str, str] = {}
+    next_token = 0
+
+    def allocate_token(prefix: str, current_output: str) -> str:
+        nonlocal next_token
+        while True:
+            token = f"\ue000NOTION{prefix}{next_token}\ue001"
+            next_token += 1
+            if token not in text and token not in current_output and token not in protected:
+                return token
+
     lines = text.splitlines(keepends=True)
     output: list[str] = []
     index = 0
@@ -88,14 +93,14 @@ def _protect_code(text: str) -> tuple[str, dict[str, str]]:
         if end < len(lines):
             end += 1
         block = "".join(lines[index:end])
-        token = _token("FENCE", len(protected), text)
+        token = allocate_token("FENCE", "".join(output))
         protected[token] = block
         output.append(token)
         index = end
     fenced = "".join(output)
 
     def protect_inline(match: re.Match[str]) -> str:
-        token = _token("INLINE", len(protected), fenced)
+        token = allocate_token("INLINE", fenced)
         protected[token] = match.group(0)
         return token
 
@@ -112,21 +117,61 @@ class _SafeAsideParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=False)
         self.safe = True
+        self.stack: list[str] = []
+
+    @staticmethod
+    def _safe_anchor(attrs: list[tuple[str, str | None]]) -> bool:
+        names = [name for name, _ in attrs]
+        if (
+            len(names) != len(set(names))
+            or any(name not in {"href", "title"} for name in names)
+            or "href" not in names
+        ):
+            return False
+        values = dict(attrs)
+        href = values.get("href")
+        title = values.get("title")
+        if (
+            href is None
+            or not href
+            or href != href.strip()
+            or _UNSAFE_HREF_VALUE.search(href)
+        ):
+            return False
+        if title is not None and (
+            not title or title != title.strip() or _UNSAFE_TITLE_VALUE.search(title)
+        ):
+            return False
+        try:
+            split = urlsplit(href)
+            split.port
+        except ValueError:
+            return False
+        if split.scheme in {"http", "https"}:
+            return bool(split.netloc)
+        if split.scheme == "mailto":
+            return bool(split.path) and not split.netloc
+        return False
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         if tag not in _SAFE_INLINE_TAGS:
             self.safe = False
-        elif tag == "a" and any(name not in {"href", "title"} for name, _ in attrs):
+        elif tag == "a" and not self._safe_anchor(attrs):
             self.safe = False
         elif tag != "a" and attrs:
             self.safe = False
+        if self.safe and tag not in _VOID_INLINE_TAGS:
+            self.stack.append(tag)
 
     def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        self.handle_starttag(tag, attrs)
+        if tag != "br" or attrs:
+            self.safe = False
 
     def handle_endtag(self, tag: str) -> None:
-        if tag not in _SAFE_INLINE_TAGS:
+        if tag in _VOID_INLINE_TAGS or not self.stack or self.stack[-1] != tag:
             self.safe = False
+            return
+        self.stack.pop()
 
     def handle_comment(self, data: str) -> None:
         self.safe = False
@@ -147,7 +192,7 @@ def _convert_asides(text: str) -> str:
             parser.close()
         except (ValueError, AssertionError) as error:
             raise _fail("invalid_notion_html", "Notion callout HTML is malformed") from error
-        if not parser.safe or _ASIDE_TAG.search(inner):
+        if not parser.safe or parser.stack or _ASIDE_TAG.search(inner):
             raise _fail("invalid_notion_html", "Notion callout contains unsafe nested HTML")
         return "\n".join(">" if not line else f"> {line}" for line in inner.split("\n"))
 
@@ -288,6 +333,32 @@ def _front_matter(plan: ImportArticlePlan) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _path_exists(path: Path) -> bool:
+    return os.path.lexists(path)
+
+
+def _rollback_partial_bundle(destination: Path, bundle_root: Path) -> None:
+    try:
+        lexical_bundle = Path(os.path.abspath(bundle_root))
+        resolved_destination = destination.resolve()
+        if lexical_bundle.parent != destination or not _path_exists(bundle_root):
+            if _path_exists(bundle_root):
+                raise OSError("partial bundle escapes its destination")
+            return
+        if _is_link_or_reparse(bundle_root) or not bundle_root.is_dir():
+            raise OSError("partial bundle is not a safe directory")
+        resolved_bundle = bundle_root.resolve()
+        if resolved_bundle.parent != resolved_destination:
+            raise OSError("partial bundle escapes its destination")
+        shutil.rmtree(bundle_root)
+        if _path_exists(bundle_root):
+            raise OSError("partial bundle still exists after rollback")
+    except (OSError, RuntimeError) as error:
+        raise _fail(
+            "preview_failed", "unable to rollback partial preview bundle"
+        ) from error
+
+
 def _write_bundle(
     destination_root: str | Path,
     plan: ImportArticlePlan,
@@ -312,8 +383,7 @@ def _write_bundle(
             for name, data in sorted(assets.items()):
                 (assets_root / name).write_bytes(data)
     except OSError as error:
-        if bundle_root.exists() and bundle_root.parent == destination:
-            shutil.rmtree(bundle_root, ignore_errors=True)
+        _rollback_partial_bundle(destination, bundle_root)
         raise _fail("write_failed", "unable to write converted preview bundle") from error
     return bundle_root
 
@@ -338,9 +408,10 @@ def convert_notion_page(
     body = body.replace("\r\n", "\n").replace("\r", "\n")
     body = _remove_matching_h1(body, plan_article.detected_title)
     body, protected = _protect_code(body)
+    body_outside_asides = _ASIDE.sub("", body)
     body = _convert_asides(body)
     issues: list[ImportIssue] = []
-    if _AUTHOR_HTML.search(body):
+    if _AUTHOR_HTML.search(body_outside_asides):
         issues.append(
             ImportIssue(
                 plan_article.source_ref,
@@ -364,7 +435,7 @@ def convert_notion_page(
         if not image and (split.scheme in {"http", "https", "mailto"} or split.netloc):
             return match.group(0)
         if split.scheme:
-            return match.group(0) if not image else match.group(0)
+            raise _fail("unsupported_link_scheme", "link scheme is not supported")
         if split.query:
             raise _fail("unsafe_source_path", "local references may not contain queries")
         if not split.path:

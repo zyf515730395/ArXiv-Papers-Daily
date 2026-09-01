@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import asdict
 from datetime import date
 import hashlib
+from html.parser import HTMLParser
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -12,6 +13,7 @@ import re
 import shutil
 from typing import Any
 import unicodedata
+from urllib.parse import urlsplit
 
 import yaml
 
@@ -420,13 +422,21 @@ def _candidate_issue(source_ref: str, error: Exception) -> ImportIssue:
 
 
 def _remove_blocked_bundle(bundle_root: Path | None, bundles_root: Path) -> None:
-    if bundle_root is None or not bundle_root.exists():
+    if bundle_root is None or not os.path.lexists(bundle_root):
         return
     try:
+        lexical = Path(os.path.abspath(bundle_root))
         resolved = bundle_root.resolve()
-        if resolved.parent != bundles_root.resolve() or _is_link_or_reparse(resolved):
+        if (
+            lexical.parent != bundles_root.resolve()
+            or resolved.parent != bundles_root.resolve()
+            or _is_link_or_reparse(bundle_root)
+            or not bundle_root.is_dir()
+        ):
             raise NotionImportError("unsafe_preview", "blocked preview bundle is unsafe")
-        shutil.rmtree(resolved)
+        shutil.rmtree(bundle_root)
+        if os.path.lexists(bundle_root):
+            raise OSError("blocked preview bundle still exists")
     except OSError as error:
         raise NotionImportError(
             "preview_failed", "unable to remove blocked preview bundle"
@@ -454,13 +464,45 @@ def _remove_blocked_site(page: Path, site_root: Path, slug: str) -> None:
         ) from error
 
 
+class _PreviewLinkParser(HTMLParser):
+    def __init__(self, selected_slugs: set[str]) -> None:
+        super().__init__(convert_charrefs=False)
+        self.selected_slugs = selected_slugs
+        self.dependencies: set[str] = set()
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag != "a":
+            return
+        href = next((value for name, value in attrs if name == "href"), None)
+        if href is None:
+            return
+        split = urlsplit(href)
+        path = PurePosixPath(split.path)
+        if (
+            not split.scheme
+            and not split.netloc
+            and not split.query
+            and len(path.parts) == 1
+            and path.suffix == ".html"
+            and path.stem in self.selected_slugs
+        ):
+            self.dependencies.add(path.stem)
+
+
+def _preview_dependencies(html: str, selected_slugs: set[str]) -> frozenset[str]:
+    parser = _PreviewLinkParser(selected_slugs)
+    parser.feed(html)
+    parser.close()
+    return frozenset(parser.dependencies)
+
+
 def _render_preview_candidate(
     article_plan: ImportArticlePlan,
     inventory: ExportInventory,
     selected_routes: dict[str, str],
     bundles_root: Path,
     site_root: Path,
-) -> ImportCandidateResult:
+) -> tuple[ImportCandidateResult, frozenset[str]]:
     converted = None
     page = site_root / "writings" / f"{article_plan.slug}.html"
     try:
@@ -485,29 +527,87 @@ def _render_preview_candidate(
         for source, target in asset_targets:
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(source, target)
+        dependencies = _preview_dependencies(rendered.html, set(selected_routes.values()))
     except (NotionImportError, WritingCatalogError, WritingRenderError, OSError) as error:
+        if isinstance(error, NotionImportError) and error.code == "preview_failed":
+            raise
         _remove_blocked_bundle(
             converted.bundle_root if converted is not None else None, bundles_root
         )
         _remove_blocked_site(page, site_root, article_plan.slug)
-        return ImportCandidateResult(
+        return (
+            ImportCandidateResult(
+                article_plan.source_ref,
+                article_plan.slug,
+                "blocked",
+                (_candidate_issue(article_plan.source_ref, error),),
+                None,
+                None,
+                None,
+            ),
+            frozenset(),
+        )
+    return (
+        ImportCandidateResult(
             article_plan.source_ref,
             article_plan.slug,
-            "blocked",
-            (_candidate_issue(article_plan.source_ref, error),),
+            "ready",
+            converted.issues,
+            converted.bundle_root,
             None,
             None,
-            None,
-        )
-    return ImportCandidateResult(
-        article_plan.source_ref,
-        article_plan.slug,
-        "ready",
-        converted.issues,
-        converted.bundle_root,
-        None,
-        None,
+        ),
+        dependencies,
     )
+
+
+def _propagate_blocked_dependencies(
+    candidates: list[ImportCandidateResult],
+    dependencies: dict[str, frozenset[str]],
+    bundles_root: Path,
+    site_root: Path,
+) -> None:
+    ready_slugs = {
+        candidate.slug
+        for candidate in candidates
+        if candidate.status == "ready" and candidate.slug is not None
+    }
+    while True:
+        blocked_indexes = [
+            index
+            for index, candidate in enumerate(candidates)
+            if candidate.status == "ready"
+            and candidate.slug is not None
+            and not dependencies.get(candidate.slug, frozenset()).issubset(ready_slugs)
+        ]
+        if not blocked_indexes:
+            return
+        for index in blocked_indexes:
+            candidate = candidates[index]
+            assert candidate.slug is not None
+            _remove_blocked_bundle(candidate.bundle_root, bundles_root)
+            _remove_blocked_site(
+                site_root / "writings" / f"{candidate.slug}.html",
+                site_root,
+                candidate.slug,
+            )
+            candidates[index] = ImportCandidateResult(
+                candidate.source_ref,
+                candidate.slug,
+                "blocked",
+                candidate.issues
+                + (
+                    ImportIssue(
+                        candidate.source_ref,
+                        "unresolved_page_link",
+                        "Selected page link targets a blocked candidate",
+                    ),
+                ),
+                None,
+                None,
+                None,
+            )
+            ready_slugs.remove(candidate.slug)
 
 
 def serialize_import_report(result: ImportRunResult) -> str:
@@ -557,6 +657,7 @@ def preview_import(
         article.source_ref: article.slug for article in plan.articles if article.include
     }
     candidates: list[ImportCandidateResult] = []
+    dependencies: dict[str, frozenset[str]] = {}
     for article in plan.articles:
         if not article.include:
             candidates.append(
@@ -571,11 +672,14 @@ def preview_import(
                 )
             )
             continue
-        candidates.append(
-            _render_preview_candidate(
-                article, inventory, selected_routes, bundles_root, site_root
-            )
+        candidate, candidate_dependencies = _render_preview_candidate(
+            article, inventory, selected_routes, bundles_root, site_root
         )
+        candidates.append(candidate)
+        dependencies[article.slug] = candidate_dependencies
+    _propagate_blocked_dependencies(
+        candidates, dependencies, bundles_root, site_root
+    )
     result = ImportRunResult(tuple(candidates))
     try:
         atomic_write_text(report, serialize_import_report(result))
