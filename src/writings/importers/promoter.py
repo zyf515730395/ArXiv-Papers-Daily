@@ -660,12 +660,13 @@ class _Journal:
         report_before: bytes | None,
         workspace: str,
         workspace_token: str,
+        version: int,
         cleanup_evidence: tuple[_CleanupEvidence, ...] = (),
     ) -> bool:
         data = _journal_record(
             {
                 "kind": "header",
-                "version": 1,
+                "version": version,
                 "transaction_id": self.transaction_id,
                 "process_id": _PROCESS_IDENTITY,
                 "workspace": workspace,
@@ -1017,10 +1018,13 @@ class _DurablePromotion:
     old_fingerprint: str | None
     stage_identity: _TreeIdentity
     old_identity: _TreeIdentity | None
+    previous_slug: str | None
 
 
-def _promotion_payload(item: _DurablePromotion) -> dict[str, object]:
-    return {
+def _promotion_payload(
+    item: _DurablePromotion, journal_version: int
+) -> dict[str, object]:
+    payload: dict[str, object] = {
         "slug": item.candidate.slug,
         "stage": item.stage.name,
         "backup": item.backup.name if item.backup is not None else None,
@@ -1030,6 +1034,13 @@ def _promotion_payload(item: _DurablePromotion) -> dict[str, object]:
         "stage_identity": _identity_payload(item.stage_identity),
         "old_identity": _identity_payload(item.old_identity),
     }
+    if journal_version == 2:
+        payload["previous_slug"] = item.previous_slug
+    elif item.previous_slug is not None:
+        raise _global(
+            "promotion_failed", "slug reassignment requires a versioned transaction"
+        )
+    return payload
 
 
 def _safe_transaction_name(
@@ -1058,6 +1069,31 @@ class _RecoveryPromotion:
     old_fingerprint: str | None
     stage_identity: _TreeIdentity
     old_identity: _TreeIdentity | None
+    previous_slug: str | None
+
+
+def _previous_target(
+    item: _RecoveryPromotion | _DurablePromotion,
+) -> Path:
+    return (
+        item.target
+        if item.previous_slug is None
+        else item.target.parent / item.previous_slug
+    )
+
+
+def _forward_promotion_observed(
+    item: _RecoveryPromotion | _DurablePromotion, content_root: Path
+) -> bool:
+    return _tree_matches(
+        item.target,
+        content_root,
+        item.new_fingerprint,
+        item.stage_identity,
+    ) and (
+        item.previous_slug is None
+        or not os.path.lexists(_previous_target(item))
+    )
 
 
 def _cleanup_evidence_payload(
@@ -1190,9 +1226,12 @@ def _backup_cleanup_evidence(
 
 
 def _recovery_promotion(
-    value: object, content_root: Path, transaction_id: str
+    value: object,
+    content_root: Path,
+    transaction_id: str,
+    journal_version: int,
 ) -> _RecoveryPromotion:
-    if not isinstance(value, dict) or set(value) != {
+    fields = {
         "slug",
         "stage",
         "backup",
@@ -1201,7 +1240,10 @@ def _recovery_promotion(
         "old_fingerprint",
         "stage_identity",
         "old_identity",
-    }:
+    }
+    if journal_version == 2:
+        fields.add("previous_slug")
+    if not isinstance(value, dict) or set(value) != fields:
         raise _global("recovery_required", "transaction promotion record is invalid")
     slug = value["slug"]
     if not isinstance(slug, str) or not re.fullmatch(
@@ -1233,6 +1275,15 @@ def _recovery_promotion(
     old_identity = _payload_identity(value["old_identity"])
     if stage_identity is None or ((old_fingerprint is None) != (old_identity is None)):
         raise _global("recovery_required", "transaction tree identity is invalid")
+    previous_slug = value.get("previous_slug")
+    if previous_slug is not None and (
+        journal_version != 2
+        or not isinstance(previous_slug, str)
+        or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", previous_slug)
+        or previous_slug == slug
+        or old_fingerprint is None
+    ):
+        raise _global("recovery_required", "transaction prior slug is invalid")
     return _RecoveryPromotion(
         slug,
         content_root / slug,
@@ -1242,6 +1293,7 @@ def _recovery_promotion(
         old_fingerprint,
         stage_identity,
         old_identity,
+        previous_slug,
     )
 
 
@@ -1252,6 +1304,7 @@ def _preflight_rollback(
 ) -> None:
     """Prove every SCC recovery source before the first destructive mutation."""
     for item in items:
+        previous_target = _previous_target(item)
         target_new = _tree_matches(
             item.target,
             content_root,
@@ -1262,14 +1315,22 @@ def _preflight_rollback(
             item.old_fingerprint is not None
             and item.old_identity is not None
             and _tree_matches(
-                item.target,
+                previous_target,
                 content_root,
                 item.old_fingerprint,
                 item.old_identity,
             )
         )
-        if os.path.lexists(item.target) and not (target_new or target_old):
+        if os.path.lexists(item.target) and not (
+            target_new or (previous_target == item.target and target_old)
+        ):
             raise _global("recovery_failed", "writing target cannot be reconciled")
+        if (
+            previous_target != item.target
+            and os.path.lexists(previous_target)
+            and not target_old
+        ):
+            raise _global("recovery_failed", "prior writing target cannot be reconciled")
         stage_trash = _owned_trash_path(item.stage, content_root, transaction_id)
         if os.path.lexists(item.stage) and not _tree_matches(
             item.stage,
@@ -1296,6 +1357,8 @@ def _preflight_rollback(
             )
             if os.path.lexists(item.backup) and not backup_match:
                 raise _global("recovery_failed", "trusted writing backup is unsafe")
+            if target_old and backup_match:
+                raise _global("recovery_failed", "trusted writing identity is duplicated")
             if not target_old and not backup_match:
                 raise _global("recovery_failed", "trusted writing backup is unavailable")
         elif item.backup is not None:
@@ -1308,6 +1371,7 @@ def _restore_promotion(
     transaction_id: str,
 ) -> bool:
     target = item.target
+    previous_target = _previous_target(item)
     supported = True
     if _tree_matches(
         target, content_root, item.new_fingerprint, item.stage_identity
@@ -1336,19 +1400,24 @@ def _restore_promotion(
             raise _global("recovery_failed", "new writing stage cannot be proven")
     if item.old_fingerprint is not None:
         assert item.old_identity is not None and item.backup is not None
-        if not os.path.lexists(target):
+        if not os.path.lexists(previous_target):
             try:
                 supported = durability.durable_rename_noreplace(
-                    item.backup, target, "public:restore"
+                    item.backup, previous_target, "public:restore"
                 ) and supported
             except (OSError, RuntimeError) as error:
                 raise _global(
                     "recovery_failed", "trusted writing target cannot be restored"
                 ) from error
         if not _tree_matches(
-            target, content_root, item.old_fingerprint, item.old_identity
+            previous_target,
+            content_root,
+            item.old_fingerprint,
+            item.old_identity,
         ):
             raise _global("recovery_failed", "trusted writing target was not restored")
+        if previous_target != target and os.path.lexists(target):
+            raise _global("recovery_failed", "new writing target remains after rollback")
     elif os.path.lexists(target):
         raise _global("recovery_failed", "new writing target remains after rollback")
     supported = _remove_owned_tree(
@@ -1649,7 +1718,8 @@ def _parse_transaction(
             and not isinstance(header["cleanup_evidence"], list)
         )
         or header.get("kind") != "header"
-        or header.get("version") != 1
+        or type(header.get("version")) is not int
+        or header.get("version") not in {1, 2}
         or not isinstance(header.get("transaction_id"), str)
         or not _TRANSACTION_ID.fullmatch(header["transaction_id"])  # type: ignore[arg-type]
         or not isinstance(header.get("workspace"), str)
@@ -1670,6 +1740,8 @@ def _parse_transaction(
         content_root,
     )
     transaction_id = header["transaction_id"]
+    journal_version = header["version"]
+    assert type(journal_version) is int
     if expected_stale is not None and transaction_id != expected_stale:
         raise _global("recovery_required", "stale lock and journal identities disagree")
     _unblob(header["state_before"])
@@ -1705,11 +1777,13 @@ def _parse_transaction(
             if workspace_identity is None:
                 raise _global("recovery_required", "transaction workspace is invalid")
         elif kind == "baseline":
+            baseline_fields = (
+                {"kind", "report"}
+                if journal_version == 1
+                else {"kind", "report", "recovery_report"}
+            )
             if (
-                set(record) not in (
-                    {"kind", "report"},
-                    {"kind", "report", "recovery_report"},
-                )
+                set(record) != baseline_fields
                 or baseline is not None
                 or prepared
                 or results
@@ -1745,7 +1819,9 @@ def _parse_transaction(
                 (
                     group,
                     [
-                        _recovery_promotion(item, content_root, transaction_id)
+                        _recovery_promotion(
+                            item, content_root, transaction_id, journal_version
+                        )
                         for item in items
                     ],
                 )
@@ -1770,7 +1846,9 @@ def _parse_transaction(
                 (
                     group,
                     [
-                        _recovery_promotion(item, content_root, transaction_id)
+                        _recovery_promotion(
+                            item, content_root, transaction_id, journal_version
+                        )
                         for item in items
                     ],
                 )
@@ -1783,10 +1861,12 @@ def _parse_transaction(
                 raise _global("recovery_required", "transaction rollback record is invalid")
             rolled_back.add(group)  # type: ignore[arg-type]
         elif kind == "result":
-            if set(record) not in (
-                {"kind", "group", "candidates"},
-                {"kind", "group", "report"},
-            ):
+            result_fields = (
+                {"kind", "group", "candidates"}
+                if journal_version == 1
+                else {"kind", "group", "report"}
+            )
+            if set(record) != result_fields:
                 raise _global("recovery_required", "transaction result record is invalid")
             if "report" in record and _unblob(record["report"]) is None:
                 raise _global("recovery_required", "transaction result record is invalid")
@@ -1857,17 +1937,20 @@ def _rollback_is_observed(
 ) -> bool:
     try:
         for item in items:
+            previous_target = _previous_target(item)
             if item.old_fingerprint is None:
                 if os.path.lexists(item.target):
                     return False
             else:
                 assert item.old_identity is not None
                 if not _tree_matches(
-                    item.target,
+                    previous_target,
                     content_root,
                     item.old_fingerprint,
                     item.old_identity,
                 ):
+                    return False
+                if previous_target != item.target and os.path.lexists(item.target):
                     return False
             residue = (
                 item.stage,
@@ -1915,6 +1998,7 @@ def _reconcile_stage_intents(
         return True
     plans: list[tuple[_RecoveryPromotion, str]] = []
     for item in pending:
+        previous_target = _previous_target(item)
         if item.old_fingerprint is None:
             if os.path.lexists(item.target):
                 raise _global(
@@ -1923,13 +2007,17 @@ def _reconcile_stage_intents(
         else:
             assert item.old_identity is not None
             if not _tree_matches(
-                item.target,
+                previous_target,
                 content_root,
                 item.old_fingerprint,
                 item.old_identity,
             ):
                 raise _global(
                     "recovery_required", "unprepared writing target changed"
+                )
+            if previous_target != item.target and os.path.lexists(item.target):
+                raise _global(
+                    "recovery_required", "unprepared reassignment target changed"
                 )
         if item.backup is not None:
             backup_trash = _owned_trash_path(
@@ -2100,13 +2188,7 @@ def _recover_transaction(
     state_after = _unblob(intent["state_after"]) if intent is not None else None
     report_after = _unblob(intent["report_after"]) if intent is not None else None
     targets_forward = all(
-        _tree_matches(
-            item.target,
-            content_root,
-            item.new_fingerprint,
-            item.stage_identity,
-        )
-        for item in active_items
+        _forward_promotion_observed(item, content_root) for item in active_items
     )
     journal = _Journal(journal_path, transaction_id)
     workspace = work_root / str(header["workspace"])
@@ -2162,7 +2244,7 @@ def _recover_transaction(
                 ) and recovery_supported
 
         retained_targets = all(
-            _tree_has_identity(item.target, content_root, item.stage_identity)
+            _forward_promotion_observed(item, content_root)
             for item in active_items
         )
         if not targets_forward and not (pending_prior and retained_targets):
@@ -2300,6 +2382,7 @@ def _plan_durable_stage(
     old_fingerprint: str | None,
     old_identity: _TreeIdentity | None,
     backup: Path | None,
+    previous_slug: str | None,
 ) -> tuple[_DurablePromotion, bool]:
     assert candidate.slug is not None and candidate.bundle_root is not None
     stage = _unique_transaction_sibling(
@@ -2327,6 +2410,7 @@ def _plan_durable_stage(
             old_fingerprint,
             identity,
             old_identity,
+            previous_slug,
         ),
         supported,
     )
@@ -2356,6 +2440,7 @@ _DurableMetadata = tuple[
     str,
     str | None,
     _TreeIdentity | None,
+    str | None,
 ]
 
 
@@ -2364,6 +2449,8 @@ def _durable_preflight_candidate(
     content_root: Path,
     state: ImportState,
     owners_by_slug: dict[str, ImportStateEntry],
+    *,
+    allow_slug_reassignment: bool = False,
 ) -> tuple[ImportCandidateResult, _DurableMetadata | None]:
     """Preflight once using run-wide state indexes and capture tree identity."""
     assert candidate.slug is not None and candidate.bundle_root is not None
@@ -2387,7 +2474,36 @@ def _durable_preflight_candidate(
     if candidate_fingerprint != written_fingerprint:
         return _blocked(candidate, "Unable to verify rebuilt writing bundle"), None
     if entry is not None and entry.slug != candidate.slug:
-        return _conflict(candidate, "Private state owns a different public slug"), None
+        if not allow_slug_reassignment:
+            return _conflict(candidate, "Private state owns a different public slug"), None
+        if owner is not None:
+            return _conflict(candidate, "Public slug is owned by another import source"), None
+        if os.path.lexists(target):
+            return _conflict(candidate, "Reassigned public slug is already occupied"), None
+        previous_target = content_root / entry.slug
+        if owners_by_slug.get(entry.slug) != entry or not os.path.lexists(
+            previous_target
+        ):
+            return _conflict(candidate, "Private state and public bundle disagree"), None
+        try:
+            old_identity = _tree_identity(previous_target)
+            previous = fingerprint_bundle(previous_target)
+            if _tree_identity(previous_target) != old_identity:
+                raise NotionImportError("invalid_state", "bundle changed")
+        except NotionImportError:
+            return _conflict(candidate, "Existing writing bundle is unsafe"), None
+        if previous != entry.written_fingerprint:
+            return _conflict(candidate, "Existing writing bundle contains human edits"), None
+        return (
+            candidate,
+            (
+                source_fingerprint,
+                candidate_fingerprint,
+                previous,
+                old_identity,
+                entry.slug,
+            ),
+        )
     if owner is not None and owner != entry:
         return _conflict(candidate, "Public slug is owned by another import source"), None
     if os.path.lexists(target):
@@ -2414,11 +2530,23 @@ def _durable_preflight_candidate(
             )
         return (
             candidate,
-            (source_fingerprint, candidate_fingerprint, previous, old_identity),
+            (
+                source_fingerprint,
+                candidate_fingerprint,
+                previous,
+                old_identity,
+                None,
+            ),
         )
     if entry is not None or owner is not None:
         return _conflict(candidate, "Private state and public bundle disagree"), None
-    return candidate, (source_fingerprint, candidate_fingerprint, None, None)
+    return candidate, (
+        source_fingerprint,
+        candidate_fingerprint,
+        None,
+        None,
+        None,
+    )
 
 
 def _discard_durable_stages(
@@ -2445,6 +2573,7 @@ def _promote_durable_group(
     content_root: Path,
     journal: _Journal,
     transaction_id: str,
+    journal_version: int,
 ) -> tuple[list[ImportCandidateResult], list[_DurablePromotion], bool]:
     """Durably promote one SCC, rolling back only identity-proven transaction trees."""
     items: list[_DurablePromotion] = []
@@ -2468,7 +2597,9 @@ def _promote_durable_group(
             )
         for candidate in candidates:
             assert candidate.slug is not None
-            source_fp, new_fp, old_fp, old_identity = metadata[candidate.slug]
+            source_fp, new_fp, old_fp, old_identity, previous_slug = metadata[
+                candidate.slug
+            ]
             item, item_supported = _plan_durable_stage(
                 candidate,
                 content_root,
@@ -2478,10 +2609,12 @@ def _promote_durable_group(
                 old_fp,
                 old_identity,
                 backup_paths[candidate.slug],
+                previous_slug,
             )
             items.append(item)
             supported = item_supported and supported
         for item in items:
+            previous_target = _previous_target(item)
             if item.old_fingerprint is None:
                 if os.path.lexists(item.target):
                     raise _global(
@@ -2490,7 +2623,7 @@ def _promote_durable_group(
             else:
                 assert item.old_identity is not None
                 if not _tree_matches(
-                    item.target,
+                    previous_target,
                     content_root,
                     item.old_fingerprint,
                     item.old_identity,
@@ -2498,12 +2631,18 @@ def _promote_durable_group(
                     raise _global(
                         "promotion_failed", "writing target changed after preflight"
                     )
+                if previous_target != item.target and os.path.lexists(item.target):
+                    raise _global(
+                        "promotion_failed", "reassigned target changed after preflight"
+                    )
         durability._BOUNDARY_HOOK("journal:stage-intent:before")
         supported = journal.append(
             {
                 "kind": "stage_intent",
                 "group": group_number,
-                "items": [_promotion_payload(item) for item in items],
+                "items": [
+                    _promotion_payload(item, journal_version) for item in items
+                ],
             },
             "journal:stage-intent",
         ) and supported
@@ -2515,7 +2654,9 @@ def _promote_durable_group(
             {
                 "kind": "prepared",
                 "group": group_number,
-                "items": [_promotion_payload(item) for item in items],
+                "items": [
+                    _promotion_payload(item, journal_version) for item in items
+                ],
             },
             "journal:prepared",
         ) and supported
@@ -2524,7 +2665,7 @@ def _promote_durable_group(
             if item.old_fingerprint is not None:
                 assert item.backup is not None and item.old_identity is not None
                 supported = durability.durable_rename_noreplace(
-                    item.target, item.backup, "public:backup"
+                    _previous_target(item), item.backup, "public:backup"
                 ) and supported
                 if not _tree_matches(
                     item.backup,
@@ -2632,6 +2773,7 @@ def _run_durable_import(
 
         transaction_id = secrets.token_hex(16)
         workspace_token = secrets.token_hex(32)
+        journal_version = 1 if contract.namespace == NOTION_NAMESPACE else 2
         journal = _Journal(journal_path, transaction_id)
         state_before = _file_bytes(state_file)
         report_before = _file_bytes(report)
@@ -2640,6 +2782,7 @@ def _run_durable_import(
             report_before,
             f"apply-{transaction_id}",
             workspace_token,
+            journal_version,
             cleanup_evidence,
         )
         lock.activate(transaction_id)
@@ -2676,6 +2819,7 @@ def _run_durable_import(
                 content,
                 state,
                 owners_by_slug,
+                allow_slug_reassignment=(contract.namespace != NOTION_NAMESPACE),
             )
             results[index] = checked
             if details is not None and checked.slug is not None:
@@ -2686,17 +2830,19 @@ def _run_durable_import(
             contract, ImportRunResult(tuple(results), prepared.dependencies)
         )
         baseline_report = _report_bytes(contract, baseline_result)
+        baseline_record: dict[str, object] = {
+            "kind": "baseline",
+            "report": _blob(baseline_report),
+        }
+        if journal_version == 2:
+            baseline_record["recovery_report"] = _blob(
+                _recovery_report_bytes(
+                    contract,
+                    ImportRunResult(tuple(results), prepared.dependencies),
+                )
+            )
         durable_supported = journal.append(
-            {
-                "kind": "baseline",
-                "report": _blob(baseline_report),
-                "recovery_report": _blob(
-                    _recovery_report_bytes(
-                        contract,
-                        ImportRunResult(tuple(results), prepared.dependencies),
-                    )
-                ),
-            },
+            baseline_record,
             "journal:baseline",
         ) and durable_supported
 
@@ -2745,6 +2891,7 @@ def _run_durable_import(
                     content,
                     journal,
                     transaction_id,
+                    journal_version,
                 )
             durable_supported = group_supported and durable_supported
             for index, candidate in zip(group_indexes, completed):
@@ -2759,17 +2906,23 @@ def _run_durable_import(
                     item.new_fingerprint,
                 )
             committed_items.extend(items)
+            result_record: dict[str, object] = {
+                "kind": "result",
+                "group": group_number,
+            }
+            if journal_version == 1:
+                result_record["candidates"] = _candidate_delta(
+                    group_indexes, results
+                )
+            else:
+                result_record["report"] = _blob(
+                    _recovery_report_bytes(
+                        contract,
+                        ImportRunResult(tuple(results), prepared.dependencies),
+                    )
+                )
             durable_supported = journal.append(
-                {
-                    "kind": "result",
-                    "group": group_number,
-                    "report": _blob(
-                        _recovery_report_bytes(
-                            contract,
-                            ImportRunResult(tuple(results), prepared.dependencies),
-                        )
-                    ),
-                },
+                result_record,
                 "journal:result",
             ) and durable_supported
 
@@ -2803,12 +2956,7 @@ def _run_durable_import(
             _file_bytes(state_file) != state_after
             or _file_bytes(report) != report_after
             or any(
-                not _tree_matches(
-                    item.target,
-                    content,
-                    item.new_fingerprint,
-                    item.stage_identity,
-                )
+                not _forward_promotion_observed(item, content)
                 for item in committed_items
             )
         ):
