@@ -1714,7 +1714,7 @@ def _reconcile_stage_intents(
     ]
     if not pending:
         return True
-    supported = True
+    plans: list[tuple[_RecoveryPromotion, str]] = []
     for item in pending:
         if item.old_fingerprint is None:
             if os.path.lexists(item.target):
@@ -1767,25 +1767,37 @@ def _reconcile_stage_intents(
                 raise _global(
                     "recovery_required", "private writing stage cannot be proven"
                 )
-        elif stage_exists and not _tree_matches(
-            item.stage,
-            content_root,
-            item.new_fingerprint,
-            item.stage_identity,
-        ):
-            raise _global(
-                "recovery_required", "public writing stage cannot be proven"
-            )
-        elif trash_exists and not _tree_matches(
-            stage_trash,
-            content_root,
-            item.new_fingerprint,
-            item.stage_identity,
-        ):
-            raise _global(
-                "recovery_required", "public writing stage trash cannot be proven"
-            )
-        if stage_exists or trash_exists:
+            location = "private"
+        elif stage_exists:
+            if not _tree_matches(
+                item.stage,
+                content_root,
+                item.new_fingerprint,
+                item.stage_identity,
+            ):
+                raise _global(
+                    "recovery_required", "public writing stage cannot be proven"
+                )
+            location = "stage"
+        elif trash_exists:
+            if not _tree_matches(
+                stage_trash,
+                content_root,
+                item.new_fingerprint,
+                item.stage_identity,
+            ):
+                raise _global(
+                    "recovery_required",
+                    "public writing stage trash cannot be proven",
+                )
+            location = "trash"
+        else:
+            location = "absent"
+        plans.append((item, location))
+
+    supported = True
+    for item, location in plans:
+        if location in {"stage", "trash"}:
             supported = _remove_owned_tree(
                 item.stage,
                 content_root,
