@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import deque
 from dataclasses import dataclass
 import os
 from pathlib import Path
@@ -41,6 +42,7 @@ _REPARSE_POINT = 0x0400
 _STAGE_PREFIX = ".notion-import-stage-"
 _BACKUP_PREFIX = ".notion-import-backup-"
 _RESTORE_PREFIX = ".notion-import-restore-"
+_MAX_GRAPH_NODES = 10_000
 
 
 def _is_link_or_reparse(path: Path) -> bool:
@@ -322,6 +324,62 @@ def _rollback_group(items: list[_Promotion], content_root: Path) -> None:
         raise _global("recovery_failed", "group rollback cannot be proven") from failure
 
 
+def _reconcile_setup_residue(
+    content_root: Path,
+    candidates: list[ImportCandidateResult],
+    metadata: dict[str, tuple[str, str, str | None]],
+) -> None:
+    """Remove only provable duplicate backups created before public mutation."""
+    trusted_old = {
+        candidate.slug: metadata[candidate.slug][2]
+        for candidate in candidates
+        if candidate.slug is not None and metadata[candidate.slug][2] is not None
+    }
+    try:
+        residue = [
+            child
+            for child in content_root.iterdir()
+            if child.name.startswith(
+                (_STAGE_PREFIX, _BACKUP_PREFIX, _RESTORE_PREFIX)
+            )
+        ]
+    except OSError as error:
+        raise _global(
+            "recovery_failed", "unable to inspect promotion setup residue"
+        ) from error
+    for path in residue:
+        if not path.name.startswith(_BACKUP_PREFIX):
+            raise _global(
+                "recovery_failed", "unexpected promotion setup residue remains"
+            )
+        matching = [
+            (slug, fingerprint)
+            for slug, fingerprint in trusted_old.items()
+            if fingerprint is not None
+            and _tree_state(path, content_root, fingerprint) == "match"
+            and _tree_state(content_root / slug, content_root, fingerprint) == "match"
+        ]
+        if len(matching) != 1:
+            raise _global(
+                "recovery_failed", "promotion setup residue cannot be reconciled"
+            )
+        _remove_matching_tree(path, content_root, matching[0][1] or "")
+    try:
+        if any(
+            child.name.startswith(
+                (_STAGE_PREFIX, _BACKUP_PREFIX, _RESTORE_PREFIX)
+            )
+            for child in content_root.iterdir()
+        ):
+            raise _global(
+                "recovery_failed", "promotion setup cleanup cannot be proven"
+            )
+    except OSError as error:
+        raise _global(
+            "recovery_failed", "promotion setup cleanup cannot be proven"
+        ) from error
+
+
 def _file_bytes(path: Path) -> bytes | None:
     if not os.path.lexists(path):
         return None
@@ -412,7 +470,23 @@ def _preflight_candidate(
     return candidate, (source_fingerprint, candidate_fingerprint, None)
 
 
-def _scc_order(slugs: set[str], dependencies: dict[str, frozenset[str]]) -> list[tuple[str, ...]]:
+def _scc_order(
+    slugs: set[str], dependencies: dict[str, frozenset[str]]
+) -> list[tuple[str, ...]]:
+    """Return deterministic dependency-first SCCs without recursive traversal."""
+    if len(slugs) > _MAX_GRAPH_NODES or any(
+        not isinstance(slug, str) for slug in slugs
+    ):
+        raise _global("invalid_plan", "selected dependency graph exceeds safe limits")
+    try:
+        nodes = sorted(slugs)
+        adjacency = {
+            slug: tuple(sorted(dependencies.get(slug, frozenset()) & slugs))
+            for slug in nodes
+        }
+    except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as error:
+        raise _global("invalid_plan", "selected dependency graph is invalid") from error
+
     index = 0
     stack: list[str] = []
     indexes: dict[str, int] = {}
@@ -420,19 +494,34 @@ def _scc_order(slugs: set[str], dependencies: dict[str, frozenset[str]]) -> list
     active: set[str] = set()
     groups: list[tuple[str, ...]] = []
 
-    def visit(slug: str) -> None:
-        nonlocal index
-        indexes[slug] = low[slug] = index
+    for root in nodes:
+        if root in indexes:
+            continue
+        indexes[root] = low[root] = index
         index += 1
-        stack.append(slug)
-        active.add(slug)
-        for target in sorted(dependencies.get(slug, frozenset()) & slugs):
-            if target not in indexes:
-                visit(target)
-                low[slug] = min(low[slug], low[target])
-            elif target in active:
-                low[slug] = min(low[slug], indexes[target])
-        if low[slug] == indexes[slug]:
+        stack.append(root)
+        active.add(root)
+        frames: list[tuple[str, int, str | None]] = [(root, 0, None)]
+        while frames:
+            slug, position, parent = frames[-1]
+            targets = adjacency[slug]
+            if position < len(targets):
+                target = targets[position]
+                frames[-1] = (slug, position + 1, parent)
+                if target not in indexes:
+                    indexes[target] = low[target] = index
+                    index += 1
+                    stack.append(target)
+                    active.add(target)
+                    frames.append((target, 0, slug))
+                elif target in active:
+                    low[slug] = min(low[slug], indexes[target])
+                continue
+            frames.pop()
+            if parent is not None:
+                low[parent] = min(low[parent], low[slug])
+            if low[slug] != indexes[slug]:
+                continue
             group: list[str] = []
             while True:
                 member = stack.pop()
@@ -442,30 +531,85 @@ def _scc_order(slugs: set[str], dependencies: dict[str, frozenset[str]]) -> list
                     break
             groups.append(tuple(sorted(group)))
 
-    for slug in sorted(slugs):
-        if slug not in indexes:
-            visit(slug)
-    group_for = {slug: number for number, group in enumerate(groups) for slug in group}
+    group_for = {
+        slug: number for number, group in enumerate(groups) for slug in group
+    }
+    group_dependencies = [set() for _ in groups]
+    group_dependents = [set() for _ in groups]
+    for slug in nodes:
+        source_group = group_for[slug]
+        for target in adjacency[slug]:
+            target_group = group_for[target]
+            if source_group == target_group:
+                continue
+            group_dependencies[source_group].add(target_group)
+            group_dependents[target_group].add(source_group)
+    ready = deque(
+        sorted(
+            (
+                number
+                for number, targets in enumerate(group_dependencies)
+                if not targets
+            ),
+            key=lambda value: groups[value],
+        )
+    )
     ordered: list[tuple[str, ...]] = []
-    visited: set[int] = set()
-
-    def append_dependencies(number: int) -> None:
-        if number in visited:
-            return
-        visited.add(number)
-        external = {
-            group_for[target]
-            for slug in groups[number]
-            for target in dependencies.get(slug, frozenset()) & slugs
-            if group_for[target] != number
-        }
-        for target_number in sorted(external, key=lambda value: groups[value]):
-            append_dependencies(target_number)
+    while ready:
+        number = ready.popleft()
         ordered.append(groups[number])
-
-    for number in sorted(range(len(groups)), key=lambda value: groups[value]):
-        append_dependencies(number)
+        for dependent in sorted(
+            group_dependents[number], key=lambda value: groups[value]
+        ):
+            group_dependencies[dependent].discard(number)
+            if not group_dependencies[dependent]:
+                ready.append(dependent)
+    if len(ordered) != len(groups):
+        raise _global("invalid_plan", "selected dependency graph is invalid")
     return ordered
+
+
+def _propagate_apply_unavailable(
+    candidates: list[ImportCandidateResult],
+    dependencies: dict[str, frozenset[str]],
+) -> None:
+    """Block dependents once through a reverse-edge queue."""
+    index_by_slug = {
+        candidate.slug: index
+        for index, candidate in enumerate(candidates)
+        if candidate.slug is not None
+    }
+    if len(index_by_slug) > _MAX_GRAPH_NODES:
+        raise _global("invalid_plan", "selected dependency graph exceeds safe limits")
+    dependents: dict[str, list[str]] = {slug: [] for slug in index_by_slug}
+    try:
+        for slug in index_by_slug:
+            for target in dependencies.get(slug, frozenset()):
+                if target in dependents:
+                    dependents[target].append(slug)
+    except (OSError, RuntimeError, TypeError, ValueError) as error:
+        raise _global("invalid_plan", "selected dependency graph is invalid") from error
+    status_by_slug = {
+        slug: candidates[index].status for slug, index in index_by_slug.items()
+    }
+    unavailable = deque(
+        sorted(
+            slug
+            for slug, status in status_by_slug.items()
+            if status in {"blocked", "conflict"}
+        )
+    )
+    while unavailable:
+        target = unavailable.popleft()
+        for slug in sorted(dependents[target]):
+            if status_by_slug[slug] != "ready":
+                continue
+            index = index_by_slug[slug]
+            candidates[index] = _blocked(
+                candidates[index], "A selected page dependency is unavailable"
+            )
+            status_by_slug[slug] = "blocked"
+            unavailable.append(slug)
 
 
 def _promote_group(
@@ -478,15 +622,34 @@ def _promote_group(
     all_results: list[ImportCandidateResult],
 ) -> tuple[list[ImportCandidateResult], ImportState, bool]:
     items: list[_Promotion] = []
+    backup_paths: dict[str, Path | None] = {}
+    try:
+        for candidate in candidates:
+            assert candidate.slug is not None
+            old_fp = metadata[candidate.slug][2]
+            backup_paths[candidate.slug] = (
+                _unique_sibling(content_root, _BACKUP_PREFIX, candidate.slug)
+                if old_fp is not None
+                else None
+            )
+    except BaseException as error:
+        _reconcile_setup_residue(content_root, candidates, metadata)
+        if not isinstance(error, Exception):
+            raise
+        return (
+            [
+                _blocked(candidate, "Unable to prepare dependency group")
+                for candidate in candidates
+            ],
+            state,
+            False,
+        )
     try:
         for candidate in candidates:
             assert candidate.slug is not None and candidate.bundle_root is not None
             source_fp, new_fp, old_fp = metadata[candidate.slug]
-            stage = _copy_stage(candidate.bundle_root, content_root, candidate.slug, new_fp)
-            backup = (
-                _unique_sibling(content_root, _BACKUP_PREFIX, candidate.slug)
-                if old_fp is not None
-                else None
+            stage = _copy_stage(
+                candidate.bundle_root, content_root, candidate.slug, new_fp
             )
             items.append(
                 _Promotion(
@@ -494,7 +657,7 @@ def _promote_group(
                     source_key(candidate.source_ref),
                     content_root / candidate.slug,
                     stage,
-                    backup,
+                    backup_paths[candidate.slug],
                     source_fp,
                     new_fp,
                     old_fp,
@@ -605,30 +768,28 @@ def _promote_group(
         intended_blocked = _atomic_text_bytes(
             serialize_import_report(ImportRunResult(tuple(blocked_report)))
         )
+        retry_error: BaseException | None = None
         try:
             _write_report(report_path, blocked_report)
         except BaseException as report_error:
-            observed = _file_bytes(report_path)
-            if observed != intended_blocked:
-                if observed == old_report_bytes:
-                    if not isinstance(error, Exception):
-                        raise error
-                    if not isinstance(report_error, Exception):
-                        raise report_error
-                    raise _global(
-                        "promotion_failed",
-                        "unable to record rolled-back import group",
-                    ) from report_error
-                raise _global(
-                    "recovery_required",
-                    "private report state cannot be reconciled",
-                ) from report_error
-        if _file_bytes(report_path) != intended_blocked:
+            retry_error = report_error
+        observed = _file_bytes(report_path)
+        if observed not in {old_report_bytes, intended_blocked}:
             raise _global(
                 "recovery_required", "private report state cannot be reconciled"
-            ) from error
+            ) from retry_error or error
+        if retry_error is not None and not isinstance(retry_error, Exception):
+            raise retry_error
         if not isinstance(error, Exception):
-            raise
+            raise error
+        if retry_error is not None and observed == old_report_bytes:
+            raise _global(
+                "promotion_failed", "unable to record rolled-back import group"
+            ) from retry_error
+        if observed != intended_blocked:
+            raise _global(
+                "recovery_required", "private report state cannot be reconciled"
+            ) from retry_error or error
         return blocked, state, True
     for item in items:
         if item.backup is not None:
@@ -690,40 +851,23 @@ def apply_import(
             results[index] = checked
             if details is not None and checked.slug is not None:
                 metadata[checked.slug] = details
-        status_by_slug = {
-            candidate.slug: candidate.status
-            for candidate in results
-            if candidate.slug is not None
-        }
-        changed = True
-        while changed:
-            changed = False
-            for index, candidate in enumerate(results):
-                if candidate.status != "ready" or candidate.slug is None:
-                    continue
-                if any(
-                    status_by_slug.get(target) in {"blocked", "conflict"}
-                    for target in prepared.dependencies.get(
-                        candidate.slug, frozenset()
-                    )
-                ):
-                    results[index] = _blocked(
-                        candidate, "A selected page dependency is unavailable"
-                    )
-                    status_by_slug[candidate.slug] = "blocked"
-                    changed = True
+        _propagate_apply_unavailable(results, dict(prepared.dependencies))
         _write_report(report, results)
         ready_slugs = {
             candidate.slug
             for candidate in results
             if candidate.status == "ready" and candidate.slug is not None
         }
+        index_by_slug = {
+            candidate.slug: index
+            for index, candidate in enumerate(results)
+            if candidate.slug is not None
+        }
+        status_by_slug = {
+            slug: results[index].status for slug, index in index_by_slug.items()
+        }
         for group in _scc_order(ready_slugs, dict(prepared.dependencies)):
-            group_indexes = [
-                index
-                for index, candidate in enumerate(results)
-                if candidate.slug in group
-            ]
+            group_indexes = [index_by_slug[slug] for slug in group]
             group_candidates = [results[index] for index in group_indexes]
             external = {
                 target
@@ -731,13 +875,8 @@ def apply_import(
                 for target in prepared.dependencies.get(slug, frozenset())
                 if target not in group
             }
-            current_status = {
-                candidate.slug: candidate.status
-                for candidate in results
-                if candidate.slug is not None
-            }
             if any(
-                current_status.get(target) not in {"applied", "unchanged"}
+                status_by_slug.get(target) not in {"applied", "unchanged"}
                 for target in external
             ):
                 completed = [
@@ -757,6 +896,8 @@ def apply_import(
                 )
             for index, candidate in zip(group_indexes, completed):
                 results[index] = candidate
+                if candidate.slug is not None:
+                    status_by_slug[candidate.slug] = candidate.status
             if not report_committed:
                 _write_report(report, results)
         result = ImportRunResult(tuple(results), prepared.dependencies)
