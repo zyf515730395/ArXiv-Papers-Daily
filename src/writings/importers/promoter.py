@@ -18,15 +18,19 @@ from typing import BinaryIO, Callable
 from . import durability
 from .models import (
     CANDIDATE_STATUSES,
+    NOTION_NAMESPACE,
     CandidateStatus,
     ExportInventory,
     ImportCandidateResult,
     ImportIssue,
+    ImportNamespace,
     ImportPlan,
     ImportRunResult,
     ImportState,
     ImportStateEntry,
     NotionImportError,
+    PreparedApplyContract,
+    WeReadImportError,
     private_import_path,
 )
 from .planner import (
@@ -74,40 +78,73 @@ def _global(code: str, message: str) -> NotionImportError:
     return NotionImportError(code, message)
 
 
-def _exact_path(value: str | Path, expected: Path, code: str) -> Path:
+def _namespace_global(
+    namespace: ImportNamespace, code: str, message: str
+) -> NotionImportError | WeReadImportError:
+    error_type = NotionImportError if namespace == NOTION_NAMESPACE else WeReadImportError
+    return error_type(code, message)
+
+
+def _exact_path(
+    value: str | Path,
+    expected: Path,
+    code: str,
+    namespace: ImportNamespace = NOTION_NAMESPACE,
+) -> Path:
     lexical = Path(os.path.abspath(Path(value)))
     if lexical != expected:
-        raise _global(code, "import path does not match the canonical project root")
+        raise _namespace_global(
+            namespace, code, "import path does not match the canonical project root"
+        )
     for component in (Path(PROJECT_ROOT), *expected.parents[::-1], expected):
         if os.path.lexists(component) and _is_link_or_reparse(component):
-            raise _global(code, "import path contains a link or reparse point")
+            raise _namespace_global(
+                namespace, code, "import path contains a link or reparse point"
+            )
     try:
         resolved_project = Path(PROJECT_ROOT).resolve()
         resolved = lexical.resolve()
         resolved_expected = expected.resolve()
     except (OSError, RuntimeError) as error:
-        raise _global(code, "import path is unsafe") from error
+        raise _namespace_global(namespace, code, "import path is unsafe") from error
     if not resolved.is_relative_to(resolved_project) or resolved != resolved_expected:
-        raise _global(code, "import path escapes the canonical project root")
+        raise _namespace_global(
+            namespace, code, "import path escapes the canonical project root"
+        )
     return lexical
 
 
-def _canonical_paths(
+def validate_exact_namespace_paths(
+    namespace: ImportNamespace,
     content_root: str | Path,
     state_path: str | Path,
     work_root: str | Path,
     report_path: str | Path,
 ) -> tuple[Path, Path, Path, Path]:
     project = Path(PROJECT_ROOT)
-    content = _exact_path(content_root, project / "content" / "writings", "unsafe_root")
-    state = _exact_path(
-        state_path, project / "build" / "notion-import" / "state.json", "invalid_state"
+    content = _exact_path(
+        content_root,
+        project / "content" / "writings",
+        "unsafe_root",
+        namespace,
     )
-    work = _exact_path(work_root, project / "build" / "notion-import", "unsafe_root")
+    state = _exact_path(
+        state_path,
+        project / "build" / namespace.name / "state.json",
+        "invalid_state",
+        namespace,
+    )
+    work = _exact_path(
+        work_root,
+        project / "build" / namespace.name,
+        "unsafe_root",
+        namespace,
+    )
     report = _exact_path(
         report_path,
-        project / "build" / "reports" / "notion-import.json",
+        project / "build" / "reports" / namespace.report_name,
         "unsafe_report",
+        namespace,
     )
     try:
         supported = all(
@@ -118,13 +155,27 @@ def _canonical_paths(
             )
         )
     except OSError as error:
-        raise _global("unsafe_root", "unable to create canonical import directories") from error
+        raise _namespace_global(
+            namespace, "unsafe_root", "unable to create canonical import directories"
+        ) from error
     if not supported:
-        raise _global(
+        raise _namespace_global(
+            namespace,
             "promotion_failed",
             "import directories cannot be made durable on this filesystem",
         )
     return content, state, work, report
+
+
+def _canonical_paths(
+    content_root: str | Path,
+    state_path: str | Path,
+    work_root: str | Path,
+    report_path: str | Path,
+) -> tuple[Path, Path, Path, Path]:
+    return validate_exact_namespace_paths(
+        NOTION_NAMESPACE, content_root, state_path, work_root, report_path
+    )
 
 
 def _detect_residue(
@@ -741,9 +792,14 @@ def _cleanup_apply_workspace(
 
 
 def _reset_transaction_workspace(
-    work_root: Path, transaction_id: str, workspace_token: str
+    work_root: Path,
+    transaction_id: str,
+    workspace_token: str,
+    namespace: ImportNamespace = NOTION_NAMESPACE,
 ) -> tuple[Path, Path, Path, _TreeIdentity, bool]:
-    apply_root = private_import_path(work_root / f"apply-{transaction_id}")
+    apply_root = private_import_path(
+        work_root / f"apply-{transaction_id}", namespace
+    )
     if os.path.lexists(apply_root):
         raise _global("recovery_required", "transaction workspace already exists")
     bundles = apply_root / "bundles"
@@ -2160,7 +2216,6 @@ _DurableMetadata = tuple[
 
 def _durable_preflight_candidate(
     candidate: ImportCandidateResult,
-    inventory: ExportInventory,
     content_root: Path,
     state: ImportState,
     owners_by_slug: dict[str, ImportStateEntry],
@@ -2171,10 +2226,20 @@ def _durable_preflight_candidate(
     entry = state.sources.get(key)
     owner = owners_by_slug.get(candidate.slug)
     target = content_root / candidate.slug
-    source_fingerprint = "sha256:" + inventory.files[candidate.source_ref].sha256
+    source_fingerprint = candidate.source_fingerprint
+    written_fingerprint = candidate.written_fingerprint
+    if (
+        not isinstance(source_fingerprint, str)
+        or not re.fullmatch(r"sha256:[0-9a-f]{64}", source_fingerprint)
+        or not isinstance(written_fingerprint, str)
+        or not re.fullmatch(r"sha256:[0-9a-f]{64}", written_fingerprint)
+    ):
+        return _blocked(candidate, "Unable to verify rebuilt writing bundle"), None
     try:
         candidate_fingerprint = fingerprint_bundle(candidate.bundle_root)
     except NotionImportError:
+        return _blocked(candidate, "Unable to verify rebuilt writing bundle"), None
+    if candidate_fingerprint != written_fingerprint:
         return _blocked(candidate, "Unable to verify rebuilt writing bundle"), None
     if entry is not None and entry.slug != candidate.slug:
         return _conflict(candidate, "Private state owns a different public slug"), None
@@ -2392,22 +2457,12 @@ def _promote_durable_group(
     )
 
 
-def apply_import(
-    inventory: ExportInventory,
-    plan: ImportPlan,
-    content_root: str | Path,
-    state_path: str | Path,
-    work_root: str | Path,
-    report_path: str | Path,
+def _run_durable_import(
+    contract: PreparedApplyContract,
+    paths: tuple[Path, Path, Path, Path],
 ) -> ImportRunResult:
-    """Rebuild, preflight, and durably promote dependency groups."""
-    serialize_import_plan(plan)
-    if inventory.fingerprint != plan.export_fingerprint:
-        raise _global("invalid_plan", "export fingerprint does not match the import plan")
-    unique_source_keys(list(inventory.markdown_paths))
-    content, state_file, work, report = _canonical_paths(
-        content_root, state_path, work_root, report_path
-    )
+    """Run the existing durable transaction around one prepared adapter callback."""
+    content, state_file, work, report = paths
     journal_path = work / _JOURNAL_NAME
     lock = _acquire_apply_lock(work)
     journal: _Journal | None = None
@@ -2446,12 +2501,14 @@ def apply_import(
         transaction_active = True
 
         state = (
-            load_import_state(state_file)
+            load_import_state(state_file, namespace=contract.namespace)
             if os.path.lexists(state_file)
             else ImportState(1, {})
         )
         apply_root, bundles, site, workspace_identity, workspace_supported = (
-            _reset_transaction_workspace(work, transaction_id, workspace_token)
+            _reset_transaction_workspace(
+                work, transaction_id, workspace_token, contract.namespace
+            )
         )
         durable_supported = workspace_supported and durable_supported
         durable_supported = journal.append(
@@ -2461,7 +2518,7 @@ def apply_import(
             },
             "journal:workspace",
         ) and durable_supported
-        prepared = prepare_import_candidates(inventory, plan, bundles, site)
+        prepared = contract.prepare(bundles, site)
         results = list(prepared.candidates)
         owners_by_slug = {entry.slug: entry for entry in state.sources.values()}
         metadata: dict[str, _DurableMetadata] = {}
@@ -2471,7 +2528,6 @@ def apply_import(
                 continue
             checked, details = _durable_preflight_candidate(
                 candidate,
-                inventory,
                 content,
                 state,
                 owners_by_slug,
@@ -2657,3 +2713,66 @@ def apply_import(
         raise
     finally:
         lock.close()
+
+
+def apply_prepared_import(
+    contract: PreparedApplyContract,
+    content_root: str | Path,
+    state_path: str | Path,
+    work_root: str | Path,
+    report_path: str | Path,
+) -> ImportRunResult:
+    """Validate a source namespace, then run the shared durable transaction."""
+    paths = validate_exact_namespace_paths(
+        contract.namespace, content_root, state_path, work_root, report_path
+    )
+    unique_source_keys(contract.source_refs)
+    return _run_durable_import(contract, paths)
+
+
+def apply_import(
+    inventory: ExportInventory,
+    plan: ImportPlan,
+    content_root: str | Path,
+    state_path: str | Path,
+    work_root: str | Path,
+    report_path: str | Path,
+) -> ImportRunResult:
+    """Compatibility wrapper for prepared Notion imports."""
+    serialize_import_plan(plan)
+    if inventory.fingerprint != plan.export_fingerprint:
+        raise _global("invalid_plan", "export fingerprint does not match the import plan")
+
+    def prepare(bundles: Path, site: Path) -> ImportRunResult:
+        prepared = prepare_import_candidates(inventory, plan, bundles, site)
+        candidates: list[ImportCandidateResult] = []
+        for candidate in prepared.candidates:
+            if candidate.status != "ready" or candidate.bundle_root is None:
+                candidates.append(candidate)
+                continue
+            try:
+                written_fingerprint = fingerprint_bundle(candidate.bundle_root)
+            except NotionImportError:
+                written_fingerprint = None
+            candidates.append(
+                ImportCandidateResult(
+                    candidate.source_ref,
+                    candidate.slug,
+                    candidate.status,
+                    candidate.issues,
+                    candidate.bundle_root,
+                    "sha256:" + inventory.files[candidate.source_ref].sha256,
+                    written_fingerprint,
+                )
+            )
+        return ImportRunResult(tuple(candidates), prepared.dependencies)
+
+    contract = PreparedApplyContract(
+        NOTION_NAMESPACE,
+        inventory.fingerprint,
+        tuple(inventory.markdown_paths),
+        prepare,
+    )
+    return apply_prepared_import(
+        contract, content_root, state_path, work_root, report_path
+    )

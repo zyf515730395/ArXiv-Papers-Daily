@@ -7,7 +7,7 @@ import os
 from pathlib import Path, PurePosixPath, PureWindowsPath
 import re
 from types import MappingProxyType
-from typing import Literal, Mapping
+from typing import Callable, Literal, Mapping
 import unicodedata
 
 
@@ -18,12 +18,25 @@ _NOTION_ID = re.compile(
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 _WINDOWS_DEVICES = {"con", "prn", "aux", "nul", "clock$"} | {f"com{number}" for number in range(1, 10)} | {f"lpt{number}" for number in range(1, 10)}
 _REPARSE_POINT = 0x0400
+_WEREAD_BOOK_ID = re.compile(
+    r"(?i)\b(?:book(?:[_ -]?id)?\s*[:=]?\s*)?[0-9]{6,}\b"
+)
+_SOURCE_FILENAME = re.compile(r"(?i)(?<![\w.-])[^\s\\/]+\.md(?![\w.-])")
 
 
 def _safe_error_message(message: str) -> str:
     """Keep user-facing importer failures free from private identifiers."""
     value = _NOTION_ID.sub("[notion-id]", str(message))
     value = re.sub(r"(?i)(?:[a-z]:[\\/]|//|/)[^\s:;]+", "[path]", value)
+    return " ".join(value.split()) or "import failed"
+
+
+def _safe_weread_error_message(message: str) -> str:
+    """Keep WeRead failures free from book and local source identities."""
+    value = _WEREAD_BOOK_ID.sub("[book-id]", str(message))
+    value = re.sub(r"(?i)(?:[a-z]:[\\/]|//|/)[^\s:;]+", "[path]", value)
+    value = _SOURCE_FILENAME.sub("[source-file]", value)
+    value = "".join(" " if unicodedata.category(char).startswith("C") else char for char in value)
     return " ".join(value.split()) or "import failed"
 
 
@@ -55,43 +68,135 @@ def validate_portable_relative_path(value: object) -> PurePosixPath:
     return posix
 
 
-def canonical_import_root() -> Path:
+class WritingImportError(ValueError):
+    """A stable importer error that never retains its unsanitized message."""
+
+    def __init__(
+        self,
+        code: str,
+        message: str,
+        sanitizer: Callable[[str], str] = _safe_error_message,
+    ) -> None:
+        self.code = str(code)
+        self.message = str(sanitizer(str(message))) or "import failed"
+        super().__init__(f"{self.code}: {self.message}")
+
+
+class NotionImportError(WritingImportError):
+    """A stable, privacy-safe Notion import error for the command line."""
+
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(code, message, _safe_error_message)
+
+
+class WeReadImportError(WritingImportError):
+    """A stable, privacy-safe WeRead import error for the command line."""
+
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(code, message, _safe_weread_error_message)
+
+
+@dataclass(frozen=True, slots=True)
+class ImportNamespace:
+    name: Literal["notion-import", "weread-import"]
+    report_name: Literal["notion-import.json", "weread-import.json"]
+
+    def __post_init__(self) -> None:
+        if (self.name, self.report_name) not in {
+            ("notion-import", "notion-import.json"),
+            ("weread-import", "weread-import.json"),
+        }:
+            raise ValueError("unsupported import namespace")
+
+
+NOTION_NAMESPACE = ImportNamespace("notion-import", "notion-import.json")
+WEREAD_NAMESPACE = ImportNamespace("weread-import", "weread-import.json")
+
+
+def _namespace_error(
+    namespace: ImportNamespace, code: str, message: str
+) -> WritingImportError:
+    error_type = NotionImportError if namespace == NOTION_NAMESPACE else WeReadImportError
+    return error_type(code, message)
+
+
+def canonical_private_root(namespace: ImportNamespace) -> Path:
     project = Path(PROJECT_ROOT)
     build = project / "build"
-    root = build / "notion-import"
-    for component in (project, build, root):
-        if component.exists() and _is_link_or_reparse(component):
-            raise NotionImportError("unsafe_archive", "private import root contains a link or reparse point")
+    root = build / namespace.name
+    for component in (*project.parents[::-1], project, build, root):
+        if os.path.lexists(component) and _is_link_or_reparse(component):
+            raise _namespace_error(
+                namespace,
+                "unsafe_archive",
+                "private import root contains a link or reparse point",
+            )
     try:
         root.mkdir(parents=True, exist_ok=True)
     except OSError as error:
-        raise NotionImportError("unsafe_archive", "unable to create private import root") from error
+        raise _namespace_error(
+            namespace, "unsafe_archive", "unable to create private import root"
+        ) from error
     resolved_project = project.resolve()
     resolved_root = root.resolve()
     if not resolved_root.is_relative_to(resolved_project):
-        raise NotionImportError("unsafe_archive", "private import root escapes the project")
+        raise _namespace_error(
+            namespace, "unsafe_archive", "private import root escapes the project"
+        )
     return resolved_root
 
 
-def private_import_path(value: str | Path, *, exact_root: bool = False) -> Path:
-    root = canonical_import_root()
+def canonical_import_root() -> Path:
+    return canonical_private_root(NOTION_NAMESPACE)
+
+
+def _validated_private_path(
+    value: str | Path,
+    namespace: ImportNamespace,
+    *,
+    exact_root: bool = False,
+) -> Path:
+    root = canonical_private_root(namespace)
     raw = Path(value)
     lexical = Path(os.path.abspath(raw))
     try:
         relative = lexical.relative_to(root)
     except ValueError as error:
-        raise NotionImportError("unsafe_archive", "private import path is outside the canonical root") from error
+        raise _namespace_error(
+            namespace,
+            "unsafe_archive",
+            "private import path is outside the canonical root",
+        ) from error
     if any(part in {"", ".", ".."} for part in relative.parts):
-        raise NotionImportError("unsafe_archive", "private import path is unsafe")
+        raise _namespace_error(
+            namespace, "unsafe_archive", "private import path is unsafe"
+        )
     current = root
     for part in relative.parts:
         current = current / part
-        if current.exists() and _is_link_or_reparse(current):
-            raise NotionImportError("unsafe_archive", "private import path contains a link or reparse point")
+        if os.path.lexists(current) and _is_link_or_reparse(current):
+            raise _namespace_error(
+                namespace,
+                "unsafe_archive",
+                "private import path contains a link or reparse point",
+            )
     resolved = lexical.resolve()
     if not resolved.is_relative_to(root) or (exact_root and resolved != root):
-        raise NotionImportError("unsafe_archive", "private import path is outside the canonical root")
+        raise _namespace_error(
+            namespace,
+            "unsafe_archive",
+            "private import path is outside the canonical root",
+        )
     return resolved
+
+
+def private_import_path(
+    value: str | Path,
+    namespace: ImportNamespace = NOTION_NAMESPACE,
+    *,
+    exact_root: bool = False,
+) -> Path:
+    return _validated_private_path(value, namespace, exact_root=exact_root)
 
 
 @dataclass(frozen=True, slots=True)
@@ -249,10 +354,9 @@ class ImportRunResult:
         return MappingProxyType(values)
 
 
-class NotionImportError(ValueError):
-    """A stable, privacy-safe import error suitable for the command line."""
-
-    def __init__(self, code: str, message: str) -> None:
-        self.code = str(code)
-        self.message = _safe_error_message(message)
-        super().__init__(f"{self.code}: {self.message}")
+@dataclass(frozen=True, slots=True)
+class PreparedApplyContract:
+    namespace: ImportNamespace
+    export_fingerprint: str
+    source_refs: tuple[str, ...]
+    prepare: Callable[[Path, Path], ImportRunResult]
