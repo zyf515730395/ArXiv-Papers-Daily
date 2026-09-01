@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from bisect import bisect_left
 from contextlib import contextmanager
 import hashlib
 import os
@@ -48,6 +49,15 @@ def _validate_limits(count: int, size: int, total: int, limits: ImportLimits) ->
     if count > limits.max_members or size > limits.max_file_bytes or total + size > limits.max_total_bytes:
         raise _fail("archive exceeds configured safety limits")
     return total + size
+
+
+def _has_file_prefix_conflict(file_keys: set[str]) -> bool:
+    """Find file/descendant aliases with one logarithmic lookup per file key."""
+    keys = sorted(file_keys)
+    return any(
+        (index := bisect_left(keys, key + "/")) < len(keys) and keys[index].startswith(key + "/")
+        for key in keys
+    )
 
 
 def _fingerprint(files: dict[str, ExportFile]) -> str:
@@ -180,7 +190,7 @@ def _zip_entries(archive: zipfile.ZipFile, limits: ImportLimits) -> list[tuple[z
         file_keys.add(key)
         total = _validate_limits(len(records) + 1, info.file_size, total, limits)
         records.append((info, relative))
-    if any("/".join(key.split("/")[:index]) in file_keys for key in file_keys for index in range(1, len(key.split("/")))):
+    if _has_file_prefix_conflict(file_keys):
         raise _fail("archive contains file and descendant path conflict")
     return records
 
