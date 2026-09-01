@@ -13,7 +13,18 @@ import tempfile
 from typing import ContextManager, Iterator
 import zipfile
 
-from .models import ExportFile, ExportInventory, ImportLimits, NotionImportError, portable_collision_key, private_import_path, validate_portable_relative_path
+from .models import (
+    NOTION_NAMESPACE,
+    ExportFile,
+    ExportInventory,
+    ImportLimits,
+    ImportNamespace,
+    NotionImportError,
+    WeReadImportError,
+    portable_collision_key,
+    private_import_path,
+    validate_portable_relative_path,
+)
 
 
 DEFAULT_LIMITS = ImportLimits()
@@ -22,6 +33,14 @@ _REPARSE_POINT = 0x0400
 
 def _fail(message: str) -> NotionImportError:
     return NotionImportError("unsafe_archive", message)
+
+
+def _namespace_error(
+    error: NotionImportError, namespace: ImportNamespace
+) -> NotionImportError | WeReadImportError:
+    if namespace == NOTION_NAMESPACE:
+        return error
+    return WeReadImportError(error.code, error.message)
 
 
 def _is_link_or_reparse(path: Path) -> bool:
@@ -105,8 +124,8 @@ def _inventory(root: Path, entries: list[tuple[PurePosixPath, Path]], limits: Im
     )
 
 
-def _work_root(value: str | Path) -> Path:
-    return private_import_path(value, exact_root=True)
+def _work_root(value: str | Path, namespace: ImportNamespace) -> Path:
+    return private_import_path(value, namespace, exact_root=True)
 
 
 def _directory_inventory(source: Path, limits: ImportLimits) -> ExportInventory:
@@ -239,7 +258,12 @@ def _validate_raw_zip_names(source: Path, archive: zipfile.ZipFile) -> None:
             _validated_member(raw_name[:-1] if raw_name.endswith("/") else raw_name)
 
 
-def _extract_zip(source: Path, work_root: Path, limits: ImportLimits) -> tuple[Path, ExportInventory]:
+def _extract_zip(
+    source: Path,
+    work_root: Path,
+    limits: ImportLimits,
+    namespace: ImportNamespace,
+) -> tuple[Path, ExportInventory]:
     try:
         archive = zipfile.ZipFile(source)
     except (OSError, zipfile.BadZipFile) as error:
@@ -247,9 +271,9 @@ def _extract_zip(source: Path, work_root: Path, limits: ImportLimits) -> tuple[P
     with archive:
         _validate_raw_zip_names(source, archive)
         records = _zip_entries(archive, limits)
-        runs = private_import_path(work_root / "runs")
+        runs = private_import_path(work_root / "runs", namespace)
         runs.mkdir(parents=True, exist_ok=True)
-        runs = private_import_path(runs)
+        runs = private_import_path(runs, namespace)
         extraction = Path(tempfile.mkdtemp(prefix="run-", dir=runs)).resolve()
         if not extraction.is_relative_to(runs.resolve()):
             raise _fail("temporary extraction path is unsafe")
@@ -284,19 +308,45 @@ def open_export(
     source: str | Path,
     work_root: str | Path,
     limits: ImportLimits = DEFAULT_LIMITS,
+    *,
+    namespace: ImportNamespace = NOTION_NAMESPACE,
 ) -> Iterator[ExportInventory]:
     """Safely inventory a directory or ZIP, cleaning up only owned extraction runs."""
     candidate = Path(source)
-    if _is_link_or_reparse(candidate):
-        raise _fail("export input must not be a link or reparse point")
-    if candidate.is_dir():
-        yield _directory_inventory(candidate, limits)
+    try:
+        if _is_link_or_reparse(candidate):
+            raise _fail("export input must not be a link or reparse point")
+        if candidate.is_dir():
+            inventory = _directory_inventory(candidate, limits)
+        else:
+            inventory = None
+        if inventory is None and (
+            not candidate.is_file() or candidate.suffix.lower() != ".zip"
+        ):
+            raise _fail("export input must be a ZIP file or directory")
+    except NotionImportError as error:
+        converted = _namespace_error(error, namespace)
+        if converted is error:
+            raise
+        raise converted from error
+    if inventory is not None:
+        yield inventory
         return
-    if not candidate.is_file() or candidate.suffix.lower() != ".zip":
-        raise _fail("export input must be a ZIP file or directory")
-    root = _work_root(work_root)
-    extraction, inventory = _extract_zip(candidate, root, limits)
+    try:
+        root = _work_root(work_root, namespace)
+        extraction, inventory = _extract_zip(candidate, root, limits, namespace)
+    except NotionImportError as error:
+        converted = _namespace_error(error, namespace)
+        if converted is error:
+            raise
+        raise converted from error
     try:
         yield inventory
     finally:
-        _remove_owned_run(extraction, root / "runs")
+        try:
+            _remove_owned_run(extraction, root / "runs")
+        except NotionImportError as error:
+            converted = _namespace_error(error, namespace)
+            if converted is error:
+                raise
+            raise converted from error

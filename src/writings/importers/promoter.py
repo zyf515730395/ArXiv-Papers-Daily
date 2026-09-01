@@ -18,15 +18,19 @@ from typing import BinaryIO, Callable
 from . import durability
 from .models import (
     CANDIDATE_STATUSES,
+    NOTION_NAMESPACE,
     CandidateStatus,
     ExportInventory,
     ImportCandidateResult,
     ImportIssue,
+    ImportNamespace,
     ImportPlan,
     ImportRunResult,
     ImportState,
     ImportStateEntry,
     NotionImportError,
+    PreparedApplyContract,
+    WeReadImportError,
     private_import_path,
 )
 from .planner import (
@@ -74,41 +78,98 @@ def _global(code: str, message: str) -> NotionImportError:
     return NotionImportError(code, message)
 
 
-def _exact_path(value: str | Path, expected: Path, code: str) -> Path:
+def _namespace_global(
+    namespace: ImportNamespace, code: str, message: str
+) -> NotionImportError | WeReadImportError:
+    error_type = NotionImportError if namespace == NOTION_NAMESPACE else WeReadImportError
+    return error_type(code, message)
+
+
+def _prepared_boundary_error(error: NotionImportError) -> WeReadImportError:
+    message = error.message.replace("Notion", "writing import")
+    return WeReadImportError(error.code, message)
+
+
+def _exact_path(
+    value: str | Path,
+    expected: Path,
+    code: str,
+    namespace: ImportNamespace = NOTION_NAMESPACE,
+) -> Path:
     lexical = Path(os.path.abspath(Path(value)))
     if lexical != expected:
-        raise _global(code, "import path does not match the canonical project root")
+        raise _namespace_global(
+            namespace, code, "import path does not match the canonical project root"
+        )
     for component in (Path(PROJECT_ROOT), *expected.parents[::-1], expected):
         if os.path.lexists(component) and _is_link_or_reparse(component):
-            raise _global(code, "import path contains a link or reparse point")
+            raise _namespace_global(
+                namespace, code, "import path contains a link or reparse point"
+            )
     try:
         resolved_project = Path(PROJECT_ROOT).resolve()
         resolved = lexical.resolve()
         resolved_expected = expected.resolve()
     except (OSError, RuntimeError) as error:
-        raise _global(code, "import path is unsafe") from error
+        raise _namespace_global(namespace, code, "import path is unsafe") from error
     if not resolved.is_relative_to(resolved_project) or resolved != resolved_expected:
-        raise _global(code, "import path escapes the canonical project root")
+        raise _namespace_global(
+            namespace, code, "import path escapes the canonical project root"
+        )
     return lexical
 
 
-def _canonical_paths(
+def validate_exact_report_path(
+    namespace: ImportNamespace, report_path: str | Path
+) -> Path:
+    """Validate the canonical report and its complete chain without mutation."""
+    project = Path(PROJECT_ROOT)
+    report = _exact_path(
+        report_path,
+        project / "build" / "reports" / namespace.report_name,
+        "unsafe_report",
+        namespace,
+    )
+    chain = (project, project / "build", report.parent)
+    if any(
+        os.path.lexists(component) and not component.is_dir()
+        for component in chain
+    ) or (os.path.lexists(report) and not report.is_file()):
+        raise _namespace_global(
+            namespace,
+            "unsafe_report",
+            "import report path has an invalid filesystem type",
+        )
+    return report
+
+
+def validate_exact_namespace_paths(
+    namespace: ImportNamespace,
     content_root: str | Path,
     state_path: str | Path,
     work_root: str | Path,
     report_path: str | Path,
 ) -> tuple[Path, Path, Path, Path]:
     project = Path(PROJECT_ROOT)
-    content = _exact_path(content_root, project / "content" / "writings", "unsafe_root")
+    content = _exact_path(
+        content_root,
+        project / "content" / "writings",
+        "unsafe_root",
+        namespace,
+    )
     state = _exact_path(
-        state_path, project / "build" / "notion-import" / "state.json", "invalid_state"
+        state_path,
+        project / "build" / namespace.name / "state.json",
+        "invalid_state",
+        namespace,
     )
-    work = _exact_path(work_root, project / "build" / "notion-import", "unsafe_root")
-    report = _exact_path(
-        report_path,
-        project / "build" / "reports" / "notion-import.json",
-        "unsafe_report",
+    work = _exact_path(
+        work_root,
+        project / "build" / namespace.name,
+        "unsafe_root",
+        namespace,
     )
+    report = validate_exact_report_path(namespace, report_path)
     try:
         supported = all(
             (
@@ -118,13 +179,27 @@ def _canonical_paths(
             )
         )
     except OSError as error:
-        raise _global("unsafe_root", "unable to create canonical import directories") from error
+        raise _namespace_global(
+            namespace, "unsafe_root", "unable to create canonical import directories"
+        ) from error
     if not supported:
-        raise _global(
+        raise _namespace_global(
+            namespace,
             "promotion_failed",
             "import directories cannot be made durable on this filesystem",
         )
     return content, state, work, report
+
+
+def _canonical_paths(
+    content_root: str | Path,
+    state_path: str | Path,
+    work_root: str | Path,
+    report_path: str | Path,
+) -> tuple[Path, Path, Path, Path]:
+    return validate_exact_namespace_paths(
+        NOTION_NAMESPACE, content_root, state_path, work_root, report_path
+    )
 
 
 def _detect_residue(
@@ -585,12 +660,13 @@ class _Journal:
         report_before: bytes | None,
         workspace: str,
         workspace_token: str,
+        version: int,
         cleanup_evidence: tuple[_CleanupEvidence, ...] = (),
     ) -> bool:
         data = _journal_record(
             {
                 "kind": "header",
-                "version": 1,
+                "version": version,
                 "transaction_id": self.transaction_id,
                 "process_id": _PROCESS_IDENTITY,
                 "workspace": workspace,
@@ -741,9 +817,14 @@ def _cleanup_apply_workspace(
 
 
 def _reset_transaction_workspace(
-    work_root: Path, transaction_id: str, workspace_token: str
+    work_root: Path,
+    transaction_id: str,
+    workspace_token: str,
+    namespace: ImportNamespace = NOTION_NAMESPACE,
 ) -> tuple[Path, Path, Path, _TreeIdentity, bool]:
-    apply_root = private_import_path(work_root / f"apply-{transaction_id}")
+    apply_root = private_import_path(
+        work_root / f"apply-{transaction_id}", namespace
+    )
     if os.path.lexists(apply_root):
         raise _global("recovery_required", "transaction workspace already exists")
     bundles = apply_root / "bundles"
@@ -937,10 +1018,13 @@ class _DurablePromotion:
     old_fingerprint: str | None
     stage_identity: _TreeIdentity
     old_identity: _TreeIdentity | None
+    previous_slug: str | None
 
 
-def _promotion_payload(item: _DurablePromotion) -> dict[str, object]:
-    return {
+def _promotion_payload(
+    item: _DurablePromotion, journal_version: int
+) -> dict[str, object]:
+    payload: dict[str, object] = {
         "slug": item.candidate.slug,
         "stage": item.stage.name,
         "backup": item.backup.name if item.backup is not None else None,
@@ -950,6 +1034,13 @@ def _promotion_payload(item: _DurablePromotion) -> dict[str, object]:
         "stage_identity": _identity_payload(item.stage_identity),
         "old_identity": _identity_payload(item.old_identity),
     }
+    if journal_version == 2:
+        payload["previous_slug"] = item.previous_slug
+    elif item.previous_slug is not None:
+        raise _global(
+            "promotion_failed", "slug reassignment requires a versioned transaction"
+        )
+    return payload
 
 
 def _safe_transaction_name(
@@ -978,6 +1069,31 @@ class _RecoveryPromotion:
     old_fingerprint: str | None
     stage_identity: _TreeIdentity
     old_identity: _TreeIdentity | None
+    previous_slug: str | None = None
+
+
+def _previous_target(
+    item: _RecoveryPromotion | _DurablePromotion,
+) -> Path:
+    return (
+        item.target
+        if item.previous_slug is None
+        else item.target.parent / item.previous_slug
+    )
+
+
+def _forward_promotion_observed(
+    item: _RecoveryPromotion | _DurablePromotion, content_root: Path
+) -> bool:
+    return _tree_matches(
+        item.target,
+        content_root,
+        item.new_fingerprint,
+        item.stage_identity,
+    ) and (
+        item.previous_slug is None
+        or not os.path.lexists(_previous_target(item))
+    )
 
 
 def _cleanup_evidence_payload(
@@ -1110,9 +1226,12 @@ def _backup_cleanup_evidence(
 
 
 def _recovery_promotion(
-    value: object, content_root: Path, transaction_id: str
+    value: object,
+    content_root: Path,
+    transaction_id: str,
+    journal_version: int,
 ) -> _RecoveryPromotion:
-    if not isinstance(value, dict) or set(value) != {
+    fields = {
         "slug",
         "stage",
         "backup",
@@ -1121,7 +1240,10 @@ def _recovery_promotion(
         "old_fingerprint",
         "stage_identity",
         "old_identity",
-    }:
+    }
+    if journal_version == 2:
+        fields.add("previous_slug")
+    if not isinstance(value, dict) or set(value) != fields:
         raise _global("recovery_required", "transaction promotion record is invalid")
     slug = value["slug"]
     if not isinstance(slug, str) or not re.fullmatch(
@@ -1153,6 +1275,15 @@ def _recovery_promotion(
     old_identity = _payload_identity(value["old_identity"])
     if stage_identity is None or ((old_fingerprint is None) != (old_identity is None)):
         raise _global("recovery_required", "transaction tree identity is invalid")
+    previous_slug = value.get("previous_slug")
+    if previous_slug is not None and (
+        journal_version != 2
+        or not isinstance(previous_slug, str)
+        or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", previous_slug)
+        or previous_slug == slug
+        or old_fingerprint is None
+    ):
+        raise _global("recovery_required", "transaction prior slug is invalid")
     return _RecoveryPromotion(
         slug,
         content_root / slug,
@@ -1162,6 +1293,7 @@ def _recovery_promotion(
         old_fingerprint,
         stage_identity,
         old_identity,
+        previous_slug,
     )
 
 
@@ -1172,6 +1304,7 @@ def _preflight_rollback(
 ) -> None:
     """Prove every SCC recovery source before the first destructive mutation."""
     for item in items:
+        previous_target = _previous_target(item)
         target_new = _tree_matches(
             item.target,
             content_root,
@@ -1182,14 +1315,22 @@ def _preflight_rollback(
             item.old_fingerprint is not None
             and item.old_identity is not None
             and _tree_matches(
-                item.target,
+                previous_target,
                 content_root,
                 item.old_fingerprint,
                 item.old_identity,
             )
         )
-        if os.path.lexists(item.target) and not (target_new or target_old):
+        if os.path.lexists(item.target) and not (
+            target_new or (previous_target == item.target and target_old)
+        ):
             raise _global("recovery_failed", "writing target cannot be reconciled")
+        if (
+            previous_target != item.target
+            and os.path.lexists(previous_target)
+            and not target_old
+        ):
+            raise _global("recovery_failed", "prior writing target cannot be reconciled")
         stage_trash = _owned_trash_path(item.stage, content_root, transaction_id)
         if os.path.lexists(item.stage) and not _tree_matches(
             item.stage,
@@ -1216,6 +1357,8 @@ def _preflight_rollback(
             )
             if os.path.lexists(item.backup) and not backup_match:
                 raise _global("recovery_failed", "trusted writing backup is unsafe")
+            if target_old and backup_match:
+                raise _global("recovery_failed", "trusted writing identity is duplicated")
             if not target_old and not backup_match:
                 raise _global("recovery_failed", "trusted writing backup is unavailable")
         elif item.backup is not None:
@@ -1228,6 +1371,7 @@ def _restore_promotion(
     transaction_id: str,
 ) -> bool:
     target = item.target
+    previous_target = _previous_target(item)
     supported = True
     if _tree_matches(
         target, content_root, item.new_fingerprint, item.stage_identity
@@ -1256,19 +1400,24 @@ def _restore_promotion(
             raise _global("recovery_failed", "new writing stage cannot be proven")
     if item.old_fingerprint is not None:
         assert item.old_identity is not None and item.backup is not None
-        if not os.path.lexists(target):
+        if not os.path.lexists(previous_target):
             try:
                 supported = durability.durable_rename_noreplace(
-                    item.backup, target, "public:restore"
+                    item.backup, previous_target, "public:restore"
                 ) and supported
             except (OSError, RuntimeError) as error:
                 raise _global(
                     "recovery_failed", "trusted writing target cannot be restored"
                 ) from error
         if not _tree_matches(
-            target, content_root, item.old_fingerprint, item.old_identity
+            previous_target,
+            content_root,
+            item.old_fingerprint,
+            item.old_identity,
         ):
             raise _global("recovery_failed", "trusted writing target was not restored")
+        if previous_target != target and os.path.lexists(target):
+            raise _global("recovery_failed", "new writing target remains after rollback")
     elif os.path.lexists(target):
         raise _global("recovery_failed", "new writing target remains after rollback")
     supported = _remove_owned_tree(
@@ -1309,13 +1458,115 @@ def _candidate_delta(
     ]
 
 
+def _project_result(
+    contract: PreparedApplyContract, result: ImportRunResult
+) -> ImportRunResult:
+    try:
+        projected = contract.project_result(result)
+    except Exception as error:
+        raise _namespace_global(
+            contract.namespace,
+            "promotion_failed",
+            "import result projection failed",
+        ) from error
+    if not isinstance(projected, ImportRunResult) or len(projected.candidates) != len(
+        result.candidates
+    ):
+        raise _namespace_global(
+            contract.namespace,
+            "promotion_failed",
+            "import result projection changed transaction structure",
+        )
+    if projected.dependencies != result.dependencies:
+        raise _namespace_global(
+            contract.namespace,
+            "promotion_failed",
+            "import result projection changed transaction dependencies",
+        )
+    for original, public in zip(result.candidates, projected.candidates):
+        if (
+            public.slug != original.slug
+            or public.status != original.status
+            or public.bundle_root != original.bundle_root
+            or public.source_fingerprint != original.source_fingerprint
+            or public.written_fingerprint != original.written_fingerprint
+            or len(public.issues) != len(original.issues)
+            or any(
+                projected_issue.code != original_issue.code
+                or projected_issue.message != original_issue.message
+                for original_issue, projected_issue in zip(
+                    original.issues, public.issues
+                )
+            )
+        ):
+            raise _namespace_global(
+                contract.namespace,
+                "promotion_failed",
+                "import result projection changed transaction outcomes",
+            )
+    return projected
+
+
+def _report_bytes(
+    contract: PreparedApplyContract, projected: ImportRunResult
+) -> bytes:
+    serializer = contract.serialize_report or serialize_import_report
+    try:
+        report = serializer(projected)
+    except Exception as error:
+        raise _namespace_global(
+            contract.namespace, "promotion_failed", "import report serialization failed"
+        ) from error
+    if not isinstance(report, str):
+        raise _namespace_global(
+            contract.namespace, "promotion_failed", "import report is invalid"
+        )
+    return report.encode("utf-8")
+
+
+def _recovery_report_bytes(
+    contract: PreparedApplyContract, result: ImportRunResult
+) -> bytes:
+    projected = _project_result(contract, result)
+    candidates = tuple(
+        _result(
+            candidate,
+            "blocked",
+            issue=ImportIssue(
+                candidate.source_ref,
+                "promotion_failed",
+                "Interrupted import did not durably complete",
+            ),
+        )
+        if candidate.status in {"ready", "applied"}
+        else candidate
+        for candidate in projected.candidates
+    )
+    return _report_bytes(
+        contract, ImportRunResult(candidates, projected.dependencies)
+    )
+
+
 def _materialize_recovery_report(
     baseline_report: bytes | None,
+    baseline_recovery_report: bytes | None,
     result_records: list[dict[str, object]],
     rollback_slugs: set[str],
 ) -> bytes | None:
     if baseline_report is None:
         return None
+    if baseline_recovery_report is not None:
+        for record in reversed(result_records):
+            if "report" in record:
+                report = _unblob(record["report"])
+                if report is None:
+                    raise _global(
+                        "recovery_required", "transaction report cannot be rebuilt"
+                    )
+                return report
+        return baseline_recovery_report
+    if not result_records and not rollback_slugs:
+        return baseline_report
     try:
         payload = json.loads(baseline_report.decode("utf-8"))
         if (
@@ -1425,6 +1676,7 @@ def _parse_transaction(
 ) -> tuple[
     dict[str, object],
     bytes | None,
+    bytes | None,
     _TreeIdentity | None,
     list[tuple[int, list[_RecoveryPromotion]]],
     list[tuple[int, list[_RecoveryPromotion]]],
@@ -1466,7 +1718,8 @@ def _parse_transaction(
             and not isinstance(header["cleanup_evidence"], list)
         )
         or header.get("kind") != "header"
-        or header.get("version") != 1
+        or type(header.get("version")) is not int
+        or header.get("version") not in {1, 2}
         or not isinstance(header.get("transaction_id"), str)
         or not _TRANSACTION_ID.fullmatch(header["transaction_id"])  # type: ignore[arg-type]
         or not isinstance(header.get("workspace"), str)
@@ -1487,6 +1740,8 @@ def _parse_transaction(
         content_root,
     )
     transaction_id = header["transaction_id"]
+    journal_version = header["version"]
+    assert type(journal_version) is int
     if expected_stale is not None and transaction_id != expected_stale:
         raise _global("recovery_required", "stale lock and journal identities disagree")
     _unblob(header["state_before"])
@@ -1495,6 +1750,7 @@ def _parse_transaction(
     stage_intent_payloads: dict[int, list[object]] = {}
     prepared: list[tuple[int, list[_RecoveryPromotion]]] = []
     baseline: bytes | None = None
+    baseline_recovery_report: bytes | None = None
     workspace_identity: _TreeIdentity | None = None
     rolled_back: set[int] = set()
     results: list[dict[str, object]] = []
@@ -1521,8 +1777,13 @@ def _parse_transaction(
             if workspace_identity is None:
                 raise _global("recovery_required", "transaction workspace is invalid")
         elif kind == "baseline":
+            baseline_fields = (
+                {"kind", "report"}
+                if journal_version == 1
+                else {"kind", "report", "recovery_report"}
+            )
             if (
-                set(record) != {"kind", "report"}
+                set(record) != baseline_fields
                 or baseline is not None
                 or prepared
                 or results
@@ -1533,6 +1794,12 @@ def _parse_transaction(
             baseline = _unblob(record["report"])
             if baseline is None:
                 raise _global("recovery_required", "transaction baseline is invalid")
+            if "recovery_report" in record:
+                baseline_recovery_report = _unblob(record["recovery_report"])
+                if baseline_recovery_report is None:
+                    raise _global(
+                        "recovery_required", "transaction baseline is invalid"
+                    )
         elif kind == "stage_intent":
             if set(record) != {"kind", "group", "items"}:
                 raise _global("recovery_required", "transaction stage intent is invalid")
@@ -1552,7 +1819,9 @@ def _parse_transaction(
                 (
                     group,
                     [
-                        _recovery_promotion(item, content_root, transaction_id)
+                        _recovery_promotion(
+                            item, content_root, transaction_id, journal_version
+                        )
                         for item in items
                     ],
                 )
@@ -1577,7 +1846,9 @@ def _parse_transaction(
                 (
                     group,
                     [
-                        _recovery_promotion(item, content_root, transaction_id)
+                        _recovery_promotion(
+                            item, content_root, transaction_id, journal_version
+                        )
                         for item in items
                     ],
                 )
@@ -1590,7 +1861,14 @@ def _parse_transaction(
                 raise _global("recovery_required", "transaction rollback record is invalid")
             rolled_back.add(group)  # type: ignore[arg-type]
         elif kind == "result":
-            if set(record) != {"kind", "group", "candidates"}:
+            result_fields = (
+                {"kind", "group", "candidates"}
+                if journal_version == 1
+                else {"kind", "group", "report"}
+            )
+            if set(record) != result_fields:
+                raise _global("recovery_required", "transaction result record is invalid")
+            if "report" in record and _unblob(record["report"]) is None:
                 raise _global("recovery_required", "transaction result record is invalid")
             results.append(record)
         elif kind == "commit_intent":
@@ -1633,6 +1911,7 @@ def _parse_transaction(
     return (
         header,
         baseline,
+        baseline_recovery_report,
         workspace_identity,
         stage_intents,
         prepared,
@@ -1658,17 +1937,20 @@ def _rollback_is_observed(
 ) -> bool:
     try:
         for item in items:
+            previous_target = _previous_target(item)
             if item.old_fingerprint is None:
                 if os.path.lexists(item.target):
                     return False
             else:
                 assert item.old_identity is not None
                 if not _tree_matches(
-                    item.target,
+                    previous_target,
                     content_root,
                     item.old_fingerprint,
                     item.old_identity,
                 ):
+                    return False
+                if previous_target != item.target and os.path.lexists(item.target):
                     return False
             residue = (
                 item.stage,
@@ -1716,6 +1998,7 @@ def _reconcile_stage_intents(
         return True
     plans: list[tuple[_RecoveryPromotion, str]] = []
     for item in pending:
+        previous_target = _previous_target(item)
         if item.old_fingerprint is None:
             if os.path.lexists(item.target):
                 raise _global(
@@ -1724,13 +2007,17 @@ def _reconcile_stage_intents(
         else:
             assert item.old_identity is not None
             if not _tree_matches(
-                item.target,
+                previous_target,
                 content_root,
                 item.old_fingerprint,
                 item.old_identity,
             ):
                 raise _global(
                     "recovery_required", "unprepared writing target changed"
+                )
+            if previous_target != item.target and os.path.lexists(item.target):
+                raise _global(
+                    "recovery_required", "unprepared reassignment target changed"
                 )
         if item.backup is not None:
             backup_trash = _owned_trash_path(
@@ -1873,6 +2160,7 @@ def _recover_transaction(
     (
         header,
         baseline_report,
+        baseline_recovery_report,
         workspace_identity,
         stage_intents,
         prepared,
@@ -1900,13 +2188,7 @@ def _recover_transaction(
     state_after = _unblob(intent["state_after"]) if intent is not None else None
     report_after = _unblob(intent["report_after"]) if intent is not None else None
     targets_forward = all(
-        _tree_matches(
-            item.target,
-            content_root,
-            item.new_fingerprint,
-            item.stage_identity,
-        )
-        for item in active_items
+        _forward_promotion_observed(item, content_root) for item in active_items
     )
     journal = _Journal(journal_path, transaction_id)
     workspace = work_root / str(header["workspace"])
@@ -1962,7 +2244,7 @@ def _recover_transaction(
                 ) and recovery_supported
 
         retained_targets = all(
-            _tree_has_identity(item.target, content_root, item.stage_identity)
+            _forward_promotion_observed(item, content_root)
             for item in active_items
         )
         if not targets_forward and not (pending_prior and retained_targets):
@@ -2038,6 +2320,7 @@ def _recover_transaction(
         }
         recovered_report = _materialize_recovery_report(
             baseline_report if baseline_report is not None else report_before,
+            baseline_recovery_report,
             result_records,
             rollback_slugs,
         )
@@ -2099,6 +2382,7 @@ def _plan_durable_stage(
     old_fingerprint: str | None,
     old_identity: _TreeIdentity | None,
     backup: Path | None,
+    previous_slug: str | None,
 ) -> tuple[_DurablePromotion, bool]:
     assert candidate.slug is not None and candidate.bundle_root is not None
     stage = _unique_transaction_sibling(
@@ -2126,6 +2410,7 @@ def _plan_durable_stage(
             old_fingerprint,
             identity,
             old_identity,
+            previous_slug,
         ),
         supported,
     )
@@ -2155,15 +2440,17 @@ _DurableMetadata = tuple[
     str,
     str | None,
     _TreeIdentity | None,
+    str | None,
 ]
 
 
 def _durable_preflight_candidate(
     candidate: ImportCandidateResult,
-    inventory: ExportInventory,
     content_root: Path,
     state: ImportState,
     owners_by_slug: dict[str, ImportStateEntry],
+    *,
+    allow_slug_reassignment: bool = False,
 ) -> tuple[ImportCandidateResult, _DurableMetadata | None]:
     """Preflight once using run-wide state indexes and capture tree identity."""
     assert candidate.slug is not None and candidate.bundle_root is not None
@@ -2171,13 +2458,52 @@ def _durable_preflight_candidate(
     entry = state.sources.get(key)
     owner = owners_by_slug.get(candidate.slug)
     target = content_root / candidate.slug
-    source_fingerprint = "sha256:" + inventory.files[candidate.source_ref].sha256
+    source_fingerprint = candidate.source_fingerprint
+    written_fingerprint = candidate.written_fingerprint
+    if (
+        not isinstance(source_fingerprint, str)
+        or not re.fullmatch(r"sha256:[0-9a-f]{64}", source_fingerprint)
+        or not isinstance(written_fingerprint, str)
+        or not re.fullmatch(r"sha256:[0-9a-f]{64}", written_fingerprint)
+    ):
+        return _blocked(candidate, "Unable to verify rebuilt writing bundle"), None
     try:
         candidate_fingerprint = fingerprint_bundle(candidate.bundle_root)
     except NotionImportError:
         return _blocked(candidate, "Unable to verify rebuilt writing bundle"), None
+    if candidate_fingerprint != written_fingerprint:
+        return _blocked(candidate, "Unable to verify rebuilt writing bundle"), None
     if entry is not None and entry.slug != candidate.slug:
-        return _conflict(candidate, "Private state owns a different public slug"), None
+        if not allow_slug_reassignment:
+            return _conflict(candidate, "Private state owns a different public slug"), None
+        if owner is not None:
+            return _conflict(candidate, "Public slug is owned by another import source"), None
+        if os.path.lexists(target):
+            return _conflict(candidate, "Reassigned public slug is already occupied"), None
+        previous_target = content_root / entry.slug
+        if owners_by_slug.get(entry.slug) != entry or not os.path.lexists(
+            previous_target
+        ):
+            return _conflict(candidate, "Private state and public bundle disagree"), None
+        try:
+            old_identity = _tree_identity(previous_target)
+            previous = fingerprint_bundle(previous_target)
+            if _tree_identity(previous_target) != old_identity:
+                raise NotionImportError("invalid_state", "bundle changed")
+        except NotionImportError:
+            return _conflict(candidate, "Existing writing bundle is unsafe"), None
+        if previous != entry.written_fingerprint:
+            return _conflict(candidate, "Existing writing bundle contains human edits"), None
+        return (
+            candidate,
+            (
+                source_fingerprint,
+                candidate_fingerprint,
+                previous,
+                old_identity,
+                entry.slug,
+            ),
+        )
     if owner is not None and owner != entry:
         return _conflict(candidate, "Public slug is owned by another import source"), None
     if os.path.lexists(target):
@@ -2204,11 +2530,23 @@ def _durable_preflight_candidate(
             )
         return (
             candidate,
-            (source_fingerprint, candidate_fingerprint, previous, old_identity),
+            (
+                source_fingerprint,
+                candidate_fingerprint,
+                previous,
+                old_identity,
+                None,
+            ),
         )
     if entry is not None or owner is not None:
         return _conflict(candidate, "Private state and public bundle disagree"), None
-    return candidate, (source_fingerprint, candidate_fingerprint, None, None)
+    return candidate, (
+        source_fingerprint,
+        candidate_fingerprint,
+        None,
+        None,
+        None,
+    )
 
 
 def _discard_durable_stages(
@@ -2235,6 +2573,7 @@ def _promote_durable_group(
     content_root: Path,
     journal: _Journal,
     transaction_id: str,
+    journal_version: int,
 ) -> tuple[list[ImportCandidateResult], list[_DurablePromotion], bool]:
     """Durably promote one SCC, rolling back only identity-proven transaction trees."""
     items: list[_DurablePromotion] = []
@@ -2258,7 +2597,9 @@ def _promote_durable_group(
             )
         for candidate in candidates:
             assert candidate.slug is not None
-            source_fp, new_fp, old_fp, old_identity = metadata[candidate.slug]
+            source_fp, new_fp, old_fp, old_identity, previous_slug = metadata[
+                candidate.slug
+            ]
             item, item_supported = _plan_durable_stage(
                 candidate,
                 content_root,
@@ -2268,10 +2609,12 @@ def _promote_durable_group(
                 old_fp,
                 old_identity,
                 backup_paths[candidate.slug],
+                previous_slug,
             )
             items.append(item)
             supported = item_supported and supported
         for item in items:
+            previous_target = _previous_target(item)
             if item.old_fingerprint is None:
                 if os.path.lexists(item.target):
                     raise _global(
@@ -2280,7 +2623,7 @@ def _promote_durable_group(
             else:
                 assert item.old_identity is not None
                 if not _tree_matches(
-                    item.target,
+                    previous_target,
                     content_root,
                     item.old_fingerprint,
                     item.old_identity,
@@ -2288,12 +2631,18 @@ def _promote_durable_group(
                     raise _global(
                         "promotion_failed", "writing target changed after preflight"
                     )
+                if previous_target != item.target and os.path.lexists(item.target):
+                    raise _global(
+                        "promotion_failed", "reassigned target changed after preflight"
+                    )
         durability._BOUNDARY_HOOK("journal:stage-intent:before")
         supported = journal.append(
             {
                 "kind": "stage_intent",
                 "group": group_number,
-                "items": [_promotion_payload(item) for item in items],
+                "items": [
+                    _promotion_payload(item, journal_version) for item in items
+                ],
             },
             "journal:stage-intent",
         ) and supported
@@ -2305,7 +2654,9 @@ def _promote_durable_group(
             {
                 "kind": "prepared",
                 "group": group_number,
-                "items": [_promotion_payload(item) for item in items],
+                "items": [
+                    _promotion_payload(item, journal_version) for item in items
+                ],
             },
             "journal:prepared",
         ) and supported
@@ -2314,7 +2665,7 @@ def _promote_durable_group(
             if item.old_fingerprint is not None:
                 assert item.backup is not None and item.old_identity is not None
                 supported = durability.durable_rename_noreplace(
-                    item.target, item.backup, "public:backup"
+                    _previous_target(item), item.backup, "public:backup"
                 ) and supported
                 if not _tree_matches(
                     item.backup,
@@ -2392,22 +2743,12 @@ def _promote_durable_group(
     )
 
 
-def apply_import(
-    inventory: ExportInventory,
-    plan: ImportPlan,
-    content_root: str | Path,
-    state_path: str | Path,
-    work_root: str | Path,
-    report_path: str | Path,
+def _run_durable_import(
+    contract: PreparedApplyContract,
+    paths: tuple[Path, Path, Path, Path],
 ) -> ImportRunResult:
-    """Rebuild, preflight, and durably promote dependency groups."""
-    serialize_import_plan(plan)
-    if inventory.fingerprint != plan.export_fingerprint:
-        raise _global("invalid_plan", "export fingerprint does not match the import plan")
-    unique_source_keys(list(inventory.markdown_paths))
-    content, state_file, work, report = _canonical_paths(
-        content_root, state_path, work_root, report_path
-    )
+    """Run the existing durable transaction around one prepared adapter callback."""
+    content, state_file, work, report = paths
     journal_path = work / _JOURNAL_NAME
     lock = _acquire_apply_lock(work)
     journal: _Journal | None = None
@@ -2432,6 +2773,7 @@ def apply_import(
 
         transaction_id = secrets.token_hex(16)
         workspace_token = secrets.token_hex(32)
+        journal_version = 1 if contract.namespace == NOTION_NAMESPACE else 2
         journal = _Journal(journal_path, transaction_id)
         state_before = _file_bytes(state_file)
         report_before = _file_bytes(report)
@@ -2440,18 +2782,21 @@ def apply_import(
             report_before,
             f"apply-{transaction_id}",
             workspace_token,
+            journal_version,
             cleanup_evidence,
         )
         lock.activate(transaction_id)
         transaction_active = True
 
         state = (
-            load_import_state(state_file)
+            load_import_state(state_file, namespace=contract.namespace)
             if os.path.lexists(state_file)
             else ImportState(1, {})
         )
         apply_root, bundles, site, workspace_identity, workspace_supported = (
-            _reset_transaction_workspace(work, transaction_id, workspace_token)
+            _reset_transaction_workspace(
+                work, transaction_id, workspace_token, contract.namespace
+            )
         )
         durable_supported = workspace_supported and durable_supported
         durable_supported = journal.append(
@@ -2461,7 +2806,7 @@ def apply_import(
             },
             "journal:workspace",
         ) and durable_supported
-        prepared = prepare_import_candidates(inventory, plan, bundles, site)
+        prepared = contract.prepare(bundles, site)
         results = list(prepared.candidates)
         owners_by_slug = {entry.slug: entry for entry in state.sources.values()}
         metadata: dict[str, _DurableMetadata] = {}
@@ -2471,21 +2816,33 @@ def apply_import(
                 continue
             checked, details = _durable_preflight_candidate(
                 candidate,
-                inventory,
                 content,
                 state,
                 owners_by_slug,
+                allow_slug_reassignment=(contract.namespace != NOTION_NAMESPACE),
             )
             results[index] = checked
             if details is not None and checked.slug is not None:
                 metadata[checked.slug] = details
         dependencies = dict(prepared.dependencies)
         _propagate_apply_unavailable(results, dependencies)
-        baseline_report = serialize_import_report(
-            ImportRunResult(tuple(results))
-        ).encode("utf-8")
+        baseline_result = _project_result(
+            contract, ImportRunResult(tuple(results), prepared.dependencies)
+        )
+        baseline_report = _report_bytes(contract, baseline_result)
+        baseline_record: dict[str, object] = {
+            "kind": "baseline",
+            "report": _blob(baseline_report),
+        }
+        if journal_version == 2:
+            baseline_record["recovery_report"] = _blob(
+                _recovery_report_bytes(
+                    contract,
+                    ImportRunResult(tuple(results), prepared.dependencies),
+                )
+            )
         durable_supported = journal.append(
-            {"kind": "baseline", "report": _blob(baseline_report)},
+            baseline_record,
             "journal:baseline",
         ) and durable_supported
 
@@ -2534,6 +2891,7 @@ def apply_import(
                     content,
                     journal,
                     transaction_id,
+                    journal_version,
                 )
             durable_supported = group_supported and durable_supported
             for index, candidate in zip(group_indexes, completed):
@@ -2548,12 +2906,23 @@ def apply_import(
                     item.new_fingerprint,
                 )
             committed_items.extend(items)
+            result_record: dict[str, object] = {
+                "kind": "result",
+                "group": group_number,
+            }
+            if journal_version == 1:
+                result_record["candidates"] = _candidate_delta(
+                    group_indexes, results
+                )
+            else:
+                result_record["report"] = _blob(
+                    _recovery_report_bytes(
+                        contract,
+                        ImportRunResult(tuple(results), prepared.dependencies),
+                    )
+                )
             durable_supported = journal.append(
-                {
-                    "kind": "result",
-                    "group": group_number,
-                    "candidates": _candidate_delta(group_indexes, results),
-                },
+                result_record,
                 "journal:result",
             ) and durable_supported
 
@@ -2563,8 +2932,10 @@ def apply_import(
             if next_state != state
             else state_before
         )
-        final_result = ImportRunResult(tuple(results), prepared.dependencies)
-        report_after = serialize_import_report(final_result).encode("utf-8")
+        final_result = _project_result(
+            contract, ImportRunResult(tuple(results), prepared.dependencies)
+        )
+        report_after = _report_bytes(contract, final_result)
         durable_supported = journal.append(
             {
                 "kind": "commit_intent",
@@ -2585,12 +2956,7 @@ def apply_import(
             _file_bytes(state_file) != state_after
             or _file_bytes(report) != report_after
             or any(
-                not _tree_matches(
-                    item.target,
-                    content,
-                    item.new_fingerprint,
-                    item.stage_identity,
-                )
+                not _forward_promotion_observed(item, content)
                 for item in committed_items
             )
         ):
@@ -2657,3 +3023,71 @@ def apply_import(
         raise
     finally:
         lock.close()
+
+
+def apply_prepared_import(
+    contract: PreparedApplyContract,
+    content_root: str | Path,
+    state_path: str | Path,
+    work_root: str | Path,
+    report_path: str | Path,
+) -> ImportRunResult:
+    """Validate a source namespace, then run the shared durable transaction."""
+    paths = validate_exact_namespace_paths(
+        contract.namespace, content_root, state_path, work_root, report_path
+    )
+    try:
+        unique_source_keys(contract.source_refs)
+        return _run_durable_import(contract, paths)
+    except NotionImportError as error:
+        if contract.namespace == NOTION_NAMESPACE:
+            raise
+        raise _prepared_boundary_error(error) from error
+
+
+def apply_import(
+    inventory: ExportInventory,
+    plan: ImportPlan,
+    content_root: str | Path,
+    state_path: str | Path,
+    work_root: str | Path,
+    report_path: str | Path,
+) -> ImportRunResult:
+    """Compatibility wrapper for prepared Notion imports."""
+    serialize_import_plan(plan)
+    if inventory.fingerprint != plan.export_fingerprint:
+        raise _global("invalid_plan", "export fingerprint does not match the import plan")
+
+    def prepare(bundles: Path, site: Path) -> ImportRunResult:
+        prepared = prepare_import_candidates(inventory, plan, bundles, site)
+        candidates: list[ImportCandidateResult] = []
+        for candidate in prepared.candidates:
+            if candidate.status != "ready" or candidate.bundle_root is None:
+                candidates.append(candidate)
+                continue
+            try:
+                written_fingerprint = fingerprint_bundle(candidate.bundle_root)
+            except NotionImportError:
+                written_fingerprint = None
+            candidates.append(
+                ImportCandidateResult(
+                    candidate.source_ref,
+                    candidate.slug,
+                    candidate.status,
+                    candidate.issues,
+                    candidate.bundle_root,
+                    "sha256:" + inventory.files[candidate.source_ref].sha256,
+                    written_fingerprint,
+                )
+            )
+        return ImportRunResult(tuple(candidates), prepared.dependencies)
+
+    contract = PreparedApplyContract(
+        NOTION_NAMESPACE,
+        inventory.fingerprint,
+        tuple(inventory.markdown_paths),
+        prepare,
+    )
+    return apply_prepared_import(
+        contract, content_root, state_path, work_root, report_path
+    )

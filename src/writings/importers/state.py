@@ -15,9 +15,13 @@ from typing import Any
 from writings.catalog import SLUG_PATTERN
 
 from .models import (
+    NOTION_NAMESPACE,
     ImportState,
     ImportStateEntry,
+    ImportNamespace,
     NotionImportError,
+    WeReadImportError,
+    _private_root_components,
     portable_collision_key,
     validate_portable_relative_path,
 )
@@ -30,8 +34,11 @@ _FINAL_NOTION_ID = re.compile(r"(?i)(?:^|[ _-])([0-9a-f]{32})$")
 _REPARSE_POINT = 0x0400
 
 
-def _invalid_state(message: str) -> NotionImportError:
-    return NotionImportError("invalid_state", message)
+def _invalid_state(
+    message: str, namespace: ImportNamespace = NOTION_NAMESPACE
+) -> NotionImportError | WeReadImportError:
+    error_type = NotionImportError if namespace == NOTION_NAMESPACE else WeReadImportError
+    return error_type("invalid_state", message)
 
 
 def _is_link_or_reparse(path: Path) -> bool:
@@ -45,36 +52,46 @@ def _is_link_or_reparse(path: Path) -> bool:
         return True
 
 
-def _private_state_path(value: str | Path) -> Path:
+def _private_state_path(
+    value: str | Path, namespace: ImportNamespace = NOTION_NAMESPACE
+) -> Path:
     project = Path(PROJECT_ROOT)
-    root = project / "build" / "notion-import"
+    root = project / "build" / namespace.name
     raw = Path(value)
     lexical = Path(os.path.abspath(raw))
     try:
         relative = lexical.relative_to(root)
     except ValueError as error:
-        raise _invalid_state("state path must be below the private import root") from error
+        raise _invalid_state(
+            "state path must be below the private import root", namespace
+        ) from error
     if not relative.parts or any(part in {"", ".", ".."} for part in relative.parts):
-        raise _invalid_state("state path is unsafe")
-    for component in (project, project / "build", root):
+        raise _invalid_state("state path is unsafe", namespace)
+    for component in _private_root_components(project, namespace):
         if os.path.lexists(component) and _is_link_or_reparse(component):
-            raise _invalid_state("state path contains a link or reparse point")
+            raise _invalid_state(
+                "state path contains a link or reparse point", namespace
+            )
     try:
         root.mkdir(parents=True, exist_ok=True)
     except OSError as error:
-        raise _invalid_state("unable to create private state directory") from error
+        raise _invalid_state(
+            "unable to create private state directory", namespace
+        ) from error
     resolved_root = root.resolve()
     current = root
     for part in relative.parts:
         current = current / part
         if os.path.lexists(current) and _is_link_or_reparse(current):
-            raise _invalid_state("state path contains a link or reparse point")
+            raise _invalid_state(
+                "state path contains a link or reparse point", namespace
+            )
     try:
         resolved = lexical.resolve()
     except (OSError, RuntimeError) as error:
-        raise _invalid_state("state path is unsafe") from error
+        raise _invalid_state("state path is unsafe", namespace) from error
     if not resolved.is_relative_to(resolved_root):
-        raise _invalid_state("state path escapes the private import root")
+        raise _invalid_state("state path escapes the private import root", namespace)
     return lexical
 
 
@@ -124,18 +141,29 @@ def _validated_state(value: Any) -> ImportState:
     return ImportState(1, entries)
 
 
-def load_import_state(path: str | Path) -> ImportState:
+def load_import_state(
+    path: str | Path, namespace: ImportNamespace = NOTION_NAMESPACE
+) -> ImportState:
     """Load exact-field version-1 private state."""
-    target = _private_state_path(path)
+    target = _private_state_path(path, namespace)
     try:
         payload = json.loads(
             target.read_text(encoding="utf-8"), object_pairs_hook=_strict_mapping
         )
-    except NotionImportError:
-        raise
+    except NotionImportError as error:
+        if namespace == NOTION_NAMESPACE:
+            raise
+        raise WeReadImportError(error.code, error.message) from error
     except (OSError, UnicodeError, json.JSONDecodeError, TypeError, ValueError) as error:
-        raise _invalid_state("unable to load private import state") from error
-    return _validated_state(payload)
+        raise _invalid_state(
+            "unable to load private import state", namespace
+        ) from error
+    try:
+        return _validated_state(payload)
+    except NotionImportError as error:
+        if namespace == NOTION_NAMESPACE:
+            raise
+        raise WeReadImportError(error.code, error.message) from error
 
 
 def serialize_import_state(state: ImportState) -> str:
@@ -169,18 +197,30 @@ def serialize_import_state(state: ImportState) -> str:
     return json.dumps(payload, ensure_ascii=False, separators=(",", ":")) + "\n"
 
 
-def write_import_state(path: str | Path, state: ImportState) -> None:
+def write_import_state(
+    path: str | Path,
+    state: ImportState,
+    namespace: ImportNamespace = NOTION_NAMESPACE,
+) -> None:
     """Atomically replace state through a verified sibling temporary file."""
-    target = _private_state_path(path)
-    content = serialize_import_state(state).encode("utf-8")
+    target = _private_state_path(path, namespace)
+    try:
+        content = serialize_import_state(state).encode("utf-8")
+    except NotionImportError as error:
+        if namespace == NOTION_NAMESPACE:
+            raise
+        raise WeReadImportError(error.code, error.message) from error
     try:
         target.parent.mkdir(parents=True, exist_ok=True)
     except OSError as error:
-        raise _invalid_state("unable to create private state directory") from error
+        raise _invalid_state(
+            "unable to create private state directory", namespace
+        ) from error
     temporary: Path | None = None
     try:
         temporary = target.with_name(
-            f".notion-state-{os.getpid()}-{secrets.token_hex(8)}.tmp"
+            f".{('notion' if namespace == NOTION_NAMESPACE else 'weread')}-state-"
+            f"{os.getpid()}-{secrets.token_hex(8)}.tmp"
         )
         with temporary.open("xb") as handle:
             handle.write(content)
@@ -196,7 +236,9 @@ def write_import_state(path: str | Path, state: ImportState) -> None:
             if hasattr(error, "add_note"):
                 error.add_note("Private state temporary cleanup also failed")
         if isinstance(error, (OSError, RuntimeError)):
-            raise _invalid_state("unable to persist private import state") from error
+            raise _invalid_state(
+                "unable to persist private import state", namespace
+            ) from error
         raise
 
 
