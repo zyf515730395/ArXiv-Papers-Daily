@@ -8,8 +8,14 @@ import sys
 from typing import Sequence
 
 from .archive import open_export
-from .models import NotionImportError, canonical_import_root, private_import_path
-from .planner import inspect_export, load_import_plan, redact_source_ref, write_import_plan
+from .models import PROJECT_ROOT, NotionImportError, canonical_import_root, private_import_path
+from .planner import (
+    canonical_preview_root,
+    inspect_export,
+    load_import_plan,
+    preview_import,
+    write_import_plan,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -18,6 +24,9 @@ def build_parser() -> argparse.ArgumentParser:
     inspect = commands.add_parser("inspect", help="inspect a local Notion Markdown and CSV export")
     inspect.add_argument("export", metavar="EXPORT")
     inspect.add_argument("--plan", metavar="PLAN", required=True)
+    preview = commands.add_parser("preview", help="build a private local writings preview")
+    preview.add_argument("export", metavar="EXPORT")
+    preview.add_argument("plan", metavar="PLAN")
     return parser
 
 
@@ -40,22 +49,44 @@ def _display_plan(path: str | Path) -> str:
 
 def run(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
+    command = "import"
     try:
         args = parser.parse_args(argv)
-        if args.command != "inspect":
+        command = args.command
+        if args.command == "inspect":
+            root = _build_root(args.plan)
+            plan_path = Path(args.plan)
+            previous = load_import_plan(plan_path) if plan_path.exists() else None
+            with open_export(args.export, root) as inventory:
+                plan = inspect_export(inventory, previous)
+            write_import_plan(plan_path, plan)
+        elif args.command == "preview":
+            root = _build_root(args.plan)
+            plan_path = Path(args.plan)
+            plan = load_import_plan(plan_path)
+            report_path = Path(PROJECT_ROOT) / "build" / "reports" / "notion-import.json"
+            with open_export(args.export, root) as inventory:
+                result = preview_import(
+                    inventory, plan, canonical_preview_root(), report_path
+                )
+        else:
             raise NotionImportError("invalid_plan", "unsupported import command")
-        root = _build_root(args.plan)
-        plan_path = Path(args.plan)
-        previous = load_import_plan(plan_path) if plan_path.exists() else None
-        with open_export(args.export, root) as inventory:
-            plan = inspect_export(inventory, previous)
-        write_import_plan(plan_path, plan)
     except NotionImportError as error:
-        print(f"Notion inspect failed: {error.message}", file=sys.stderr)
+        print(f"Notion {command} failed: {error.message}", file=sys.stderr)
         return 2
     except OSError:
-        print("Notion inspect failed: unable to inspect local export", file=sys.stderr)
+        print(f"Notion {command} failed: unable to read local import input", file=sys.stderr)
         return 2
+    if args.command == "preview":
+        counts = result.counts()
+        summary = "; ".join(
+            f"{status} {count}" for status, count in counts.items() if count
+        )
+        print(
+            f"Preview: {summary}; preview: {_display_plan(canonical_preview_root())}; "
+            "report: build/reports/notion-import.json"
+        )
+        return 0
     selected = sum(item.include for item in plan.articles)
     print(f"Discovered {len(plan.articles)} Markdown pages; selected {selected}; plan: {_display_plan(plan_path)}")
     return 0

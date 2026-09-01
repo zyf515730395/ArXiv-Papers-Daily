@@ -148,6 +148,48 @@ class ImportIssue:
     message: str
 
 
+CandidateStatus = Literal[
+    "ready", "unchanged", "conflict", "blocked", "ignored", "applied"
+]
+CANDIDATE_STATUSES: tuple[CandidateStatus, ...] = (
+    "ready",
+    "unchanged",
+    "conflict",
+    "blocked",
+    "ignored",
+    "applied",
+)
+
+
+@dataclass(frozen=True, slots=True)
+class ConvertedBundle:
+    bundle_root: Path
+    issues: tuple[ImportIssue, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class ImportCandidateResult:
+    source_ref: str
+    slug: str | None
+    status: CandidateStatus
+    issues: tuple[ImportIssue, ...]
+    bundle_root: Path | None
+    source_fingerprint: str | None
+    written_fingerprint: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class ImportRunResult:
+    candidates: tuple[ImportCandidateResult, ...]
+
+    def counts(self) -> Mapping[CandidateStatus, int]:
+        values = {
+            status: sum(candidate.status == status for candidate in self.candidates)
+            for status in CANDIDATE_STATUSES
+        }
+        return MappingProxyType(values)
+
+
 class NotionImportError(ValueError):
     """A stable, privacy-safe import error suitable for the command line."""
 

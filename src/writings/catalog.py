@@ -72,7 +72,10 @@ def _parse_front_matter(content: str) -> tuple[dict[str, Any], str]:
     if unknown:
         raise _BundleValidationError("unknown_field", "front matter contains unsupported fields")
     if missing:
-        raise _BundleValidationError("missing_field", "front matter is missing required fields")
+        fields = ", ".join(sorted(missing))
+        raise _BundleValidationError(
+            "missing_field", f"front matter is missing required fields: {fields}"
+        )
     return metadata, content[match.end() :]
 
 
@@ -155,6 +158,39 @@ def _issue_source(source_root: Path, path: Path) -> str:
             return path.name
 
 
+def _load_writing_bundle(bundle_root: Path) -> WritingArticle:
+    if _is_link(bundle_root):
+        raise _BundleValidationError(
+            "symlink_bundle", "bundle directories must not be symbolic links"
+        )
+    if not bundle_root.is_dir():
+        raise _BundleValidationError(
+            "invalid_bundle", "source root entries must be bundle directories"
+        )
+    index_path = bundle_root / "index.md"
+    if _is_link(index_path):
+        raise _BundleValidationError(
+            "symlink_index", "bundle index.md must not be a symbolic link"
+        )
+    if not index_path.is_file():
+        raise _BundleValidationError("missing_index", "bundle must contain index.md")
+    try:
+        content = index_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as error:
+        raise _BundleValidationError(
+            "unreadable_index", "unable to read bundle index"
+        ) from error
+    return _validate_article(*_parse_front_matter(content), bundle_root)
+
+
+def validate_writing_bundle(bundle_root: str | Path) -> WritingArticle:
+    """Strictly validate one prepared writing bundle outside the public source root."""
+    try:
+        return _load_writing_bundle(Path(bundle_root))
+    except _BundleValidationError as error:
+        raise WritingCatalogError(str(error)) from error
+
+
 def discover_writings(source_root: Path, previous: WritingManifest) -> CatalogResult:
     """Discover independently valid public article bundles in deterministic order."""
     del previous  # Retention is applied by the publishing layer, not catalog discovery.
@@ -170,35 +206,8 @@ def discover_writings(source_root: Path, previous: WritingManifest) -> CatalogRe
             continue
         issue_path = entry / "index.md" if entry.is_dir() else entry
         source = _issue_source(root, issue_path)
-        if _is_link(entry):
-            issues.append(
-                WritingIssue(
-                    source,
-                    "symlink_bundle",
-                    "bundle directories must not be symbolic links",
-                )
-            )
-            continue
-        if not entry.is_dir():
-            issues.append(WritingIssue(source, "invalid_bundle", "source root entries must be bundle directories"))
-            continue
-        index_path = entry / "index.md"
-        if _is_link(index_path):
-            issues.append(
-                WritingIssue(
-                    source,
-                    "symlink_index",
-                    "bundle index.md must not be a symbolic link",
-                )
-            )
-            continue
-        if not index_path.is_file():
-            issues.append(WritingIssue(source, "missing_index", "bundle must contain index.md"))
-            continue
         try:
-            article = _validate_article(*_parse_front_matter(index_path.read_text(encoding="utf-8")), entry)
-        except (OSError, UnicodeError) as error:
-            issues.append(WritingIssue(source, "unreadable_index", "unable to read bundle index"))
+            article = _load_writing_bundle(entry)
         except _BundleValidationError as error:
             issues.append(WritingIssue(source, error.code, str(error)))
         else:
