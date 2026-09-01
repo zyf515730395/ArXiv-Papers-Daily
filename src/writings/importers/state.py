@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import errno
 import hashlib
 import json
 import os
@@ -176,24 +177,52 @@ def write_import_state(path: str | Path, state: ImportState) -> None:
         target.parent.mkdir(parents=True, exist_ok=True)
     except OSError as error:
         raise _invalid_state("unable to create private state directory") from error
-    temporary = target.with_name(
-        f".notion-state-{os.getpid()}-{secrets.token_hex(8)}.tmp"
-    )
+    temporary: Path | None = None
     try:
+        temporary = target.with_name(
+            f".notion-state-{os.getpid()}-{secrets.token_hex(8)}.tmp"
+        )
         with temporary.open("xb") as handle:
             handle.write(content)
             handle.flush()
-            try:
-                os.fsync(handle.fileno())
-            except OSError:
-                pass
+            os.fsync(handle.fileno())
         os.replace(temporary, target)
-    except OSError as error:
+        _fsync_parent_directory(target.parent)
+    except BaseException as error:
         try:
-            temporary.unlink(missing_ok=True)
-        except OSError:
-            pass
-        raise _invalid_state("unable to persist private import state") from error
+            if temporary is not None:
+                temporary.unlink(missing_ok=True)
+        except OSError as cleanup_error:
+            if hasattr(error, "add_note"):
+                error.add_note("Private state temporary cleanup also failed")
+        if isinstance(error, (OSError, RuntimeError)):
+            raise _invalid_state("unable to persist private import state") from error
+        raise
+
+
+def _fsync_parent_directory(directory: Path) -> None:
+    """Flush a replaced directory entry where the platform exposes that primitive."""
+    if os.name == "nt":
+        return
+    flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+    descriptor: int | None = None
+    try:
+        descriptor = os.open(directory, flags)
+        os.fsync(descriptor)
+    except OSError as error:
+        unsupported = {
+            errno.EINVAL,
+            getattr(errno, "ENOTSUP", errno.EINVAL),
+            getattr(errno, "EOPNOTSUPP", errno.EINVAL),
+        }
+        if error.errno in unsupported or (
+            descriptor is None and error.errno == errno.EACCES
+        ):
+            return
+        raise
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
 
 
 def source_key(source_ref: str) -> str:

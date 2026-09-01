@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import os
 from pathlib import Path, PurePosixPath, PureWindowsPath
 import re
@@ -198,6 +198,17 @@ class ImportCandidateResult:
 @dataclass(frozen=True, slots=True)
 class ImportRunResult:
     candidates: tuple[ImportCandidateResult, ...]
+    dependencies: Mapping[str, frozenset[str]] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "candidates", tuple(self.candidates))
+        object.__setattr__(
+            self,
+            "dependencies",
+            MappingProxyType(
+                {slug: frozenset(targets) for slug, targets in self.dependencies.items()}
+            ),
+        )
 
     def counts(self) -> Mapping[CandidateStatus, int]:
         values = {

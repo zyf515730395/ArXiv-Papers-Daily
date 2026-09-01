@@ -286,39 +286,37 @@ def inspect_export(
     current_by_key: dict[str, list[str]] = {}
     for source_ref in inventory.markdown_paths:
         current_by_key.setdefault(source_key(source_ref), []).append(source_ref)
-    renamed_by_ref: dict[str, ImportArticlePlan] = {}
+    matched_by_ref: dict[str, ImportArticlePlan] = {}
     if state:
-        for source_ref in inventory.markdown_paths:
-            if source_ref in previous_by_ref:
+        for key, owner in state.sources.items():
+            if not key.startswith("notion:"):
                 continue
-            key = source_key(source_ref)
-            if not key.startswith("notion:") or key not in state.sources:
-                continue
-            matches = previous_by_key.get(key, [])
-            if not matches:
-                continue
-            if len(matches) != 1 or len(current_by_key.get(key, [])) != 1:
+            current_refs = current_by_key.get(key, [])
+            previous_refs = previous_by_key.get(key, [])
+            if len(current_refs) > 1 or len(previous_refs) > 1:
                 raise NotionImportError(
                     "ambiguous_identity",
-                    "renamed source identity cannot be matched unambiguously",
+                    "state-backed source identity cannot be matched unambiguously",
                 )
-            old = matches[0]
-            if old.slug != state.sources[key].slug:
+            if not current_refs or not previous_refs:
+                continue
+            old = previous_refs[0]
+            if old.slug != owner.slug:
                 raise NotionImportError(
                     "ambiguous_identity", "private state and reviewed plan disagree"
                 )
-            renamed_by_ref[source_ref] = old
+            matched_by_ref[current_refs[0]] = old
     used: set[str] = {
         item.slug
         for item in previous_by_ref.values()
         if item.source_ref in inventory.markdown_paths
-    } | {item.slug for item in renamed_by_ref.values()}
+    } | {item.slug for item in matched_by_ref.values()}
     if state:
         used.update(entry.slug for entry in state.sources.values())
     articles: list[ImportArticlePlan] = []
     for source_ref in inventory.markdown_paths:
         detected_title, readable = _detected_title(inventory.files[source_ref].source_path, source_ref)
-        old = previous_by_ref.get(source_ref) or renamed_by_ref.get(source_ref)
+        old = matched_by_ref.get(source_ref) or previous_by_ref.get(source_ref)
         if old is None:
             item = ImportArticlePlan(
                 source_ref=source_ref,
@@ -685,7 +683,7 @@ def prepare_import_candidates(
     _propagate_blocked_dependencies(
         candidates, dependencies, bundles_root, site_root
     )
-    return ImportRunResult(tuple(candidates))
+    return ImportRunResult(tuple(candidates), dependencies)
 
 
 def serialize_import_report(result: ImportRunResult) -> str:

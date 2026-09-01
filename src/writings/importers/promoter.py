@@ -1,7 +1,8 @@
-"""Guarded, per-article promotion of rebuilt Notion writing bundles."""
+"""Guarded, dependency-aware promotion of rebuilt Notion writing bundles."""
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 import os
 from pathlib import Path
 import secrets
@@ -29,6 +30,7 @@ from .planner import (
 from .state import (
     fingerprint_bundle,
     load_import_state,
+    serialize_import_state,
     source_key,
     write_import_state,
 )
@@ -38,6 +40,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 _REPARSE_POINT = 0x0400
 _STAGE_PREFIX = ".notion-import-stage-"
 _BACKUP_PREFIX = ".notion-import-backup-"
+_RESTORE_PREFIX = ".notion-import-restore-"
 
 
 def _is_link_or_reparse(path: Path) -> bool:
@@ -86,7 +89,9 @@ def _canonical_paths(
     )
     work = _exact_path(work_root, project / "build" / "notion-import", "unsafe_root")
     report = _exact_path(
-        report_path, project / "build" / "reports" / "notion-import.json", "unsafe_report"
+        report_path,
+        project / "build" / "reports" / "notion-import.json",
+        "unsafe_report",
     )
     try:
         content.mkdir(parents=True, exist_ok=True)
@@ -102,7 +107,9 @@ def _detect_residue(content_root: Path) -> None:
         residue = [
             child
             for child in content_root.iterdir()
-            if child.name.startswith((_STAGE_PREFIX, _BACKUP_PREFIX))
+            if child.name.startswith(
+                (_STAGE_PREFIX, _BACKUP_PREFIX, _RESTORE_PREFIX)
+            )
         ]
     except OSError as error:
         raise _global("unsafe_root", "unable to inspect writing source root") from error
@@ -137,7 +144,7 @@ def _write_report(report_path: Path, candidates: list[ImportCandidateResult]) ->
         atomic_write_text(
             report_path, serialize_import_report(ImportRunResult(tuple(candidates)))
         )
-    except OSError as error:
+    except (OSError, RuntimeError) as error:
         raise _global("promotion_failed", "unable to refresh private import report") from error
 
 
@@ -149,92 +156,23 @@ def _result(
     source_fingerprint: str | None = None,
     written_fingerprint: str | None = None,
 ) -> ImportCandidateResult:
-    issues = candidate.issues + ((issue,) if issue else ())
     return ImportCandidateResult(
         candidate.source_ref,
         candidate.slug,
         status,
-        issues,
+        candidate.issues + ((issue,) if issue else ()),
         None,
         source_fingerprint,
         written_fingerprint,
     )
 
 
-def _unique_sibling(content_root: Path, prefix: str, slug: str) -> Path:
-    for _ in range(32):
-        candidate = content_root / f"{prefix}{slug}-{secrets.token_hex(8)}"
-        if not os.path.lexists(candidate):
-            return candidate
-    raise _global("promotion_failed", "unable to allocate a unique promotion path")
-
-
-def _copy_stage(source: Path, content_root: Path, slug: str, expected: str) -> Path:
-    stage = _unique_sibling(content_root, _STAGE_PREFIX, slug)
-    try:
-        shutil.copytree(source, stage, symlinks=False)
-        if fingerprint_bundle(stage) != expected:
-            raise OSError("staged bundle changed while copying")
-    except (OSError, NotionImportError) as error:
-        try:
-            if os.path.lexists(stage):
-                if _is_link_or_reparse(stage) or not stage.is_dir():
-                    raise OSError("failed stage is unsafe")
-                shutil.rmtree(stage)
-        except OSError as cleanup_error:
-            raise _global(
-                "recovery_failed", "unable to prove failed stage cleanup"
-            ) from cleanup_error
-        if isinstance(error, NotionImportError):
-            raise
-        raise _global("promotion_failed", "unable to stage writing bundle") from error
-    return stage
-
-
-def _verified_tree(path: Path, parent: Path, expected: str) -> None:
-    try:
-        lexical = Path(os.path.abspath(path))
-        resolved = path.resolve()
-        resolved_parent = parent.resolve()
-    except (OSError, RuntimeError) as error:
-        raise _global("recovery_failed", "unable to verify promotion residue") from error
-    if (
-        lexical.parent != parent
-        or resolved.parent != resolved_parent
-        or _is_link_or_reparse(path)
-        or not path.is_dir()
-        or fingerprint_bundle(path) != expected
-    ):
-        raise _global("recovery_failed", "promotion residue cannot be verified")
-
-
-def _remove_verified_tree(path: Path, parent: Path, expected: str) -> None:
-    _verified_tree(path, parent, expected)
-    try:
-        shutil.rmtree(path)
-    except OSError as error:
-        raise _global("recovery_failed", "unable to remove verified promotion target") from error
-    if os.path.lexists(path):
-        raise _global("recovery_failed", "promotion target removal cannot be proven")
-
-
-def _rollback(
-    content_root: Path,
-    target: Path,
-    backup: Path | None,
-    candidate_fingerprint: str,
-    previous_fingerprint: str | None,
-) -> None:
-    _remove_verified_tree(target, content_root, candidate_fingerprint)
-    if backup is None:
-        return
-    assert previous_fingerprint is not None
-    _verified_tree(backup, content_root, previous_fingerprint)
-    try:
-        os.replace(backup, target)
-    except OSError as error:
-        raise _global("recovery_failed", "unable to restore verified writing backup") from error
-    _verified_tree(target, content_root, previous_fingerprint)
+def _blocked(candidate: ImportCandidateResult, message: str) -> ImportCandidateResult:
+    return _result(
+        candidate,
+        "blocked",
+        issue=ImportIssue(candidate.source_ref, "promotion_failed", message),
+    )
 
 
 def _conflict(candidate: ImportCandidateResult, message: str) -> ImportCandidateResult:
@@ -245,6 +183,466 @@ def _conflict(candidate: ImportCandidateResult, message: str) -> ImportCandidate
     )
 
 
+def _unique_sibling(content_root: Path, prefix: str, slug: str) -> Path:
+    try:
+        for _ in range(32):
+            candidate = content_root / f"{prefix}{slug}-{secrets.token_hex(8)}"
+            if not os.path.lexists(candidate):
+                return candidate
+    except (OSError, RuntimeError) as error:
+        raise _global("promotion_failed", "unable to allocate a unique promotion path") from error
+    raise _global("promotion_failed", "unable to allocate a unique promotion path")
+
+
+def _tree_state(path: Path, parent: Path, expected: str) -> str:
+    if not os.path.lexists(path):
+        return "absent"
+    try:
+        lexical = Path(os.path.abspath(path))
+        if lexical.parent != parent or _is_link_or_reparse(path) or not path.is_dir():
+            return "other"
+        return "match" if fingerprint_bundle(path) == expected else "other"
+    except (OSError, RuntimeError, NotionImportError):
+        return "other"
+
+
+def _remove_matching_tree(path: Path, parent: Path, expected: str) -> None:
+    state = _tree_state(path, parent, expected)
+    if state == "absent":
+        return
+    if state != "match":
+        raise _global("recovery_failed", "promotion residue cannot be verified")
+    try:
+        shutil.rmtree(path)
+    except OSError:
+        if not os.path.lexists(path):
+            return
+        raise _global("recovery_failed", "unable to remove verified promotion residue")
+    if os.path.lexists(path):
+        raise _global("recovery_failed", "promotion residue removal cannot be proven")
+
+
+def _copy_stage(source: Path, content_root: Path, slug: str, expected: str) -> Path:
+    stage = _unique_sibling(content_root, _STAGE_PREFIX, slug)
+    try:
+        shutil.copytree(source, stage, symlinks=False)
+        if _tree_state(stage, content_root, expected) != "match":
+            raise OSError("staged bundle changed while copying")
+    except BaseException as error:
+        try:
+            _remove_matching_tree(stage, content_root, expected)
+        except NotionImportError as cleanup_error:
+            raise _global(
+                "recovery_failed", "unable to prove failed stage cleanup"
+            ) from cleanup_error
+        if not isinstance(error, Exception):
+            raise
+        if isinstance(error, NotionImportError) and error.code == "recovery_failed":
+            raise
+        raise _global("promotion_failed", "unable to stage writing bundle") from error
+    return stage
+
+
+@dataclass(slots=True)
+class _Promotion:
+    candidate: ImportCandidateResult
+    key: str
+    target: Path
+    stage: Path
+    backup: Path | None
+    source_fingerprint: str
+    new_fingerprint: str
+    old_fingerprint: str | None
+
+
+def _restore_old_target(item: _Promotion, content_root: Path) -> None:
+    target_new = _tree_state(item.target, content_root, item.new_fingerprint)
+    target_old = (
+        "absent"
+        if item.old_fingerprint is None
+        else _tree_state(item.target, content_root, item.old_fingerprint)
+    )
+    if item.old_fingerprint is None:
+        if target_new == "match":
+            _remove_matching_tree(item.target, content_root, item.new_fingerprint)
+        elif target_new != "absent":
+            raise _global("recovery_failed", "new writing target cannot be reconciled")
+        if item.backup is not None and os.path.lexists(item.backup):
+            raise _global("recovery_failed", "unexpected promotion backup remains")
+    else:
+        assert item.backup is not None
+        backup_state = _tree_state(item.backup, content_root, item.old_fingerprint)
+        if target_old == "match":
+            if backup_state == "match":
+                _remove_matching_tree(item.backup, content_root, item.old_fingerprint)
+            elif backup_state != "absent":
+                raise _global("recovery_failed", "writing backup cannot be reconciled")
+        else:
+            if target_new == "match":
+                _remove_matching_tree(item.target, content_root, item.new_fingerprint)
+            elif target_new != "absent":
+                raise _global("recovery_failed", "changed writing target cannot be reconciled")
+            if backup_state != "match":
+                raise _global("recovery_failed", "trusted writing backup is unavailable")
+            restore = _unique_sibling(
+                content_root, _RESTORE_PREFIX, item.candidate.slug or "writing"
+            )
+            try:
+                shutil.copytree(item.backup, restore, symlinks=False)
+                if _tree_state(restore, content_root, item.old_fingerprint) != "match":
+                    raise OSError("restore copy changed")
+                os.replace(restore, item.target)
+            except BaseException as error:
+                if _tree_state(item.target, content_root, item.old_fingerprint) != "match":
+                    raise _global(
+                        "recovery_failed", "unable to restore trusted writing target"
+                    ) from error
+            if _tree_state(item.target, content_root, item.old_fingerprint) != "match":
+                raise _global(
+                    "recovery_failed",
+                    "restored writing fingerprint does not match state",
+                )
+            if os.path.lexists(restore):
+                _remove_matching_tree(restore, content_root, item.old_fingerprint)
+            _remove_matching_tree(item.backup, content_root, item.old_fingerprint)
+    if _tree_state(item.stage, content_root, item.new_fingerprint) == "match":
+        _remove_matching_tree(item.stage, content_root, item.new_fingerprint)
+    elif os.path.lexists(item.stage):
+        raise _global("recovery_failed", "promotion stage cannot be reconciled")
+
+
+def _rollback_group(items: list[_Promotion], content_root: Path) -> None:
+    failure: NotionImportError | None = None
+    for item in reversed(items):
+        try:
+            _restore_old_target(item, content_root)
+        except NotionImportError as error:
+            failure = error
+    if failure is not None:
+        raise _global("recovery_failed", "group rollback cannot be proven") from failure
+
+
+def _file_bytes(path: Path) -> bytes | None:
+    if not os.path.lexists(path):
+        return None
+    try:
+        if _is_link_or_reparse(path) or not path.is_file():
+            raise OSError("unsafe transaction file")
+        return path.read_bytes()
+    except OSError as error:
+        raise _global("recovery_failed", "transaction file cannot be observed") from error
+
+
+def _atomic_text_bytes(value: str) -> bytes:
+    """Mirror Path.write_text newline translation used by atomic_write_text."""
+    return value.replace("\n", os.linesep).encode("utf-8")
+
+
+def _restore_state_file(
+    path: Path,
+    old_state: ImportState,
+    old_bytes: bytes | None,
+    new_bytes: bytes,
+) -> None:
+    current = _file_bytes(path)
+    if current == old_bytes:
+        return
+    if current != new_bytes:
+        raise _global("recovery_failed", "private state cannot be reconciled")
+    if old_bytes is None:
+        try:
+            path.unlink()
+        except OSError as error:
+            if os.path.lexists(path):
+                raise _global("recovery_failed", "private state rollback failed") from error
+    else:
+        try:
+            write_import_state(path, old_state)
+        except BaseException as error:
+            if _file_bytes(path) != old_bytes:
+                raise _global(
+                    "recovery_failed", "private state rollback cannot be proven"
+                ) from error
+    if _file_bytes(path) != old_bytes:
+        raise _global("recovery_failed", "private state rollback cannot be proven")
+
+
+def _preflight_candidate(
+    candidate: ImportCandidateResult,
+    inventory: ExportInventory,
+    content_root: Path,
+    state: ImportState,
+) -> tuple[ImportCandidateResult, tuple[str, str, str | None] | None]:
+    assert candidate.slug is not None and candidate.bundle_root is not None
+    key = source_key(candidate.source_ref)
+    entry = state.sources.get(key)
+    owners = [item for item in state.sources.values() if item.slug == candidate.slug]
+    target = content_root / candidate.slug
+    source_fingerprint = "sha256:" + inventory.files[candidate.source_ref].sha256
+    try:
+        candidate_fingerprint = fingerprint_bundle(candidate.bundle_root)
+    except NotionImportError:
+        return _blocked(candidate, "Unable to verify rebuilt writing bundle"), None
+    if entry is not None and entry.slug != candidate.slug:
+        return _conflict(candidate, "Private state owns a different public slug"), None
+    if owners and (entry is None or len(owners) != 1 or owners[0] != entry):
+        return _conflict(candidate, "Public slug is owned by another import source"), None
+    if os.path.lexists(target):
+        if entry is None or len(owners) != 1:
+            return _conflict(candidate, "Existing writing bundle has no trusted state"), None
+        try:
+            previous = fingerprint_bundle(target)
+        except NotionImportError:
+            return _conflict(candidate, "Existing writing bundle is unsafe"), None
+        if previous != entry.written_fingerprint:
+            return _conflict(candidate, "Existing writing bundle contains human edits"), None
+        if candidate_fingerprint == previous:
+            return (
+                _result(
+                    candidate,
+                    "unchanged",
+                    source_fingerprint=source_fingerprint,
+                    written_fingerprint=candidate_fingerprint,
+                ),
+                None,
+            )
+        return candidate, (source_fingerprint, candidate_fingerprint, previous)
+    if entry is not None or owners:
+        return _conflict(candidate, "Private state and public bundle disagree"), None
+    return candidate, (source_fingerprint, candidate_fingerprint, None)
+
+
+def _scc_order(slugs: set[str], dependencies: dict[str, frozenset[str]]) -> list[tuple[str, ...]]:
+    index = 0
+    stack: list[str] = []
+    indexes: dict[str, int] = {}
+    low: dict[str, int] = {}
+    active: set[str] = set()
+    groups: list[tuple[str, ...]] = []
+
+    def visit(slug: str) -> None:
+        nonlocal index
+        indexes[slug] = low[slug] = index
+        index += 1
+        stack.append(slug)
+        active.add(slug)
+        for target in sorted(dependencies.get(slug, frozenset()) & slugs):
+            if target not in indexes:
+                visit(target)
+                low[slug] = min(low[slug], low[target])
+            elif target in active:
+                low[slug] = min(low[slug], indexes[target])
+        if low[slug] == indexes[slug]:
+            group: list[str] = []
+            while True:
+                member = stack.pop()
+                active.remove(member)
+                group.append(member)
+                if member == slug:
+                    break
+            groups.append(tuple(sorted(group)))
+
+    for slug in sorted(slugs):
+        if slug not in indexes:
+            visit(slug)
+    group_for = {slug: number for number, group in enumerate(groups) for slug in group}
+    ordered: list[tuple[str, ...]] = []
+    visited: set[int] = set()
+
+    def append_dependencies(number: int) -> None:
+        if number in visited:
+            return
+        visited.add(number)
+        external = {
+            group_for[target]
+            for slug in groups[number]
+            for target in dependencies.get(slug, frozenset()) & slugs
+            if group_for[target] != number
+        }
+        for target_number in sorted(external, key=lambda value: groups[value]):
+            append_dependencies(target_number)
+        ordered.append(groups[number])
+
+    for number in sorted(range(len(groups)), key=lambda value: groups[value]):
+        append_dependencies(number)
+    return ordered
+
+
+def _promote_group(
+    candidates: list[ImportCandidateResult],
+    metadata: dict[str, tuple[str, str, str | None]],
+    content_root: Path,
+    state_path: Path,
+    report_path: Path,
+    state: ImportState,
+    all_results: list[ImportCandidateResult],
+) -> tuple[list[ImportCandidateResult], ImportState, bool]:
+    items: list[_Promotion] = []
+    try:
+        for candidate in candidates:
+            assert candidate.slug is not None and candidate.bundle_root is not None
+            source_fp, new_fp, old_fp = metadata[candidate.slug]
+            stage = _copy_stage(candidate.bundle_root, content_root, candidate.slug, new_fp)
+            backup = (
+                _unique_sibling(content_root, _BACKUP_PREFIX, candidate.slug)
+                if old_fp is not None
+                else None
+            )
+            items.append(
+                _Promotion(
+                    candidate,
+                    source_key(candidate.source_ref),
+                    content_root / candidate.slug,
+                    stage,
+                    backup,
+                    source_fp,
+                    new_fp,
+                    old_fp,
+                )
+            )
+    except BaseException as error:
+        _rollback_group(items, content_root)
+        if not isinstance(error, Exception):
+            raise
+        return (
+            [
+                _blocked(candidate, "Unable to stage dependency group")
+                for candidate in candidates
+            ],
+            state,
+            False,
+        )
+    try:
+        for item in items:
+            if item.old_fingerprint is not None:
+                assert item.backup is not None
+                os.replace(item.target, item.backup)
+                if _tree_state(item.backup, content_root, item.old_fingerprint) != "match":
+                    raise OSError("backup verification failed")
+            os.replace(item.stage, item.target)
+            if _tree_state(item.target, content_root, item.new_fingerprint) != "match":
+                raise OSError("promotion verification failed")
+    except BaseException as error:
+        _rollback_group(items, content_root)
+        if not isinstance(error, Exception):
+            raise
+        return (
+            [
+                _blocked(
+                    candidate,
+                    "Unable to promote dependency group; prior content was restored",
+                )
+                for candidate in candidates
+            ],
+            state,
+            False,
+        )
+    next_sources = dict(state.sources)
+    for item in items:
+        next_sources[item.key] = ImportStateEntry(
+            item.key,
+            item.candidate.slug or "",
+            item.source_fingerprint,
+            item.new_fingerprint,
+        )
+    next_state = ImportState(1, next_sources)
+    old_state_bytes = _file_bytes(state_path)
+    new_state_bytes = serialize_import_state(next_state).encode("utf-8")
+    try:
+        write_import_state(state_path, next_state)
+        if _file_bytes(state_path) != new_state_bytes:
+            raise OSError("state commit verification failed")
+    except BaseException as error:
+        _restore_state_file(state_path, state, old_state_bytes, new_state_bytes)
+        _rollback_group(items, content_root)
+        if not isinstance(error, Exception):
+            raise
+        return (
+            [
+                _blocked(
+                    candidate,
+                    "Unable to persist private state; prior content was restored",
+                )
+                for candidate in candidates
+            ],
+            state,
+            False,
+        )
+    applied = [
+        _result(
+            item.candidate,
+            "applied",
+            source_fingerprint=item.source_fingerprint,
+            written_fingerprint=item.new_fingerprint,
+        )
+        for item in items
+    ]
+    by_ref = {candidate.source_ref: candidate for candidate in applied}
+    prospective = [by_ref.get(candidate.source_ref, candidate) for candidate in all_results]
+    old_report_bytes = _file_bytes(report_path)
+    intended_report = _atomic_text_bytes(
+        serialize_import_report(ImportRunResult(tuple(prospective)))
+    )
+    try:
+        _write_report(report_path, prospective)
+        if _file_bytes(report_path) != intended_report:
+            raise OSError("report commit verification failed")
+    except BaseException as error:
+        _restore_state_file(state_path, state, old_state_bytes, new_state_bytes)
+        _rollback_group(items, content_root)
+        blocked = [
+            _blocked(
+                candidate,
+                "Unable to record dependency group; prior content was restored",
+            )
+            for candidate in candidates
+        ]
+        blocked_by_ref = {candidate.source_ref: candidate for candidate in blocked}
+        blocked_report = [
+            blocked_by_ref.get(candidate.source_ref, candidate)
+            for candidate in all_results
+        ]
+        intended_blocked = _atomic_text_bytes(
+            serialize_import_report(ImportRunResult(tuple(blocked_report)))
+        )
+        try:
+            _write_report(report_path, blocked_report)
+        except BaseException as report_error:
+            observed = _file_bytes(report_path)
+            if observed != intended_blocked:
+                if observed == old_report_bytes:
+                    if not isinstance(error, Exception):
+                        raise error
+                    if not isinstance(report_error, Exception):
+                        raise report_error
+                    raise _global(
+                        "promotion_failed",
+                        "unable to record rolled-back import group",
+                    ) from report_error
+                raise _global(
+                    "recovery_required",
+                    "private report state cannot be reconciled",
+                ) from report_error
+        if _file_bytes(report_path) != intended_blocked:
+            raise _global(
+                "recovery_required", "private report state cannot be reconciled"
+            ) from error
+        if not isinstance(error, Exception):
+            raise
+        return blocked, state, True
+    for item in items:
+        if item.backup is not None:
+            try:
+                _remove_matching_tree(item.backup, content_root, item.old_fingerprint or "")
+            except NotionImportError as error:
+                raise _global(
+                    "recovery_required", "committed import backup requires recovery"
+                ) from error
+        if os.path.lexists(item.stage):
+            raise _global("recovery_required", "committed import stage requires recovery")
+    return applied, next_state, True
+
+
 def _cleanup_apply_workspace(apply_root: Path) -> None:
     if not os.path.lexists(apply_root):
         return
@@ -253,145 +651,9 @@ def _cleanup_apply_workspace(apply_root: Path) -> None:
     try:
         shutil.rmtree(apply_root)
     except OSError as error:
-        raise _global(
-            "promotion_failed", "unable to clean private apply workspace"
-        ) from error
+        raise _global("promotion_failed", "unable to clean private apply workspace") from error
     if os.path.lexists(apply_root):
-        raise _global(
-            "promotion_failed", "private apply workspace cleanup is incomplete"
-        )
-
-
-def _promote_candidate(
-    candidate: ImportCandidateResult,
-    inventory: ExportInventory,
-    content_root: Path,
-    state_path: Path,
-    state: ImportState,
-) -> tuple[ImportCandidateResult, ImportState]:
-    assert candidate.slug is not None and candidate.bundle_root is not None
-    key = source_key(candidate.source_ref)
-    entry = state.sources.get(key)
-    owners = [item for item in state.sources.values() if item.slug == candidate.slug]
-    target = content_root / candidate.slug
-    source_fingerprint = "sha256:" + inventory.files[candidate.source_ref].sha256
-    candidate_fingerprint = fingerprint_bundle(candidate.bundle_root)
-    target_exists = os.path.lexists(target)
-    if entry is not None and entry.slug != candidate.slug:
-        return _conflict(candidate, "Private state owns a different public slug"), state
-    if owners and (entry is None or owners != [entry]):
-        return _conflict(candidate, "Public slug is owned by another import source"), state
-    previous_fingerprint: str | None = None
-    if target_exists:
-        if entry is None or len(owners) != 1:
-            return _conflict(candidate, "Existing writing bundle has no trusted state"), state
-        try:
-            previous_fingerprint = fingerprint_bundle(target)
-        except NotionImportError:
-            return _conflict(candidate, "Existing writing bundle is unsafe"), state
-        if previous_fingerprint != entry.written_fingerprint:
-            return _conflict(candidate, "Existing writing bundle contains human edits"), state
-        if candidate_fingerprint == previous_fingerprint:
-            return (
-                _result(
-                    candidate,
-                    "unchanged",
-                    source_fingerprint=source_fingerprint,
-                    written_fingerprint=candidate_fingerprint,
-                ),
-                state,
-            )
-    elif entry is not None or owners:
-        return _conflict(candidate, "Private state and public bundle disagree"), state
-
-    stage = _copy_stage(
-        candidate.bundle_root, content_root, candidate.slug, candidate_fingerprint
-    )
-    backup: Path | None = None
-    backup_moved = False
-    promoted = False
-    try:
-        if target_exists:
-            assert previous_fingerprint is not None
-            backup = _unique_sibling(content_root, _BACKUP_PREFIX, candidate.slug)
-            os.replace(target, backup)
-            backup_moved = True
-            _verified_tree(backup, content_root, previous_fingerprint)
-        os.replace(stage, target)
-        promoted = True
-        _verified_tree(target, content_root, candidate_fingerprint)
-    except (OSError, NotionImportError) as error:
-        if promoted:
-            _rollback(
-                content_root,
-                target,
-                backup,
-                candidate_fingerprint,
-                previous_fingerprint,
-            )
-        elif backup_moved and backup is not None:
-            assert previous_fingerprint is not None
-            _verified_tree(backup, content_root, previous_fingerprint)
-            try:
-                os.replace(backup, target)
-            except OSError as rollback_error:
-                raise _global("recovery_failed", "unable to restore writing backup") from rollback_error
-        if os.path.lexists(stage):
-            _remove_verified_tree(stage, content_root, candidate_fingerprint)
-        if isinstance(error, NotionImportError) and error.code == "recovery_failed":
-            raise
-        return (
-            _result(
-                candidate,
-                "blocked",
-                issue=ImportIssue(
-                    candidate.source_ref,
-                    "promotion_failed",
-                    "Unable to promote writing bundle; prior content was restored",
-                ),
-            ),
-            state,
-        )
-
-    next_sources = dict(state.sources)
-    next_sources[key] = ImportStateEntry(
-        key, candidate.slug, source_fingerprint, candidate_fingerprint
-    )
-    next_state = ImportState(1, next_sources)
-    try:
-        write_import_state(state_path, next_state)
-    except NotionImportError:
-        _rollback(
-            content_root,
-            target,
-            backup,
-            candidate_fingerprint,
-            previous_fingerprint,
-        )
-        return (
-            _result(
-                candidate,
-                "blocked",
-                issue=ImportIssue(
-                    candidate.source_ref,
-                    "promotion_failed",
-                    "Unable to persist private state; prior content was restored",
-                ),
-            ),
-            state,
-        )
-    if backup is not None:
-        assert previous_fingerprint is not None
-        _remove_verified_tree(backup, content_root, previous_fingerprint)
-    return (
-        _result(
-            candidate,
-            "applied",
-            source_fingerprint=source_fingerprint,
-            written_fingerprint=candidate_fingerprint,
-        ),
-        next_state,
-    )
+        raise _global("promotion_failed", "private apply workspace cleanup is incomplete")
 
 
 def apply_import(
@@ -402,7 +664,7 @@ def apply_import(
     work_root: str | Path,
     report_path: str | Path,
 ) -> ImportRunResult:
-    """Rebuild, guard, and atomically promote each independently valid article."""
+    """Rebuild, preflight, and transactionally promote dependency groups."""
     serialize_import_plan(plan)
     if inventory.fingerprint != plan.export_fingerprint:
         raise _global("invalid_plan", "export fingerprint does not match the import plan")
@@ -418,36 +680,92 @@ def apply_import(
     apply_root, bundles, site = _reset_apply_workspace(work)
     try:
         prepared = prepare_import_candidates(inventory, plan, bundles, site)
-        completed: list[ImportCandidateResult] = []
-        _write_report(report, completed)
-        for candidate in prepared.candidates:
-            if candidate.status == "ready":
-                try:
-                    candidate, state = _promote_candidate(
-                        candidate, inventory, content, state_file, state
+        results = list(prepared.candidates)
+        metadata: dict[str, tuple[str, str, str | None]] = {}
+        for index, candidate in enumerate(results):
+            if candidate.status != "ready":
+                results[index] = _result(candidate, candidate.status)
+                continue
+            checked, details = _preflight_candidate(candidate, inventory, content, state)
+            results[index] = checked
+            if details is not None and checked.slug is not None:
+                metadata[checked.slug] = details
+        status_by_slug = {
+            candidate.slug: candidate.status
+            for candidate in results
+            if candidate.slug is not None
+        }
+        changed = True
+        while changed:
+            changed = False
+            for index, candidate in enumerate(results):
+                if candidate.status != "ready" or candidate.slug is None:
+                    continue
+                if any(
+                    status_by_slug.get(target) in {"blocked", "conflict"}
+                    for target in prepared.dependencies.get(
+                        candidate.slug, frozenset()
                     )
-                except NotionImportError as error:
-                    if error.code == "recovery_failed":
-                        raise
-                    candidate = _result(
-                        candidate,
-                        "blocked",
-                        issue=ImportIssue(
-                            candidate.source_ref,
-                            "promotion_failed",
-                            "Unable to promote this writing bundle",
-                        ),
+                ):
+                    results[index] = _blocked(
+                        candidate, "A selected page dependency is unavailable"
                     )
+                    status_by_slug[candidate.slug] = "blocked"
+                    changed = True
+        _write_report(report, results)
+        ready_slugs = {
+            candidate.slug
+            for candidate in results
+            if candidate.status == "ready" and candidate.slug is not None
+        }
+        for group in _scc_order(ready_slugs, dict(prepared.dependencies)):
+            group_indexes = [
+                index
+                for index, candidate in enumerate(results)
+                if candidate.slug in group
+            ]
+            group_candidates = [results[index] for index in group_indexes]
+            external = {
+                target
+                for slug in group
+                for target in prepared.dependencies.get(slug, frozenset())
+                if target not in group
+            }
+            current_status = {
+                candidate.slug: candidate.status
+                for candidate in results
+                if candidate.slug is not None
+            }
+            if any(
+                current_status.get(target) not in {"applied", "unchanged"}
+                for target in external
+            ):
+                completed = [
+                    _blocked(candidate, "A selected page dependency failed to apply")
+                    for candidate in group_candidates
+                ]
+                report_committed = False
             else:
-                candidate = _result(candidate, candidate.status)
-            completed.append(candidate)
-            _write_report(report, completed)
-        result = ImportRunResult(tuple(completed))
-    except BaseException:
+                completed, state, report_committed = _promote_group(
+                    group_candidates,
+                    metadata,
+                    content,
+                    state_file,
+                    report,
+                    state,
+                    results,
+                )
+            for index, candidate in zip(group_indexes, completed):
+                results[index] = candidate
+            if not report_committed:
+                _write_report(report, results)
+        result = ImportRunResult(tuple(results), prepared.dependencies)
+    except BaseException as error:
         try:
             _cleanup_apply_workspace(apply_root)
         except NotionImportError:
-            pass
+            if hasattr(error, "add_note"):
+                error.add_note("Private apply workspace cleanup also failed")
         raise
     _cleanup_apply_workspace(apply_root)
     return result

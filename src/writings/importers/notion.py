@@ -101,7 +101,7 @@ def run(argv: Sequence[str] | None = None) -> int:
     if args.command in {"preview", "apply"}:
         counts = result.counts()
         summary = "; ".join(
-            f"{status} {count}" for status, count in counts.items() if count
+            f"{status}={count}" for status, count in counts.items()
         )
         if args.command == "preview":
             print(
