@@ -20,7 +20,7 @@ _PRIVATE_PATH = re.compile(
     r"(?i)(?:\b[a-z]:[\\/]|\\\\[^\\/\r\n]+[\\/]|(?<![:/\w])/(?!/)[^\s<>]+)"
 )
 _SOURCE_FILENAME = re.compile(
-    r"(?i)(?<!\S)[^\\/:;,\r\n]*?\.md(?=$|[\s\x00-\x1f:;,])"
+    r"(?i)(?<![\w./\\@-])\.?[\w][\w .-]*?\.md(?![\w.-])"
 )
 _BOOK_ID = re.compile(
     r"(?i)\b(?:book(?:[_ -]?id)?\s*[:=]?\s*)?[0-9]{6,}\b"
