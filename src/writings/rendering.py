@@ -753,8 +753,8 @@ def render_writings_index(
       </header>
       <div class="writing-editorial-layout">
 {stream}
-      </div>
 {source_rail}
+      </div>
     </section>
 """
     return render_site_page(
