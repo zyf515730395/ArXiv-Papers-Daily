@@ -10,8 +10,10 @@ from typing import Sequence
 
 from writings.importers.models import PROJECT_ROOT
 
+from .adapters import apply_adapter, inspect_adapter, preview_adapter
 from .drafts import apply_original, create_draft, preview_original
 from .models import WorkbenchError
+from .preview import rebuild_preview_index
 
 
 class _SafeParser(argparse.ArgumentParser):
@@ -78,6 +80,7 @@ def run(argv: Sequence[str] | None = None) -> int:
     try:
         if args.command == "preview" and args.source == "original":
             result = preview_original(args.slug)
+            rebuild_preview_index()
             print(
                 f"Original preview: slug={result.slug} status={result.status}; "
                 f"preview: build/writings-workbench/previews/original/{result.slug}/index.html"
@@ -90,6 +93,22 @@ def run(argv: Sequence[str] | None = None) -> int:
                 "report: build/reports/writings-workbench.json"
             )
             return 3 if result.status in {"blocked", "conflict"} else 0
+        if args.command == "import":
+            return inspect_adapter(args.source, args.export)
+        if args.command == "preview" and args.source in {"notion", "weread"}:
+            code = preview_adapter(
+                args.source,
+                args.export,
+                model=getattr(args, "model", None),
+                base_url=getattr(args, "base_url", None),
+                timeout=getattr(args, "timeout", 30.0),
+                refresh=getattr(args, "refresh_summary", False),
+            )
+            if code in {0, 3}:
+                rebuild_preview_index()
+            return code
+        if args.command == "apply" and args.source in {"notion", "weread"}:
+            return apply_adapter(args.source, args.export)
         if args.command != "new":
             raise WorkbenchError(
                 "not_implemented", f"{args.command} is not available in this implementation slice"
