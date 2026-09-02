@@ -11,9 +11,11 @@ from typing import Sequence
 from writings.importers.models import PROJECT_ROOT
 
 from .adapters import apply_adapter, inspect_adapter, preview_adapter
+from .build import build_site
 from .drafts import apply_original, create_draft, preview_original
 from .models import WorkbenchError
 from .preview import rebuild_preview_index
+from .status import collect_status, render_status, serialize_status
 
 
 class _SafeParser(argparse.ArgumentParser):
@@ -109,6 +111,22 @@ def run(argv: Sequence[str] | None = None) -> int:
             return code
         if args.command == "apply" and args.source in {"notion", "weread"}:
             return apply_adapter(args.source, args.export)
+        if args.command == "status":
+            status = collect_status()
+            print(
+                serialize_status(status) if args.json_output else render_status(status),
+                end="",
+            )
+            return 0
+        if args.command == "build":
+            result = build_site()
+            print(
+                "Public build: "
+                f"status={result.status} published={result.published} "
+                f"retained={result.retained} skipped={result.skipped} "
+                f"removed={result.removed}; report: build/reports/writings.json"
+            )
+            return 3 if result.status == "degraded" else 0
         if args.command != "new":
             raise WorkbenchError(
                 "not_implemented", f"{args.command} is not available in this implementation slice"
