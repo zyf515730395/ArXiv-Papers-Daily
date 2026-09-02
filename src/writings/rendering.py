@@ -21,7 +21,7 @@ import markdown
 from markdown.extensions.toc import TocExtension
 from markdown.treeprocessors import Treeprocessor
 
-from shared.site_shell import render_section_intro, render_site_page
+from shared.site_shell import SITE_NAME, render_section_intro, render_site_page
 
 from .models import AssetCopy, ManifestArticle, RenderedArticle, TocEntry, WritingArticle
 
@@ -643,7 +643,7 @@ def render_article_page(
         output_file=output_file,
         output_root=output_root,
         active_section="writings",
-        page_title=f"{article.title} · LOKEN",
+        page_title=f"{article.title} · {SITE_NAME}",
         meta_description=article.summary,
         secondary_navigation=_article_toc_navigation(rendered.toc, back_href),
         main_content=main_content,
@@ -761,7 +761,7 @@ def render_writings_index(
         output_file=output_file,
         output_root=output_root,
         active_section="writings",
-        page_title="谈笑风生 · LOKEN",
+        page_title=f"谈笑风生 · {SITE_NAME}",
         meta_description="还是要提高自己的知识水平",
         secondary_navigation=_index_navigation(records, active_filter, output_file, output_root),
         main_content=main_content,
