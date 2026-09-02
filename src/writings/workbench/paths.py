@@ -48,8 +48,16 @@ def preview_root() -> Path:
     return _checked(workbench_root() / "preview")
 
 
+def original_previews_root() -> Path:
+    return _checked(workbench_root() / "previews" / "original")
+
+
 def state_path() -> Path:
     return _checked(workbench_root() / "state.json")
+
+
+def review_path() -> Path:
+    return _checked(workbench_root() / "review.json")
 
 
 def report_path() -> Path:

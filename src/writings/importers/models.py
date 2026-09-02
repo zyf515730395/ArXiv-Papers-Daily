@@ -103,19 +103,25 @@ class WeReadImportError(WritingImportError):
 
 @dataclass(frozen=True, slots=True)
 class ImportNamespace:
-    name: Literal["notion-import", "weread-import"]
-    report_name: Literal["notion-import.json", "weread-import.json"]
+    name: Literal["notion-import", "weread-import", "writings-workbench"]
+    report_name: Literal[
+        "notion-import.json", "weread-import.json", "writings-workbench.json"
+    ]
 
     def __post_init__(self) -> None:
         if (self.name, self.report_name) not in {
             ("notion-import", "notion-import.json"),
             ("weread-import", "weread-import.json"),
+            ("writings-workbench", "writings-workbench.json"),
         }:
             raise ValueError("unsupported import namespace")
 
 
 NOTION_NAMESPACE = ImportNamespace("notion-import", "notion-import.json")
 WEREAD_NAMESPACE = ImportNamespace("weread-import", "weread-import.json")
+WORKBENCH_NAMESPACE = ImportNamespace(
+    "writings-workbench", "writings-workbench.json"
+)
 
 
 def _namespace_error(

@@ -60,3 +60,10 @@ class WorkbenchStatus:
     drafts: tuple[DraftRecord, ...]
     sources: tuple[SourceSummary, ...]
     build: BuildSummary
+
+
+@dataclass(frozen=True, slots=True)
+class OriginalResult:
+    slug: str
+    status: Literal["ready", "applied", "unchanged", "conflict", "blocked"]
+    issue: WorkbenchIssue | None = None

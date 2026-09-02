@@ -10,7 +10,7 @@ from typing import Sequence
 
 from writings.importers.models import PROJECT_ROOT
 
-from .drafts import create_draft
+from .drafts import apply_original, create_draft, preview_original
 from .models import WorkbenchError
 
 
@@ -23,7 +23,8 @@ class _SafeParser(argparse.ArgumentParser):
 def build_parser() -> argparse.ArgumentParser:
     parser = _SafeParser(prog="python -m writings.workbench")
     commands = parser.add_subparsers(dest="command", required=True)
-    commands.add_parser("status", help="show redacted local workflow status")
+    status = commands.add_parser("status", help="show redacted local workflow status")
+    status.add_argument("--json", action="store_true", dest="json_output")
 
     new = commands.add_parser("new", help="create a private original draft")
     new.add_argument("slug", metavar="SLUG")
@@ -33,13 +34,32 @@ def build_parser() -> argparse.ArgumentParser:
     )
     new.add_argument("--date", dest="published_at", metavar="YYYY-MM-DD")
 
-    for command, help_text in (
-        ("import", "inspect a local writing export"),
-        ("preview", "build a private reviewed preview"),
-        ("apply", "apply exact reviewed content"),
-    ):
-        child = commands.add_parser(command, help=help_text)
-        child.add_argument("arguments", nargs="*")
+    import_command = commands.add_parser("import", help="inspect a local writing export")
+    import_sources = import_command.add_subparsers(dest="source", required=True)
+    for source in ("notion", "weread"):
+        source_parser = import_sources.add_parser(source)
+        source_parser.add_argument("export", metavar="EXPORT")
+
+    preview = commands.add_parser("preview", help="build a private reviewed preview")
+    preview_sources = preview.add_subparsers(dest="source", required=True)
+    preview_original_parser = preview_sources.add_parser("original")
+    preview_original_parser.add_argument("slug", metavar="SLUG")
+    preview_notion = preview_sources.add_parser("notion")
+    preview_notion.add_argument("export", metavar="EXPORT")
+    preview_weread = preview_sources.add_parser("weread")
+    preview_weread.add_argument("export", metavar="EXPORT")
+    preview_weread.add_argument("--model", metavar="MODEL")
+    preview_weread.add_argument("--base-url", metavar="URL")
+    preview_weread.add_argument("--timeout", type=float, default=30.0, metavar="SECONDS")
+    preview_weread.add_argument("--refresh-summary", action="store_true")
+
+    apply = commands.add_parser("apply", help="apply exact reviewed content")
+    apply_sources = apply.add_subparsers(dest="source", required=True)
+    apply_original_parser = apply_sources.add_parser("original")
+    apply_original_parser.add_argument("slug", metavar="SLUG")
+    for source in ("notion", "weread"):
+        source_parser = apply_sources.add_parser(source)
+        source_parser.add_argument("export", metavar="EXPORT")
     commands.add_parser("build", help="build the complete public static site")
     return parser
 
@@ -56,6 +76,20 @@ def run(argv: Sequence[str] | None = None) -> int:
         return int(error.code or 0)
 
     try:
+        if args.command == "preview" and args.source == "original":
+            result = preview_original(args.slug)
+            print(
+                f"Original preview: slug={result.slug} status={result.status}; "
+                f"preview: build/writings-workbench/previews/original/{result.slug}/index.html"
+            )
+            return 3 if result.status in {"blocked", "conflict"} else 0
+        if args.command == "apply" and args.source == "original":
+            result = apply_original(args.slug)
+            print(
+                f"Original apply: slug={result.slug} status={result.status}; "
+                "report: build/reports/writings-workbench.json"
+            )
+            return 3 if result.status in {"blocked", "conflict"} else 0
         if args.command != "new":
             raise WorkbenchError(
                 "not_implemented", f"{args.command} is not available in this implementation slice"
