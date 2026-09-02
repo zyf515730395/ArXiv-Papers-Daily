@@ -157,6 +157,7 @@ def _rollback_replace_tree(target: Path, backup: Path | None) -> None:
 
 def preview_original(slug: str) -> OriginalResult:
     bundle = _draft_bundle(slug)
+    stage: Path | None = None
     try:
         article = validate_writing_bundle(bundle)
         if article.source != "original":
@@ -207,6 +208,14 @@ def preview_original(slug: str) -> OriginalResult:
         ) from error
     except OSError as error:
         raise WorkbenchError("preview_failed", "unable to build private preview") from error
+    finally:
+        if stage is not None and os.path.lexists(stage):
+            try:
+                shutil.rmtree(stage)
+            except OSError as error:
+                raise WorkbenchError(
+                    "recovery_required", "private preview staging cleanup requires attention"
+                ) from error
 
 
 def _serialize_apply_report(result: ImportRunResult) -> str:
