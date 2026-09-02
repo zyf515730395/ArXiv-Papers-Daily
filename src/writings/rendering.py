@@ -630,6 +630,7 @@ def render_article_page(
     )
     main_content = f"""    <article class="writing-article">
       <header class="writing-header">
+{render_section_intro("writings")}
         <h1>{escape(article.title)}</h1>
         <p class="writing-meta"><time datetime="{article.published_at.isoformat()}">{article.published_at.isoformat()}</time> · <a href="{escape(kind_href, quote=True)}">{escape(KIND_LABELS[article.kind])}</a></p>
         <p class="writing-summary">{escape(article.summary)}</p>
