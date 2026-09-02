@@ -13,7 +13,7 @@ import uuid
 from typing import Mapping
 
 from shared.rendering import atomic_write_text
-from shared.site_shell import render_site_page
+from shared.site_shell import SITE_NAME, render_site_page
 from writings import WritingCatalogError
 from writings.rendering import render_article, render_article_page
 
@@ -210,7 +210,7 @@ def _preview_index(result: ImportRunResult, site_root: Path) -> str:
         output_file=site_root / "index.html",
         output_root=site_root,
         active_section="writings",
-        page_title="WeChat Reading preview · TOGOS",
+        page_title=f"WeChat Reading preview · {SITE_NAME}",
         meta_description="Private local preview of reviewed reading summaries.",
         secondary_navigation="",
         main_content=main,

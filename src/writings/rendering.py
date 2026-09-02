@@ -21,7 +21,7 @@ import markdown
 from markdown.extensions.toc import TocExtension
 from markdown.treeprocessors import Treeprocessor
 
-from shared.site_shell import render_section_intro, render_site_page
+from shared.site_shell import SITE_NAME, render_section_intro, render_site_page
 
 from .models import AssetCopy, ManifestArticle, RenderedArticle, TocEntry, WritingArticle
 
@@ -643,7 +643,7 @@ def render_article_page(
         output_file=output_file,
         output_root=output_root,
         active_section="writings",
-        page_title=f"{article.title} · TOGOS",
+        page_title=f"{article.title} · {SITE_NAME}",
         meta_description=article.summary,
         secondary_navigation=_article_toc_navigation(rendered.toc, back_href),
         main_content=main_content,
@@ -709,33 +709,51 @@ def render_writings_index(
     """Render the chronological writings stream or one static filter view."""
     selected = _filtered_records(records, active_filter)
     if selected:
-        rows = []
-        for slug, record in selected:
+        def article_markup(slug: str, record: ManifestArticle, class_name: str) -> str:
             article_href = _writings_relative_link(output_file, output_root, record.page)
             kind_href = _writings_relative_link(output_file, output_root, f"kind/{record.kind}.html")
             tags = " ".join(
                 f'<a href="{escape(_writings_relative_link(output_file, output_root, f"tag/{tag}.html"), quote=True)}">#{escape(tag)}</a>'
                 for tag in record.tags
             )
-            rows.append(f"""      <article class="writing-entry">
+            return f"""      <article class="{class_name}">
         <p class="writing-meta"><time datetime="{escape(record.published_at, quote=True)}">{escape(record.published_at)}</time><a href="{escape(kind_href, quote=True)}">{escape(KIND_LABELS[record.kind])}</a></p>
         <div class="writing-entry-content">
           <h2><a href="{escape(article_href, quote=True)}">{escape(record.title)}</a></h2>
           <p>{escape(record.summary)}</p>
           <p class="writing-tags">{tags}</p>
         </div>
-      </article>""")
-        stream = "\n".join(rows)
+      </article>"""
+        featured_slug, featured_record = selected[0]
+        feature = article_markup(featured_slug, featured_record, "writing-feature")
+        rows = "\n".join(
+            article_markup(slug, record, "writing-entry")
+            for slug, record in selected[1:]
+        )
+        stream = f"""      <div class="writing-editorial-stream">
+{feature}
+        <div class="writing-stream">
+{rows}
+        </div>
+      </div>"""
     else:
-        stream = '      <p class="empty-section-copy">公开的学习笔记和读书笔记会在这里汇集。</p>'
+        stream = """      <div class="writing-editorial-stream">
+        <p class="empty-section-copy">公开的学习笔记和读书笔记即将汇集于此。</p>
+      </div>"""
+    source_rail = f"""      <aside class="writing-source-rail" aria-label="公开文章来源">
+        <p>PUBLIC SOURCES</p>
+        <ul><li>Notion</li><li>微信读书</li></ul>
+        <span>{len(selected)} 篇公开文章</span>
+      </aside>"""
     main_content = f"""    <section aria-labelledby="writings-title">
       <header class="writings-hero">
 {render_section_intro("writings")}
         <h1 id="writings-title">文章</h1>
         <p>{len(selected)} 篇公开记录 · 按发布日期倒序</p>
       </header>
-      <div class="writing-stream">
+      <div class="writing-editorial-layout">
 {stream}
+{source_rail}
       </div>
     </section>
 """
@@ -743,7 +761,7 @@ def render_writings_index(
         output_file=output_file,
         output_root=output_root,
         active_section="writings",
-        page_title="谈笑风生 · TOGOS",
+        page_title=f"谈笑风生 · {SITE_NAME}",
         meta_description="还是要提高自己的知识水平",
         secondary_navigation=_index_navigation(records, active_filter, output_file, output_root),
         main_content=main_content,
