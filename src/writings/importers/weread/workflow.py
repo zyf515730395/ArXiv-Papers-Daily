@@ -210,7 +210,7 @@ def _preview_index(result: ImportRunResult, site_root: Path) -> str:
         output_file=site_root / "index.html",
         output_root=site_root,
         active_section="writings",
-        page_title="WeChat Reading preview · TOGOS",
+        page_title="WeChat Reading preview · LOKEN",
         meta_description="Private local preview of reviewed reading summaries.",
         secondary_navigation="",
         main_content=main,
