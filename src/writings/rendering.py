@@ -777,10 +777,12 @@ def render_writings_index(
         <span>{len(selected)} 篇公开文章</span>
       </aside>"""
     main_content = f"""    <section aria-labelledby="section-writings-title">
-      <header class="writings-hero">
+      <div class="section-sticky-header">
+      <header class="writings-hero section-header">
 {render_section_intro("writings")}
       </header>
 {render_writings_navigation(output_file, output_root, active_latest=active_filter is None)}
+      </div>
       <details class="content-tools">
         <summary>文章筛选</summary>
         <nav class="content-tools-navigation" aria-label="文章筛选">
