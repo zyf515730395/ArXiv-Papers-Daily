@@ -21,7 +21,7 @@ import markdown
 from markdown.extensions.toc import TocExtension
 from markdown.treeprocessors import Treeprocessor
 
-from shared.site_shell import SITE_NAME, render_context_strip, render_section_intro, render_site_page
+from shared.site_shell import SITE_NAME, render_section_intro, render_site_page
 
 from .models import AssetCopy, ManifestArticle, RenderedArticle, TocEntry, WritingArticle
 
@@ -636,7 +636,7 @@ def render_article_page(
         <p class="writing-summary">{escape(article.summary)}</p>
         <p class="writing-tags">{tag_links}</p>
       </header>
-{render_context_strip((("ARTICLE", "#top"),))}
+{render_writings_navigation(output_file, output_root)}
       <div class="writing-body">{rendered.html}</div>
     </article>
 """
@@ -700,6 +700,24 @@ def _index_navigation(
     return "\n".join(lines)
 
 
+def render_writings_navigation(output_file: Path, output_root: Path) -> str:
+    """Render the planned editorial channels without inventing articles."""
+    latest_href = _writings_relative_link(output_file, output_root, "index.html")
+    items = [
+        f'    <a class="context-strip-link is-active" href="{escape(latest_href, quote=True)}" '
+        'aria-current="location">LATEST</a>',
+    ]
+    items.extend(
+        f'    <span class="context-strip-link is-disabled" aria-disabled="true">{escape(label)}</span>'
+        for label in ("CV", "历史", "政治经济", "文摘")
+    )
+    return (
+        '<nav class="context-strip" aria-label="文章栏目">\n'
+        + "\n".join(items)
+        + "\n  </nav>"
+    )
+
+
 def render_writings_index(
     records: Mapping[str, ManifestArticle],
     *,
@@ -746,13 +764,11 @@ def render_writings_index(
         <ul><li>Notion</li><li>微信读书</li></ul>
         <span>{len(selected)} 篇公开文章</span>
       </aside>"""
-    main_content = f"""    <section aria-labelledby="writings-title">
+    main_content = f"""    <section aria-labelledby="section-writings-title">
       <header class="writings-hero">
 {render_section_intro("writings")}
-        <h1 id="writings-title">文章</h1>
-        <p>{len(selected)} 篇公开记录 · 按发布日期倒序</p>
       </header>
-{render_context_strip((("LATEST", "#writings-title"),))}
+{render_writings_navigation(output_file, output_root)}
       <div class="writing-editorial-layout">
 {stream}
 {source_rail}
