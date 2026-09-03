@@ -21,11 +21,11 @@
       if (contextOpen === "false") document.documentElement.dataset.contextOpen = "true";
     })();
   </script>
-  <link rel="stylesheet" href="../assets/css/site.css?v=6">
-  <script src="../assets/js/site-shell.js?v=6" defer></script>
-  <script src="../assets/js/search-core.js?v=6" defer></script>
-  <script src="../assets/js/search.js?v=6" defer></script>
-  <script src="../assets/js/sidebar.js?v=6" defer></script>
+  <link rel="stylesheet" href="../assets/css/site.css?v=8">
+  <script src="../assets/js/site-shell.js?v=8" defer></script>
+  <script src="../assets/js/search-core.js?v=8" defer></script>
+  <script src="../assets/js/search.js?v=8" defer></script>
+  <script src="../assets/js/sidebar.js?v=8" defer></script>
 </head>
 <body data-site-root="../" data-active-section="journeys" class="journey-page">
   <header class="site-utility" aria-label="页面工具">
@@ -45,7 +45,6 @@
         <div id="search-results" class="search-results" data-search-results role="listbox"></div>
       </div>
     </div>
-    <button class="context-toggle" type="button" data-context-toggle aria-controls="context-drawer" aria-expanded="false">INDEX <span aria-hidden="true">☰</span></button>
     <button class="theme-toggle" type="button" aria-label="切换颜色主题" aria-pressed="false">
       <span data-theme-icon aria-hidden="true"></span>
     </button>
@@ -89,6 +88,10 @@
         <h1 id="journey-title">跑得还快</h1>
         <p>城市档案尚未开放。这里会保留走过的城市与拍下的瞬间。</p>
       </header>
+<nav class="context-strip" aria-label="本页快捷目录">
+    <a class="context-strip-link is-active" href="#journey-title" aria-current="location">WORLD MAP</a>
+    <button class="context-toggle" type="button" data-context-toggle aria-controls="context-drawer" aria-expanded="false">INDEX <span aria-hidden="true">☰</span></button>
+  </nav>
       <div class="journey-map-placeholder" aria-label="尚未开放的城市地图档案">
         <div class="journey-map-grid" aria-hidden="true"><span class="journey-world-silhouette"></span></div>
         <aside class="journey-photo-contact">

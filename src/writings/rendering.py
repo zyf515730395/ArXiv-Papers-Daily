@@ -21,7 +21,7 @@ import markdown
 from markdown.extensions.toc import TocExtension
 from markdown.treeprocessors import Treeprocessor
 
-from shared.site_shell import SITE_NAME, render_section_intro, render_site_page
+from shared.site_shell import SITE_NAME, render_context_strip, render_section_intro, render_site_page
 
 from .models import AssetCopy, ManifestArticle, RenderedArticle, TocEntry, WritingArticle
 
@@ -636,6 +636,7 @@ def render_article_page(
         <p class="writing-summary">{escape(article.summary)}</p>
         <p class="writing-tags">{tag_links}</p>
       </header>
+{render_context_strip((("ARTICLE", "#top"),))}
       <div class="writing-body">{rendered.html}</div>
     </article>
 """
@@ -751,6 +752,7 @@ def render_writings_index(
         <h1 id="writings-title">文章</h1>
         <p>{len(selected)} 篇公开记录 · 按发布日期倒序</p>
       </header>
+{render_context_strip((("LATEST", "#writings-title"),))}
       <div class="writing-editorial-layout">
 {stream}
 {source_rail}

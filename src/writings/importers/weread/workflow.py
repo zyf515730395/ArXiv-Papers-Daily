@@ -13,7 +13,7 @@ import uuid
 from typing import Mapping
 
 from shared.rendering import atomic_write_text
-from shared.site_shell import SITE_NAME, render_site_page
+from shared.site_shell import SITE_NAME, render_context_strip, render_site_page
 from writings import WritingCatalogError
 from writings.rendering import render_article, render_article_page
 
@@ -202,7 +202,9 @@ def _preview_index(result: ImportRunResult, site_root: Path) -> str:
             + f"<p>{html.escape(feedback)}</p></li>"
         )
     main = (
-        "    <section><h1>WeChat Reading preview</h1><ul>\n"
+        "    <section><h1>WeChat Reading preview</h1>\n"
+        + render_context_strip((("PREVIEW", "#top"),))
+        + "<ul>\n"
         + "\n".join(rows)
         + "\n    </ul></section>\n"
     )

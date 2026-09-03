@@ -21,11 +21,11 @@
       if (contextOpen === "false") document.documentElement.dataset.contextOpen = "true";
     })();
   </script>
-  <link rel="stylesheet" href="../assets/css/site.css?v=6">
-  <script src="../assets/js/site-shell.js?v=6" defer></script>
-  <script src="../assets/js/search-core.js?v=6" defer></script>
-  <script src="../assets/js/search.js?v=6" defer></script>
-  <script src="../assets/js/sidebar.js?v=6" defer></script>
+  <link rel="stylesheet" href="../assets/css/site.css?v=8">
+  <script src="../assets/js/site-shell.js?v=8" defer></script>
+  <script src="../assets/js/search-core.js?v=8" defer></script>
+  <script src="../assets/js/search.js?v=8" defer></script>
+  <script src="../assets/js/sidebar.js?v=8" defer></script>
 </head>
 <body data-site-root="../" data-active-section="writings" class="writings-index-page">
   <header class="site-utility" aria-label="页面工具">
@@ -45,7 +45,6 @@
         <div id="search-results" class="search-results" data-search-results role="listbox"></div>
       </div>
     </div>
-    <button class="context-toggle" type="button" data-context-toggle aria-controls="context-drawer" aria-expanded="false">INDEX <span aria-hidden="true">☰</span></button>
     <button class="theme-toggle" type="button" aria-label="切换颜色主题" aria-pressed="false">
       <span data-theme-icon aria-hidden="true"></span>
     </button>
@@ -93,6 +92,10 @@
         <h1 id="writings-title">文章</h1>
         <p>0 篇公开记录 · 按发布日期倒序</p>
       </header>
+<nav class="context-strip" aria-label="本页快捷目录">
+    <a class="context-strip-link is-active" href="#writings-title" aria-current="location">LATEST</a>
+    <button class="context-toggle" type="button" data-context-toggle aria-controls="context-drawer" aria-expanded="false">INDEX <span aria-hidden="true">☰</span></button>
+  </nav>
       <div class="writing-editorial-layout">
       <div class="writing-editorial-stream">
         <p class="empty-section-copy">公开的学习笔记和读书笔记即将汇集于此。</p>
