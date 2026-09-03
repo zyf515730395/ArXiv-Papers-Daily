@@ -631,12 +631,18 @@ def render_article_page(
     main_content = f"""    <article class="writing-article">
       <header class="writing-header">
 {render_section_intro("writings")}
-        <h1>{escape(article.title)}</h1>
+        <h2>{escape(article.title)}</h2>
         <p class="writing-meta"><time datetime="{article.published_at.isoformat()}">{article.published_at.isoformat()}</time> · <a href="{escape(kind_href, quote=True)}">{escape(KIND_LABELS[article.kind])}</a></p>
         <p class="writing-summary">{escape(article.summary)}</p>
         <p class="writing-tags">{tag_links}</p>
       </header>
-{render_writings_navigation(output_file, output_root)}
+{render_writings_navigation(output_file, output_root, active_latest=False)}
+      <details class="content-tools" open>
+        <summary>文章目录</summary>
+        <nav class="content-tools-navigation" aria-label="文章目录">
+{_article_toc_navigation(rendered.toc, back_href)}
+        </nav>
+      </details>
       <div class="writing-body">{rendered.html}</div>
     </article>
 """
@@ -646,7 +652,6 @@ def render_article_page(
         active_section="writings",
         page_title=f"{article.title} · {SITE_NAME}",
         meta_description=article.summary,
-        secondary_navigation=_article_toc_navigation(rendered.toc, back_href),
         main_content=main_content,
         body_class="writing-article-page",
         head_content="  <style>.writing-body { max-width: 52rem; }</style>\n",
@@ -700,12 +705,19 @@ def _index_navigation(
     return "\n".join(lines)
 
 
-def render_writings_navigation(output_file: Path, output_root: Path) -> str:
+def render_writings_navigation(
+    output_file: Path,
+    output_root: Path,
+    *,
+    active_latest: bool,
+) -> str:
     """Render the planned editorial channels without inventing articles."""
     latest_href = _writings_relative_link(output_file, output_root, "index.html")
+    active_class = " is-active" if active_latest else ""
+    current = ' aria-current="location"' if active_latest else ""
     items = [
-        f'    <a class="context-strip-link is-active" href="{escape(latest_href, quote=True)}" '
-        'aria-current="location">LATEST</a>',
+        f'    <a class="context-strip-link{active_class}" '
+        f'href="{escape(latest_href, quote=True)}"{current}>LATEST</a>',
     ]
     items.extend(
         f'    <span class="context-strip-link is-disabled" aria-disabled="true">{escape(label)}</span>'
@@ -768,7 +780,13 @@ def render_writings_index(
       <header class="writings-hero">
 {render_section_intro("writings")}
       </header>
-{render_writings_navigation(output_file, output_root)}
+{render_writings_navigation(output_file, output_root, active_latest=active_filter is None)}
+      <details class="content-tools">
+        <summary>文章筛选</summary>
+        <nav class="content-tools-navigation" aria-label="文章筛选">
+{_index_navigation(records, active_filter, output_file, output_root)}
+        </nav>
+      </details>
       <div class="writing-editorial-layout">
 {stream}
 {source_rail}
@@ -781,7 +799,6 @@ def render_writings_index(
         active_section="writings",
         page_title=f"谈笑风生 · {SITE_NAME}",
         meta_description="还是要提高自己的知识水平",
-        secondary_navigation=_index_navigation(records, active_filter, output_file, output_root),
         main_content=main_content,
         body_class="writings-index-page",
     )

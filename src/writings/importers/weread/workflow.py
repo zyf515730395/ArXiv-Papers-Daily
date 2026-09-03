@@ -214,7 +214,6 @@ def _preview_index(result: ImportRunResult, site_root: Path) -> str:
         active_section="writings",
         page_title=f"WeChat Reading preview · {SITE_NAME}",
         meta_description="Private local preview of reviewed reading summaries.",
-        secondary_navigation="",
         main_content=main,
     )
 
