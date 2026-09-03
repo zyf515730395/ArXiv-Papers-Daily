@@ -21,7 +21,7 @@ import markdown
 from markdown.extensions.toc import TocExtension
 from markdown.treeprocessors import Treeprocessor
 
-from shared.site_shell import SITE_NAME, render_context_strip, render_section_intro, render_site_page
+from shared.site_shell import SITE_NAME, render_section_intro, render_site_page
 
 from .models import AssetCopy, ManifestArticle, RenderedArticle, TocEntry, WritingArticle
 
@@ -631,12 +631,18 @@ def render_article_page(
     main_content = f"""    <article class="writing-article">
       <header class="writing-header">
 {render_section_intro("writings")}
-        <h1>{escape(article.title)}</h1>
+        <h2>{escape(article.title)}</h2>
         <p class="writing-meta"><time datetime="{article.published_at.isoformat()}">{article.published_at.isoformat()}</time> · <a href="{escape(kind_href, quote=True)}">{escape(KIND_LABELS[article.kind])}</a></p>
         <p class="writing-summary">{escape(article.summary)}</p>
         <p class="writing-tags">{tag_links}</p>
       </header>
-{render_context_strip((("ARTICLE", "#top"),))}
+{render_writings_navigation(output_file, output_root, active_latest=False)}
+      <details class="content-tools" open>
+        <summary>文章目录</summary>
+        <nav class="content-tools-navigation" aria-label="文章目录">
+{_article_toc_navigation(rendered.toc, back_href)}
+        </nav>
+      </details>
       <div class="writing-body">{rendered.html}</div>
     </article>
 """
@@ -646,7 +652,6 @@ def render_article_page(
         active_section="writings",
         page_title=f"{article.title} · {SITE_NAME}",
         meta_description=article.summary,
-        secondary_navigation=_article_toc_navigation(rendered.toc, back_href),
         main_content=main_content,
         body_class="writing-article-page",
         head_content="  <style>.writing-body { max-width: 52rem; }</style>\n",
@@ -700,6 +705,31 @@ def _index_navigation(
     return "\n".join(lines)
 
 
+def render_writings_navigation(
+    output_file: Path,
+    output_root: Path,
+    *,
+    active_latest: bool,
+) -> str:
+    """Render the planned editorial channels without inventing articles."""
+    latest_href = _writings_relative_link(output_file, output_root, "index.html")
+    active_class = " is-active" if active_latest else ""
+    current = ' aria-current="location"' if active_latest else ""
+    items = [
+        f'    <a class="context-strip-link{active_class}" '
+        f'href="{escape(latest_href, quote=True)}"{current}>LATEST</a>',
+    ]
+    items.extend(
+        f'    <span class="context-strip-link is-disabled" aria-disabled="true">{escape(label)}</span>'
+        for label in ("CV", "历史", "政治经济", "文摘")
+    )
+    return (
+        '<nav class="context-strip" aria-label="文章栏目">\n'
+        + "\n".join(items)
+        + "\n  </nav>"
+    )
+
+
 def render_writings_index(
     records: Mapping[str, ManifestArticle],
     *,
@@ -746,13 +776,17 @@ def render_writings_index(
         <ul><li>Notion</li><li>微信读书</li></ul>
         <span>{len(selected)} 篇公开文章</span>
       </aside>"""
-    main_content = f"""    <section aria-labelledby="writings-title">
+    main_content = f"""    <section aria-labelledby="section-writings-title">
       <header class="writings-hero">
 {render_section_intro("writings")}
-        <h1 id="writings-title">文章</h1>
-        <p>{len(selected)} 篇公开记录 · 按发布日期倒序</p>
       </header>
-{render_context_strip((("LATEST", "#writings-title"),))}
+{render_writings_navigation(output_file, output_root, active_latest=active_filter is None)}
+      <details class="content-tools">
+        <summary>文章筛选</summary>
+        <nav class="content-tools-navigation" aria-label="文章筛选">
+{_index_navigation(records, active_filter, output_file, output_root)}
+        </nav>
+      </details>
       <div class="writing-editorial-layout">
 {stream}
 {source_rail}
@@ -765,7 +799,6 @@ def render_writings_index(
         active_section="writings",
         page_title=f"谈笑风生 · {SITE_NAME}",
         meta_description="还是要提高自己的知识水平",
-        secondary_navigation=_index_navigation(records, active_filter, output_file, output_root),
         main_content=main_content,
         body_class="writings-index-page",
     )

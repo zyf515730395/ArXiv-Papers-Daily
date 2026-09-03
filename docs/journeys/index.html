@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="记录走过的城市与拍下的瞬间">
+  <meta name="description" content="比哪方记者跑得都快">
   <title>跑得还快 · LOKEN</title>
   <script>
     (() => {
@@ -21,11 +21,11 @@
       if (contextOpen === "false") document.documentElement.dataset.contextOpen = "true";
     })();
   </script>
-  <link rel="stylesheet" href="../assets/css/site.css?v=9">
-  <script src="../assets/js/site-shell.js?v=9" defer></script>
-  <script src="../assets/js/search-core.js?v=9" defer></script>
-  <script src="../assets/js/search.js?v=9" defer></script>
-  <script src="../assets/js/sidebar.js?v=9" defer></script>
+  <link rel="stylesheet" href="../assets/css/site.css?v=11">
+  <script src="../assets/js/site-shell.js?v=11" defer></script>
+  <script src="../assets/js/search-core.js?v=11" defer></script>
+  <script src="../assets/js/search.js?v=11" defer></script>
+  <script src="../assets/js/sidebar.js?v=11" defer></script>
 </head>
 <body data-site-root="../" data-active-section="journeys" class="journey-page">
   <header class="site-utility" aria-label="页面工具">
@@ -50,7 +50,6 @@
     </button>
   </header>
   <div class="sidebar-scrim" data-sidebar-close></div>
-  <div class="context-scrim" data-context-scrim></div>
 <div class="navigation-shell" id="navigation-shell">
   <button class="navigation-close" type="button" data-navigation-close
           aria-label="关闭导航" hidden>×</button>
@@ -58,43 +57,29 @@
     <a class="primary-brand" href="../index.html" aria-label="LOKEN 首页"><img class="brand-logo" src="../assets/images/loken-logo.png" width="1990" height="329" alt=""></a>
     <div class="primary-menu" aria-hidden="true"><span>MENU</span><span>☰</span></div>
     <nav class="primary-navigation" aria-label="知识主题">
-      <a class="primary-nav-item" href="../index.html"><span class="primary-nav-copy"><span class="primary-nav-label">学习一个</span><span class="primary-nav-meta">01 / PAPER SIGNALS</span></span></a>
-      <a class="primary-nav-item" href="../milestone-models/flux.html"><span class="primary-nav-copy"><span class="primary-nav-label">身经百战</span><span class="primary-nav-meta">02 / MODEL ARCHIVE</span></span></a>
-      <a class="primary-nav-item" href="../writings/index.html"><span class="primary-nav-copy"><span class="primary-nav-label">谈笑风生</span><span class="primary-nav-meta">03 / FIELD NOTES</span></span></a>
-      <a class="primary-nav-item is-active" href="../journeys/index.html" aria-current="page"><span class="primary-nav-copy"><span class="primary-nav-label">跑得还快</span><span class="primary-nav-meta">04 / CITY MEMORY</span></span></a>
+      <a class="primary-nav-item" href="../index.html"><span class="primary-nav-copy"><span class="primary-nav-label">学习一个</span><span class="primary-nav-meta">01 / PAPERS</span></span></a>
+      <a class="primary-nav-item" href="../milestone-models/flux.html"><span class="primary-nav-copy"><span class="primary-nav-label">身经百战</span><span class="primary-nav-meta">02 / CLASSIC MODELS</span></span></a>
+      <a class="primary-nav-item" href="../writings/index.html"><span class="primary-nav-copy"><span class="primary-nav-label">谈笑风生</span><span class="primary-nav-meta">03 / ARTICLES</span></span></a>
+      <a class="primary-nav-item is-active" href="../journeys/index.html" aria-current="page"><span class="primary-nav-copy"><span class="primary-nav-label">跑得还快</span><span class="primary-nav-meta">04 / TRAVELS</span></span></a>
     </nav>
     <div class="primary-sidebar-status"><span>LAST SYNC</span><strong>AUTOMATED / WEEKDAYS</strong></div>
   </aside>
-  <div id="paper-sidebar">
-  <aside class="context-drawer" id="context-drawer" aria-label="本页目录">
-    <header class="context-drawer-header">
-      <span>INDEX</span>
-      <button type="button" data-context-close aria-label="关闭本页目录">×</button>
-    </header>
-    <nav id="context-navigation" class="context-navigation">
-      <a class="context-overview is-active" href="#top" aria-current="page">页面概览</a>
-    </nav>
-  </aside>
-  </div>
 </div>
   <main class="page-content" id="top">
-    <section class="journey-archive" aria-labelledby="journey-title">
-      <div class="section-intro">
-        <p class="section-intro-label">跑得还快</p>
-        <p class="section-intro-description">记录走过的城市与拍下的瞬间</p>
-      </div>
+    <section class="journey-archive" aria-labelledby="section-journeys-title">
       <header class="journey-header">
-        <p>CITY MEMORY / FUTURE ARCHIVE</p>
-        <h1 id="journey-title">跑得还快</h1>
-        <p>城市档案尚未开放。这里会保留走过的城市与拍下的瞬间。</p>
+      <div class="section-intro">
+        <h1 class="section-intro-title" id="section-journeys-title">TRAVELS</h1>
+        <p class="section-intro-description">比哪方记者跑得都快</p>
+      </div>
       </header>
 <nav class="context-strip" aria-label="本页快捷目录">
-    <a class="context-strip-link is-active" href="#journey-title" aria-current="location">WORLD MAP</a>
-    <button class="context-toggle" type="button" data-context-toggle aria-controls="context-drawer" aria-expanded="false">INDEX <span aria-hidden="true">☰</span></button>
+    <a class="context-strip-link is-active" href="#world-map" aria-current="location">WORLD MAP</a>
+    <a class="context-strip-link" href="#photography">PHOTOGRAPHY</a>
   </nav>
-      <div class="journey-map-placeholder" aria-label="尚未开放的城市地图档案">
+      <div class="journey-map-placeholder" id="world-map" aria-label="尚未开放的城市地图档案">
         <div class="journey-map-grid" aria-hidden="true"><span class="journey-world-silhouette"></span></div>
-        <aside class="journey-photo-contact">
+        <aside class="journey-photo-contact" id="photography">
           <div class="journey-photo-contact-surface" aria-hidden="true"></div>
           <p>摄影接触表将随首批城市档案一同出现。</p>
         </aside>
